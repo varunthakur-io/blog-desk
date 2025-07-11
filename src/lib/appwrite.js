@@ -1,7 +1,7 @@
 import { Client, Account, ID } from 'appwrite';
 import { appwriteConfig } from '../conf/appwriteConfig';
 
-export class AuthService {
+class AuthService {
   constructor() {
     this.client = new Client()
       .setEndpoint(appwriteConfig.url)
@@ -60,3 +60,6 @@ export class AuthService {
     }
   }
 }
+
+// Export a single shared instance
+export const authService = new AuthService();
