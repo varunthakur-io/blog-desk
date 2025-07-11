@@ -27,9 +27,6 @@ const Login = () => {
     setError('');
 
     try {
-      // Ensure user is logged out before login
-      await authService.logout();
-
       await authService.loginUser(formData);
       const account = await authService.getAccount();
       dispatch(setUser(account));
