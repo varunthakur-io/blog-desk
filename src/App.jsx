@@ -10,8 +10,8 @@ import Dashboard from './pages/Dashboard';
 import CreatePost from './pages/CreatePost';
 import Home from './pages/Home';
 
-import Navbar from './components/Navbar';
 import { Routes, Route } from 'react-router-dom';
+import MainLayout from './layout/MainLayout';
 
 function App() {
   const dispatch = useDispatch();
@@ -31,16 +31,18 @@ function App() {
   }, [dispatch]);
 
   return (
-    <>
-      <Navbar />
-      <Routes>
+    <Routes>
+      {/* Routes wrapped with MainLayout (Navbar visible) */}
+      <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/create" element={<CreatePost />} />
-      </Routes>
-    </>
+      </Route>
+
+      {/* Auth routes with no Navbar */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+    </Routes>
   );
 }
 
