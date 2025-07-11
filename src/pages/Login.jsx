@@ -27,7 +27,7 @@ const Login = () => {
     setError('');
 
     try {
-      await authService.loginUser(formData.email, formData.password);
+      await authService.loginUser(formData);
       const account = await authService.getAccount();
       dispatch(setUser(account));
       navigate('/dashboard'); // or wherever you want to redirect
