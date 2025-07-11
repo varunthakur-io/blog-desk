@@ -21,7 +21,7 @@ class AuthService {
   }
 
   // Login user with email & password
-  async loginUser(email, password) {
+  async loginUser({ email, password }) {
     try {
       return await this.account.createEmailPasswordSession(email, password);
     } catch (error) {
