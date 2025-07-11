@@ -1,19 +1,18 @@
 import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { setUser } from '../store/authSlice';
 import { authService } from '../services/authService';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  // Initial form state
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  // State for loading, error, and success messages
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
 
-  // Handle input changes
+  // Handle input change
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
@@ -23,25 +22,22 @@ const Login = () => {
 
   // Handle form submit
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent page reload
+    e.preventDefault();
     setLoading(true);
     setError('');
-    setSuccess(false);
 
     try {
-      await authService.loginUser(formData);
-      setSuccess(true);
-      setFormData({
-        email: '',
-        password: '',
-      }); // Reset form
+      await authService.loginUser(formData.email, formData.password);
+      const account = await authService.getAccount();
+      dispatch(setUser(account));
+      navigate('/dashboard'); // or wherever you want to redirect
     } catch (err) {
-      // Handle login error
       setError(err.message || 'Login failed');
     } finally {
       setLoading(false);
     }
   };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-800 px-4">
       <form
@@ -50,7 +46,6 @@ const Login = () => {
       >
         <h2 className="text-xl font-semibold text-center">Log In</h2>
 
-        {/* Input fields for email and password */}
         <input
           type="email"
           name="email"
@@ -79,12 +74,6 @@ const Login = () => {
           {loading ? 'Logging in...' : 'Log In'}
         </button>
 
-        {/* Display success or error messages */}
-        {success && (
-          <p className="text-sm text-green-500 text-center">
-            Login successful!
-          </p>
-        )}
         {error && <p className="text-sm text-red-500 text-center">{error}</p>}
       </form>
     </div>
