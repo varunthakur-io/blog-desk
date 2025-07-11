@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { clearUser } from '../store/authSlice';
 
@@ -20,30 +20,33 @@ const Navbar = () => {
     }
   };
 
+  // Utility function for nav link styling
+  const navLinkStyle = ({ isActive }) =>
+    isActive
+      ? 'text-blue-600 font-semibold'
+      : 'text-gray-700 hover:text-blue-600';
+
   return (
     <header className="bg-white shadow-sm">
       <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
         {/* Logo */}
-        <Link to="/" className="text-xl font-bold text-blue-600">
+        <NavLink to="/" className="text-xl font-bold text-blue-600">
           Blog Desk
-        </Link>
+        </NavLink>
 
         {/* Navigation Links */}
         <nav className="space-x-4">
           {isLoggedIn && (
             <>
-              <Link to="/" className="text-gray-700 hover:text-blue-600">
+              <NavLink to="/" className={navLinkStyle}>
                 Home
-              </Link>
-              <Link
-                to="/dashboard"
-                className="text-gray-700 hover:text-blue-600"
-              >
+              </NavLink>
+              <NavLink to="/dashboard" className={navLinkStyle}>
                 Dashboard
-              </Link>
-              <Link to="/create" className="text-gray-700 hover:text-blue-600">
+              </NavLink>
+              <NavLink to="/create" className={navLinkStyle}>
                 New Post
-              </Link>
+              </NavLink>
             </>
           )}
         </nav>
@@ -57,12 +60,12 @@ const Navbar = () => {
             Logout
           </button>
         ) : (
-          <Link
+          <NavLink
             to="/login"
             className="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
           >
             Login
-          </Link>
+          </NavLink>
         )}
       </div>
     </header>
