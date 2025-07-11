@@ -1,11 +1,11 @@
 import { Client, Account, ID } from 'appwrite';
-import { appwriteConfig } from '../conf/appwriteConfig';
+import { appwriteConfig as appwrite } from '../config/appwrite';
 
 class AuthService {
   constructor() {
     this.client = new Client()
-      .setEndpoint(appwriteConfig.url)
-      .setProject(appwriteConfig.projectId);
+      .setEndpoint(appwrite.url)
+      .setProject(appwrite.projectId);
 
     this.account = new Account(this.client);
   }
@@ -50,7 +50,7 @@ class AuthService {
     }
   }
 
-  // ✅ Delete specific session (optional, e.g. admin use)
+  // Delete specific session (optional, e.g. admin use)
   async deleteSession(sessionId) {
     try {
       return await this.account.deleteSession(sessionId);

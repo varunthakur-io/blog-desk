@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { authService } from '../lib/appwrite';
+import { authService } from '../services/authService';
 
-const Signup = () => {
+const Login = () => {
   // Initial form state
   const [formData, setFormData] = useState({
-    name: '',
     email: '',
     password: '',
   });
@@ -30,40 +29,28 @@ const Signup = () => {
     setSuccess(false);
 
     try {
-      // Create user using Appwrite auth service
-      await authService.createUser(formData);
+      await authService.loginUser(formData);
       setSuccess(true);
-      setFormData({ name: '', email: '', password: '' }); // Reset form
+      setFormData({
+        email: '',
+        password: '',
+      }); // Reset form
     } catch (err) {
-      // Handle signup error
-      setError(err.message || 'Signup failed');
+      // Handle login error
+      setError(err.message || 'Login failed');
     } finally {
       setLoading(false);
     }
   };
-
   return (
-    // Center the form on screen
     <div className="min-h-screen flex items-center justify-center bg-gray-800 px-4">
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-sm p-6 bg-white rounded-2xl shadow-md space-y-4"
       >
-        {/* Form heading */}
-        <h2 className="text-xl font-semibold text-center">Create Account</h2>
+        <h2 className="text-xl font-semibold text-center">Log In</h2>
 
-        {/* Name input */}
-        <input
-          type="text"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          placeholder="Name"
-          className="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
-          required
-        />
-
-        {/* Email input */}
+        {/* Input fields for email and password */}
         <input
           type="email"
           name="email"
@@ -74,7 +61,6 @@ const Signup = () => {
           required
         />
 
-        {/* Password input */}
         <input
           type="password"
           name="password"
@@ -85,27 +71,24 @@ const Signup = () => {
           required
         />
 
-        {/* Submit button */}
         <button
           type="submit"
           className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-150"
           disabled={loading}
         >
-          {loading ? 'Creating...' : 'Sign Up'}
+          {loading ? 'Logging in...' : 'Log In'}
         </button>
 
-        {/* Error message */}
-        {error && <p className="text-sm text-red-500 text-center">{error}</p>}
-
-        {/* Success message */}
+        {/* Display success or error messages */}
         {success && (
-          <p className="text-sm text-green-600 text-center">
-            Signup successful!
+          <p className="text-sm text-green-500 text-center">
+            Login successful!
           </p>
         )}
+        {error && <p className="text-sm text-red-500 text-center">{error}</p>}
       </form>
     </div>
   );
 };
 
-export default Signup;
+export default Login;
