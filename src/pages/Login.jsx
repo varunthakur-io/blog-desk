@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { setUser } from '../store/authSlice';
 import { authService } from '../services/authService';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -73,6 +73,13 @@ const Login = () => {
         >
           {loading ? 'Logging in...' : 'Log In'}
         </button>
+
+        <p className="text-sm text-center">
+          Don't have an account?{' '}
+          <Link to="/signup" className="text-blue-600 hover:underline">
+            Sign up
+          </Link>
+        </p>
 
         {error && <p className="text-sm text-red-500 text-center">{error}</p>}
       </form>
