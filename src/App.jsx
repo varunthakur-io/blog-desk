@@ -10,6 +10,8 @@ import Dashboard from './pages/Dashboard';
 import CreatePost from './pages/CreatePost';
 import Home from './pages/Home';
 
+import PrivateRoute from './components/PrivateRoute';
+
 import { Routes, Route } from 'react-router-dom';
 import MainLayout from './layout/MainLayout';
 
@@ -32,14 +34,18 @@ function App() {
 
   return (
     <Routes>
-      {/* Routes wrapped with MainLayout (Navbar visible) */}
+      {/* Routes with layout */}
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/create" element={<CreatePost />} />
+
+        {/* 🔒 Protected Routes */}
+        <Route element={<PrivateRoute />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/create" element={<CreatePost />} />
+        </Route>
       </Route>
 
-      {/* Auth routes with no Navbar */}
+      {/* Auth pages (no layout) */}
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
     </Routes>

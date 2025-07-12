@@ -1,17 +1,10 @@
 import { useEffect, useState } from 'react';
 import { postService } from '../services/postService';
-import { Link, useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-
-  const { user } = useSelector((state) => state.auth);
-
-  const isLoggedIn = !!user;
-  if (!isLoggedIn) navigate('/login');
 
   useEffect(() => {
     const fetchPosts = async () => {
