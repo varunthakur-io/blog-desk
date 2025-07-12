@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { postService } from '../services/postService';
-import { Link } from 'react-router-dom';
+import PostCard from '../components/PostCard';
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
@@ -21,40 +21,31 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6">
-      <h1 className="text-3xl font-bold mb-4 text-blue-700">Latest Posts</h1>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6 sm:p-10">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-5xl font-extrabold mb-12 text-gray-900 text-center tracking-tight leading-tight">
+          Explore Our Latest Insights
+        </h1>
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : posts.length === 0 ? (
-        <p>No posts yet.</p>
-      ) : (
-        <div className="space-y-6">
-          {posts.map((post) => (
-            <div
-              key={post.$id}
-              className="border rounded-xl p-4 shadow hover:shadow-md transition"
-            >
-              <h2 className="text-xl font-semibold">{post.title}</h2>
-              <p className="text-gray-700 mt-2">
-                {post.content.length > 100
-                  ? post.content.slice(0, 100) + '...'
-                  : post.content}
-              </p>
-              <div className="text-sm text-gray-500 mt-2">
-                By <b>{post.authorId}</b> on{' '}
-                {new Date(post.createdAt).toLocaleDateString()}
-              </div>
-              <Link
-                to={`/posts/${post.$id}`}
-                className="text-blue-600 text-sm inline-block mt-2 hover:underline"
-              >
-                Read more →
-              </Link>
-            </div>
-          ))}
-        </div>
-      )}
+        {loading ? (
+          <div className="text-center py-20">
+            <div className="animate-pulse rounded-full h-16 w-16 bg-blue-200 mx-auto"></div>
+            <p className="mt-6 text-gray-600 text-lg">
+              Fetching compelling stories...
+            </p>
+          </div>
+        ) : posts.length === 0 ? (
+          <p className="text-center py-20 text-gray-500 text-xl">
+            No articles found yet. Be the first to publish something amazing!
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 xl:gap-10">
+            {posts.map((post) => (
+              <PostCard key={post.$id} post={post} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
