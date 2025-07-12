@@ -21,30 +21,33 @@ const Navbar = () => {
   };
 
   // Utility function for nav link styling
-  const navLinkStyle = ({ isActive }) =>
+  const getNavLinkClasses = ({ isActive }) =>
     isActive
-      ? 'text-blue-600 font-semibold'
-      : 'text-gray-700 hover:text-blue-600';
+      ? 'text-lg font-medium transition-colors duration-200 text-blue-600 border-b-2 border-blue-600 pb-1'
+      : 'text-lg font-medium transition-colors duration-200 text-gray-600 hover:text-gray-900 hover:border-b-2 hover:border-gray-300 pb-1';
 
   return (
-    <header className="bg-white shadow-sm">
-      <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+    <header className="bg-white border-b border-gray-100">
+      <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo */}
-        <NavLink to="/" className="text-xl font-bold text-blue-600">
+        <NavLink
+          to="/"
+          className="text-2xl font-extrabold text-gray-900 hover:text-blue-600 transition-colors duration-200"
+        >
           Blog Desk
         </NavLink>
 
         {/* Navigation Links */}
-        <nav className="space-x-4">
+        <nav className="flex items-center space-x-6">
           {isLoggedIn && (
             <>
-              <NavLink to="/" className={navLinkStyle}>
+              <NavLink to="/" className={getNavLinkClasses}>
                 Home
               </NavLink>
-              <NavLink to="/dashboard" className={navLinkStyle}>
+              <NavLink to="/dashboard" className={getNavLinkClasses}>
                 Dashboard
               </NavLink>
-              <NavLink to="/create" className={navLinkStyle}>
+              <NavLink to="/create" className={getNavLinkClasses}>
                 New Post
               </NavLink>
             </>
@@ -55,14 +58,14 @@ const Navbar = () => {
         {isLoggedIn ? (
           <button
             onClick={handleLogout}
-            className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"
+            className="px-5 py-2 rounded-lg text-lg font-semibold bg-red-500 text-white hover:bg-red-600 shadow-md hover:shadow-lg transition-all duration-200"
           >
             Logout
           </button>
         ) : (
           <NavLink
             to="/login"
-            className="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
+            className="px-5 py-2 rounded-lg text-lg font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg transition-all duration-200"
           >
             Login
           </NavLink>
