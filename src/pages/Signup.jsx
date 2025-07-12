@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { authService } from '../services/authService';
+import { Link } from 'react-router';
 
 const Signup = () => {
   // Initial form state
@@ -93,6 +94,13 @@ const Signup = () => {
         >
           {loading ? 'Creating...' : 'Sign Up'}
         </button>
+
+        <p className="text-sm text-center">
+          Have an account ?{' '}
+          <Link to="/signup" className="text-blue-600 hover:underline">
+            Login
+          </Link>
+        </p>
 
         {/* Error message */}
         {error && <p className="text-sm text-red-500 text-center">{error}</p>}
