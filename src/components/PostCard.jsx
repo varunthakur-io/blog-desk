@@ -20,7 +20,9 @@ const PostCard = ({ post }) => {
         </p>
       </div>
       <div className="px-7 py-5 border-t border-gray-100 flex items-center justify-between text-sm text-gray-500">
-        <span className="font-semibold text-gray-700">By {post.authorId}</span>
+        <span className="font-semibold text-gray-700">
+          By {post.authorName}
+        </span>
         <span>
           {new Date(post.createdAt).toLocaleDateString('en-US', {
             year: 'numeric',
