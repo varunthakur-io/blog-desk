@@ -21,6 +21,7 @@ class PostService {
         title,
         content,
         authorId: user.$id,
+        authorName: user.name || user.email,
         createdAt: new Date().toISOString(),
       };
 
