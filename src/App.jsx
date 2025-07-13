@@ -14,6 +14,7 @@ import PrivateRoute from './components/PrivateRoute';
 
 import { Routes, Route } from 'react-router-dom';
 import MainLayout from './layout/MainLayout';
+import EditPost from './components/EditPost';
 
 function App() {
   const dispatch = useDispatch();
@@ -42,6 +43,7 @@ function App() {
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/create" element={<CreatePost />} />
+          <Route path="/edit/:id" element={<EditPost />} />
         </Route>
       </Route>
 
