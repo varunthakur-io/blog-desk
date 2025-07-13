@@ -1,4 +1,4 @@
-const DashboardPostItem = ({ post, onEdit, onDelete }) => {
+const PostItem = ({ post, onEdit, onDelete }) => {
   return (
     <div
       className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100
@@ -38,4 +38,4 @@ const DashboardPostItem = ({ post, onEdit, onDelete }) => {
   );
 };
 
-export default DashboardPostItem;
+export default PostItem;

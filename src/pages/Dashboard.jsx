@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { postService } from '../services/postService';
 import { useNavigate } from 'react-router-dom';
-import DashboardPostItem from '../components/DashboardPostItem';
+import PostItem from '../components/PostItem';
 
 const Dashboard = () => {
   const [posts, setPosts] = useState([]);
@@ -67,7 +67,7 @@ const Dashboard = () => {
           ) : (
             <div className="space-y-4">
               {posts.map((post) => (
-                <DashboardPostItem
+                <PostItem
                   key={post.$id}
                   post={post}
                   onEdit={handleEdit}
