@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { authService } from '../services/authService';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { setUser } from '../store/authSlice';
 
 const Signup = () => {
   // Initial form state
@@ -13,7 +15,9 @@ const Signup = () => {
   // State for loading, error, and success messages
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   // Handle input changes
   const handleChange = (e) => {
@@ -28,16 +32,29 @@ const Signup = () => {
     e.preventDefault(); // Prevent page reload
     setLoading(true);
     setError('');
-    setSuccess(false);
 
     try {
       // Create user using Appwrite auth service
       await authService.createUser(formData);
-      setSuccess(true);
-      setFormData({ name: '', email: '', password: '' }); // Reset form
+
+      // After successful creation, log the user in to create a session
+      await authService.loginUser({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      // Get the current user's account data
+      const account = await authService.getAccount();
+
+      // Set user in Redux state
+      dispatch(setUser(account));
+
+      // Navigate to the homepage on successful login
+      navigate('/');
     } catch (err) {
       // Handle signup error
-      setError(err.message || 'Signup failed');
+      setError(err.message || 'Signup failed. Please try again.');
+      console.error('Signup Error:', err);
     } finally {
       setLoading(false);
     }
@@ -135,13 +152,6 @@ const Signup = () => {
           {/* Error message */}
           {error && (
             <p className="text-red-500 text-center text-sm mb-4">{error}</p>
-          )}
-
-          {/* Success message */}
-          {success && (
-            <p className="text-green-600 text-center text-sm mb-4">
-              Signup successful!
-            </p>
           )}
         </form>
       </div>
