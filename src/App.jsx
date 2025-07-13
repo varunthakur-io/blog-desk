@@ -1,20 +1,26 @@
 import './App.css';
+
+// React & Libraries
 import { useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+
+// Redux & Services
 import { setUser, clearUser } from './store/authSlice';
 import { authService } from './services/authService';
 
-import Signup from './pages/Signup';
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import CreatePost from './pages/CreatePost';
-import Home from './pages/Home';
-
+// Layout & Routing
+import MainLayout from './layout/MainLayout';
 import PrivateRoute from './components/PrivateRoute';
 
-import { Routes, Route } from 'react-router-dom';
-import MainLayout from './layout/MainLayout';
+// Pages
+import CreatePost from './pages/CreatePost';
+import Dashboard from './pages/Dashboard';
 import EditPost from './pages/EditPost';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import PostDetails from './pages/PostDetails';
+import Signup from './pages/Signup';
 
 function App() {
   const dispatch = useDispatch();
@@ -44,7 +50,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/create" element={<CreatePost />} />
           <Route path="/edit/:id" element={<EditPost />} />
-          <Route path="/post/:id" element={<EditPost />} />
+          <Route path="/posts/:id" element={<PostDetails />} />
         </Route>
       </Route>
 
