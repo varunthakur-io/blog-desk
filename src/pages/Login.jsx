@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from '../store/authSlice';
 import { authService } from '../services/authService';
 import { Link, useNavigate } from 'react-router-dom';
@@ -11,6 +11,16 @@ const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Get the current user from your Redux state
+  const currectUser = useSelector((state) => state.auth.user);
+
+  // Redirect if user is logedin
+  useEffect(() => {
+    if (currectUser) {
+      navigate('/');
+    }
+  }, [currectUser, navigate]);
 
   // Handle input change
   const handleChange = (e) => {
