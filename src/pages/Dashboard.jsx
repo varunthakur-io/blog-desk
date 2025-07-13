@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { postService } from '../services/postService';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
+import DashboardPostItem from '../components/DashboardPostItem';
 
 const Dashboard = () => {
   const [posts, setPosts] = useState([]);
@@ -28,6 +28,24 @@ const Dashboard = () => {
     fetchPosts();
   }, []);
 
+  // Handlers for Edit/Delete actions
+  const handleEdit = (postId) => {
+    navigate(`/edit/${postId}`);
+  };
+
+  const handleDelete = async (postId) => {
+    if (window.confirm('Are you sure you want to delete this post?')) {
+      try {
+        await postService.deletePost(postId);
+        setPosts(posts.filter((post) => post.$id !== postId));
+        // Success notification
+      } catch (error) {
+        console.error('Failed to delete post:', error.message);
+        // Error notification
+      }
+    }
+  };
+
   return (
     <>
       <div className="min-h-screen bg-gray-100 py-10 px-4">
@@ -49,31 +67,12 @@ const Dashboard = () => {
           ) : (
             <div className="space-y-4">
               {posts.map((post) => (
-                <div
+                <DashboardPostItem
                   key={post.$id}
-                  className="bg-white p-4 rounded shadow flex justify-between items-start"
-                >
-                  <div>
-                    <h2 className="text-xl font-semibold">{post.title}</h2>
-                    <p className="text-sm text-gray-500">
-                      {new Date(post.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div className="space-x-2">
-                    <button
-                      onClick={() => navigate(`/edit/${post.$id}`)}
-                      className="text-blue-600 hover:underline"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => console.log('delete', post.$id)}
-                      className="text-red-600 hover:underline"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
+                  post={post}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
               ))}
             </div>
           )}
