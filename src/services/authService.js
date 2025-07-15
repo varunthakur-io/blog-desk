@@ -59,6 +59,16 @@ class AuthService {
       throw error;
     }
   }
+
+  //  Update user account details
+  async updateName(name) {
+    try {
+      return await this.account.updateName(name);
+    } catch (error) {
+      console.error('Error updating name:', error);
+      throw error;
+    }
+  }
 }
 
 // Export a single shared instance
