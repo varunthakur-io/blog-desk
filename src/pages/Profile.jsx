@@ -5,20 +5,26 @@ import { authService } from '../services/authService';
 const Profile = () => {
   const user = useSelector((state) => state.auth.user);
 
-  const [formData, setFormData] = useState({ name: '', email: '' });
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+  });
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState('');
 
-  // Populate formData with user data
+  // Populate form with current user data
   useEffect(() => {
     if (user) {
       setFormData({
         name: user.name || '',
         email: user.email || '',
+        password: '',
       });
     }
   }, [user]);
 
+  // Handle input changes
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
@@ -28,6 +34,7 @@ const Profile = () => {
 
   const handleEdit = () => {
     setIsEditing(true);
+    setError('');
   };
 
   const handleCancel = () => {
@@ -35,22 +42,36 @@ const Profile = () => {
       setFormData({
         name: user.name || '',
         email: user.email || '',
+        password: '',
       });
     }
     setIsEditing(false);
+    setError('');
   };
 
   const handleSave = async (e) => {
     e.preventDefault();
+    setError('');
 
     try {
-      await authService.updateName(formData.name);
+      // Update name if changed
+      if (formData.name !== user.name) {
+        await authService.updateName(formData.name);
+      }
+
+      // Update email if changed (requires current password)
+      if (formData.email !== user.email) {
+        if (!formData.password) {
+          setError('Please enter your current password to update email.');
+          return;
+        }
+        await authService.updateEmail(formData.email, formData.password);
+      }
+
+      setIsEditing(false);
     } catch (err) {
-      // Handle update  error
       setError(err.message || 'Update failed. Please try again.');
       console.error('Update Error:', err);
-    } finally {
-      setIsEditing(false);
     }
   };
 
@@ -65,7 +86,7 @@ const Profile = () => {
           Your Profile
         </h1>
 
-        {/* Profile Header & Avatar Section */}
+        {/* Avatar & Info */}
         <div className="flex flex-col items-center mb-10 pb-8 border-b border-gray-100">
           <div className="w-28 h-28 rounded-full bg-blue-500 flex items-center justify-center text-white text-5xl font-bold mb-4 shadow-md">
             {user?.name?.charAt(0).toUpperCase()}
@@ -85,6 +106,7 @@ const Profile = () => {
           )}
         </div>
 
+        {/* Edit Form */}
         <form onSubmit={handleSave}>
           <div className="mb-6">
             <label
@@ -97,7 +119,7 @@ const Profile = () => {
               type="text"
               id="name"
               name="name"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg transition-colors duration-200"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-lg"
               placeholder="Your Full Name"
               value={formData.name}
               onChange={handleChange}
@@ -116,37 +138,53 @@ const Profile = () => {
               type="email"
               id="email"
               name="email"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 text-lg transition-colors duration-200"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-lg"
+              placeholder="Your Email"
               value={formData.email}
               onChange={handleChange}
               disabled={!isEditing}
             />
           </div>
 
-          {/* <div className="mb-8 pt-6 border-t border-gray-100">
-            <h3 className="text-xl font-bold text-gray-800 mb-4">
-              Password Security
-            </h3>
-            <button
-              type="button"
-              className="px-6 py-3 rounded-xl shadow-md bg-gray-300 text-gray-800 hover:bg-gray-400 transition-colors duration-200 font-semibold text-lg"
-            >
-              Change Password
-            </button>
-          </div> */}
+          {isEditing && (
+            <div className="mb-6">
+              <label
+                htmlFor="password"
+                className="block text-lg font-semibold text-gray-700 mb-2"
+              >
+                Current Password{' '}
+                <span className="text-sm text-gray-500">
+                  (required to update email)
+                </span>
+              </label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-lg"
+                placeholder="Enter your current password"
+                value={formData.password}
+                onChange={handleChange}
+              />
+            </div>
+          )}
+
+          {error && (
+            <p className="text-red-600 text-sm text-center mb-4">{error}</p>
+          )}
 
           {isEditing && (
             <div className="flex flex-col sm:flex-row justify-end gap-4 mt-8">
               <button
                 type="button"
                 onClick={handleCancel}
-                className="bg-gray-300 text-gray-800 px-6 py-3 rounded-xl shadow-md hover:bg-gray-400 transition-colors duration-200 font-semibold text-lg"
+                className="bg-gray-300 text-gray-800 px-6 py-3 rounded-xl hover:bg-gray-400 font-semibold text-lg"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white px-8 py-3 rounded-xl shadow-lg hover:from-blue-700 hover:to-indigo-800 transform hover:-translate-y-0.5 transition-all duration-300 ease-in-out font-semibold text-lg"
+                className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white px-8 py-3 rounded-xl hover:from-blue-700 hover:to-indigo-800 font-semibold text-lg"
               >
                 Save Changes
               </button>
