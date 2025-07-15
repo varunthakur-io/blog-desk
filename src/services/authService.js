@@ -69,6 +69,16 @@ class AuthService {
       throw error;
     }
   }
+
+  // Update user email
+  async updateEmail(email, password) {
+    try {
+      return await this.account.updateEmail(email, password);
+    } catch (error) {
+      console.error('Error updating email:', error);
+      throw error;
+    }
+  }
 }
 
 // Export a single shared instance

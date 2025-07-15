@@ -21,6 +21,8 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import PostDetails from './pages/PostDetails';
 import Signup from './pages/Signup';
+import Profile from './pages/Profile';
+
 
 function App() {
   const dispatch = useDispatch();
@@ -51,6 +53,7 @@ function App() {
           <Route path="/create" element={<CreatePost />} />
           <Route path="/edit/:id" element={<EditPost />} />
           <Route path="/posts/:id" element={<PostDetails />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
       </Route>
 
