@@ -39,8 +39,8 @@ const Navbar = () => {
       requiresAuth: false, // Accessible by anyone
     },
     {
-      name: 'My Posts', // New, more specific link
-      slug: '/my-posts',
+      name: 'Dashboard', // New, more specific link
+      slug: '/dashboard',
       requiresAuth: true, // Only for logged-in users
     },
     {
