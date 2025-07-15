@@ -22,8 +22,9 @@ import Login from './pages/Login';
 import PostDetails from './pages/PostDetails';
 import Signup from './pages/Signup';
 import Profile from './pages/Profile';
+import Settings from './pages/Settings';
 
-
+// App Component
 function App() {
   const dispatch = useDispatch();
 
@@ -54,6 +55,7 @@ function App() {
           <Route path="/edit/:id" element={<EditPost />} />
           <Route path="/posts/:id" element={<PostDetails />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/settings" element={<Settings />} />
         </Route>
       </Route>
 
