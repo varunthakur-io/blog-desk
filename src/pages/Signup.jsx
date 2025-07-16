@@ -5,21 +5,18 @@ import { useDispatch } from 'react-redux';
 import { setUser } from '../store/authSlice';
 
 const Signup = () => {
-  // Initial form state
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
   });
 
-  // State for loading, error, and success messages
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Handle input changes
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
@@ -27,32 +24,21 @@ const Signup = () => {
     }));
   };
 
-  // Handle form submit
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent page reload
+    e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
-      // Create user using Appwrite auth service
       await authService.createUser(formData);
-
-      // After successful creation, log the user in to create a session
       await authService.loginUser({
         email: formData.email,
         password: formData.password,
       });
-
-      // Get the current user's account data
       const account = await authService.getAccount();
-
-      // Set user in Redux state
       dispatch(setUser(account));
-
-      // Navigate to the homepage on successful login
       navigate('/');
     } catch (err) {
-      // Handle signup error
       setError(err.message || 'Signup failed. Please try again.');
       console.error('Signup Error:', err);
     } finally {
@@ -61,19 +47,13 @@ const Signup = () => {
   };
 
   return (
-    // Center the form on screen with updated background gradient and padding
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-6 sm:px-10">
-      <div
-        // Form card with updated styling
-        className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-100"
-      >
-        {/* Form heading */}
-        <h2 className="text-4xl font-extrabold text-gray-900 mb-8 text-center">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-6 sm:px-10 dark:bg-gray-950 dark:from-gray-900 dark:to-gray-950">
+      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
+        <h2 className="text-4xl font-extrabold text-gray-900 mb-8 text-center dark:text-gray-100">
           Create Account
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Name input */}
           <div>
             <label htmlFor="name" className="sr-only">
               Name
@@ -85,13 +65,12 @@ const Signup = () => {
               value={formData.name}
               onChange={handleChange}
               placeholder="Full Name"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg transition-colors duration-200"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg transition-colors duration-200 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
               required
               disabled={loading}
             />
           </div>
 
-          {/* Email input */}
           <div>
             <label htmlFor="email" className="sr-only">
               Email address
@@ -103,13 +82,12 @@ const Signup = () => {
               value={formData.email}
               onChange={handleChange}
               placeholder="Email address"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg transition-colors duration-200"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg transition-colors duration-200 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
               required
               disabled={loading}
             />
           </div>
 
-          {/* Password input */}
           <div>
             <label htmlFor="password" className="sr-only">
               Password
@@ -121,37 +99,34 @@ const Signup = () => {
               value={formData.password}
               onChange={handleChange}
               placeholder="Password"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg transition-colors duration-200"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg transition-colors duration-200 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
               required
               disabled={loading}
             />
           </div>
 
-          {/* Submit button */}
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-3 rounded-xl shadow-lg
-                       hover:from-blue-700 hover:to-indigo-800 transform hover:-translate-y-0.5
-                       transition-all duration-300 ease-in-out font-semibold text-lg
-                       disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-3 rounded-xl shadow-lg hover:from-blue-700 hover:to-indigo-800 transform hover:-translate-y-0.5 transition-all duration-300 ease-in-out font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={loading}
           >
             {loading ? 'Creating...' : 'Sign Up'}
           </button>
 
-          <p className="text-md text-center text-gray-700 mt-4">
+          <p className="text-md text-center text-gray-700 mt-4 dark:text-gray-300">
             Have an account ?{' '}
             <Link
               to="/login"
-              className="text-blue-600 font-semibold hover:underline hover:text-blue-700 transition-colors duration-200"
+              className="text-blue-600 font-semibold hover:underline hover:text-blue-700 transition-colors duration-200 dark:text-blue-400 dark:hover:text-blue-300"
             >
               Login
             </Link>
           </p>
 
-          {/* Error message */}
           {error && (
-            <p className="text-red-500 text-center text-sm mb-4">{error}</p>
+            <p className="text-red-500 text-center text-sm mb-4 dark:text-red-400">
+              {error}
+            </p>
           )}
         </form>
       </div>

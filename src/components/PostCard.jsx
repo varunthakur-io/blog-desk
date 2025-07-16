@@ -5,22 +5,22 @@ const PostCard = ({ post }) => {
   return (
     <div
       key={post.$id}
-      className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-2 border border-gray-100"
+      className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-2 border border-gray-100 dark:bg-gray-800 dark:shadow-md dark:hover:shadow-lg dark:border-gray-700"
     >
       <div className="p-7 flex-grow">
         <Link to={`/posts/${post.$id}`}>
-          <h2 className="text-2xl font-bold text-gray-800 mb-3 hover:text-blue-700 transition-colors duration-200 leading-snug">
+          <h2 className="text-2xl font-bold text-gray-800 mb-3 hover:text-blue-700 transition-colors duration-200 leading-snug dark:text-gray-100 dark:hover:text-blue-400">
             {post.title}
           </h2>
         </Link>
-        <p className="text-gray-600 leading-relaxed text-base mb-5">
+        <p className="text-gray-600 leading-relaxed text-base mb-5 dark:text-gray-300">
           {post.content.length > 200
             ? post.content.slice(0, 200) + '...'
             : post.content}
         </p>
       </div>
-      <div className="px-7 py-5 border-t border-gray-100 flex items-center justify-between text-sm text-gray-500">
-        <span className="font-semibold text-gray-700">
+      <div className="px-7 py-5 border-t border-gray-100 flex items-center justify-between text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+        <span className="font-semibold text-gray-700 dark:text-gray-200">
           By {post.authorName}
         </span>
         <span>
@@ -34,7 +34,7 @@ const PostCard = ({ post }) => {
       <div className="px-7 pb-7 pt-0">
         <Link
           to={`/posts/${post.$id}`}
-          className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors duration-200 font-semibold text-base group"
+          className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors duration-200 font-semibold text-base group dark:text-blue-400 dark:hover:text-blue-300"
         >
           Read Article
           <svg

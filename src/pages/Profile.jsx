@@ -13,7 +13,6 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState('');
 
-  // Populate form with current user data
   useEffect(() => {
     if (user) {
       setFormData({
@@ -24,7 +23,6 @@ const Profile = () => {
     }
   }, [user]);
 
-  // Handle input changes
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
@@ -54,12 +52,10 @@ const Profile = () => {
     setError('');
 
     try {
-      // Update name if changed
       if (formData.name !== user.name) {
         await authService.updateName(formData.name);
       }
 
-      // Update email if changed (requires current password)
       if (formData.email !== user.email) {
         if (!formData.password) {
           setError('Please enter your current password to update email.');
@@ -76,42 +72,48 @@ const Profile = () => {
   };
 
   if (!user) {
-    return <div className="text-center py-20 text-lg">Loading profile...</div>;
+    return (
+      <div className="text-center py-20 text-lg text-gray-700 dark:text-gray-300">
+        Loading profile...
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-6 sm:px-10 font-sans">
-      <div className="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
-        <h1 className="text-4xl font-extrabold text-gray-900 mb-10 text-center">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-6 sm:px-10 font-sans dark:bg-gray-950 dark:from-gray-900 dark:to-gray-950">
+      <div className="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-xl border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
+        <h1 className="text-4xl font-extrabold text-gray-900 mb-10 text-center dark:text-gray-100">
           Your Profile
         </h1>
 
-        {/* Avatar & Info */}
-        <div className="flex flex-col items-center mb-10 pb-8 border-b border-gray-100">
+        <div className="flex flex-col items-center mb-10 pb-8 border-b border-gray-100 dark:border-gray-700">
           <div className="w-28 h-28 rounded-full bg-blue-500 flex items-center justify-center text-white text-5xl font-bold mb-4 shadow-md">
             {user?.name?.charAt(0).toUpperCase()}
           </div>
 
-          <h2 className="text-3xl font-bold text-gray-800 mb-2">{user.name}</h2>
-          <p className="text-lg text-gray-600">{user.email}</p>
+          <h2 className="text-3xl font-bold text-gray-800 mb-2 dark:text-gray-200">
+            {user.name}
+          </h2>
+          <p className="text-lg text-gray-600 dark:text-gray-400">
+            {user.email}
+          </p>
 
           {!isEditing && (
             <button
               type="button"
               onClick={handleEdit}
-              className="mt-6 px-5 py-2 rounded-lg text-blue-600 border border-blue-500 hover:bg-blue-50 transition-colors duration-200 font-semibold"
+              className="mt-6 px-5 py-2 rounded-lg text-blue-600 border border-blue-500 hover:bg-blue-50 transition-colors duration-200 font-semibold dark:text-blue-400 dark:border-blue-400 dark:hover:bg-blue-900"
             >
               Edit Profile
             </button>
           )}
         </div>
 
-        {/* Edit Form */}
         <form onSubmit={handleSave}>
           <div className="mb-6">
             <label
               htmlFor="name"
-              className="block text-lg font-semibold text-gray-700 mb-2"
+              className="block text-lg font-semibold text-gray-700 mb-2 dark:text-gray-300"
             >
               Full Name
             </label>
@@ -119,7 +121,7 @@ const Profile = () => {
               type="text"
               id="name"
               name="name"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-lg"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-lg bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
               placeholder="Your Full Name"
               value={formData.name}
               onChange={handleChange}
@@ -130,7 +132,7 @@ const Profile = () => {
           <div className="mb-6">
             <label
               htmlFor="email"
-              className="block text-lg font-semibold text-gray-700 mb-2"
+              className="block text-lg font-semibold text-gray-700 mb-2 dark:text-gray-300"
             >
               Email Address
             </label>
@@ -138,7 +140,7 @@ const Profile = () => {
               type="email"
               id="email"
               name="email"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-lg"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
               placeholder="Your Email"
               value={formData.email}
               onChange={handleChange}
@@ -150,10 +152,10 @@ const Profile = () => {
             <div className="mb-6">
               <label
                 htmlFor="password"
-                className="block text-lg font-semibold text-gray-700 mb-2"
+                className="block text-lg font-semibold text-gray-700 mb-2 dark:text-gray-300"
               >
                 Current Password{' '}
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-gray-500 dark:text-gray-400">
                   (required to update email)
                 </span>
               </label>
@@ -161,7 +163,7 @@ const Profile = () => {
                 type="password"
                 id="password"
                 name="password"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-lg"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-lg bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
                 placeholder="Enter your current password"
                 value={formData.password}
                 onChange={handleChange}
@@ -170,7 +172,9 @@ const Profile = () => {
           )}
 
           {error && (
-            <p className="text-red-600 text-sm text-center mb-4">{error}</p>
+            <p className="text-red-600 text-sm text-center mb-4 dark:text-red-400">
+              {error}
+            </p>
           )}
 
           {isEditing && (
@@ -178,7 +182,7 @@ const Profile = () => {
               <button
                 type="button"
                 onClick={handleCancel}
-                className="bg-gray-300 text-gray-800 px-6 py-3 rounded-xl hover:bg-gray-400 font-semibold text-lg"
+                className="bg-gray-300 text-gray-800 px-6 py-3 rounded-xl hover:bg-gray-400 font-semibold text-lg dark:bg-gray-600 dark:text-gray-100 dark:hover:bg-gray-500"
               >
                 Cancel
               </button>

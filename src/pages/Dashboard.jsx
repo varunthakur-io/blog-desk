@@ -48,22 +48,26 @@ const Dashboard = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-100 py-10 px-4">
+      <div className="min-h-screen bg-gray-100 py-10 px-4 dark:bg-gray-950">
         <div className="max-w-4xl mx-auto">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">Your Blog Posts</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              Your Blog Posts
+            </h1>
             <button
               onClick={() => navigate('/create')}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors duration-200"
             >
               + New Post
             </button>
           </div>
 
           {loading ? (
-            <p className="text-gray-600">Loading...</p>
+            <p className="text-gray-600 dark:text-gray-300">Loading...</p>
           ) : posts.length === 0 ? (
-            <p className="text-gray-600">You haven't written any posts yet.</p>
+            <p className="text-gray-600 dark:text-gray-300">
+              You haven't written any posts yet.
+            </p>
           ) : (
             <div className="space-y-4">
               {posts.map((post) => (
