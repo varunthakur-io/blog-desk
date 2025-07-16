@@ -9,7 +9,8 @@ const Navbar = () => {
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  // isDarkMode is the current state, setDarkMode is the function to update it
+  
+  // Custom hook to manage dark mode state
   const [isDarkMode, setDarkMode] = useDarkMode();
 
   const isLoggedIn = !!user;
@@ -27,7 +28,7 @@ const Navbar = () => {
       dispatch(clearUser());
       navigate('/login');
       setIsProfileDropdownOpen(false);
-      setIsMobileMenuOpen(false);
+      setIsMobileMenuOpen(false); // Close mobile menu on logout
     } catch (err) {
       console.error('Logout failed:', err);
     }
@@ -37,6 +38,12 @@ const Navbar = () => {
     isActive
       ? 'text-lg font-medium transition-colors duration-200 text-blue-600 border-b-2 border-blue-600 pb-1 dark:text-blue-400 dark:border-blue-400'
       : 'text-lg font-medium transition-colors duration-200 text-gray-600 hover:text-gray-900 hover:border-b-2 hover:border-gray-300 pb-1 dark:text-gray-300 dark:hover:text-gray-100 dark:hover:border-gray-600';
+
+  // Classes for mobile navigation links
+  const getMobileNavLinkClasses = ({ isActive }) =>
+    isActive
+      ? 'block px-3 py-2 rounded-md text-base font-medium text-blue-600 bg-gray-50 dark:bg-gray-700 dark:text-blue-400'
+      : 'block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100';
 
   const navItems = [
     { name: 'Home', slug: '/', requiresAuth: false },
@@ -51,7 +58,7 @@ const Navbar = () => {
 
   return (
     <header className="bg-white border-b border-gray-100 dark:bg-gray-800 dark:border-gray-700">
-      <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between it~ems-center">
+      <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo */}
         <NavLink
           to="/"
@@ -60,7 +67,7 @@ const Navbar = () => {
           Blog Desk
         </NavLink>
 
-        {/* Navigation */}
+        {/* Navigation - Desktop */}
         <nav className="hidden md:flex items-center space-x-6">
           {navItems.map(
             (item) =>
@@ -76,7 +83,7 @@ const Navbar = () => {
           )}
         </nav>
 
-        {/* Right Section */}
+        {/* Right Section - Desktop */}
         <div className="hidden md:flex items-center gap-4">
           {/* Dark Mode Toggle */}
           <button
@@ -88,32 +95,24 @@ const Navbar = () => {
               // 🌞 Sun icon — dark mode is ON
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                fill="none"
                 viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-6 h-6"
+                fill="currentColor"
+                className="size-6" // Changed class to className for React
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 3v1.5m0 15V21m9-9h-1.5M4.5 12H3m15.364-6.364l-1.06 1.06M6.696 17.303l-1.06 1.06m12.728 0l-1.06-1.06M6.696 6.696l-1.06-1.06M12 8.25a3.75 3.75 0 100 7.5 3.75 3.75 0 000-7.5z"
-                />
+                <path d="M12 2.25a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0V3a.75.75 0 0 1 .75-.75ZM7.5 12a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM18.894 6.166a.75.75 0 0 0-1.06-1.06l-1.591 1.59a.75.75 0 1 0 1.06 1.061l1.591-1.59ZM21.75 12a.75.75 0 0 1-.75.75h-2.25a.75.75 0 0 1 0-1.5H21a.75.75 0 0 1 .75.75ZM17.834 18.894a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 1 0-1.061 1.06l1.59 1.591ZM12 18a.75.75 0 0 1 .75.75V21a.75.75 0 0 1-1.5 0v-2.25A.75.75 0 0 1 12 18ZM7.758 17.303a.75.75 0 0 0-1.061-1.06l-1.591 1.59a.75.75 0 0 0 1.06 1.061l1.591-1.59ZM6 12a.75.75 0 0 1-.75.75H3a.75.75 0 0 1 0-1.5h2.25A.75.75 0 0 1 6 12ZM6.697 7.757a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 0 0-1.061 1.06l1.59 1.591Z" />
               </svg>
             ) : (
               // 🌙 Moon icon — light mode is ON
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                fill="none"
                 viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-6 h-6"
+                fill="currentColor"
+                className="size-6" // Changed class to className for React
               >
                 <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M21.752 15.002A9.718 9.718 0 0112.75 21c-5.385 0-9.75-4.365-9.75-9.75 0-4.126 2.635-7.626 6.348-9.066a.75.75 0 01.908.46c.236.62.387 1.279.444 1.964a7.5 7.5 0 0010.003 10.003c.685.057 1.344.208 1.964.444a.75.75 0 01.46.908z"
+                  fillRule="evenodd" // Changed fill-rule to fillRule for React
+                  d="M9.528 1.718a.75.75 0 0 1 .162.819A8.97 8.97 0 0 0 9 6a9 9 0 0 0 9 9 8.97 8.97 0 0 0 3.463-.69.75.75 0 0 1 .981.98 10.503 10.503 0 0 1-9.694 6.46c-5.799 0-10.5-4.7-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 0 1 .818.162Z"
+                  clipRule="evenodd" // Changed clip-rule to clipRule for React
                 />
               </svg>
             )}
@@ -181,8 +180,42 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Mobile Menu Button (Hamburger) */}
-        <div className="-mr-2 flex md:hidden">
+        {/* Mobile Menu Button (Hamburger) and Dark Mode Toggle for Mobile */}
+        <div className="-mr-2 flex items-center md:hidden">
+          {' '}
+          {/* Added items-center for alignment */}
+          {/* Dark Mode Toggle for Mobile */}
+          <button
+            onClick={handleToggleDarkMode}
+            className="ml-2 p-2 rounded-full text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors duration-200"
+            aria-label="Toggle Dark Mode"
+          >
+            {isDarkMode ? (
+              // Sun icon for dark mode (to switch to light)
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="size-6" // Changed class to className
+              >
+                <path d="M12 2.25a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0V3a.75.75 0 0 1 .75-.75ZM7.5 12a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM18.894 6.166a.75.75 0 0 0-1.06-1.06l-1.591 1.59a.75.75 0 1 0 1.06 1.061l1.591-1.59ZM21.75 12a.75.75 0 0 1-.75.75h-2.25a.75.75 0 0 1 0-1.5H21a.75.75 0 0 1 .75.75ZM17.834 18.894a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 1 0-1.061 1.06l1.59 1.591ZM12 18a.75.75 0 0 1 .75.75V21a.75.75 0 0 1-1.5 0v-2.25A.75.75 0 0 1 12 18ZM7.758 17.303a.75.75 0 0 0-1.061-1.06l-1.591 1.59a.75.75 0 0 0 1.06 1.061l1.591-1.59ZM6 12a.75.75 0 0 1-.75.75H3a.75.75 0 0 1 0-1.5h2.25A.75.75 0 0 1 6 12ZM6.697 7.757a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 0 0-1.061 1.06l1.59 1.591Z" />
+              </svg>
+            ) : (
+              // Moon icon for light mode (to switch to dark)
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="size-6" // Changed class to className
+              >
+                <path
+                  fillRule="evenodd" // Changed fill-rule to fillRule
+                  d="M9.528 1.718a.75.75 0 0 1 .162.819A8.97 8.97 0 0 0 9 6a9 9 0 0 0 9 9 8.97 8.97 0 0 0 3.463-.69.75.75 0 0 1 .981.98 10.503 10.503 0 0 1-9.694 6.46c-5.799 0-10.5-4.7-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 0 1 .818.162Z"
+                  clipRule="evenodd" // Changed clip-rule to clipRule
+                />
+              </svg>
+            )}
+          </button>
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             type="button"
@@ -225,41 +258,81 @@ const Navbar = () => {
               </svg>
             )}
           </button>
-          {/* Dark Mode Toggle for Mobile */}
-          <button
-            onClick={handleToggleDarkMode} // Call the new toggle function
-            className="ml-2 p-2 rounded-full text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors duration-200"
-            aria-label="Toggle Dark Mode"
-          >
-            {isDarkMode ? (
-              // Sun icon for dark mode (to switch to light)
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="w-6 h-6"
-              >
-                <path d="M12 2.25a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0V3a.75.75 0 0 1 .75-.75ZM7.5 12a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM18.894 6.106a.75.75 0 0 0-1.06-1.06l-1.591 1.59a.75.75 0 1 0 1.06 1.06l1.591-1.59ZM21.75 12h-2.25a.75.75 0 0 0 0 1.5h2.25a.75.75 0 0 0 0-1.5ZM17.106 18.894a.75.75 0 0 0 1.06-1.06l-1.59-1.59a.75.75 0 0 0-1.061 1.06l1.59 1.59ZM12 18.75a.75.75 0 0 1-.75.75v2.25a.75.75 0 0 1 1.5 0v-2.25a.75.75 0 0 1-.75-.75ZM5.003 16.893a.75.75 0 0 0-.707.038l-1.591 1.59a.75.75 0 0 0 1.06 1.06l1.591-1.59a.75.75 0 0 0-.353-1.098ZM3 12.75a.75.75 0 0 0 0-1.5H.75a.75.75 0 0 0 0 1.5H3ZM6.106 5.003a.75.75 0 0 0 1.06-1.06l-1.59-1.59a.75.75 0 1 0-1.061 1.06l1.59 1.59Z" />
-              </svg>
-            ) : (
-              // Moon icon for light mode (to switch to dark)
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="w-6 h-6"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M9.528 1.718a.75.75 0 0 1 .162.819A8.97 8.97 0 0 0 9 6a9 9 0 0 0 9 9c.252 0 .498-.009.746-.027a.75.75 0 0 1 .819.162.75.75 0 0 0 .804-.076 9 9 0 0 1-.494 10.154 9 9 0 0 1-13.687-8.636 9 9 0 0 1 8.636-13.687.75.75 0 0 0-.076-.804Z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            )}
-          </button>
         </div>
       </div>
-      )
+
+      {/* Mobile Menu Content */}
+      {isMobileMenuOpen && (
+        <div
+          className="md:hidden pb-4 pt-2 animate-fade-in-down"
+          id="mobile-menu"
+        >
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            {navItems.map(
+              (item) =>
+                (!item.requiresAuth || isLoggedIn) && (
+                  <NavLink
+                    key={item.name}
+                    to={item.slug}
+                    onClick={() => setIsMobileMenuOpen(false)} // Close menu on click
+                    className={getMobileNavLinkClasses}
+                  >
+                    {item.name}
+                  </NavLink>
+                )
+            )}
+          </div>
+          <div className="pt-4 pb-3 border-t border-gray-100 dark:border-gray-700">
+            {isLoggedIn ? (
+              <div className="flex items-center px-5">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center font-semibold text-lg dark:bg-blue-700 dark:text-gray-100">
+                    {user?.name?.charAt(0).toUpperCase()}
+                  </div>
+                </div>
+                <div className="ml-3">
+                  <div className="text-base font-medium text-gray-800 dark:text-gray-200">
+                    {user?.name || 'User'}
+                  </div>
+                  <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                    {user?.email}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="px-5">
+                <NavLink
+                  to="/login"
+                  onClick={() => setIsMobileMenuOpen(false)} // Close menu on click
+                  className="block w-full text-center px-4 py-2 rounded-md text-base font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-md transition-all duration-200 dark:bg-blue-700 dark:hover:bg-blue-600"
+                >
+                  Login
+                </NavLink>
+              </div>
+            )}
+            {isLoggedIn && (
+              <div className="mt-3 px-2 space-y-1">
+                {userDropdownItems.map((item) => (
+                  <NavLink
+                    key={item.name}
+                    to={item.slug}
+                    onClick={() => setIsMobileMenuOpen(false)} // Close menu on click
+                    className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-blue-400"
+                  >
+                    {item.name}
+                  </NavLink>
+                ))}
+                <button
+                  onClick={handleLogout}
+                  className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-900 dark:hover:text-red-300"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 };
