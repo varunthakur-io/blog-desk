@@ -1,8 +1,12 @@
-import { useState } from 'react';
-// import { useDarkMode } from '../contexts/DarkModeContext';
+import useDarkMode from '../hooks/useDarkMode';
 
 const Settings = () => {
-  const { isDarkMode, toggleDarkMode } = useState();
+  const [isDarkMode, setDarkMode] = useDarkMode();
+
+  // Function to actually toggle dark mode
+  const handleToggleDarkMode = () => {
+    setDarkMode(!isDarkMode);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-6 sm:px-10 font-sans dark:bg-gray-950 dark:from-gray-900 dark:to-gray-950">
@@ -29,7 +33,7 @@ const Settings = () => {
                 id="darkModeToggle"
                 className="sr-only peer"
                 checked={isDarkMode}
-                onChange={toggleDarkMode}
+                onChange={handleToggleDarkMode}
               />
               <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
             </label>
@@ -74,7 +78,7 @@ const Settings = () => {
           </div>
 
           <div className="p-4 bg-red-50 rounded-lg border border-red-200 shadow-sm dark:bg-red-900 dark:border-red-700">
-            <h3 className="text-xl font-bold text-red-800 mb-3 dark:text-red-300">
+            <h3 className="text-xl font-bold text-red-800 mb-3 dark:text-white">
               Delete Account
             </h3>
             <p className="text-gray-700 mb-4 text-md dark:text-gray-300">
