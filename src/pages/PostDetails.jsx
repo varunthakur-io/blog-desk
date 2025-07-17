@@ -1,45 +1,63 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+
 import { postService } from '../services/postService';
+import { setError, setLoading } from '../store/postSlice';
 
 const PostDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const [post, setPost] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const { posts, loading, error } = useSelector((state) => state.posts);
+
+  // Find the current post in Redux state
+  const currentPostFromRedux = posts.find((post) => {
+    return post && post.$id !== undefined && String(post.$id) === String(id);
+  });
+
+  // Initialize local 'post' state based on Redux, or null if not found yet
+  const [post, setPost] = useState(currentPostFromRedux || null);
 
   useEffect(() => {
     const fetchPost = async () => {
       if (!id) {
-        setError('No post ID provided.');
-        setLoading(false);
+        dispatch(setError('No post ID provided.')); // Dispatch Redux action
+        // No need to dispatch setLoading(false) here, as no fetch attempt is made
         return;
       }
 
-      setLoading(true);
-      setError('');
-      setPost(null);
+      // If the post is already in Redux state, use it and avoid re-fetching
+      if (currentPostFromRedux) {
+        setPost(currentPostFromRedux);
+        dispatch(setLoading(false));
+        return;
+      }
+
+      // If not in Redux, proceed with fetching
+      dispatch(setLoading(true));
       try {
         const fetchedPost = await postService.getPostById(id);
 
         if (fetchedPost) {
           setPost(fetchedPost);
         } else {
-          setError('Post not found.');
+          dispatch(setError('Post not found.'));
           console.log('Post not found for ID:', id);
         }
       } catch (err) {
-        setError('Failed to load post. Please try again.');
+        dispatch(
+          setError(err.message || 'Failed to load post. Please try again.')
+        );
         console.error('Error details:', err);
       } finally {
-        setLoading(false);
+        dispatch(setLoading(false));
       }
     };
 
     fetchPost();
-  }, [id]);
+  }, [id, dispatch, currentPostFromRedux]);
 
   if (loading) {
     return (
@@ -55,6 +73,7 @@ const PostDetails = () => {
   }
   // Handle error or no post found
   if (error || !post) {
+    // Check for local 'post' state
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-red-50 to-red-100 py-12 px-6 sm:px-10 text-center dark:bg-red-950 dark:from-red-900 dark:to-red-950">
         <h2 className="text-3xl font-bold text-red-700 mb-4 dark:text-red-300">

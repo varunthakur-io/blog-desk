@@ -1,32 +1,33 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { postService } from '../services/postService';
 import { useNavigate } from 'react-router-dom';
 import PostItem from '../components/PostItem';
+import { useDispatch, useSelector } from 'react-redux';
+import { setError, setLoading, setPosts } from '../store/postSlice';
 
 const Dashboard = () => {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const { posts, loading, error, fetched } = useSelector(
+    (state) => state.posts
+  );
+
   const navigate = useNavigate();
 
   // Fetch user's posts
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const allPosts = await postService.getAllPosts();
-        const user = await postService.account.get(); // Get current user
-
-        // Filter posts by user ID
-        const userPosts = allPosts.filter((post) => post.authorId === user.$id);
-        setPosts(userPosts);
+        dispatch(setLoading(true));
+        const data = await postService.getAllPosts();
+        dispatch(setPosts(data));
       } catch (err) {
-        console.error('Error loading posts:', err);
-      } finally {
-        setLoading(false);
+        dispatch(setError(err.message));
+        console.error('Failed to fetch posts:', error);
       }
     };
 
-    fetchPosts();
-  }, []);
+    if (!fetched) fetchPosts();
+  }, [dispatch, fetched, error]);
 
   // Handlers for Edit/Delete actions
   const handleEdit = (postId) => {
@@ -38,10 +39,8 @@ const Dashboard = () => {
       try {
         await postService.deletePost(postId);
         setPosts(posts.filter((post) => post.$id !== postId));
-        // Success notification
       } catch (error) {
         console.error('Failed to delete post:', error.message);
-        // Error notification
       }
     }
   };

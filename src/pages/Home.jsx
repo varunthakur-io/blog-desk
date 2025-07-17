@@ -1,24 +1,31 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+
+import PostCard from '../components/PostCard';
 import { postService } from '../services/postService';
-import PostCard from '../components/PostCard'; // Ensure PostCard is updated for dark mode
+import { setError, setLoading, setPosts } from '../store/postSlice';
 
 const Home = () => {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const { posts, loading, error, fetched } = useSelector(
+    (state) => state.posts
+  );
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
+        dispatch(setLoading(true));
         const data = await postService.getAllPosts();
-        setPosts(data);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
+
+        dispatch(setPosts(data));
+      } catch (err) {
+        dispatch(setError(err.message));
+        console.error('Failed to fetch posts:', err); // fix here
       }
     };
-    fetchPosts();
-  }, []);
+
+    if (!fetched) fetchPosts(); // only run once
+  }, [dispatch, fetched]); 
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-300 to-blue-600 p-6 sm:p-10 dark:bg-gray-950 dark:from-gray-900 dark:to-gray-950">
@@ -34,6 +41,10 @@ const Home = () => {
               Fetching compelling stories...
             </p>
           </div>
+        ) : error ? (
+          <p className="text-center py-20 text-red-500 text-xl dark:text-red-400">
+            {error}
+          </p>
         ) : posts.length === 0 ? (
           <p className="text-center py-20 text-gray-500 text-xl dark:text-gray-400">
             No articles found yet. Be the first to publish something amazing!

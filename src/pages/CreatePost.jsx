@@ -1,14 +1,15 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+
 import { postService } from '../services/postService';
-import { useSelector } from 'react-redux';
+import { markStale } from '../store/postSlice';
 
 const CreatePost = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const { user } = useSelector((state) => state.auth);
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,7 +21,7 @@ const CreatePost = () => {
         title,
         content,
       });
-      navigate('/dashboard');
+      dispatch(markStale());
     } catch (error) {
       console.error('Failed to create post:', error.message);
     } finally {
