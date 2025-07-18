@@ -90,6 +90,17 @@ class AuthService {
       throw error;
     }
   }
+
+  // Delete user account
+  async deleteAccount(userId) {
+    try {
+      console.log('Deleting account...');
+      return await this.account.updateStatus(userId);
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      throw error;
+    }
+  }
 }
 
 // Export a single shared instance

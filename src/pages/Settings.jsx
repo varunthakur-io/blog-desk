@@ -1,10 +1,11 @@
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import useDarkMode from '../hooks/useDarkMode';
 import { authService } from '../services/authService';
 import { setUser } from '../store/authSlice';
 import { useNavigate } from 'react-router';
 
 const Settings = () => {
+  const userId = useSelector((state) => state.auth.user.$id);
   const [isDarkMode, setDarkMode] = useDarkMode();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -14,14 +15,34 @@ const Settings = () => {
     setDarkMode(!isDarkMode);
   };
 
-  // Function to handle delete
+  // Function to handle delete sessions
   const handleDeleteSessions = async () => {
     try {
-      if (window.alert('Areyou sure you want to log out from all devices?')) {
+      if (window.confirm('Areyou sure you want to log out from all devices?')) {
         await authService.deleteAllSessions();
+        dispatch(setUser(null));
+        navigate('/login');
       }
       dispatch(setUser(null));
       navigate('/login');
+    } catch (error) {
+      console.error('Error deleting sessions:', error);
+      alert('Failed to delete sessions. Please try again later.');
+    }
+  };
+
+  // Function to handle delete account
+  const handleDeleteAccount = async () => {
+    try {
+      if (
+        window.confirm(
+          'Are you sure you want to delete your account? This action cannot be undone.'
+        )
+      ) {
+        await authService.deleteAccount(userId);
+        dispatch(setUser(null));
+        navigate('/login');
+      }
     } catch (error) {
       console.error('Error deleting account:', error);
       alert('Failed to delete account. Please try again later.');
@@ -108,7 +129,8 @@ const Settings = () => {
             </p>
             <button
               type="button"
-              className="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition-colors duration-200 font-semibold text-lg shadow-md"
+              className="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition-colors duration-200 font-semibold text-lg shadow-md cursor-pointer"
+              onClick={handleDeleteAccount}
             >
               Delete My Account
             </button>
