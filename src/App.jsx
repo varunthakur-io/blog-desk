@@ -1,13 +1,5 @@
-import './App.css';
-
-// React & Libraries
-import { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-
-// Redux & Services
-import { setUser, clearUser } from './store/authSlice';
-import { authService } from './services/authService';
+import { useSelector } from 'react-redux';
 
 // Layout & Routing
 import MainLayout from './layout/MainLayout';
@@ -23,24 +15,19 @@ import PostDetails from './pages/PostDetails';
 import Signup from './pages/Signup';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
+import useAuthCheck from './hooks/useAuthCheck';
 
-// App Component
 function App() {
-  const dispatch = useDispatch();
+  const isAuthChecked = useAuthCheck();
+  const { loading } = useSelector((state) => state.auth);
 
-  useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const user = await authService.getAccount();
-        dispatch(setUser(user));
-      } catch (error) {
-        dispatch(clearUser());
-        console.error('No user found, clearing user state:', error.message);
-      }
-    };
-
-    checkUser();
-  }, [dispatch]);
+  if (!isAuthChecked || loading) {
+    return (
+      <div className="flex justify-center items-center h-screen text-2xl font-semibold bg-white dark:bg-gray-800 dark:text-white">
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <Routes>
@@ -56,7 +43,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/settings" element={<Settings />} />
         </Route>
-        
+
         {/* Public route for viewing articles */}
         <Route path="/posts/:id" element={<PostDetails />} />
       </Route>

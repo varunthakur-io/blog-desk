@@ -49,18 +49,31 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-6 sm:px-10
-                    dark:bg-gray-950 dark:from-gray-900 dark:to-gray-950"> {/* Dark mode background */}
-      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-100
-                      dark:bg-gray-800 dark:border-gray-700"> {/* Dark mode card background and border */}
-        <h2 className="text-4xl font-extrabold text-gray-900 mb-8 text-center
-                       dark:text-gray-100"> {/* Dark mode heading text */}
+    <div
+      className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-6 sm:px-10
+                    dark:bg-gray-950 dark:from-gray-900 dark:to-gray-950"
+    >
+      {' '}
+      {/* Dark mode background */}
+      <div
+        className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-100
+                      dark:bg-gray-800 dark:border-gray-700"
+      >
+        {' '}
+        {/* Dark mode card background and border */}
+        <h2
+          className="text-4xl font-extrabold text-gray-900 mb-8 text-center
+                       dark:text-gray-100"
+        >
+          {' '}
+          {/* Dark mode heading text */}
           Log In
         </h2>
-
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
-            <p className="text-red-500 text-center text-sm mb-4 dark:text-red-400">{error}</p> 
+            <p className="text-red-500 text-center text-sm mb-4 dark:text-red-400">
+              {error}
+            </p>
           )}
 
           <div>
@@ -75,7 +88,7 @@ const Login = () => {
               onChange={handleChange}
               placeholder="Email address"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg transition-colors duration-200
-                         bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400" 
+                         bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
               required
               disabled={loading}
             />
@@ -92,7 +105,7 @@ const Login = () => {
               onChange={handleChange}
               placeholder="Password"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg transition-colors duration-200
-                         bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400" 
+                         bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
               required
               disabled={loading}
             />
@@ -107,13 +120,13 @@ const Login = () => {
           >
             {loading ? 'Logging in...' : 'Log In'}
           </button>
-          <p className="text-md text-center text-gray-700 mt-4 dark:text-gray-300"> {/* Dark mode text */}
+          <p className="text-md text-center text-gray-700 mt-4 dark:text-gray-300">
             {' '}
-            Don't have an account?{' '}
+            {/* Dark mode text */} Don't have an account?{' '}
             <Link
               to="/signup"
               className="text-blue-600 font-semibold hover:underline hover:text-blue-700 transition-colors duration-200
-                         dark:text-blue-400 dark:hover:text-blue-300" 
+                         dark:text-blue-400 dark:hover:text-blue-300"
             >
               Sign up
             </Link>
