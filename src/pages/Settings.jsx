@@ -1,11 +1,31 @@
+import { useDispatch } from 'react-redux';
 import useDarkMode from '../hooks/useDarkMode';
+import { authService } from '../services/authService';
+import { setUser } from '../store/authSlice';
+import { useNavigate } from 'react-router';
 
 const Settings = () => {
   const [isDarkMode, setDarkMode] = useDarkMode();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   // Function to actually toggle dark mode
   const handleToggleDarkMode = () => {
     setDarkMode(!isDarkMode);
+  };
+
+  // Function to handle delete
+  const handleDeleteSessions = async () => {
+    try {
+      if (window.alert('Areyou sure you want to log out from all devices?')) {
+        await authService.deleteAllSessions();
+      }
+      dispatch(setUser(null));
+      navigate('/login');
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      alert('Failed to delete account. Please try again later.');
+    }
   };
 
   return (
@@ -67,7 +87,8 @@ const Settings = () => {
           <div className="mb-6 p-4 bg-gray-50 rounded-lg shadow-sm dark:bg-gray-700 dark:shadow-none">
             <button
               type="button"
-              className="w-full bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition-colors duration-200 font-semibold text-lg shadow-md"
+              onClick={handleDeleteSessions}
+              className="w-full bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition-colors duration-200 font-semibold text-lg shadow-md cursor-pointer"
             >
               Log Out from All Devices
             </button>

@@ -79,6 +79,17 @@ class AuthService {
       throw error;
     }
   }
+
+  // Delete all sessions for the user
+  async deleteAllSessions() {
+    try {
+      console.log('Deleting all sessions');
+      return await this.account.deleteSessions();
+    } catch (error) {
+      console.error('Error deleting all sessions:', error);
+      throw error;
+    }
+  }
 }
 
 // Export a single shared instance
