@@ -38,7 +38,9 @@ const Dashboard = () => {
     if (window.confirm('Are you sure you want to delete this post?')) {
       try {
         await postService.deletePost(postId);
-        setPosts(posts.filter((post) => post.$id !== postId));
+
+        // Dispatch the action
+        dispatch(setPosts(posts.filter((post) => post.$id !== postId)));
       } catch (error) {
         console.error('Failed to delete post:', error.message);
       }
