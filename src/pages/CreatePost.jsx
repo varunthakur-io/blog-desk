@@ -4,12 +4,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { postService } from '../services/postService';
 import { markStale } from '../store/postSlice';
 
+import { getRandomPostData } from '../utils/fakePostData';
+import { useNavigate } from 'react-router';
+
 const CreatePost = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,11 +26,20 @@ const CreatePost = () => {
         content,
       });
       dispatch(markStale());
+      setTitle('');
+      setContent('');
+      navigate('/dashboard');
     } catch (error) {
       console.error('Failed to create post:', error.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const fillRandomData = () => {
+    const { title, content } = getRandomPostData();
+    setTitle(title);
+    setContent(content);
   };
 
   return (
@@ -35,6 +48,17 @@ const CreatePost = () => {
         <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">
           Create a New Post
         </h1>
+
+        {import.meta.env.DEV && (
+          <button
+            type="button"
+            onClick={fillRandomData}
+            className="mb-4 bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500 transition-colors duration-200"
+          >
+            Fill Random Data
+          </button>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
