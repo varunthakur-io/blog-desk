@@ -36,14 +36,10 @@ class AuthService {
   // Register a new user
   async createUser({ email, password, name }) {
     try {
-      const user = await this.account.create(
-        ID.unique(),
-        email,
-        password,
-        name
-      );
-      this.cacheUser(user);
-      return user;
+      await this.account.create(ID.unique(), email, password, name);
+      // login the user immediately after registration
+      const loggedInUser = await this.loginUser({ email, password });
+      return loggedInUser;
     } catch (error) {
       console.error('Error creating user:', error);
       throw new Error(error.message || 'Failed to create user.');

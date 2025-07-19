@@ -11,12 +11,15 @@ const Signup = () => {
     password: '',
   });
 
+  // State for loading and error handling
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Dispatch and navigate hooks
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // Handle form changes
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
@@ -24,19 +27,16 @@ const Signup = () => {
     }));
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
-      await authService.createUser(formData);
-      await authService.loginUser({
-        email: formData.email,
-        password: formData.password,
-      });
-      const account = await authService.getAccount();
-      dispatch(setUser(account));
+      const user = await authService.createUser(formData);
+      // store the user in Redux store
+      dispatch(setUser(user));
       navigate('/');
     } catch (err) {
       setError(err.message || 'Signup failed. Please try again.');
