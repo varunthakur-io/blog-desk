@@ -127,13 +127,19 @@ class AuthService {
   }
 
   // Delete user account
-  async deleteAccount(userId) {
+  async deleteAccount() {
     try {
-      console.log('Deleting account...');
-      return await this.account.updateStatus(userId);
+      // Temporarily delete the account (blocked)
+      await this.account.updateStatus();
+
+      // Delete all sessions
+      // not working as updateStatus() deletes the curret session
+      // await this.deleteAllSessions();
+
+      this.clearCachedUser();
     } catch (error) {
       console.error('Error deleting account:', error);
-      throw error;
+      throw new Error(error.message || 'Failed to delete account.');
     }
   }
 }

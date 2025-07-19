@@ -1,11 +1,10 @@
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import useDarkMode from '../hooks/useDarkMode';
 import { authService } from '../services/authService';
 import { clearUser } from '../store/authSlice';
 import { useNavigate } from 'react-router';
 
 const Settings = () => {
-  const userId = useSelector((state) => state.auth.user.$id);
   const [isDarkMode, setDarkMode] = useDarkMode();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -37,8 +36,8 @@ const Settings = () => {
           'Are you sure you want to delete your account? This action cannot be undone.'
         )
       ) {
-        await authService.deleteAccount(userId);
-        dispatch(setUser(null));
+        await authService.deleteAccount();
+        dispatch(clearUser());
         navigate('/login');
       }
     } catch (error) {
