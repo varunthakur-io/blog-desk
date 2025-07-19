@@ -6,14 +6,14 @@ import { clearUser } from '../store/authSlice';
 import useDarkMode from '../hooks/useDarkMode';
 
 const Navbar = () => {
-  const { user } = useSelector((state) => state.auth);
+  const { user, status } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   // Custom hook to manage dark mode state
   const [isDarkMode, setDarkMode] = useDarkMode();
 
-  const isLoggedIn = !!user;
+  const isLoggedIn = status;
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -25,12 +25,13 @@ const Navbar = () => {
   const handleLogout = async () => {
     try {
       await authService.logout();
+
+      // Clear the user data from the store
       dispatch(clearUser());
       navigate('/login');
-      setIsProfileDropdownOpen(false);
-      setIsMobileMenuOpen(false); // Close mobile menu on logout
     } catch (err) {
-      console.error('Logout failed:', err);
+      console.error('Logout failed:', err.message);
+      alert('You are already logged out or session expired.');
     }
   };
 

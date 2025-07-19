@@ -70,7 +70,7 @@ class AuthService {
       this.clearCachedUser();
     } catch (error) {
       console.error('Error logging out:', error);
-      throw error;
+      throw new Error(error.message);
     }
   }
 
