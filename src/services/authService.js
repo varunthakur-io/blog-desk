@@ -53,16 +53,13 @@ class AuthService {
   // Login user with email & password
   async loginUser({ email, password }) {
     try {
-      const session = await this.account.createEmailPasswordSession(
-        email,
-        password
-      );
+      await this.account.createEmailPasswordSession(email, password);
       const user = await this.account.get();
       this.cacheUser(user);
-      return session;
+      return user;
     } catch (error) {
-      console.error('Error logging in user:', error);
-      throw new Error(error.message || 'Login failed.');
+      console.error('Error logging in:', error);
+      throw new Error(error.message);
     }
   }
 

@@ -37,12 +37,12 @@ const Login = () => {
     setError('');
 
     try {
-      await authService.loginUser(formData);
-      const account = await authService.getAccount();
-      dispatch(setUser(account)); // Set user in Redux state
+      // Use the authService to login it returns the user object
+      const user = await authService.loginUser(formData);
+      // Set user in Redux state
+      dispatch(setUser(user));
     } catch (err) {
       setError(err.message || 'Login failed. Please check your credentials.');
-      console.error('Login Error:', err); // Log error for debugging
     } finally {
       setLoading(false);
     }
