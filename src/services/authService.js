@@ -73,12 +73,11 @@ class AuthService {
   // Delete all sessions for the user
   async deleteAllSessions() {
     try {
-      console.log('Deleting all sessions');
       await this.account.deleteSessions();
       this.clearCachedUser();
     } catch (error) {
       console.error('Error deleting all sessions:', error);
-      throw error;
+      throw new Error(error.message);
     }
   }
 

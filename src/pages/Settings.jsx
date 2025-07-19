@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import useDarkMode from '../hooks/useDarkMode';
 import { authService } from '../services/authService';
-import { setUser } from '../store/authSlice';
+import { clearUser } from '../store/authSlice';
 import { useNavigate } from 'react-router';
 
 const Settings = () => {
@@ -20,13 +20,11 @@ const Settings = () => {
     try {
       if (window.confirm('Areyou sure you want to log out from all devices?')) {
         await authService.deleteAllSessions();
-        dispatch(setUser(null));
+        dispatch(clearUser());
         navigate('/login');
       }
-      dispatch(setUser(null));
-      navigate('/login');
-    } catch (error) {
-      console.error('Error deleting sessions:', error);
+    } catch (err) {
+      console.error('Error deleting sessions:', err);
       alert('Failed to delete sessions. Please try again later.');
     }
   };
