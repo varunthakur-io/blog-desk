@@ -9,6 +9,10 @@ class AuthService {
     this.account = new Account(this.client);
   }
 
+  // =========================
+  // Local Storage Management
+  // =========================
+
   // Cache user in localStorage
   cacheUser(user) {
     localStorage.setItem('user', JSON.stringify(user));
@@ -24,6 +28,10 @@ class AuthService {
   clearCachedUser() {
     localStorage.removeItem('user');
   }
+
+  // =========================
+  // Authentication
+  // =========================
 
   // Register a new user
   async createUser({ email, password, name }) {
@@ -58,6 +66,33 @@ class AuthService {
     }
   }
 
+  // Logout current session
+  async logout() {
+    try {
+      await this.account.deleteSession('current');
+      this.clearCachedUser();
+    } catch (error) {
+      console.error('Error logging out:', error);
+      throw error;
+    }
+  }
+
+  // Delete all sessions for the user
+  async deleteAllSessions() {
+    try {
+      console.log('Deleting all sessions');
+      await this.account.deleteSessions();
+      this.clearCachedUser();
+    } catch (error) {
+      console.error('Error deleting all sessions:', error);
+      throw error;
+    }
+  }
+
+  // =========================
+  // Account Management
+  // =========================
+
   // Get current user's account details
   async getAccount() {
     try {
@@ -71,28 +106,6 @@ class AuthService {
     } catch (error) {
       this.clearCachedUser();
       console.error('Error getting account:', error);
-      throw error;
-    }
-  }
-
-  // Logout current session
-  async logout() {
-    try {
-      await this.account.deleteSession('current');
-      this.clearCachedUser();
-    } catch (error) {
-      console.error('Error logging out:', error);
-      throw error;
-    }
-  }
-
-  // Delete specific session
-  async deleteSession(sessionId) {
-    try {
-      await this.account.deleteSession(sessionId);
-      this.clearCachedUser();
-    } catch (error) {
-      console.error('Error deleting session:', error);
       throw error;
     }
   }
@@ -117,6 +130,17 @@ class AuthService {
       return user;
     } catch (error) {
       console.error('Error updating email:', error);
+      throw error;
+    }
+  }
+
+  // Delete user account
+  async deleteAccount(userId) {
+    try {
+      console.log('Deleting account...');
+      return await this.account.updateStatus(userId);
+    } catch (error) {
+      console.error('Error deleting account:', error);
       throw error;
     }
   }

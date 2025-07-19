@@ -9,7 +9,7 @@ const Navbar = () => {
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  
+
   // Custom hook to manage dark mode state
   const [isDarkMode, setDarkMode] = useDarkMode();
 
@@ -24,7 +24,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      await authService.deleteSession('current');
+      await authService.logout();
       dispatch(clearUser());
       navigate('/login');
       setIsProfileDropdownOpen(false);
