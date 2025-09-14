@@ -4,6 +4,18 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { postService } from '../services/postService';
 import { markStale, setError, setLoading, setPosts } from '../store/postSlice';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const EditPost = () => {
   const { id } = useParams();
@@ -95,71 +107,96 @@ const EditPost = () => {
     }
   };
 
-  if (loading)
+  if (loading) {
     return (
-      <p className="text-center py-4 text-gray-700 dark:text-gray-300">
-        Loading...
-      </p>
+      <div className="flex justify-center items-center min-h-screen">
+        <Card className="w-full max-w-2xl">
+          <CardContent className="p-6">
+            <p className="text-center text-muted-foreground">Loading post...</p>
+          </CardContent>
+        </Card>
+      </div>
     );
+  }
 
   // Display error if fetching failed AND there's no data to show
   if (error && !formData.title && !formData.content) {
     return (
-      <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-gray-50 dark:bg-gray-950">
-        <p className="text-red-500 dark:text-red-400">Error: {error}</p>
+      <div className="flex justify-center items-center min-h-screen p-4">
+        <Card className="w-full max-w-2xl">
+          <CardContent className="p-6">
+            <Alert>
+              <AlertDescription>Error: {error}</AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   // If we are here and formData is empty, it means post wasn't found or still loading
-  // You might want a specific "Post not found" message here if `currentPostFromRedux` is null and not loading
   if (!formData.title && !formData.content && !loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-gray-50 dark:bg-gray-950">
-        <p className="text-gray-700 dark:text-gray-300">
-          Post not found or invalid ID.
-        </p>
+      <div className="flex justify-center items-center min-h-screen p-4">
+        <Card className="w-full max-w-2xl">
+          <CardContent className="p-6">
+            <Alert>
+              <AlertDescription>Post not found or invalid ID.</AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-gray-50 dark:bg-gray-950">
-      <div className="max-w-xl mx-auto p-6 bg-white shadow rounded-xl dark:bg-gray-800 dark:shadow-lg dark:shadow-gray-900">
-        <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">
-          Edit Post
-        </h2>
+    <div className="flex justify-center items-center min-h-screen p-4">
+      <Card className="w-full max-w-2xl">
+        <CardHeader>
+          <CardTitle>Edit Post</CardTitle>
+          <CardDescription>
+            Make changes to your post below.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <Alert>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            
+            <div className="grid gap-2">
+              <Label htmlFor="title">Title</Label>
+              <Input
+                id="title"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                placeholder="Post title"
+                required
+              />
+            </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            placeholder="Post title"
-            className="w-full p-2 border rounded text-gray-900 border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500"
-            required
-          />
+            <div className="grid gap-2">
+              <Label htmlFor="content">Content</Label>
+              <Textarea
+                id="content"
+                name="content"
+                value={formData.content}
+                onChange={handleChange}
+                placeholder="Post content"
+                className="min-h-[200px]"
+                required
+              />
+            </div>
 
-          <textarea
-            name="content"
-            value={formData.content}
-            onChange={handleChange}
-            placeholder="Post content"
-            className="w-full p-2 border rounded h-40 text-gray-900 border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500"
-            required
-          />
-
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors duration-200"
-          >
-            Update Post
-          </button>
-
-          {error && <p className="text-red-500 dark:text-red-400">{error}</p>}
-        </form>
-      </div>
+            <Button type="submit" className="w-full">
+              Update Post
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 };

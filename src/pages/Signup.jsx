@@ -1,8 +1,20 @@
 import { useState } from 'react';
-import { authService } from '../services/authService';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+
+import { authService } from '../services/authService';
 import { setUser } from '../store/authSlice';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -10,16 +22,11 @@ const Signup = () => {
     email: '',
     password: '',
   });
-
-  // State for loading and error handling
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
-  // Dispatch and navigate hooks
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Handle form changes
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
@@ -27,7 +34,6 @@ const Signup = () => {
     }));
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -35,100 +41,105 @@ const Signup = () => {
 
     try {
       const user = await authService.createUser(formData);
-      // store the user in Redux store
       dispatch(setUser(user));
       navigate('/');
     } catch (err) {
       setError(err.message || 'Signup failed. Please try again.');
-      console.error('Signup Error:', err);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-6 sm:px-10 dark:bg-gray-950 dark:from-gray-900 dark:to-gray-950">
-      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
-        <h2 className="text-4xl font-extrabold text-gray-900 mb-8 text-center dark:text-gray-100">
-          Create Account
-        </h2>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="name" className="sr-only">
-              Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Full Name"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg transition-colors duration-200 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
-              required
-              disabled={loading}
-            />
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8 fade-in">
+          <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white text-2xl font-bold">
+            B
           </div>
-
-          <div>
-            <label htmlFor="email" className="sr-only">
-              Email address
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Email address"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg transition-colors duration-200 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
-              required
-              disabled={loading}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="password" className="sr-only">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Password"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg transition-colors duration-200 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
-              required
-              disabled={loading}
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-3 rounded-xl shadow-lg hover:from-blue-700 hover:to-indigo-800 transform hover:-translate-y-0.5 transition-all duration-300 ease-in-out font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={loading}
-          >
-            {loading ? 'Creating...' : 'Sign Up'}
-          </button>
-
-          <p className="text-md text-center text-gray-700 mt-4 dark:text-gray-300">
-            Have an account ?{' '}
-            <Link
-              to="/login"
-              className="text-blue-600 font-semibold hover:underline hover:text-blue-700 transition-colors duration-200 dark:text-blue-400 dark:hover:text-blue-300"
-            >
-              Login
-            </Link>
-          </p>
-
-          {error && (
-            <p className="text-red-500 text-center text-sm mb-4 dark:text-red-400">
-              {error}
+          <h1 className="text-3xl font-bold gradient-text mb-2">Join Our Community</h1>
+          <p className="text-muted-foreground">Create your account to start sharing your stories</p>
+        </div>
+        
+        <Card className="glass-card border-0 slide-up">
+          <CardHeader className="text-center pb-6">
+            <CardTitle className="text-xl font-semibold">Create Account</CardTitle>
+            <CardDescription>Fill in your details to get started</CardDescription>
+          </CardHeader>
+          <CardContent className="px-8">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {error && (
+                <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20">
+                  <p className="text-destructive text-sm text-center font-medium">{error}</p>
+                </div>
+              )}
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-sm font-medium">Full Name</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  name="name"
+                  placeholder="John Doe"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                  className="bg-white/50 dark:bg-slate-900/50 border-white/20 dark:border-slate-800/30 focus:bg-white/80 dark:focus:bg-slate-900/80 transition-all duration-200"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  name="email"
+                  placeholder="you@example.com"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                  className="bg-white/50 dark:bg-slate-900/50 border-white/20 dark:border-slate-800/30 focus:bg-white/80 dark:focus:bg-slate-900/80 transition-all duration-200"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  name="password"
+                  placeholder="Create a secure password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                  className="bg-white/50 dark:bg-slate-900/50 border-white/20 dark:border-slate-800/30 focus:bg-white/80 dark:focus:bg-slate-900/80 transition-all duration-200"
+                />
+              </div>
+              <Button 
+                type="submit" 
+                className="w-full h-12 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200" 
+                disabled={loading}
+              >
+                {loading ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                    <span>Creating your account...</span>
+                  </div>
+                ) : (
+                  'Create Account'
+                )}
+              </Button>
+            </form>
+          </CardContent>
+          <CardFooter className="px-8 pt-6">
+            <p className="text-center text-sm text-muted-foreground w-full">
+              Already have an account?{' '}
+              <Link to="/login" className="font-medium text-primary hover:text-indigo-600 transition-colors">
+                Sign in here
+              </Link>
             </p>
-          )}
-        </form>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   );

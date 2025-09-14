@@ -1,9 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { ArrowLeft } from 'lucide-react';
 
 import { postService } from '../services/postService';
 import { setError, setLoading } from '../store/postSlice';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const PostDetails = () => {
   const { id } = useParams();
@@ -61,87 +73,79 @@ const PostDetails = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-6 sm:px-10 dark:bg-gray-950 dark:from-gray-900 dark:to-gray-950">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500 mb-4 mx-auto"></div>
-          <p className="text-xl text-gray-700 dark:text-gray-300">
-            Loading article...
-          </p>
-        </div>
+      <div className="container mx-auto py-10">
+        <Card className="max-w-4xl mx-auto">
+          <CardContent className="p-6">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-2 border-primary border-t-transparent mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading article...</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
   // Handle error or no post found
   if (error || !post) {
-    // Check for local 'post' state
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-red-50 to-red-100 py-12 px-6 sm:px-10 text-center dark:bg-red-950 dark:from-red-900 dark:to-red-950">
-        <h2 className="text-3xl font-bold text-red-700 mb-4 dark:text-red-300">
-          Oops!
-        </h2>
-        <p className="text-xl text-red-600 mb-6 dark:text-red-400">
-          {error || 'The article you are looking for does not exist.'}
-        </p>
-        <button
-          onClick={() => navigate('/')}
-          className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-md"
-        >
-          Go Back to Home
-        </button>
+      <div className="container mx-auto py-10">
+        <Card className="max-w-4xl mx-auto">
+          <CardContent className="p-6">
+            <div className="text-center space-y-4">
+              <Alert>
+                <AlertDescription>
+                  {error || 'The article you are looking for does not exist.'}
+                </AlertDescription>
+              </Alert>
+              <Button onClick={() => navigate('/')} className="mt-4">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Go Back to Home
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   // --- Main Post Details UI ---
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-6 sm:px-10 font-sans dark:bg-gray-950 dark:from-gray-900 dark:to-gray-950">
-      <div className="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-xl border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
-        <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 mb-4 leading-tight dark:text-gray-100">
-          {post.title}
-        </h1>
-
-        <div className="flex items-center text-gray-600 text-md mb-8 border-b pb-4 border-gray-100 dark:text-gray-400 dark:border-gray-700">
-          <span className="font-semibold text-blue-600 mr-2 dark:text-blue-400">
-            By {post.authorName}
-          </span>
-          <span className="text-gray-400">•</span>
-          <span className="ml-2">
-            Published on{' '}
-            {new Date(post.createdAt).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </span>
-        </div>
-
-        <div className="prose prose-lg max-w-none text-gray-800 leading-relaxed dark:text-gray-200 dark:prose-invert">
-          <p>{post.content}</p>
-        </div>
-
-        <div className="mt-12 text-center">
-          <button
-            onClick={() => navigate(-1)}
-            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 dark:text-blue-400 dark:bg-blue-900 dark:hover:bg-blue-800 dark:focus:ring-offset-gray-900"
-          >
-            <svg
-              className="w-5 h-5 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M10 19l-7-7m0 0l7-7m-7 7h18"
-              ></path>
-            </svg>
-            Back to Articles
-          </button>
-        </div>
-      </div>
+    <div className="container mx-auto py-10">
+      <Card className="max-w-4xl mx-auto">
+        <CardHeader>
+          <CardTitle className="text-3xl sm:text-4xl font-bold leading-tight">
+            {post.title}
+          </CardTitle>
+          <CardDescription className="flex items-center space-x-2 text-base">
+            <Badge variant="secondary">By {post.authorName}</Badge>
+            <span className="text-muted-foreground">•</span>
+            <span className="text-muted-foreground">
+              {new Date(post.createdAt).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </span>
+          </CardDescription>
+        </CardHeader>
+        
+        <Separator />
+        
+        <CardContent className="pt-6">
+          <div className="prose prose-lg max-w-none dark:prose-invert">
+            <p className="text-lg leading-relaxed whitespace-pre-wrap">{post.content}</p>
+          </div>
+          
+          <Separator className="my-8" />
+          
+          <div className="flex justify-center">
+            <Button onClick={() => navigate(-1)} variant="outline">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Articles
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

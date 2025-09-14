@@ -1,6 +1,21 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { User, Edit, Save, X } from 'lucide-react';
+
 import { authService } from '../services/authService';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Profile = () => {
   const user = useSelector((state) => state.auth.user);
@@ -73,129 +88,113 @@ const Profile = () => {
 
   if (!user) {
     return (
-      <div className="text-center py-20 text-lg text-gray-700 dark:text-gray-300">
-        Loading profile...
+      <div className="container mx-auto py-10">
+        <Card className="max-w-2xl mx-auto">
+          <CardContent className="p-6">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-2 border-primary border-t-transparent mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading profile...</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-6 sm:px-10 font-sans dark:bg-gray-950 dark:from-gray-900 dark:to-gray-950">
-      <div className="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-xl border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
-        <h1 className="text-4xl font-extrabold text-gray-900 mb-10 text-center dark:text-gray-100">
-          Your Profile
-        </h1>
-
-        <div className="flex flex-col items-center mb-10 pb-8 border-b border-gray-100 dark:border-gray-700">
-          <div className="w-28 h-28 rounded-full bg-blue-500 flex items-center justify-center text-white text-5xl font-bold mb-4 shadow-md">
-            {user?.name?.charAt(0).toUpperCase()}
+    <div className="container mx-auto py-10">
+      <Card className="max-w-2xl mx-auto">
+        <CardHeader className="text-center">
+          <div className="flex flex-col items-center space-y-4">
+            <Avatar className="w-24 h-24">
+              <AvatarImage src={user?.prefs?.avatar} alt={user?.name} />
+              <AvatarFallback className="text-2xl">
+                <User className="w-12 h-12" />
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <CardTitle className="text-2xl">{user.name}</CardTitle>
+              <CardDescription className="text-base mt-1">{user.email}</CardDescription>
+            </div>
+            {!isEditing && (
+              <Button onClick={handleEdit} variant="outline">
+                <Edit className="mr-2 h-4 w-4" />
+                Edit Profile
+              </Button>
+            )}
           </div>
+        </CardHeader>
+        
+        <Separator />
 
-          <h2 className="text-3xl font-bold text-gray-800 mb-2 dark:text-gray-200">
-            {user.name}
-          </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-400">
-            {user.email}
-          </p>
-
-          {!isEditing && (
-            <button
-              type="button"
-              onClick={handleEdit}
-              className="mt-6 px-5 py-2 rounded-lg text-blue-600 border border-blue-500 hover:bg-blue-50 transition-colors duration-200 font-semibold dark:text-blue-400 dark:border-blue-400 dark:hover:bg-blue-900"
-            >
-              Edit Profile
-            </button>
-          )}
-        </div>
-
-        <form onSubmit={handleSave}>
-          <div className="mb-6">
-            <label
-              htmlFor="name"
-              className="block text-lg font-semibold text-gray-700 mb-2 dark:text-gray-300"
-            >
-              Full Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-lg bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
-              placeholder="Your Full Name"
-              value={formData.name}
-              onChange={handleChange}
-              disabled={!isEditing}
-            />
-          </div>
-
-          <div className="mb-6">
-            <label
-              htmlFor="email"
-              className="block text-lg font-semibold text-gray-700 mb-2 dark:text-gray-300"
-            >
-              Email Address
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
-              placeholder="Your Email"
-              value={formData.email}
-              onChange={handleChange}
-              disabled={!isEditing}
-            />
-          </div>
-
-          {isEditing && (
-            <div className="mb-6">
-              <label
-                htmlFor="password"
-                className="block text-lg font-semibold text-gray-700 mb-2 dark:text-gray-300"
-              >
-                Current Password{' '}
-                <span className="text-sm text-gray-500 dark:text-gray-400">
-                  (required to update email)
-                </span>
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-lg bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
-                placeholder="Enter your current password"
-                value={formData.password}
+        <CardContent className="pt-6">
+          <form onSubmit={handleSave} className="space-y-6">
+            {error && (
+              <Alert>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            
+            <div className="grid gap-2">
+              <Label htmlFor="name">Full Name</Label>
+              <Input
+                id="name"
+                name="name"
+                type="text"
+                placeholder="Your Full Name"
+                value={formData.name}
                 onChange={handleChange}
+                disabled={!isEditing}
               />
             </div>
-          )}
 
-          {error && (
-            <p className="text-red-600 text-sm text-center mb-4 dark:text-red-400">
-              {error}
-            </p>
-          )}
-
-          {isEditing && (
-            <div className="flex flex-col sm:flex-row justify-end gap-4 mt-8">
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="bg-gray-300 text-gray-800 px-6 py-3 rounded-xl hover:bg-gray-400 font-semibold text-lg dark:bg-gray-600 dark:text-gray-100 dark:hover:bg-gray-500"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white px-8 py-3 rounded-xl hover:from-blue-700 hover:to-indigo-800 font-semibold text-lg"
-              >
-                Save Changes
-              </button>
+            <div className="grid gap-2">
+              <Label htmlFor="email">Email Address</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="Your Email"
+                value={formData.email}
+                onChange={handleChange}
+                disabled={!isEditing}
+              />
             </div>
-          )}
-        </form>
-      </div>
+
+            {isEditing && (
+              <div className="grid gap-2">
+                <Label htmlFor="password">
+                  Current Password
+                  <span className="text-sm text-muted-foreground ml-2">
+                    (required to update email)
+                  </span>
+                </Label>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  placeholder="Enter your current password"
+                  value={formData.password}
+                  onChange={handleChange}
+                />
+              </div>
+            )}
+
+            {isEditing && (
+              <div className="flex gap-4 justify-end pt-4">
+                <Button type="button" onClick={handleCancel} variant="outline">
+                  <X className="mr-2 h-4 w-4" />
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  <Save className="mr-2 h-4 w-4" />
+                  Save Changes
+                </Button>
+              </div>
+            )}
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 };

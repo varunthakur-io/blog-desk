@@ -1,23 +1,42 @@
-// src/pages/Dashboard.jsx
 import { useEffect } from 'react';
-import { postService } from '../services/postService';
 import { useNavigate } from 'react-router-dom';
-import PostItem from '../components/PostItem';
 import { useDispatch, useSelector } from 'react-redux';
+import { MoreHorizontal } from 'lucide-react';
+
+import { postService } from '../services/postService';
 import { setError, setLoading, setPosts } from '../store/postSlice';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
-  const { posts, loading, error, fetched } = useSelector(
-    (state) => state.posts
-  );
+  const { posts, loading, error, fetched } = useSelector((state) => state.posts);
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
 
-  // Filter posts by logged-in user's authorId
   const userPosts = posts.filter((post) => post.authorId === user?.$id);
 
-  // Fetch all posts
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -34,7 +53,6 @@ const Dashboard = () => {
     if (!fetched) fetchPosts();
   }, [dispatch, fetched]);
 
-  // Handlers for Edit/Delete actions
   const handleEdit = (postId) => {
     navigate(`/edit/${postId}`);
   };
@@ -51,44 +69,76 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 py-10 px-4 dark:bg-gray-950">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            Your Blog Posts
-          </h1>
-          <button
-            onClick={() => navigate('/create')}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors duration-200"
-          >
-            + New Post
-          </button>
-        </div>
-
-        {error && (
-          <p className="text-red-500 text-center mb-4 dark:text-red-400">
-            {error}
-          </p>
-        )}
-        {loading ? (
-          <p className="text-gray-600 dark:text-gray-300">Loading...</p>
-        ) : userPosts.length === 0 ? (
-          <p className="text-gray-600 dark:text-gray-300">
-            You haven't written any posts yet.
-          </p>
-        ) : (
-          <div className="space-y-4">
-            {userPosts.map((post) => (
-              <PostItem
-                key={post.$id}
-                post={post}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-              />
-            ))}
+    <div className="container mx-auto py-10">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>Your Posts</CardTitle>
+            <CardDescription>Manage your blog posts here.</CardDescription>
           </div>
-        )}
-      </div>
+          <Button onClick={() => navigate('/create')}>+ New Post</Button>
+        </CardHeader>
+        <CardContent>
+          {error && (
+            <p className="text-destructive text-center mb-4">{error}</p>
+          )}
+          {loading ? (
+            <p className="text-muted-foreground">Loading...</p>
+          ) : userPosts.length === 0 ? (
+            <div className="text-center py-10">
+              <p className="text-muted-foreground">
+                You haven't written any posts yet.
+              </p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Title</TableHead>
+                  <TableHead className="hidden md:table-cell">Date</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {userPosts.map((post) => (
+                  <TableRow key={post.$id}>
+                    <TableCell className="font-medium">{post.title}</TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      {new Date(post.createdAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                      })}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuItem onClick={() => handleEdit(post.$id)}>
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleDelete(post.$id)}
+                            className="text-destructive"
+                          >
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

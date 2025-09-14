@@ -1,11 +1,21 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 import { postService } from '../services/postService';
 import { markStale } from '../store/postSlice';
-
 import { getRandomPostData } from '../utils/fakePostData';
-import { useNavigate } from 'react-router';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
 const CreatePost = () => {
   const [title, setTitle] = useState('');
@@ -26,8 +36,6 @@ const CreatePost = () => {
         content,
       });
       dispatch(markStale());
-      setTitle('');
-      setContent('');
       navigate('/dashboard');
     } catch (error) {
       console.error('Failed to create post:', error.message);
@@ -43,47 +51,58 @@ const CreatePost = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-gray-50 dark:bg-gray-950">
-      <div className="max-w-2xl mx-auto p-6 bg-white rounded-xl shadow dark:bg-gray-800 dark:shadow-lg dark:shadow-gray-900">
-        <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">
-          Create a New Post
-        </h1>
-
-        {import.meta.env.DEV && (
-          <button
-            type="button"
-            onClick={fillRandomData}
-            className="mb-4 bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500 transition-colors duration-200"
-          >
-            Fill Random Data
-          </button>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            placeholder="Title"
-            className="w-full border px-3 py-2 rounded text-gray-900 border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
-          <textarea
-            placeholder="Content"
-            className="w-full border px-3 py-2 rounded min-h-[150px] text-gray-900 border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            required
-          />
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors duration-200"
-            disabled={loading}
-          >
-            {loading ? 'Creating...' : 'Create Post'}
-          </button>
-        </form>
-      </div>
+    <div className="flex justify-center items-center min-h-screen p-4">
+      <Card className="w-full max-w-2xl">
+        <CardHeader>
+          <CardTitle>Create a New Post</CardTitle>
+          <CardDescription>
+            Fill out the form below to publish a new article.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid gap-2">
+              <Label htmlFor="title">Title</Label>
+              <Input
+                id="title"
+                type="text"
+                placeholder="Your post title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+                disabled={loading}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="content">Content</Label>
+              <Textarea
+                id="content"
+                placeholder="Write your post content here..."
+                className="min-h-[200px]"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                required
+                disabled={loading}
+              />
+            </div>
+            <div className="flex justify-between">
+                <Button type="submit" disabled={loading}>
+                    {loading ? 'Creating...' : 'Create Post'}
+                </Button>
+                {import.meta.env.DEV && (
+                <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={fillRandomData}
+                    disabled={loading}
+                >
+                    Fill Random Data
+                </Button>
+                )}
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 };

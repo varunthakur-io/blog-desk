@@ -1,8 +1,29 @@
 import { useDispatch } from 'react-redux';
+import { Moon, Sun, LogOut, Trash2, Globe, Settings as SettingsIcon } from 'lucide-react';
+
 import useDarkMode from '../hooks/useDarkMode';
 import { authService } from '../services/authService';
 import { clearUser } from '../store/authSlice';
 import { useNavigate } from 'react-router';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Settings = () => {
   const [isDarkMode, setDarkMode] = useDarkMode();
@@ -47,93 +68,114 @@ const Settings = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-6 sm:px-10 font-sans dark:bg-gray-950 dark:from-gray-900 dark:to-gray-950">
-      <div className="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-xl border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
-        <h1 className="text-4xl font-extrabold text-gray-900 mb-10 text-center dark:text-gray-100">
-          Settings
-        </h1>
+    <div className="container mx-auto py-10">
+      <Card className="max-w-3xl mx-auto">
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <SettingsIcon className="mr-2 h-6 w-6" />
+            Settings
+          </CardTitle>
+          <CardDescription>
+            Manage your account settings and preferences.
+          </CardDescription>
+        </CardHeader>
 
-        <div className="mb-10 pb-8 border-b border-gray-100 dark:border-gray-700">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6 dark:text-gray-200">
-            General
-          </h2>
-
-          <div className="flex items-center justify-between mb-6 p-4 bg-gray-50 rounded-lg shadow-sm dark:bg-gray-700 dark:shadow-none">
-            <label
-              htmlFor="darkModeToggle"
-              className="text-lg font-medium text-gray-700 cursor-pointer dark:text-gray-300"
-            >
-              Dark Mode
-            </label>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                id="darkModeToggle"
-                className="sr-only peer"
-                checked={isDarkMode}
-                onChange={handleToggleDarkMode}
-              />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-            </label>
+        <CardContent className="space-y-6">
+          <div>
+            <h3 className="text-lg font-semibold mb-4">General</h3>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="space-y-0.5">
+                  <Label className="text-base cursor-pointer flex items-center">
+                    {isDarkMode ? (
+                      <Moon className="mr-2 h-4 w-4" />
+                    ) : (
+                      <Sun className="mr-2 h-4 w-4" />
+                    )}
+                    Dark Mode
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    Toggle between light and dark themes
+                  </p>
+                </div>
+                <Switch
+                  checked={isDarkMode}
+                  onCheckedChange={handleToggleDarkMode}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label className="text-base flex items-center">
+                  <Globe className="mr-2 h-4 w-4" />
+                  Language
+                </Label>
+                <Select defaultValue="en">
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a language" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="en">English</SelectItem>
+                    <SelectItem value="es">Español</SelectItem>
+                    <SelectItem value="fr">Français</SelectItem>
+                    <SelectItem value="de">Deutsch</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </div>
+          
+          <Separator />
 
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg shadow-sm dark:bg-gray-700 dark:shadow-none">
-            <label
-              htmlFor="languageSelect"
-              className="block text-lg font-medium text-gray-700 mb-2 dark:text-gray-300"
-            >
-              Language
-            </label>
-            <select
-              id="languageSelect"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg bg-white appearance-none pr-8 transition-colors duration-200 dark:bg-gray-600 dark:border-gray-500 dark:text-gray-100"
-              defaultValue="en"
-            >
-              <option value="en">English</option>
-              <option value="es">Español</option>
-              <option value="fr">Français</option>
-              <option value="de">Deutsch</option>
-            </select>
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Account & Security</h3>
+            
+            <div className="space-y-4">
+              <div className="p-4 border rounded-lg">
+                <div className="space-y-2">
+                  <div className="flex items-center">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span className="font-medium">Session Management</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Log out from all active sessions across all your devices.
+                  </p>
+                </div>
+                <Button 
+                  onClick={handleDeleteSessions}
+                  variant="destructive"
+                  className="w-full mt-3"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Log Out from All Devices
+                </Button>
+              </div>
+              
+              <Alert>
+                <Trash2 className="h-4 w-4" />
+                <AlertDescription>
+                  <div className="space-y-3">
+                    <div>
+                      <h4 className="font-semibold text-destructive">Danger Zone</h4>
+                      <p className="text-sm">
+                        Permanently delete your account and all associated data. This action is irreversible.
+                      </p>
+                    </div>
+                    <Button 
+                      onClick={handleDeleteAccount}
+                      variant="destructive"
+                      size="sm"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete My Account
+                    </Button>
+                  </div>
+                </AlertDescription>
+              </Alert>
+            </div>
           </div>
-        </div>
-
-        <div className="mb-10 pb-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6 dark:text-gray-200">
-            Account & Security
-          </h2>
-
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg shadow-sm dark:bg-gray-700 dark:shadow-none">
-            <button
-              type="button"
-              onClick={handleDeleteSessions}
-              className="w-full bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition-colors duration-200 font-semibold text-lg shadow-md cursor-pointer"
-            >
-              Log Out from All Devices
-            </button>
-            <p className="text-sm text-gray-500 mt-2 text-center dark:text-gray-400">
-              This will log you out of all active sessions across all your
-              devices.
-            </p>
-          </div>
-
-          <div className="p-4 bg-red-50 rounded-lg border border-red-200 shadow-sm dark:bg-red-900 dark:border-red-700">
-            <h3 className="text-xl font-bold text-red-800 mb-3 dark:text-white">
-              Delete Account
-            </h3>
-            <p className="text-gray-700 mb-4 text-md dark:text-gray-300">
-              Permanently delete your account and all associated data. This
-              action is irreversible.
-            </p>
-            <button
-              type="button"
-              className="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition-colors duration-200 font-semibold text-lg shadow-md cursor-pointer"
-              onClick={handleDeleteAccount}
-            >
-              Delete My Account
-            </button>
-          </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

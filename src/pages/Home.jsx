@@ -1,9 +1,13 @@
 import { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { BookOpen, Search, Loader2 } from 'lucide-react';
 
 import PostCard from '../components/PostCard';
 import { postService } from '../services/postService';
 import { setError, setLoading, setPosts } from '../store/postSlice';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { NavLink } from 'react-router-dom';
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -16,15 +20,14 @@ const Home = () => {
       try {
         dispatch(setLoading(true));
         const data = await postService.getAllPosts();
-
         dispatch(setPosts(data));
       } catch (err) {
         dispatch(setError(err.message));
-        console.error('Failed to fetch posts:', err); // fix here
+        console.error('Failed to fetch posts:', err);
       }
     };
 
-    if (!fetched) fetchPosts(); // only run once
+    if (!fetched) fetchPosts();
   }, [dispatch, fetched]);
 
   const filteredPosts = useMemo(() => {
@@ -36,40 +39,88 @@ const Home = () => {
     );
   }, [posts, searchTerm]);
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-300 to-blue-600 p-6 sm:p-10 dark:bg-gray-950 dark:from-gray-900 dark:to-gray-950">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-5xl font-extrabold mb-12 text-gray-900 text-center tracking-tight leading-tight dark:text-gray-100">
-          Explore Our Latest Insights
-        </h1>
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="flex flex-col items-center justify-center text-center py-32">
+          <Loader2 className="h-16 w-16 animate-spin text-primary mb-4" />
+          <p className="text-muted-foreground text-lg">Loading posts...</p>
+        </div>
+      );
+    }
 
-        {loading ? (
-          <div className="text-center py-20">
-            <div className="animate-pulse rounded-full h-16 w-16 bg-blue-200 mx-auto dark:bg-blue-800"></div>
-            <p className="mt-6 text-gray-600 text-lg dark:text-gray-400">
-              Fetching compelling stories...
+    if (error) {
+      return (
+        <div className="flex justify-center py-20">
+          <Alert variant="destructive" className="max-w-md">
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        </div>
+      );
+    }
+
+    if (filteredPosts.length === 0) {
+      return (
+        <div className="text-center py-32">
+          <div className="flex flex-col items-center space-y-4">
+            {searchTerm ? (
+              <Search className="h-20 w-20 text-muted-foreground/50" />
+            ) : (
+              <BookOpen className="h-20 w-20 text-muted-foreground/50" />
+            )}
+            <h3 className="text-2xl font-semibold">
+              {searchTerm ? 'No Results Found' : 'No Posts Yet'}
+            </h3>
+            <p className="text-muted-foreground max-w-md mx-auto">
+              {searchTerm
+                ? `We couldn't find any posts matching "${searchTerm}". Try a different search.`
+                : 'There are no posts to display right now. Why not be the first to create one?'}
+            </p>
+            {!searchTerm && (
+              <Button asChild>
+                <NavLink to="/create">Create Post</NavLink>
+              </Button>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-8">
+        {searchTerm && (
+          <div className="text-center">
+            <p className="text-muted-foreground">
+              Found {filteredPosts.length} {filteredPosts.length === 1 ? 'post' : 'posts'} for "{searchTerm}"
             </p>
           </div>
-        ) : error ? (
-          <p className="text-center py-20 text-red-500 text-xl dark:text-red-400">
-            {error}
-          </p>
-        ) : filteredPosts.length === 0 ? (
-          <p className="text-center py-20 text-gray-500 text-xl dark:text-gray-400">
-            {searchTerm
-              ? `No articles found for "${searchTerm}". Try a different search!`
-              : 'No articles found yet. Be the first to publish something amazing!'}
-          </p>
-        ) : (
-          <div className="columns-1 sm:columns-2 lg:columns-3 gap-8 xl:gap-10">
-            {filteredPosts.map((post) => (
-              <div key={post.$id} className="mb-8 break-inside-avoid-column">
-                <PostCard post={post} />
-              </div>
-            ))}
-          </div>
         )}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredPosts.map((post, index) => (
+            <PostCard key={post.$id} post={post} />
+          ))}
+        </div>
       </div>
+    );
+  };
+
+  return (
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Hero Section */}
+      {!searchTerm && (
+        <div className="text-center py-20 sm:py-32">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-4">
+            Stories & Ideas
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            A minimal blog for creative minds. Explore and share your thoughts with the world.
+          </p>
+        </div>
+      )}
+      
+      {/* Content Section */}
+      {renderContent()}
     </div>
   );
 };
