@@ -7,12 +7,16 @@ const postsSlice = createSlice({
     loading: false,
     error: null,
     fetched: false, // flag to prevent re-fetching
+    searchTerm: '',
   },
   reducers: {
     setPosts: (state, action) => {
       state.posts = action.payload;
       state.fetched = true;
       state.loading = false;
+    },
+    setSearchTerm: (state, action) => {
+      state.searchTerm = action.payload;
     },
     setLoading: (state, action) => {
       state.loading = action.payload;
@@ -31,6 +35,12 @@ const postsSlice = createSlice({
   },
 });
 
-export const { setPosts, setLoading, setError, clearPosts, markStale } =
-  postsSlice.actions;
+export const {
+  setPosts,
+  setLoading,
+  setError,
+  clearPosts,
+  markStale,
+  setSearchTerm,
+} = postsSlice.actions;
 export default postsSlice.reducer;

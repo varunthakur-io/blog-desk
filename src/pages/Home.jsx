@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import PostCard from '../components/PostCard';
@@ -7,7 +7,7 @@ import { setError, setLoading, setPosts } from '../store/postSlice';
 
 const Home = () => {
   const dispatch = useDispatch();
-  const { posts, loading, error, fetched } = useSelector(
+  const { posts, loading, error, fetched, searchTerm } = useSelector(
     (state) => state.posts
   );
 
@@ -25,7 +25,16 @@ const Home = () => {
     };
 
     if (!fetched) fetchPosts(); // only run once
-  }, [dispatch, fetched]); 
+  }, [dispatch, fetched]);
+
+  const filteredPosts = useMemo(() => {
+    if (!searchTerm) {
+      return posts;
+    }
+    return posts.filter((post) =>
+      post.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [posts, searchTerm]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-300 to-blue-600 p-6 sm:p-10 dark:bg-gray-950 dark:from-gray-900 dark:to-gray-950">
@@ -45,13 +54,15 @@ const Home = () => {
           <p className="text-center py-20 text-red-500 text-xl dark:text-red-400">
             {error}
           </p>
-        ) : posts.length === 0 ? (
+        ) : filteredPosts.length === 0 ? (
           <p className="text-center py-20 text-gray-500 text-xl dark:text-gray-400">
-            No articles found yet. Be the first to publish something amazing!
+            {searchTerm
+              ? `No articles found for "${searchTerm}". Try a different search!`
+              : 'No articles found yet. Be the first to publish something amazing!'}
           </p>
         ) : (
           <div className="columns-1 sm:columns-2 lg:columns-3 gap-8 xl:gap-10">
-            {posts.map((post) => (
+            {filteredPosts.map((post) => (
               <div key={post.$id} className="mb-8 break-inside-avoid-column">
                 <PostCard post={post} />
               </div>

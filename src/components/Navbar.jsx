@@ -4,9 +4,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { authService } from '../services/authService';
 import { clearUser } from '../store/authSlice';
 import useDarkMode from '../hooks/useDarkMode';
+import { setSearchTerm } from '../store/postSlice';
 
 const Navbar = () => {
   const { user, status } = useSelector((state) => state.auth);
+  const { searchTerm } = useSelector((state) => state.posts);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -33,6 +35,10 @@ const Navbar = () => {
       console.error('Logout failed:', err.message);
       alert('You are already logged out or session expired.');
     }
+  };
+
+  const handleSearchChange = (e) => {
+    dispatch(setSearchTerm(e.target.value));
   };
 
   const getNavLinkClasses = ({ isActive }) =>
@@ -86,6 +92,16 @@ const Navbar = () => {
 
         {/* Right Section - Desktop */}
         <div className="hidden md:flex items-center gap-4">
+          {/* Search Bar */}
+          <div className="relative">
+            <input
+              type="search"
+              placeholder="Search posts..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+              className="w-full md:w-56 px-4 py-2 text-gray-800 bg-gray-100 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:focus:ring-blue-500"
+            />
+          </div>
           {/* Dark Mode Toggle */}
           <button
             onClick={handleToggleDarkMode} // Call the new toggle function
