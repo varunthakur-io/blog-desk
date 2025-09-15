@@ -1,13 +1,26 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 const ShadcnTest = () => {
   return (
     <div className="p-8 space-y-4 max-w-2xl mx-auto">
       <h1 className="text-3xl font-bold">Shadcn/ui Test Components</h1>
-      
+
       <Card>
         <CardHeader>
           <CardTitle>Testing shadcn/ui</CardTitle>
@@ -21,9 +34,9 @@ const ShadcnTest = () => {
             <Button variant="outline">Outline Button</Button>
             <Button variant="destructive">Destructive Button</Button>
           </div>
-          
+
           <Input placeholder="Test input field" />
-          
+
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="secondary">Open Dialog</Button>
@@ -32,7 +45,8 @@ const ShadcnTest = () => {
               <DialogHeader>
                 <DialogTitle>Test Dialog</DialogTitle>
                 <DialogDescription>
-                  This is a test dialog to verify shadcn/ui components are working.
+                  This is a test dialog to verify shadcn/ui components are
+                  working.
                 </DialogDescription>
               </DialogHeader>
             </DialogContent>

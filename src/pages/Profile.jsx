@@ -114,7 +114,9 @@ const Profile = () => {
             </Avatar>
             <div>
               <CardTitle className="text-2xl">{user.name}</CardTitle>
-              <CardDescription className="text-base mt-1">{user.email}</CardDescription>
+              <CardDescription className="text-base mt-1">
+                {user.email}
+              </CardDescription>
             </div>
             {!isEditing && (
               <Button onClick={handleEdit} variant="outline">
@@ -124,7 +126,7 @@ const Profile = () => {
             )}
           </div>
         </CardHeader>
-        
+
         <Separator />
 
         <CardContent className="pt-6">
@@ -134,7 +136,7 @@ const Profile = () => {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            
+
             <div className="grid gap-2">
               <Label htmlFor="name">Full Name</Label>
               <Input

@@ -31,7 +31,9 @@ import {
 
 const Dashboard = () => {
   const dispatch = useDispatch();
-  const { posts, loading, error, fetched } = useSelector((state) => state.posts);
+  const { posts, loading, error, fetched } = useSelector(
+    (state) => state.posts,
+  );
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
 
@@ -120,7 +122,9 @@ const Dashboard = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => handleEdit(post.$id)}>
+                          <DropdownMenuItem
+                            onClick={() => handleEdit(post.$id)}
+                          >
                             Edit
                           </DropdownMenuItem>
                           <DropdownMenuItem

@@ -86,19 +86,19 @@ const CreatePost = () => {
               />
             </div>
             <div className="flex justify-between">
-                <Button type="submit" disabled={loading}>
-                    {loading ? 'Creating...' : 'Create Post'}
-                </Button>
-                {import.meta.env.DEV && (
+              <Button type="submit" disabled={loading}>
+                {loading ? 'Creating...' : 'Create Post'}
+              </Button>
+              {import.meta.env.DEV && (
                 <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={fillRandomData}
-                    disabled={loading}
+                  type="button"
+                  variant="secondary"
+                  onClick={fillRandomData}
+                  disabled={loading}
                 >
-                    Fill Random Data
+                  Fill Random Data
                 </Button>
-                )}
+              )}
             </div>
           </form>
         </CardContent>

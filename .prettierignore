@@ -1,0 +1,17 @@
+# Ignore build output
+dist/
+build/
+
+# Ignore dependencies
+node_modules/
+
+# Ignore environment variables
+.env
+.env.*
+!/.env.example
+
+# Ignore OS-specific files
+.DS_Store
+
+# Ignore other
+coverage/

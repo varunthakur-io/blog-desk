@@ -1,5 +1,12 @@
 import { useDispatch } from 'react-redux';
-import { Moon, Sun, LogOut, Trash2, Globe, Settings as SettingsIcon } from 'lucide-react';
+import {
+  Moon,
+  Sun,
+  LogOut,
+  Trash2,
+  Globe,
+  Settings as SettingsIcon,
+} from 'lucide-react';
 
 import useDarkMode from '../hooks/useDarkMode';
 import { authService } from '../services/authService';
@@ -54,7 +61,7 @@ const Settings = () => {
     try {
       if (
         window.confirm(
-          'Are you sure you want to delete your account? This action cannot be undone.'
+          'Are you sure you want to delete your account? This action cannot be undone.',
         )
       ) {
         await authService.deleteAccount();
@@ -83,7 +90,7 @@ const Settings = () => {
         <CardContent className="space-y-6">
           <div>
             <h3 className="text-lg font-semibold mb-4">General</h3>
-            
+
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="space-y-0.5">
@@ -104,7 +111,7 @@ const Settings = () => {
                   onCheckedChange={handleToggleDarkMode}
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label className="text-base flex items-center">
                   <Globe className="mr-2 h-4 w-4" />
@@ -124,12 +131,12 @@ const Settings = () => {
               </div>
             </div>
           </div>
-          
+
           <Separator />
 
           <div>
             <h3 className="text-lg font-semibold mb-4">Account & Security</h3>
-            
+
             <div className="space-y-4">
               <div className="p-4 border rounded-lg">
                 <div className="space-y-2">
@@ -141,7 +148,7 @@ const Settings = () => {
                     Log out from all active sessions across all your devices.
                   </p>
                 </div>
-                <Button 
+                <Button
                   onClick={handleDeleteSessions}
                   variant="destructive"
                   className="w-full mt-3"
@@ -150,18 +157,21 @@ const Settings = () => {
                   Log Out from All Devices
                 </Button>
               </div>
-              
+
               <Alert>
                 <Trash2 className="h-4 w-4" />
                 <AlertDescription>
                   <div className="space-y-3">
                     <div>
-                      <h4 className="font-semibold text-destructive">Danger Zone</h4>
+                      <h4 className="font-semibold text-destructive">
+                        Danger Zone
+                      </h4>
                       <p className="text-sm">
-                        Permanently delete your account and all associated data. This action is irreversible.
+                        Permanently delete your account and all associated data.
+                        This action is irreversible.
                       </p>
                     </div>
-                    <Button 
+                    <Button
                       onClick={handleDeleteAccount}
                       variant="destructive"
                       size="sm"

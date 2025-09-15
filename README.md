@@ -29,4 +29,3 @@ Make sure you have Node.js and `npm` installed on your system.
 - `npm run dev`: Runs the app in development mode.
 - `npm run build`: Builds the app for production.
 - `npm run preview`: Serves the production build locally for preview.
-

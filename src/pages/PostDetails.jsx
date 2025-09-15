@@ -60,7 +60,7 @@ const PostDetails = () => {
         }
       } catch (err) {
         dispatch(
-          setError(err.message || 'Failed to load post. Please try again.')
+          setError(err.message || 'Failed to load post. Please try again.'),
         );
         console.error('Error details:', err);
       } finally {
@@ -128,16 +128,18 @@ const PostDetails = () => {
             </span>
           </CardDescription>
         </CardHeader>
-        
+
         <Separator />
-        
+
         <CardContent className="pt-6">
           <div className="prose prose-lg max-w-none dark:prose-invert">
-            <p className="text-lg leading-relaxed whitespace-pre-wrap">{post.content}</p>
+            <p className="text-lg leading-relaxed whitespace-pre-wrap">
+              {post.content}
+            </p>
           </div>
-          
+
           <Separator className="my-8" />
-          
+
           <div className="flex justify-center">
             <Button onClick={() => navigate(-1)} variant="outline">
               <ArrowLeft className="mr-2 h-4 w-4" />

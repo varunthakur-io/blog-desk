@@ -75,7 +75,7 @@ const Navbar = () => {
                 >
                   {item.name}
                 </NavLink>
-              )
+              ),
           )}
         </nav>
 
@@ -133,7 +133,9 @@ const Navbar = () => {
                   <NavLink to="/settings">Settings</NavLink>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>
+                  Logout
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
@@ -141,7 +143,7 @@ const Navbar = () => {
               <Button>Login</Button>
             </NavLink>
           )}
-          
+
           {/* Mobile Menu Button */}
           <div className="md:hidden">
             <Button
@@ -150,7 +152,11 @@ const Navbar = () => {
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label="Toggle menu"
             >
-              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {isMobileMenuOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
             </Button>
           </div>
         </div>
@@ -176,7 +182,7 @@ const Navbar = () => {
                     >
                       {item.name}
                     </NavLink>
-                  )
+                  ),
               )}
             </nav>
           </div>

@@ -61,24 +61,34 @@ const Login = () => {
           <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white text-2xl font-bold">
             B
           </div>
-          <h1 className="text-3xl font-bold gradient-text mb-2">Welcome Back</h1>
-          <p className="text-muted-foreground">Sign in to continue your journey with us</p>
+          <h1 className="text-3xl font-bold gradient-text mb-2">
+            Welcome Back
+          </h1>
+          <p className="text-muted-foreground">
+            Sign in to continue your journey with us
+          </p>
         </div>
-        
+
         <Card className="glass-card border-0 slide-up">
           <CardHeader className="text-center pb-6">
             <CardTitle className="text-xl font-semibold">Sign In</CardTitle>
-            <CardDescription>Enter your credentials to access your account</CardDescription>
+            <CardDescription>
+              Enter your credentials to access your account
+            </CardDescription>
           </CardHeader>
           <CardContent className="px-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               {error && (
                 <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20">
-                  <p className="text-destructive text-sm text-center font-medium">{error}</p>
+                  <p className="text-destructive text-sm text-center font-medium">
+                    {error}
+                  </p>
                 </div>
               )}
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
+                <Label htmlFor="email" className="text-sm font-medium">
+                  Email Address
+                </Label>
                 <Input
                   id="email"
                   type="email"
@@ -92,7 +102,9 @@ const Login = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                <Label htmlFor="password" className="text-sm font-medium">
+                  Password
+                </Label>
                 <Input
                   id="password"
                   type="password"
@@ -105,9 +117,9 @@ const Login = () => {
                   className="bg-white/50 dark:bg-slate-900/50 border-white/20 dark:border-slate-800/30 focus:bg-white/80 dark:focus:bg-slate-900/80 transition-all duration-200"
                 />
               </div>
-              <Button 
-                type="submit" 
-                className="w-full h-12 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200" 
+              <Button
+                type="submit"
+                className="w-full h-12 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200"
                 disabled={loading}
               >
                 {loading ? (
@@ -124,7 +136,10 @@ const Login = () => {
           <CardFooter className="px-8 pt-6">
             <p className="text-center text-sm text-muted-foreground w-full">
               Don&apos;t have an account?{' '}
-              <Link to="/signup" className="font-medium text-primary hover:text-indigo-600 transition-colors">
+              <Link
+                to="/signup"
+                className="font-medium text-primary hover:text-indigo-600 transition-colors"
+              >
                 Create one here
               </Link>
             </p>

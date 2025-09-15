@@ -20,6 +20,7 @@ This is a blog application built with React 19, Vite, Appwrite (as BaaS), and mo
 ## Essential Commands
 
 ### Development
+
 ```bash
 npm run dev          # Start development server (Vite)
 npm run build        # Build for production
@@ -28,7 +29,9 @@ npm run lint         # Run ESLint
 ```
 
 ### Environment Setup
+
 Copy `.env.example` to `.env` and configure Appwrite credentials:
+
 ```bash
 VITE_APPWRITE_URL=""
 VITE_APPWRITE_PROJECT_ID=""
@@ -38,11 +41,13 @@ VITE_APPWRITE_BUCKET_ID=""
 ```
 
 ### Testing & Development
+
 - Development server runs on `http://localhost:5173`
 - Hot reload is enabled via Vite
 - Path aliases configured: `@/` maps to `src/`
 
 ### shadcn/ui Commands
+
 ```bash
 npx shadcn@latest add [component]     # Add specific component
 npx shadcn@latest info               # Check project configuration
@@ -52,6 +57,7 @@ npx shadcn@latest init --force       # Reinitialize if needed
 ## Architecture Overview
 
 ### Application Structure
+
 ```
 src/
 ├── components/          # Reusable UI components
@@ -80,33 +86,39 @@ src/
 ### Key Architectural Patterns
 
 #### Service Layer Architecture
+
 - **AuthService**: Handles all authentication operations with Appwrite, includes local caching
 - **PostService**: Manages blog post CRUD operations via Appwrite Database
 - Services are instantiated as singletons and exported for shared usage
 
 #### Redux State Management
+
 - **Auth Slice**: Manages user authentication state, loading states
 - **Post Slice**: Handles posts array, search functionality, loading states, and fetched flags
 - State is persisted locally for auth via AuthService caching
 
 #### Route Protection
+
 - **PrivateRoute**: HOC component that wraps protected routes
 - **useAuthCheck**: Hook that validates authentication on app startup
 - Authentication state checked before rendering main app
 
 #### Component Architecture
+
 - **MainLayout**: Provides consistent layout with Navbar for most routes
 - **Auth pages** (login/signup) render without layout
 - **Protected routes**: Dashboard, Create/Edit posts, Profile, Settings
 - **Public routes**: Home, individual post viewing
 
 ### Appwrite Integration
+
 - Uses Appwrite SDK v18 for authentication and database operations
 - Configuration centralized in `src/config/appwrite.js`
 - User sessions managed with local caching for performance
 - Database operations follow Appwrite's document-based structure
 
 ### UI Component System
+
 - Built on shadcn/ui components (New York style) with Tailwind CSS v3
 - Configured via `components.json` for component management
 - Dark mode support with CSS custom properties
@@ -117,22 +129,26 @@ src/
 ## Important Development Notes
 
 ### State Management
+
 - Posts are cached in Redux with a `fetched` flag to prevent unnecessary API calls
 - Authentication state includes loading indicators for better UX
 - Local storage used for user session persistence
 
 ### Authentication Flow
+
 1. App startup checks for existing session via `useAuthCheck`
 2. User data cached locally for performance
 3. Protected routes redirect to login if unauthenticated
 4. Session management handles both single session and all session cleanup
 
 ### Vite Configuration
+
 - Development server configured with `host: true` for network access
 - Path alias `@/` configured for clean imports
 - React plugin enabled for JSX support
 
 ### Deployment
+
 - Firebase hosting configured to serve from `dist/` directory
 - SPA routing handled with rewrite rules to `index.html`
 - Build assets optimized via Vite's production build

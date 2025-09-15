@@ -93,7 +93,7 @@ const EditPost = () => {
       if (responseData && responseData.$id) {
         // Create a new array with the updated post
         const updatedPostsArray = posts.map((post) =>
-          String(post.$id) === String(responseData.$id) ? responseData : post
+          String(post.$id) === String(responseData.$id) ? responseData : post,
         );
         // Dispatch setPosts with the new array
         dispatch(setPosts(updatedPostsArray));
@@ -154,9 +154,7 @@ const EditPost = () => {
       <Card className="w-full max-w-2xl">
         <CardHeader>
           <CardTitle>Edit Post</CardTitle>
-          <CardDescription>
-            Make changes to your post below.
-          </CardDescription>
+          <CardDescription>Make changes to your post below.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -165,7 +163,7 @@ const EditPost = () => {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            
+
             <div className="grid gap-2">
               <Label htmlFor="title">Title</Label>
               <Input

@@ -29,7 +29,7 @@ class PostService {
         appwrite.databaseId,
         appwrite.collectionId,
         postId,
-        postData
+        postData,
       );
 
       return res;
@@ -52,7 +52,7 @@ class PostService {
         appwrite.databaseId,
         appwrite.collectionId,
         postId,
-        postData
+        postData,
       );
 
       return res;
@@ -68,7 +68,7 @@ class PostService {
       const res = await this.databases.getDocument(
         appwrite.databaseId,
         appwrite.collectionId,
-        postId
+        postId,
       );
       return res;
     } catch (error) {
@@ -82,7 +82,7 @@ class PostService {
     try {
       const res = await this.databases.listDocuments(
         appwrite.databaseId,
-        appwrite.collectionId
+        appwrite.collectionId,
       );
       return res.documents;
     } catch (error) {
@@ -97,7 +97,7 @@ class PostService {
       await this.databases.deleteDocument(
         appwrite.databaseId,
         appwrite.collectionId,
-        postId
+        postId,
       );
       return true;
     } catch (error) {
