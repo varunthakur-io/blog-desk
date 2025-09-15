@@ -93,8 +93,8 @@ const Home = () => {
                <div className="text-center">
                   <p className="text-muted-foreground">
                      Found {filteredPosts.length}{' '}
-                     {filteredPosts.length === 1 ? 'post' : 'posts'} for "
-                     {searchTerm}"
+                     {filteredPosts.length === 1 ? 'post' : 'posts'} for &quot;
+                     {searchTerm}&quot;
                   </p>
                </div>
             )}

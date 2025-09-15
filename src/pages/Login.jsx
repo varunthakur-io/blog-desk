@@ -123,7 +123,7 @@ const Login = () => {
           </CardContent>
           <CardFooter className="px-8 pt-6">
             <p className="text-center text-sm text-muted-foreground w-full">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link to="/signup" className="font-medium text-primary hover:text-indigo-600 transition-colors">
                 Create one here
               </Link>

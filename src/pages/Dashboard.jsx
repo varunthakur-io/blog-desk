@@ -87,7 +87,7 @@ const Dashboard = () => {
           ) : userPosts.length === 0 ? (
             <div className="text-center py-10">
               <p className="text-muted-foreground">
-                You haven't written any posts yet.
+                You haven&apos;t written any posts yet.
               </p>
             </div>
           ) : (
