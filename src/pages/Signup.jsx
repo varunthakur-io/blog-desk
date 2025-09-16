@@ -54,10 +54,10 @@ const Signup = () => {
     <div className="min-h-screen flex items-center justify-center p-6">
       <div className="w-full max-w-md">
         <div className="text-center mb-8 fade-in">
-          <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white text-2xl font-bold">
+          <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-primary flex items-center justify-center text-primary-foreground text-2xl font-bold">
             B
           </div>
-          <h1 className="text-3xl font-bold gradient-text mb-2">
+          <h1 className="text-3xl font-bold mb-2">
             Join Our Community
           </h1>
           <p className="text-muted-foreground">
@@ -65,7 +65,7 @@ const Signup = () => {
           </p>
         </div>
 
-        <Card className="glass-card border-0 slide-up">
+        <Card className="slide-up">
           <CardHeader className="text-center pb-6">
             <CardTitle className="text-xl font-semibold">
               Create Account
@@ -96,7 +96,6 @@ const Signup = () => {
                   onChange={handleChange}
                   required
                   disabled={loading}
-                  className="bg-white/50 dark:bg-slate-900/50 border-white/20 dark:border-slate-800/30 focus:bg-white/80 dark:focus:bg-slate-900/80 transition-all duration-200"
                 />
               </div>
               <div className="space-y-2">
@@ -112,7 +111,6 @@ const Signup = () => {
                   onChange={handleChange}
                   required
                   disabled={loading}
-                  className="bg-white/50 dark:bg-slate-900/50 border-white/20 dark:border-slate-800/30 focus:bg-white/80 dark:focus:bg-slate-900/80 transition-all duration-200"
                 />
               </div>
               <div className="space-y-2">
@@ -128,12 +126,11 @@ const Signup = () => {
                   onChange={handleChange}
                   required
                   disabled={loading}
-                  className="bg-white/50 dark:bg-slate-900/50 border-white/20 dark:border-slate-800/30 focus:bg-white/80 dark:focus:bg-slate-900/80 transition-all duration-200"
                 />
               </div>
               <Button
                 type="submit"
-                className="w-full h-12 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200"
+                className="w-full h-12"
                 disabled={loading}
               >
                 {loading ? (

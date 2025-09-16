@@ -40,6 +40,7 @@ export default [
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
       'react-refresh/only-export-components': 'warn',
+      'react/no-unescaped-entities': 'off',
     },
     settings: { react: { version: 'detect' } },
   },
