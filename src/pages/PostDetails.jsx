@@ -73,13 +73,11 @@ const PostDetails = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-10">
-        <Card className="max-w-4xl mx-auto">
-          <CardContent className="p-6">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-2 border-primary border-t-transparent mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Loading article...</p>
-            </div>
+      <div className="min-h-[60vh] flex items-center justify-center ">
+        <Card className="border-0">
+          <CardContent className="flex flex-col items-center justify-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary border-t-transparent mb-6"></div>
+            <p className="text-zinc-400 text-lg">Loading article...</p>
           </CardContent>
         </Card>
       </div>
@@ -110,41 +108,45 @@ const PostDetails = () => {
 
   // --- Main Post Details UI ---
   return (
-    <div className="container mx-auto py-10">
-      <Card className="max-w-4xl mx-auto">
-        <CardHeader>
-          <CardTitle className="text-3xl sm:text-4xl font-bold leading-tight">
-            {post.title}
-          </CardTitle>
-          <CardDescription className="flex items-center space-x-2 text-base">
-            <Badge variant="secondary">By {post.authorName}</Badge>
-            <span className="text-muted-foreground">•</span>
-            <span className="text-muted-foreground">
-              {new Date(post.createdAt).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-            </span>
-          </CardDescription>
+    <div className="container">
+      <Card className="max-w-4xl mx-auto border-0">
+        <CardHeader className="border-0">
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle className="text-3xl sm:text-4xl font-bold leading-tight mb-2">
+                {post.title}
+              </CardTitle>
+
+              <CardDescription className="flex items-center space-x-2 text-base">
+                <Badge variant="secondary">By {post.authorName}</Badge>
+                <span className="text-muted-foreground">•</span>
+                <span className="text-foreground">
+                  {new Date(post.createdAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </span>
+              </CardDescription>
+            </div>
+
+            {/* Back Button */}
+            <div className="align">
+              <Button onClick={() => navigate(-1)} variant="outline">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Articles
+              </Button>
+            </div>
+          </div>
         </CardHeader>
 
         <Separator />
 
         <CardContent className="pt-6">
           <div className="prose prose-lg max-w-none dark:prose-invert">
-            <p className="text-lg leading-relaxed whitespace-pre-wrap">
+            <p className="text-lg leading-relaxed whitespace-pre-wrap text-justify">
               {post.content}
             </p>
-          </div>
-
-          <Separator className="my-8" />
-
-          <div className="flex justify-center">
-            <Button onClick={() => navigate(-1)} variant="outline">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Articles
-            </Button>
           </div>
         </CardContent>
       </Card>
