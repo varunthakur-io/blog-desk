@@ -3,7 +3,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
+    "lib": ["es6", "dom"]
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]
