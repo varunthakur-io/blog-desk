@@ -1,4 +1,6 @@
+
 import { Client, Account, ID, Databases } from 'appwrite';
+import { toast } from 'react-hot-toast';
 import { appwriteConfig as appwrite } from '../config/appwrite';
 
 class PostService {
@@ -32,9 +34,11 @@ class PostService {
         postData,
       );
 
+      toast.success('Post created successfully!');
       return res;
     } catch (error) {
       console.error('Error creating post:', error);
+      toast.error(error.message || 'Failed to create post.');
       throw error;
     }
   }
@@ -55,9 +59,11 @@ class PostService {
         postData,
       );
 
+      toast.success('Post updated successfully!');
       return res;
     } catch (error) {
       console.error('Error updating post:', error);
+      toast.error(error.message || 'Failed to update post.');
       throw error;
     }
   }
@@ -73,6 +79,7 @@ class PostService {
       return res;
     } catch (error) {
       console.error('Error fetching post:', error);
+      toast.error(error.message || 'Failed to fetch post.');
       throw error;
     }
   }
@@ -87,6 +94,7 @@ class PostService {
       return res.documents;
     } catch (error) {
       console.error('Error fetching posts:', error);
+      toast.error(error.message || 'Failed to fetch posts.');
       throw error;
     }
   }
@@ -99,9 +107,11 @@ class PostService {
         appwrite.collectionId,
         postId,
       );
+      toast.success('Post deleted successfully!');
       return true;
     } catch (error) {
       console.error('Error deleting post:', error);
+      toast.error(error.message || 'Failed to delete post.');
       throw error;
     }
   }
@@ -109,3 +119,4 @@ class PostService {
 
 // Export a single shared instance
 export const postService = new PostService();
+

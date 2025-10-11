@@ -1,4 +1,5 @@
 import { Client, Account, ID } from 'appwrite';
+import { toast } from 'react-hot-toast';
 import { appwriteConfig as appwrite } from '../config/appwrite';
 
 class AuthService {
@@ -39,9 +40,11 @@ class AuthService {
       await this.account.create(ID.unique(), email, password, name);
       // login the user immediately after registration
       const loggedInUser = await this.loginUser({ email, password });
+      toast.success('Account created successfully!');
       return loggedInUser;
     } catch (error) {
       console.error('Error creating user:', error);
+      toast.error(error.message || 'Failed to create user.');
       throw new Error(error.message || 'Failed to create user.');
     }
   }
@@ -52,9 +55,11 @@ class AuthService {
       await this.account.createEmailPasswordSession(email, password);
       const user = await this.account.get();
       this.cacheUser(user);
+      toast.success('Logged in successfully!');
       return user;
     } catch (error) {
       console.error('Error logging in:', error);
+      toast.error(error.message || 'Login failed. Please check your credentials.');
       throw new Error(error.message);
     }
   }
@@ -64,8 +69,10 @@ class AuthService {
     try {
       await this.account.deleteSession('current');
       this.clearCachedUser();
+      toast.success('Logged out successfully!');
     } catch (error) {
       console.error('Error logging out:', error);
+      toast.error(error.message || 'Logout failed.');
       throw new Error(error.message);
     }
   }
@@ -107,9 +114,11 @@ class AuthService {
     try {
       const user = await this.account.updateName(name);
       this.cacheUser(user);
+      toast.success('Name updated successfully!');
       return user;
     } catch (error) {
       console.error('Error updating name:', error);
+      toast.error(error.message || 'Failed to update name.');
       throw error;
     }
   }
@@ -119,9 +128,11 @@ class AuthService {
     try {
       const user = await this.account.updateEmail(email, password);
       this.cacheUser(user);
+      toast.success('Email updated successfully!');
       return user;
     } catch (error) {
       console.error('Error updating email:', error);
+      toast.error(error.message || 'Failed to update email.');
       throw error;
     }
   }
@@ -137,8 +148,10 @@ class AuthService {
       // await this.deleteAllSessions();
 
       this.clearCachedUser();
+      toast.success('Account deleted successfully!');
     } catch (error) {
       console.error('Error deleting account:', error);
+      toast.error(error.message || 'Failed to delete account.');
       throw new Error(error.message || 'Failed to delete account.');
     }
   }
@@ -146,3 +159,4 @@ class AuthService {
 
 // Export a single shared instance
 export const authService = new AuthService();
+

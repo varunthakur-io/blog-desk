@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { Toaster } from 'react-hot-toast';
 
 // Layout & Routing
 import MainLayout from './layout/MainLayout';
@@ -48,8 +49,24 @@ function App() {
         </Route>
 
         {/* Auth pages (no layout) */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route
+          path="/login"
+          element={
+            <div>
+              <Toaster position="top-right" reverseOrder={false} />
+              <Login />
+            </div>
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <div>
+              <Toaster position="top-right" reverseOrder={false} />
+              <Signup />
+            </div>
+          }
+        />
       </Routes>
     </Suspense>
   );
