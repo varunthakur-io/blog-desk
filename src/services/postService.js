@@ -1,4 +1,3 @@
-
 import { Client, Account, ID, Databases } from 'appwrite';
 import { toast } from 'react-hot-toast';
 import { appwriteConfig as appwrite } from '../config/appwrite';
@@ -85,16 +84,23 @@ class PostService {
   }
 
   // Get all posts
-  async getAllPosts() {
+  async getAllPosts(page = 1, limit = 6) {
     try {
+      // fetch all documents (no queries)
       const res = await this.databases.listDocuments(
         appwrite.databaseId,
         appwrite.collectionId,
       );
-      return res.documents;
+
+      // client-side pagination
+      const allDocs = res?.documents ?? [];
+      const start = (page - 1) * limit;
+      const pageDocs = allDocs.slice(start, start + limit);
+
+      return pageDocs;
     } catch (error) {
       console.error('Error fetching posts:', error);
-      toast.error(error.message || 'Failed to fetch posts.');
+      toast.error(error?.message || 'Failed to fetch posts.');
       throw error;
     }
   }
@@ -119,4 +125,3 @@ class PostService {
 
 // Export a single shared instance
 export const postService = new PostService();
-

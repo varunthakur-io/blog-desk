@@ -1,35 +1,79 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useCallback } from 'react';
+import { NavLink } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { BookOpen, Search, Loader2 } from 'lucide-react';
 
+// Components
 import PostCard from '../components/PostCard';
+
+// Services
 import { postService } from '../services/postService';
-import { setError, setLoading, setPosts } from '../store/postSlice';
+
+// Redux
+import {
+  setError,
+  setLoading,
+  setPosts,
+  addPosts,
+  clearPosts,
+} from '../store/postSlice';
+
+// UI Components
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { NavLink } from 'react-router-dom';
 
 const Home = () => {
   const dispatch = useDispatch();
-  const { posts, loading, error, fetched, searchTerm } = useSelector(
+  const { posts, loading, error, searchTerm, page, hasMore } = useSelector(
     (state) => state.posts,
   );
 
-  useEffect(() => {
-    const fetchPosts = async () => {
+  // Fetch posts from the API
+  const fetchPosts = useCallback(
+    async (pageNum) => {
       try {
         dispatch(setLoading(true));
-        const data = await postService.getAllPosts();
-        dispatch(setPosts(data));
+        const data = await postService.getAllPosts(pageNum);
+        dispatch(
+          pageNum === 1
+            ? setPosts({ documents: data, page: pageNum })
+            : addPosts({ documents: data, page: pageNum }),
+        );
+
+        if (pageNum === 1) {
+          dispatch(setPosts(data));
+        } else {
+          dispatch(addPosts(data));
+        }
       } catch (err) {
-        dispatch(setError(err.message));
+        dispatch(setError(err.message || 'Failed to fetch posts'));
         console.error('Failed to fetch posts:', err);
+      } finally {
+        dispatch(setLoading(false));
       }
+    },
+    [dispatch],
+  );
+
+  // Clear posts on component mount and fetch initial posts
+  useEffect(() => {
+    dispatch(clearPosts());
+    fetchPosts(1);
+
+    // Cleanup function to clear posts on component unmount
+    return () => {
+      dispatch(clearPosts());
     };
+  }, [dispatch, fetchPosts]);
 
-    if (!fetched) fetchPosts();
-  }, [dispatch, fetched]);
+  // handle load more button click
+  const handleLoadMore = () => {
+    // guard: don't fire if already loading or nothing more to load
+    if (loading || !hasMore) return;
+    fetchPosts(page + 1);
+  };
 
+  // filter posts based on search term
   const filteredPosts = useMemo(() => {
     if (!searchTerm) {
       return posts;
@@ -39,8 +83,10 @@ const Home = () => {
     );
   }, [posts, searchTerm]);
 
+  // render content based on state
   const renderContent = () => {
-    if (loading) {
+    // Loading state
+    if (loading && posts.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center text-center py-32">
           <Loader2 className="h-16 w-16 animate-spin text-primary mb-4" />
@@ -49,6 +95,7 @@ const Home = () => {
       );
     }
 
+    // Error state
     if (error) {
       return (
         <div className="flex justify-center py-20">
@@ -60,6 +107,7 @@ const Home = () => {
       );
     }
 
+    // No posts state
     if (filteredPosts.length === 0) {
       return (
         <div className="text-center py-32">
@@ -103,6 +151,19 @@ const Home = () => {
             <PostCard key={post.$id} post={post} />
           ))}
         </div>
+        {hasMore && !searchTerm && (
+          <div className="text-center">
+            <Button onClick={handleLoadMore} disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading...
+                </>
+              ) : (
+                'Load More'
+              )}
+            </Button>
+          </div>
+        )}
       </div>
     );
   };

@@ -220,7 +220,9 @@ export default function Profile() {
             : null;
           if (refreshed && dispatch)
             dispatch({ type: 'auth/setUser', payload: refreshed });
-        } catch {}
+        } catch (err) {
+          console.error('Failed to refresh user after avatar update', err);
+        }
       }
       toast.success('Avatar updated!');
     } catch (err) {
