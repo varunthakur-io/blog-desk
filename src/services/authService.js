@@ -1,6 +1,7 @@
-import { account } from '@/api/client';
+import { account, storage } from '@/api/client';
 import { toast } from 'react-hot-toast';
 import { ID } from 'appwrite';
+import { appwriteConfig as appwrite } from '../config/appwrite';
 
 class AuthService {
   // =========================
@@ -150,8 +151,56 @@ class AuthService {
       throw new Error(error.message || 'Failed to delete account.');
     }
   }
+
+  // =========================
+  // Avatar Upload (Public URL)
+  // =========================
+  async updateAvatar(file) {
+    try {
+      // Get current user to check for existing avatar
+      const currentUser = await account.get();
+      const currentAvatarFileId = currentUser.prefs?.avatarFileId;
+      console.log('Current Avatar File ID:', currentAvatarFileId);
+
+      // If an old avatar exists, delete it first
+      if (currentAvatarFileId) {
+        try {
+          await storage.deleteFile(appwrite.bucketId, currentAvatarFileId);
+        } catch (deleteError) {
+          console.warn('Failed to delete old avatar file:', deleteError);
+          // Continue even if old avatar deletion fails
+        }
+      }
+
+      // Upload new avatar
+      const uploaded = await storage.createFile(
+        appwrite.bucketId,
+        ID.unique(),
+        file,
+      );
+
+      // Generate public view URL (no transformations)
+      const avatarUrl = `${appwrite.url}/storage/buckets/${appwrite.bucketId}/files/${uploaded.$id}/view?project=${appwrite.projectId}`;
+
+      // Update user prefs
+      const updatedUser = await account.updatePrefs({
+        ...(await account.get()).prefs,
+        avatar: avatarUrl,
+        avatarFileId: uploaded.$id,
+      });
+
+      // Cache and return
+      this.cacheUser(updatedUser);
+      toast.success('Profile photo updated!');
+      return updatedUser;
+    } catch (error) {
+      console.error('Error updating avatar:', error);
+      toast.error(error.message || 'Failed to update avatar.');
+      throw error;
+    }
+  }
+  
 }
 
 // Export a single shared instance
 export const authService = new AuthService();
-

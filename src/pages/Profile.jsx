@@ -23,6 +23,7 @@ import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { setUser } from '@/store/authSlice';
 
 const isValidEmail = (email) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email?.trim() ?? '');
@@ -48,6 +49,7 @@ export default function Profile() {
   const [postsLoading, setPostsLoading] = useState(false);
 
   const fileRef = useRef(null);
+  const [preview, setPreview] = useState(null);
 
   // hydrate form with authUser
   useEffect(() => {
@@ -58,6 +60,8 @@ export default function Profile() {
         password: '',
         bio: authUser.prefs?.bio || '',
       });
+      // initialize preview from user's avatar (if any)
+      setPreview(authUser.prefs?.avatar ?? null);
     }
   }, [authUser]);
 
@@ -142,10 +146,7 @@ export default function Profile() {
       setSaving(true);
 
       // Update name/bio/email depending on your authService API
-      // You may have separate methods: updateName, updateEmail, updateProfile - adapt accordingly.
-      // Example: call a single updateProfile that accepts partial fields:
       if (authService.updateProfile) {
-        // preferred: single call
         const payload = {
           name: formData.name,
           bio: formData.bio,
@@ -154,16 +155,10 @@ export default function Profile() {
             formData.email !== authUser.email ? formData.password : undefined,
         };
         const updated = await authService.updateProfile(payload);
-        // if backend returns updated user, update redux
-        if (updated?.user && dispatch) {
-          dispatch({ type: 'auth/setUser', payload: updated.user }); // adapt action name
-        } else if (dispatch) {
-          // if not returned, you might want to re-fetch current user
-          // const refreshed = await authService.getCurrentUser();
-          // dispatch({ type: 'auth/setUser', payload: refreshed });
+        if (updated?.user) {
+          dispatch({ type: 'auth/setUser', payload: updated.user });
         }
       } else {
-        // fallback: call individual methods
         if (formData.name !== authUser.name)
           await authService.updateName(formData.name);
         if (formData.bio !== authUser.prefs?.bio) {
@@ -173,7 +168,6 @@ export default function Profile() {
         if (formData.email !== authUser.email) {
           await authService.updateEmail(formData.email, formData.password);
         }
-        // optionally refresh user
       }
 
       toast.success('Profile updated successfully!');
@@ -188,49 +182,62 @@ export default function Profile() {
     }
   };
 
-  // avatar upload
+  // avatar click
   const handleAvatarClick = () => fileRef.current?.click();
 
+  // avatar upload (with optimistic preview)
   const handleAvatarChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Basic client-side validation
     if (!file.type.startsWith('image/')) {
       toast.error('Please select an image file.');
       return;
     }
+
     if (file.size > 3 * 1024 * 1024) {
-      toast.error('Please use an image smaller than 3 MB.');
+      toast.error('Image must be smaller than 3 MB.');
       return;
     }
 
+    // create local preview
+    const objectUrl = URL.createObjectURL(file);
+    setPreview(objectUrl);
+
     try {
       setAvatarUploading(true);
-      // adapt: authService.updateAvatar(file) should return updated user or avatar url
-      const result = await authService.updateAvatar(file);
-      if (result?.user && dispatch) {
-        dispatch({ type: 'auth/setUser', payload: result.user }); // adapt to your action
-      } else if (result?.avatarUrl && dispatch) {
-        // you could patch local user in redux manually
-        dispatch({ type: 'auth/patchAvatar', payload: result.avatarUrl }); // adapt action
-      } else {
-        // fallback: re-fetch current user if available
-        try {
-          const refreshed = authService.getCurrentUser
-            ? await authService.getCurrentUser()
-            : null;
-          if (refreshed && dispatch)
-            dispatch({ type: 'auth/setUser', payload: refreshed });
-        } catch (err) {
-          console.error('Failed to refresh user after avatar update', err);
-        }
+
+      // Call the upload service
+      const updatedUser = await authService.updateAvatar(file);
+
+      // Update Redux state with returned user
+      if (updatedUser) {
+        dispatch(setUser(updatedUser));
+        // if updatedUser contains prefs.avatar, use it as preview (final)
+        setPreview(updatedUser?.prefs?.avatar ?? null);
       }
-      toast.success('Avatar updated!');
-    } catch (err) {
-      console.error('Avatar upload error', err);
-      toast.error(err?.message || 'Failed to upload avatar.');
+
+      toast.success('Profile picture updated!');
+    } catch (error) {
+      console.error('Avatar upload failed:', error);
+      toast.error(error.message || 'Failed to upload avatar.');
+      // revert preview on failure
+      setPreview(authUser?.prefs?.avatar ?? null);
     } finally {
       setAvatarUploading(false);
-      if (fileRef.current) fileRef.current.value = '';
+
+      // Clear file input so same file can be re-selected later
+      if (fileRef.current) {
+        fileRef.current.value = '';
+      }
+      // revoke local object URL after a tick (if we used it)
+      // (if preview was replaced by server URL above, revoking is still safe)
+      try {
+        URL.revokeObjectURL(objectUrl);
+      } catch (e) {
+        console.error('Failed to revoke object URL', e);
+      }
     }
   };
 
@@ -252,8 +259,11 @@ export default function Profile() {
               <div className="relative">
                 <Avatar className="w-28 h-28">
                   <AvatarImage
-                    src={authUser?.prefs?.avatar}
+                    src={preview ?? authUser?.prefs?.avatar}
                     alt={authUser?.name}
+                    onError={(e) => {
+                      e.currentTarget.src = '/default-avatar.png';
+                    }}
                   />
                   <AvatarFallback className="text-2xl">
                     <User className="w-12 h-12" />
