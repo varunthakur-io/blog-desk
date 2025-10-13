@@ -1,15 +1,8 @@
-import { Client, Account, ID } from 'appwrite';
+import { account } from '@/api/client';
 import { toast } from 'react-hot-toast';
-import { appwriteConfig as appwrite } from '../config/appwrite';
+import { ID } from 'appwrite';
 
 class AuthService {
-  constructor() {
-    this.client = new Client()
-      .setEndpoint(appwrite.url)
-      .setProject(appwrite.projectId);
-    this.account = new Account(this.client);
-  }
-
   // =========================
   // Local Storage Management
   // =========================
@@ -37,7 +30,7 @@ class AuthService {
   // Register a new user
   async createUser({ email, password, name }) {
     try {
-      await this.account.create(ID.unique(), email, password, name);
+      await account.create(ID.unique(), email, password, name);
       // login the user immediately after registration
       const loggedInUser = await this.loginUser({ email, password });
       toast.success('Account created successfully!');
@@ -52,14 +45,16 @@ class AuthService {
   // Login user with email & password
   async loginUser({ email, password }) {
     try {
-      await this.account.createEmailPasswordSession(email, password);
-      const user = await this.account.get();
+      await account.createEmailPasswordSession(email, password);
+      const user = await account.get();
       this.cacheUser(user);
       toast.success('Logged in successfully!');
       return user;
     } catch (error) {
       console.error('Error logging in:', error);
-      toast.error(error.message || 'Login failed. Please check your credentials.');
+      toast.error(
+        error.message || 'Login failed. Please check your credentials.',
+      );
       throw new Error(error.message);
     }
   }
@@ -67,7 +62,7 @@ class AuthService {
   // Logout current session
   async logout() {
     try {
-      await this.account.deleteSession('current');
+      await account.deleteSession('current');
       this.clearCachedUser();
       toast.success('Logged out successfully!');
     } catch (error) {
@@ -80,7 +75,7 @@ class AuthService {
   // Delete all sessions for the user
   async deleteAllSessions() {
     try {
-      await this.account.deleteSessions();
+      await account.deleteSessions();
       this.clearCachedUser();
     } catch (error) {
       console.error('Error deleting all sessions:', error);
@@ -99,7 +94,7 @@ class AuthService {
       if (cachedUser) {
         return cachedUser; // Return cached user if available
       }
-      const user = await this.account.get();
+      const user = await account.get();
       this.cacheUser(user);
       return user;
     } catch (error) {
@@ -112,7 +107,7 @@ class AuthService {
   // Update user account details
   async updateName(name) {
     try {
-      const user = await this.account.updateName(name);
+      const user = await account.updateName(name);
       this.cacheUser(user);
       toast.success('Name updated successfully!');
       return user;
@@ -126,7 +121,7 @@ class AuthService {
   // Update user email
   async updateEmail(email, password) {
     try {
-      const user = await this.account.updateEmail(email, password);
+      const user = await account.updateEmail(email, password);
       this.cacheUser(user);
       toast.success('Email updated successfully!');
       return user;
@@ -141,11 +136,11 @@ class AuthService {
   async deleteAccount() {
     try {
       // Temporarily delete the account (blocked)
-      await this.account.updateStatus();
+      await account.updateStatus();
 
       // Delete all sessions
       // not working as updateStatus() deletes the curret session
-      // await this.deleteAllSessions();
+      // await deleteAllSessions();
 
       this.clearCachedUser();
       toast.success('Account deleted successfully!');

@@ -1,21 +1,13 @@
-import { Client, Account, ID, Databases } from 'appwrite';
+import { account, databases } from '@/api/client';
 import { toast } from 'react-hot-toast';
+import { ID } from 'appwrite';
 import { appwriteConfig as appwrite } from '../config/appwrite';
 
 class PostService {
-  constructor() {
-    this.client = new Client()
-      .setEndpoint(appwrite.url)
-      .setProject(appwrite.projectId);
-
-    this.account = new Account(this.client);
-    this.databases = new Databases(this.client);
-  }
-
   // Create a new blog post
   async createPost({ title, content }) {
     try {
-      const user = await this.account.get();
+      const user = await account.get();
       const postId = ID.unique();
 
       const postData = {
@@ -26,7 +18,7 @@ class PostService {
         createdAt: new Date().toISOString(),
       };
 
-      const res = await this.databases.createDocument(
+      const res = await databases.createDocument(
         appwrite.databaseId,
         appwrite.collectionId,
         postId,
@@ -51,7 +43,7 @@ class PostService {
         updatedAt: new Date().toISOString(),
       };
 
-      const res = await this.databases.updateDocument(
+      const res = await databases.updateDocument(
         appwrite.databaseId,
         appwrite.collectionId,
         postId,
@@ -70,7 +62,7 @@ class PostService {
   // Get a single post by its ID
   async getPostById(postId) {
     try {
-      const res = await this.databases.getDocument(
+      const res = await databases.getDocument(
         appwrite.databaseId,
         appwrite.collectionId,
         postId,
@@ -87,7 +79,7 @@ class PostService {
   async getAllPosts(page = 1, limit = 6) {
     try {
       // fetch all documents (no queries)
-      const res = await this.databases.listDocuments(
+      const res = await databases.listDocuments(
         appwrite.databaseId,
         appwrite.collectionId,
       );
@@ -108,7 +100,7 @@ class PostService {
   // Delete a post by ID
   async deletePost(postId) {
     try {
-      await this.databases.deleteDocument(
+      await databases.deleteDocument(
         appwrite.databaseId,
         appwrite.collectionId,
         postId,
