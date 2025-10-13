@@ -162,6 +162,12 @@ export default function Profile() {
         if (formData.name !== authUser.name)
           await authService.updateName(formData.name);
         if (formData.bio !== authUser.prefs?.bio) {
+          dispatch(
+            setUser({
+              ...authUser,
+              prefs: { ...authUser.prefs, bio: formData.bio },
+            }),
+          );
           if (authService.updatePrefs)
             await authService.updatePrefs({ bio: formData.bio });
         }

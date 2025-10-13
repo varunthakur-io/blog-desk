@@ -133,6 +133,18 @@ class AuthService {
     }
   }
 
+  // Update user preferences
+  async updatePrefs(prefs) {
+    try {
+      const updatedUser = await account.updatePrefs(prefs);
+      this.cacheUser(updatedUser);
+      return updatedUser;
+    } catch (error) {
+      console.error('Error updating prefs:', error);
+      throw error;
+    }
+  }
+
   // Delete user account
   async deleteAccount() {
     try {
@@ -199,7 +211,6 @@ class AuthService {
       throw error;
     }
   }
-  
 }
 
 // Export a single shared instance
