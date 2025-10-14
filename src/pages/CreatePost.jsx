@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
+// Services and Utilities
 import { postService } from '../services/postService';
 import { markStale } from '../store/postSlice';
 import { getRandomPostData } from '../utils/fakePostData';
@@ -25,6 +26,7 @@ const CreatePost = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user) return;
@@ -44,6 +46,7 @@ const CreatePost = () => {
     }
   };
 
+  // Fill random data in the form
   const fillRandomData = () => {
     const { title, content } = getRandomPostData();
     setTitle(title);
@@ -51,8 +54,8 @@ const CreatePost = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen p-4">
-      <Card className="w-full max-w-2xl">
+    <div className="">
+      <Card className="border-none shadow-none">
         <CardHeader>
           <CardTitle>Create a New Post</CardTitle>
           <CardDescription>
@@ -78,7 +81,7 @@ const CreatePost = () => {
               <Textarea
                 id="content"
                 placeholder="Write your post content here..."
-                className="min-h-[200px]"
+                className="min-h-[400px] resize-none"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 required
@@ -89,6 +92,8 @@ const CreatePost = () => {
               <Button type="submit" disabled={loading}>
                 {loading ? 'Creating...' : 'Create Post'}
               </Button>
+
+              {/* devMode */}
               {import.meta.env.DEV && (
                 <Button
                   type="button"
