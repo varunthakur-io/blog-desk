@@ -15,7 +15,6 @@ class PostService {
         content,
         authorId: user.$id,
         authorName: user.name || user.email,
-        createdAt: new Date().toISOString(),
       };
 
       const res = await databases.createDocument(
@@ -40,7 +39,6 @@ class PostService {
       const postData = {
         title,
         content,
-        updatedAt: new Date().toISOString(),
       };
 
       const res = await databases.updateDocument(
