@@ -150,8 +150,8 @@ const EditPost = () => {
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen p-4">
-      <Card className="w-full max-w-2xl">
+    <div className="">
+      <Card className="border-none shadow-none">
         <CardHeader>
           <CardTitle>Edit Post</CardTitle>
           <CardDescription>Make changes to your post below.</CardDescription>
@@ -184,14 +184,14 @@ const EditPost = () => {
                 value={formData.content}
                 onChange={handleChange}
                 placeholder="Post content"
-                className="min-h-[200px]"
+                className="min-h-[400px] resize-none"
                 required
               />
             </div>
 
-            <Button type="submit" className="w-full">
-              Update Post
-            </Button>
+            <div className="flex justify-between">
+              <Button type="submit">Update Post</Button>
+            </div>
           </form>
         </CardContent>
       </Card>
