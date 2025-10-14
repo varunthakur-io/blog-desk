@@ -28,8 +28,8 @@ const PostCard = ({ post }) => {
           </div>
           <div className="flex items-center gap-1.5">
             <Calendar className="h-4 w-4" />
-            <time dateTime={post.createdAt}>
-              {new Date(post.createdAt).toLocaleDateString('en-US', {
+            <time dateTime={post.$createdAt}>
+              {new Date(post.$createdAt).toLocaleDateString('en-US', {
                 month: 'short',
                 day: 'numeric',
                 year: 'numeric',

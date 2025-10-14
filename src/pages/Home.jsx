@@ -34,12 +34,7 @@ const Home = () => {
       try {
         dispatch(setLoading(true));
         const data = await postService.getAllPosts(pageNum);
-        dispatch(
-          pageNum === 1
-            ? setPosts({ documents: data, page: pageNum })
-            : addPosts({ documents: data, page: pageNum }),
-        );
-
+      
         if (pageNum === 1) {
           dispatch(setPosts(data));
         } else {
