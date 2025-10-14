@@ -231,7 +231,7 @@ const Dashboard = () => {
                       </TableCell>
 
                       <TableCell className="hidden md:table-cell">
-                        {new Date(post.createdAt).toLocaleDateString('en-US', {
+                        {new Date(post.$createdAt).toLocaleDateString('en-US', {
                           year: 'numeric',
                           month: 'short',
                           day: 'numeric',
