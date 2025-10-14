@@ -25,13 +25,18 @@ import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { setUser } from '@/store/authSlice';
 
+// utils
 const isValidEmail = (email) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email?.trim() ?? '');
 
 export default function Profile() {
-  const dispatch = useDispatch(); // update redux user after edits
+  const dispatch = useDispatch();
   const authUser = useSelector((state) => state.auth?.user);
   const authLoading = useSelector((state) => state.auth?.loading);
+  const fileRef = useRef(null);
+
+  // keep track of local object URL so we can revoke it
+  const previewUrlRef = useRef(null);
 
   // local UI state
   const [formData, setFormData] = useState({
@@ -40,6 +45,8 @@ export default function Profile() {
     password: '',
     bio: '',
   });
+
+  // UI state
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
@@ -47,9 +54,9 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState('posts'); // posts | likes | about
   const [userPosts, setUserPosts] = useState([]);
   const [postsLoading, setPostsLoading] = useState(false);
-
-  const fileRef = useRef(null);
   const [preview, setPreview] = useState(null);
+  // NEW: hold the selected file until Save is clicked
+  const [pendingAvatarFile, setPendingAvatarFile] = useState(null);
 
   // hydrate form with authUser
   useEffect(() => {
@@ -60,18 +67,48 @@ export default function Profile() {
         password: '',
         bio: authUser.prefs?.bio || '',
       });
+
       // initialize preview from user's avatar (if any)
+      // if user changes (after full save) we discard any pending local preview
       setPreview(authUser.prefs?.avatar ?? null);
+
+      // discard any pending file when authUser changes (e.g., after upload)
+      setPendingAvatarFile(null);
+
+      // revoke previous local preview URL if any
+      if (previewUrlRef.current) {
+        try {
+          URL.revokeObjectURL(previewUrlRef.current);
+        } catch (e) {
+          console.error('Failed to revoke object URL on authUser change', e);
+        }
+        previewUrlRef.current = null;
+      }
     }
   }, [authUser]);
 
-  // fetch user's posts (best-effort: uses postService.getAllPosts and filters by author id)
+  // cleanup on unmount: revoke any object URL
+  useEffect(() => {
+    return () => {
+      if (previewUrlRef.current) {
+        try {
+          URL.revokeObjectURL(previewUrlRef.current);
+        } catch (e) {
+          // ignore
+          console.error('Failed to revoke object URL on unmount', e);
+        }
+        previewUrlRef.current = null;
+      }
+    };
+  }, []);
+
+  // fetch user's posts
   useEffect(() => {
     let mounted = true;
     async function loadPosts() {
       try {
         setPostsLoading(true);
-        // try user-specific API first (if you have one)
+        // try user-specific API first (future plan)
         if (postService.getPostsByAuthor) {
           const res = await postService.getPostsByAuthor(authUser.$id);
           if (!mounted) return;
@@ -103,14 +140,13 @@ export default function Profile() {
   }, [authUser]);
 
   // handlers
-  const handleChange = (e) =>
+  const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-
+  };
   const handleEdit = () => {
     setIsEditing(true);
     setError('');
   };
-
   const handleCancel = () => {
     if (authUser) {
       setFormData({
@@ -122,13 +158,27 @@ export default function Profile() {
     }
     setIsEditing(false);
     setError('');
+
+    // discard pending avatar file and revert preview to server avatar (if any)
+    setPendingAvatarFile(null);
+    if (previewUrlRef.current) {
+      try {
+        URL.revokeObjectURL(previewUrlRef.current);
+      } catch (e) {
+        console.error('Failed to revoke object URL on cancel', e);
+      }
+      previewUrlRef.current = null;
+    }
+    setPreview(authUser?.prefs?.avatar ?? null);
+
+    // clear file input
+    if (fileRef.current) fileRef.current.value = '';
   };
 
   const handleSave = async (e) => {
     e.preventDefault();
     setError('');
 
-    // Basic validation
     if (!formData.name || formData.name.trim().length < 2) {
       setError('Please enter a valid name (2+ characters).');
       return;
@@ -142,10 +192,13 @@ export default function Profile() {
       return;
     }
 
-    try {
-      setSaving(true);
+    setSaving(true);
+    let profileSaved = false;
+    let avatarSaved = false;
+    let updatedUser = null;
 
-      // Update name/bio/email depending on your authService API
+    try {
+      // profile update
       if (authService.updateProfile) {
         const payload = {
           name: formData.name,
@@ -154,97 +207,142 @@ export default function Profile() {
           currentPassword:
             formData.email !== authUser.email ? formData.password : undefined,
         };
-        const updated = await authService.updateProfile(payload);
-        if (updated?.user) {
-          dispatch({ type: 'auth/setUser', payload: updated.user });
+        try {
+          const res = await authService.updateProfile(payload);
+          updatedUser = res?.user ?? null;
+          if (updatedUser) dispatch(setUser(updatedUser));
+          profileSaved = true;
+        } catch (err) {
+          console.error('updateProfile failed', err);
+          setError(err?.message || 'Failed to update profile details.');
         }
       } else {
-        if (formData.name !== authUser.name)
-          await authService.updateName(formData.name);
-        if (formData.bio !== authUser.prefs?.bio) {
-          dispatch(
-            setUser({
-              ...authUser,
-              prefs: { ...authUser.prefs, bio: formData.bio },
-            }),
-          );
-          if (authService.updatePrefs)
-            await authService.updatePrefs({ bio: formData.bio });
-        }
-        if (formData.email !== authUser.email) {
-          await authService.updateEmail(formData.email, formData.password);
+        try {
+          if (formData.name !== authUser.name)
+            await authService.updateName(formData.name);
+          if (formData.bio !== authUser.prefs?.bio) {
+            if (authService.updateBio)
+              await authService.updateBio(formData.bio);
+            else if (authService.updatePrefs)
+              await authService.updatePrefs({ bio: formData.bio });
+          }
+          if (formData.email !== authUser.email) {
+            await authService.updateEmail(formData.email, formData.password);
+          }
+          if (authService.getCurrentUser) {
+            updatedUser = await authService.getCurrentUser();
+            if (updatedUser) dispatch(setUser(updatedUser));
+          } else {
+            dispatch(
+              setUser({
+                ...authUser,
+                name: formData.name,
+                email: formData.email,
+                prefs: { ...authUser.prefs, bio: formData.bio },
+              }),
+            );
+          }
+          profileSaved = true;
+        } catch (err) {
+          console.error('Per-field profile update failed', err);
+          setError(err?.message || 'Failed to update profile details.');
         }
       }
 
-      toast.success('Profile updated successfully!');
+      // avatar upload if selected
+      if (pendingAvatarFile) {
+        setAvatarUploading(true);
+        try {
+          const avatarResult =
+            await authService.updateAvatar(pendingAvatarFile);
+          const finalUser = avatarResult?.user ?? avatarResult ?? null;
+
+          if (finalUser) {
+            dispatch(setUser(finalUser));
+            setPreview(finalUser?.prefs?.avatar ?? null);
+          } else if (avatarResult?.prefs?.avatar) {
+            setPreview(avatarResult.prefs.avatar);
+          }
+
+          if (previewUrlRef.current) {
+            try {
+              URL.revokeObjectURL(previewUrlRef.current);
+            } catch (e) {}
+            previewUrlRef.current = null;
+          }
+
+          setPendingAvatarFile(null);
+          if (fileRef.current) fileRef.current.value = '';
+          avatarSaved = true;
+        } catch (err) {
+          console.error('Avatar upload failed during save:', err);
+          toast.error(err?.message || 'Failed to upload avatar.');
+        } finally {
+          setAvatarUploading(false);
+        }
+      }
+
+      // final toasts
+      if (profileSaved && avatarSaved) {
+        toast.success('Profile and avatar updated successfully!');
+      } else if (profileSaved && !avatarSaved) {
+        toast.success('Profile updated. Avatar upload failed — you can retry.');
+      } else if (!profileSaved && avatarSaved) {
+        toast.success('Avatar uploaded. Profile update failed.');
+      } else {
+        if (!error) setError('No changes were saved.');
+        toast.error(error || 'Update failed. Please try again.');
+        return;
+      }
+
       setIsEditing(false);
       setFormData((p) => ({ ...p, password: '' }));
     } catch (err) {
-      console.error('Profile update failed', err);
+      console.error('handleSave unexpected error', err);
       setError(err?.message || 'Update failed. Please try again.');
       toast.error(err?.message || 'Update failed.');
     } finally {
       setSaving(false);
+      setAvatarUploading(false);
     }
   };
 
   // avatar click
   const handleAvatarClick = () => fileRef.current?.click();
 
-  // avatar upload (with optimistic preview)
-  const handleAvatarChange = async (e) => {
+  // avatar selection: only preview + store file; do NOT upload here
+  const handleAvatarChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     // Basic client-side validation
     if (!file.type.startsWith('image/')) {
       toast.error('Please select an image file.');
+      if (fileRef.current) fileRef.current.value = '';
       return;
     }
 
     if (file.size > 3 * 1024 * 1024) {
       toast.error('Image must be smaller than 3 MB.');
+      if (fileRef.current) fileRef.current.value = '';
       return;
     }
 
-    // create local preview
-    const objectUrl = URL.createObjectURL(file);
-    setPreview(objectUrl);
-
-    try {
-      setAvatarUploading(true);
-
-      // Call the upload service
-      const updatedUser = await authService.updateAvatar(file);
-
-      // Update Redux state with returned user
-      if (updatedUser) {
-        dispatch(setUser(updatedUser));
-        // if updatedUser contains prefs.avatar, use it as preview (final)
-        setPreview(updatedUser?.prefs?.avatar ?? null);
-      }
-
-      toast.success('Profile picture updated!');
-    } catch (error) {
-      console.error('Avatar upload failed:', error);
-      toast.error(error.message || 'Failed to upload avatar.');
-      // revert preview on failure
-      setPreview(authUser?.prefs?.avatar ?? null);
-    } finally {
-      setAvatarUploading(false);
-
-      // Clear file input so same file can be re-selected later
-      if (fileRef.current) {
-        fileRef.current.value = '';
-      }
-      // revoke local object URL after a tick (if we used it)
-      // (if preview was replaced by server URL above, revoking is still safe)
+    // revoke any previous local preview URL
+    if (previewUrlRef.current) {
       try {
-        URL.revokeObjectURL(objectUrl);
+        URL.revokeObjectURL(previewUrlRef.current);
       } catch (e) {
-        console.error('Failed to revoke object URL', e);
+        // ignore
       }
+      previewUrlRef.current = null;
     }
+
+    // create local preview and store selected file for later upload
+    const objectUrl = URL.createObjectURL(file);
+    previewUrlRef.current = objectUrl;
+    setPreview(objectUrl);
+    setPendingAvatarFile(file);
   };
 
   // derived stats (fallback to prefs/counts if available)
@@ -264,41 +362,41 @@ export default function Profile() {
               {/* avatar + camera */}
               <div className="relative">
                 <Avatar className="w-28 h-28">
+                  {/* optimistic preview*/}
                   <AvatarImage
-                    src={preview ?? authUser?.prefs?.avatar}
+                    src={preview ?? authUser?.prefs?.avatars}
                     alt={authUser?.name}
-                    onError={(e) => {
-                      e.currentTarget.src = '/default-avatar.png';
-                    }}
                   />
                   <AvatarFallback className="text-2xl">
                     <User className="w-12 h-12" />
                   </AvatarFallback>
                 </Avatar>
 
-                <button
-                  type="button"
-                  onClick={handleAvatarClick}
-                  disabled={avatarUploading}
-                  className="absolute bottom-0 right-0 -translate-y-2 translate-x-2 bg-card/80 border border-border/40 rounded-full p-2 shadow-sm hover:scale-105 transition-transform"
-                  aria-label="Change avatar"
-                >
-                  {avatarUploading ? (
-                    <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24">
-                      <circle
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        fill="none"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                  ) : (
-                    <Camera className="h-4 w-4" />
-                  )}
-                </button>
+                {isEditing && (
+                  <button
+                    type="button"
+                    onClick={handleAvatarClick}
+                    disabled={avatarUploading || saving}
+                    className="absolute bottom-0 right-0 -translate-y-2 translate-x-2 bg-card/80 border border-border/40 rounded-full p-2 shadow-sm hover:scale-105 transition-transform"
+                    aria-label="Change avatar"
+                  >
+                    {avatarUploading ? (
+                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24">
+                        <circle
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                          fill="none"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    ) : (
+                      <Camera className="h-4 w-4" />
+                    )}
+                  </button>
+                )}
 
                 <input
                   ref={fileRef}
@@ -442,8 +540,8 @@ export default function Profile() {
                     Cancel
                   </Button>
 
-                  <Button type="submit" disabled={saving}>
-                    {saving ? (
+                  <Button type="submit" disabled={saving || avatarUploading}>
+                    {saving || avatarUploading ? (
                       <>
                         <svg
                           className="mr-2 h-4 w-4 animate-spin inline-block"
@@ -477,6 +575,7 @@ export default function Profile() {
                   {['posts', 'likes', 'about'].map((tab) => (
                     <button
                       key={tab}
+                      type="button"
                       onClick={() => setActiveTab(tab)}
                       className={`px-4 py-2 rounded-md text-sm font-medium ${
                         activeTab === tab
