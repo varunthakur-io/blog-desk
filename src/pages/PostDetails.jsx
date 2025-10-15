@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { ArrowLeft } from 'lucide-react';
+import Loader from '@/components/Loader';
 
 import { postService } from '../services/postService';
 import { setError, setLoading } from '../store/postSlice';
@@ -76,8 +77,12 @@ const PostDetails = () => {
       <div className="min-h-[60vh] flex items-center justify-center ">
         <Card className="border-0">
           <CardContent className="flex flex-col items-center justify-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary border-t-transparent mb-6"></div>
-            <p className="text-zinc-400 text-lg">Loading article...</p>
+            <Loader
+              text="Loading article..."
+              size={42}
+              className="flex-col gap-4 py-6 text-zinc-400"
+              textClassName="text-lg font-medium"
+            />
           </CardContent>
         </Card>
       </div>

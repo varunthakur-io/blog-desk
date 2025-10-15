@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useCallback } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { BookOpen, Search, Loader2 } from 'lucide-react';
+import { BookOpen, Search } from 'lucide-react';
+import Loader, { Spinner } from '@/components/Loader';
 
 // Components
 import PostCard from '../components/PostCard';
@@ -84,8 +85,12 @@ const Home = () => {
     if (loading && posts.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center text-center py-32">
-          <Loader2 className="h-16 w-16 animate-spin text-primary mb-4" />
-          <p className="text-muted-foreground text-lg">Loading posts...</p>
+          <Loader
+            text="Loading posts..."
+            size={48}
+            className="flex-col gap-4 py-0"
+            textClassName="text-lg"
+          />
         </div>
       );
     }
@@ -151,7 +156,7 @@ const Home = () => {
             <Button onClick={handleLoadMore} disabled={loading}>
               {loading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading...
+                  <Spinner size={16} className="mr-2 text-current" /> Loading...
                 </>
               ) : (
                 'Load More'

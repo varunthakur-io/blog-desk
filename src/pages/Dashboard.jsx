@@ -2,9 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { MoreHorizontal, Edit2, Trash2, Plus } from 'lucide-react';
+import Loader from '@/components/Loader';
 
 import { postService } from '../services/postService';
 import { setError, setLoading, setPosts } from '../store/postSlice';
+
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
@@ -40,41 +42,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-const Spinner = () => (
-  <div className="flex items-center justify-center py-8">
-    <svg
-      className="animate-spin h-8 w-8"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      aria-hidden
-    >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      ></circle>
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-      ></path>
-    </svg>
-  </div>
-);
-
+// Empty state
 const EmptyState = ({ onCreate }) => (
-  <div className="flex flex-col items-center gap-4 py-12 text-center">
+  <div className="flex flex-col items-center gap-4 py-16 text-center">
     <svg
       width="120"
       height="96"
       viewBox="0 0 120 96"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      aria-hidden
     >
       <rect
         x="8"
@@ -93,24 +69,23 @@ const EmptyState = ({ onCreate }) => (
       Write your first post and share your ideas with the world.
     </p>
     <Button onClick={onCreate} className="mt-2">
-      <Plus className="mr-2 h-4 w-4" /> Create post
+      <Plus className="mr-2 h-4 w-4" /> Create Post
     </Button>
   </div>
 );
 
 const Dashboard = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { posts, loading, error, fetched } = useSelector(
     (state) => state.posts,
   );
   const { user } = useSelector((state) => state.auth);
-  const navigate = useNavigate();
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [postToDelete, setPostToDelete] = useState(null);
   const [query, setQuery] = useState('');
 
-  // keep the original logic: posts authored by current user
   const userPosts = useMemo(
     () => posts.filter((post) => post.authorId === user?.$id),
     [posts, user],
@@ -141,7 +116,6 @@ const Dashboard = () => {
 
   const confirmDelete = async () => {
     if (!postToDelete) return;
-
     try {
       await postService.deletePost(postToDelete);
       dispatch(setPosts(posts.filter((post) => post.$id !== postToDelete)));
@@ -160,28 +134,27 @@ const Dashboard = () => {
   }, [userPosts, query]);
 
   return (
-    <div className="container mx-auto py-10 px-4">
-      <Card className="border-0">
-        <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="  ">
-            <CardTitle className="text-xl">Your Posts</CardTitle>
-            <CardDescription>
-              Manage and edit posts you've created.
+    <div className="container mx-auto py-12 px-12">
+      <Card className="border-none shadow-sm">
+        <CardHeader className="flex flex-row items-center justify-between pb-6">
+          <div>
+            <CardTitle className="text-2xl font-semibold">Your Posts</CardTitle>
+            <CardDescription className="text-sm text-muted-foreground">
+              Manage and edit posts you’ve created.
             </CardDescription>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center bg-muted border rounded-md px-3 py-1">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center bg-muted border rounded-md px-4 py-1">
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="bg-transparent outline-none text-sm w-48 placeholder:text-muted-foreground"
+                className="bg-transparent outline-none text-sm w-60 placeholder:text-muted-foreground"
                 placeholder="Search title..."
-                aria-label="Search posts by title"
               />
             </div>
 
-            <Button onClick={() => navigate('/create')}>
+            <Button onClick={() => navigate('/create')} className="px-5">
               <Plus className="mr-2 h-4 w-4" /> New Post
             </Button>
           </div>
@@ -189,7 +162,7 @@ const Dashboard = () => {
 
         <CardContent>
           {error && (
-            <Alert variant="destructive" className="mb-4">
+            <Alert variant="destructive" className="mb-6">
               <AlertDescription className="text-center">
                 {error}
               </AlertDescription>
@@ -197,7 +170,7 @@ const Dashboard = () => {
           )}
 
           {loading ? (
-            <Spinner />
+            <Loader text="Fetching your posts..." size={28} />
           ) : filtered.length === 0 ? (
             <EmptyState onCreate={() => navigate('/create')} />
           ) : (
@@ -206,38 +179,26 @@ const Dashboard = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Title</TableHead>
-                    <TableHead className="hidden md:table-cell">Date</TableHead>
-                    <TableHead className="w-24 text-right">Actions</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead className="w-32 text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filtered.map((post) => (
-                    <TableRow
-                      key={post.$id}
-                      className="hover:bg-muted/50 transition-colors"
-                    >
-                      <TableCell className="flex items-center gap-3">
-                        {/* <div className="h-8 w-8 flex items-center justify-center rounded-md bg-gray-100 text-sm font-semibold">
-                          {(post.title || '—')[0].toUpperCase()}
-                        </div> */}
-                        <div className="truncate">
-                          <div className="font-medium truncate max-w-[28rem]">
-                            {post.title}
-                          </div>
-                          <div className="text-xs text-muted-foreground truncate max-w-[28rem]">
-                            {post.excerpt || ''}
-                          </div>
+                    <TableRow key={post.$id} className="hover:bg-muted/40">
+                      <TableCell>
+                        <div className="font-medium">{post.title}</div>
+                        <div className="text-xs text-muted-foreground truncate max-w-[30rem]">
+                          {post.excerpt || ''}
                         </div>
                       </TableCell>
-
-                      <TableCell className="hidden md:table-cell">
+                      <TableCell>
                         {new Date(post.$createdAt).toLocaleDateString('en-US', {
                           year: 'numeric',
                           month: 'short',
                           day: 'numeric',
                         })}
                       </TableCell>
-
                       <TableCell className="text-right">
                         <div className="inline-flex items-center">
                           <Button
@@ -245,19 +206,16 @@ const Dashboard = () => {
                             size="sm"
                             onClick={() => handleEdit(post.$id)}
                             className="mr-2"
-                            aria-label={`Edit ${post.title}`}
                           >
                             <Edit2 className="h-4 w-4" />
                           </Button>
-
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button
                                 variant="ghost"
-                                className="h-8 w-8 p-0"
-                                aria-label="Open actions"
+                                size="icon"
+                                className="h-8 w-8"
                               >
-                                <span className="sr-only">Open menu</span>
                                 <MoreHorizontal className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
@@ -266,17 +224,13 @@ const Dashboard = () => {
                               <DropdownMenuItem
                                 onClick={() => handleEdit(post.$id)}
                               >
-                                <span className="flex items-center gap-2">
-                                  <Edit2 className="h-4 w-4" /> Edit
-                                </span>
+                                <Edit2 className="h-4 w-4 mr-2" /> Edit
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => handleDeleteClick(post.$id)}
                                 className="text-destructive"
                               >
-                                <span className="flex items-center gap-2">
-                                  <Trash2 className="h-4 w-4" /> Delete
-                                </span>
+                                <Trash2 className="h-4 w-4 mr-2" /> Delete
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -291,6 +245,7 @@ const Dashboard = () => {
         </CardContent>
       </Card>
 
+      {/* Delete confirmation dialog */}
       <AlertDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}

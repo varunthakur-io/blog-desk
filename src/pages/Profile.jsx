@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { User, Edit, Save, X, Camera } from 'lucide-react';
+import { Spinner } from '@/components/Loader';
 import toast from 'react-hot-toast';
 import PostCard from '../components/PostCard';
 import ProfileSkeleton from '@/components/ProfileSkeleton';
@@ -381,17 +382,7 @@ export default function Profile() {
                     aria-label="Change avatar"
                   >
                     {avatarUploading ? (
-                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24">
-                        <circle
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="3"
-                          fill="none"
-                          strokeLinecap="round"
-                        />
-                      </svg>
+                      <Spinner size={16} className="text-primary" />
                     ) : (
                       <Camera className="h-4 w-4" />
                     )}
@@ -543,20 +534,7 @@ export default function Profile() {
                   <Button type="submit" disabled={saving || avatarUploading}>
                     {saving || avatarUploading ? (
                       <>
-                        <svg
-                          className="mr-2 h-4 w-4 animate-spin inline-block"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="3"
-                            fill="none"
-                            strokeLinecap="round"
-                          />
-                        </svg>
+                        <Spinner size={16} className="mr-2 text-current" />
                         Saving...
                       </>
                     ) : (
