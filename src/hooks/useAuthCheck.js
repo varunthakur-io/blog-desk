@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 // authSlice actions and services
@@ -8,32 +8,48 @@ import { authService } from '../services/authService';
 const useAuthCheck = () => {
   const dispatch = useDispatch();
   const { status } = useSelector((state) => state.auth);
-  const [isAuthChecked, setIsAuthChecked] = useState(status);
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    // track mounted state to avoid updating after unmount
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     const checkUser = async () => {
       dispatch(setLoading(true));
       try {
-        // fetching user data
         const currentUser = await authService.getAccount();
+        if (!mountedRef.current) return; // bail out if unmounted
         if (currentUser) {
           dispatch(setUser(currentUser));
         } else {
           dispatch(clearUser());
         }
       } catch (err) {
-        dispatch(clearUser());
-        console.error('Error checking user:', err);
+        if (mountedRef.current) {
+          dispatch(clearUser());
+          console.error('Error checking user:', err);
+        }
       } finally {
-        dispatch(setLoading(false));
-        setIsAuthChecked(true);
+        if (mountedRef.current) {
+          dispatch(setLoading(false));
+          setIsAuthChecked(true);
+        }
       }
     };
-    if (!status) {
-      checkUser();
-    } else {
+
+    // fast path: if status already truthy, mark checked immediately
+    if (status) {
       setIsAuthChecked(true);
+      return;
     }
+
+    checkUser();
   }, [dispatch, status]);
 
   return isAuthChecked;
