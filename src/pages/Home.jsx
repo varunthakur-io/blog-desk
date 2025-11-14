@@ -10,16 +10,15 @@ import PostCard from '../components/PostCard';
 // Services
 import { postService } from '../services/postService';
 
-// Redux
+// Redux actions
 import {
   setError,
   setLoading,
   setPosts,
   addPosts,
-  clearPosts,
 } from '../store/postSlice';
 
-// UI Components
+// Shadcn UI Components
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 
@@ -29,13 +28,13 @@ const Home = () => {
     (state) => state.posts,
   );
 
-  // Fetch posts from the API
+  // Fetch posts from the API (defaults [page=1, limit=6])
   const fetchPosts = useCallback(
     async (pageNum) => {
       try {
         dispatch(setLoading(true));
         const data = await postService.getAllPosts(pageNum);
-      
+
         if (pageNum === 1) {
           dispatch(setPosts(data));
         } else {
@@ -51,16 +50,12 @@ const Home = () => {
     [dispatch],
   );
 
-  // Clear posts on component mount and fetch initial posts
+  // Fetch initial posts only if not already loaded
   useEffect(() => {
-    dispatch(clearPosts());
-    fetchPosts(1);
-
-    // Cleanup function to clear posts on component unmount
-    return () => {
-      dispatch(clearPosts());
-    };
-  }, [dispatch, fetchPosts]);
+    if (posts.length === 0) {
+      fetchPosts(1);
+    }
+  }, [fetchPosts, posts.length]);
 
   // handle load more button click
   const handleLoadMore = () => {

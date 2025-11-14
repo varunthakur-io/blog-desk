@@ -1,12 +1,15 @@
+
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { MoreHorizontal, Edit2, Trash2, Plus } from 'lucide-react';
 import Loader from '@/components/Loader';
 
+// Redux actions and services
 import { postService } from '../services/postService';
 import { setError, setLoading, setPosts } from '../store/postSlice';
 
+// Shadcn UI components
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
@@ -77,20 +80,24 @@ const EmptyState = ({ onCreate }) => (
 const Dashboard = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const { posts, loading, error, fetched } = useSelector(
     (state) => state.posts,
   );
   const { user } = useSelector((state) => state.auth);
 
+  // Local dialog state
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [postToDelete, setPostToDelete] = useState(null);
   const [query, setQuery] = useState('');
 
+  // Filtered posts
   const userPosts = useMemo(
     () => posts.filter((post) => post.authorId === user?.$id),
     [posts, user],
   );
 
+  // Fetch posts on mount if not already fetched
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -107,13 +114,16 @@ const Dashboard = () => {
     if (!fetched) fetchPosts();
   }, [dispatch, fetched]);
 
+
   const handleEdit = (postId) => navigate(`/edit/${postId}`);
 
+  // Handle delete button click
   const handleDeleteClick = (postId) => {
     setPostToDelete(postId);
     setIsDeleteDialogOpen(true);
   };
 
+  // Handle confirm delete
   const confirmDelete = async () => {
     if (!postToDelete) return;
     try {
@@ -127,6 +137,7 @@ const Dashboard = () => {
     }
   };
 
+  // Search filter posts
   const filtered = useMemo(() => {
     if (!query.trim()) return userPosts;
     const q = query.toLowerCase();
