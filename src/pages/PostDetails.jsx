@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Calendar } from 'lucide-react';
 import Loader from '@/components/Loader';
 
 import { postService } from '../services/postService';
@@ -125,13 +125,18 @@ const PostDetails = () => {
               <CardDescription className="flex items-center space-x-2 text-base">
                 <Badge variant="secondary">By {post.authorName}</Badge>
                 <span className="text-muted-foreground">•</span>
-                <span className="text-foreground">
-                  {new Date(post.createdAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                </span>
+                <div className="flex items-center gap-1.5">
+                  <Calendar className="h-4 w-4" />
+                  <time dateTime={post.$createdAt}>
+                    {post.$createdAt
+                      ? new Date(post.$createdAt).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })
+                      : '—'}
+                  </time>
+                </div>
               </CardDescription>
             </div>
 
