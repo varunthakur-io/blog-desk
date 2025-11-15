@@ -1,4 +1,4 @@
-import { account, storage } from '@/api/client';
+import { account, storage, databases } from '@/api/client';
 import { toast } from 'react-hot-toast';
 import { ID } from 'appwrite';
 import { appwriteConfig as appwrite } from '../config/appwrite';
@@ -31,15 +31,62 @@ class AuthService {
   // Register a new user
   async createUser({ email, password, name }) {
     try {
+      // Create account in Appwrite Auth
       await account.create(ID.unique(), email, password, name);
       // login the user immediately after registration
       const loggedInUser = await this.loginUser({ email, password });
+
+      // Create a public profile document (document id = user.$id)
+      try {
+        await this.createProfile(loggedInUser);
+      } catch (profileErr) {
+        // If profile creation fails, don't block signup; just warn
+        console.warn('Profile creation failed at signup:', profileErr);
+      }
+
       toast.success('Account created successfully!');
       return loggedInUser;
     } catch (error) {
       console.error('Error creating user:', error);
       toast.error(error.message || 'Failed to create user.');
       throw new Error(error.message || 'Failed to create user.');
+    }
+  }
+
+  // Create or update the public profile document
+  async createProfile(user) {
+    if (!user) return;
+
+    const profileData = {
+      name: user.name || '',
+    };
+
+    try {
+      // Create the profile doc with id = user.$id
+      // Make it readable by anyone, writable only by the user
+      await databases.createDocument(
+        appwrite.databaseId,
+        'profiles',
+        user.$id,
+        profileData,
+      );
+    } catch (err) {
+      console.log('Error creating profile:', err);
+    }
+  }
+
+  // Update user profile
+  async updateProfile(userId, profileData) {
+    try {
+      await databases.updateDocument(
+        appwrite.databaseId,
+        'profiles',
+        userId,
+        profileData,
+      );
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      throw error;
     }
   }
 
@@ -109,6 +156,11 @@ class AuthService {
   async updateName(name) {
     try {
       const user = await account.updateName(name);
+
+      // Update the profile document as well
+      await this.updateProfile(user.$id, { name });
+
+      // update cached user
       this.cacheUser(user);
       toast.success('Name updated successfully!');
       return user;
@@ -155,6 +207,17 @@ class AuthService {
       // not working as updateStatus() deletes the curret session
       // await deleteAllSessions();
 
+      // Delete profile document (if exists)
+      try {
+        await databases.deleteDocument(
+          appwrite.databaseId,
+          'profiles',
+          (await account.get()).$id,
+        );
+      } catch (error) {
+        console.log('Error deleting profile:', error);
+      }
+
       this.clearCachedUser();
       toast.success('Account deleted successfully!');
     } catch (error) {
@@ -172,9 +235,8 @@ class AuthService {
       // Get current user to check for existing avatar
       const currentUser = await account.get();
       const currentAvatarFileId = currentUser.prefs?.avatarFileId;
-      console.log('Current Avatar File ID:', currentAvatarFileId);
 
-      // If an old avatar exists, delete it first
+      // Delete old avatar file if exists
       if (currentAvatarFileId) {
         try {
           await storage.deleteFile(appwrite.bucketId, currentAvatarFileId);
@@ -194,14 +256,24 @@ class AuthService {
       // Generate public view URL (no transformations)
       const avatarUrl = `${appwrite.url}/storage/buckets/${appwrite.bucketId}/files/${uploaded.$id}/view?project=${appwrite.projectId}`;
 
-      // Update user prefs
+      // Update user prefs with merged prefs
       const updatedUser = await account.updatePrefs({
-        ...(await account.get()).prefs,
+        ...(currentUser.prefs || {}),
         avatar: avatarUrl,
         avatarFileId: uploaded.$id,
       });
 
-      // Cache and return
+      // sync avatar to profile doc
+      try {
+        await this.updateProfile(updatedUser.$id, { avatar: avatarUrl });
+      } catch (profileErr) {
+        console.warn(
+          'Failed to sync avatar URL to profile document:',
+          profileErr,
+        );
+      }
+
+      // Update cache and return
       this.cacheUser(updatedUser);
       toast.success('Profile photo updated!');
       return updatedUser;
