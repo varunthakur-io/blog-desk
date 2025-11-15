@@ -139,16 +139,20 @@ class AuthService {
   async getAccount() {
     try {
       const cachedUser = this.getCachedUser();
-      if (cachedUser) {
-        return cachedUser; // Return cached user if available
+
+      // If no cached user → user is guest → DO NOT call account.get()
+      if (!cachedUser) {
+        return null;
       }
+
+      // If cached user exists → optionally verify on server
       const user = await account.get();
       this.cacheUser(user);
       return user;
-    } catch (error) {
+    } catch {
+      // If Appwrite says session is invalid → user is logged out
       this.clearCachedUser();
-      console.error('Error getting account:', error);
-      throw error;
+      return null;
     }
   }
 
