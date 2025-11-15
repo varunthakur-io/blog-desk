@@ -1,6 +1,6 @@
 import { account, databases } from '@/api/client';
 import { toast } from 'react-hot-toast';
-import { ID } from 'appwrite';
+// import { ID } from 'appwrite';
 import { appwriteConfig as appwrite } from '../config/appwrite';
 
 class PostService {
@@ -8,19 +8,19 @@ class PostService {
   async createPost({ title, content }) {
     try {
       const user = await account.get();
-      const postId = ID.unique();
 
+      // post data
       const postData = {
+        authorId: user.$id,
         title,
         content,
-        authorId: user.$id,
-        authorName: user.name || user.email,
       };
 
+      // create post document
       const res = await databases.createDocument(
         appwrite.databaseId,
         appwrite.collectionId,
-        postId,
+        'unique()',
         postData,
       );
 
