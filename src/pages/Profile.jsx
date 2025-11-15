@@ -47,6 +47,10 @@ export default function Profile() {
     bio: '',
   });
 
+  // profile doc loaded from "profiles" collection
+  const [profileDoc, setProfileDoc] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+
   // UI state
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -59,33 +63,44 @@ export default function Profile() {
   // NEW: hold the selected file until Save is clicked
   const [pendingAvatarFile, setPendingAvatarFile] = useState(null);
 
-  // hydrate form with authUser
+  // Fetch profile document when authUser changes
   useEffect(() => {
-    if (authUser) {
-      setFormData({
-        name: authUser.name || '',
-        email: authUser.email || '',
-        password: '',
-        bio: authUser.prefs?.bio || '',
-      });
+    let mounted = true;
+    async function loadProfile() {
+      if (!authUser?.$id) {
+        setProfileDoc(null);
+        return;
+      }
 
-      // initialize preview from user's avatar (if any)
-      // if user changes (after full save) we discard any pending local preview
-      setPreview(authUser.prefs?.avatar ?? null);
+      setProfileLoading(true);
+      try {
+        const doc = await authService.getProfile(authUser.$id);
+        if (!mounted) return;
+        setProfileDoc(doc ?? null);
 
-      // discard any pending file when authUser changes (e.g., after upload)
-      setPendingAvatarFile(null);
+        // initialize form with user + profile data
+        setFormData((prev) => ({
+          ...prev,
+          name: authUser.name || '',
+          email: authUser.email || '',
+          password: '',
+          bio: doc?.bio ?? '',
+        }));
 
-      // revoke previous local preview URL if any
-      if (previewUrlRef.current) {
-        try {
-          URL.revokeObjectURL(previewUrlRef.current);
-        } catch (e) {
-          console.error('Failed to revoke object URL on authUser change', e);
-        }
-        previewUrlRef.current = null;
+        // preview: prefer server profile avatar, then authUser prefs avatar
+        const avatar = doc?.avatar ?? null;
+        setPreview(avatar ?? null);
+      } catch (err) {
+        console.error('Failed to load profile doc:', err);
+      } finally {
+        if (mounted) setProfileLoading(false);
       }
     }
+
+    loadProfile();
+    return () => {
+      mounted = false;
+    };
   }, [authUser]);
 
   // cleanup on unmount: revoke any object URL
@@ -95,7 +110,6 @@ export default function Profile() {
         try {
           URL.revokeObjectURL(previewUrlRef.current);
         } catch (e) {
-          // ignore
           console.error('Failed to revoke object URL on unmount', e);
         }
         previewUrlRef.current = null;
@@ -103,20 +117,18 @@ export default function Profile() {
     };
   }, []);
 
-  // fetch user's posts
+  // fetch user's posts (unchanged logic)
   useEffect(() => {
     let mounted = true;
     async function loadPosts() {
       try {
         setPostsLoading(true);
-        // try user-specific API first (future plan)
         if (postService.getPostsByAuthor) {
           const res = await postService.getPostsByAuthor(authUser.$id);
           if (!mounted) return;
           setUserPosts(Array.isArray(res) ? res : (res.documents ?? []));
         } else {
-          // fallback: fetch some posts and filter client-side
-          const res = await postService.getAllPosts(1, 100); // large limit for user's posts
+          const res = await postService.getAllPosts(1, 100);
           if (!mounted) return;
           const docs = Array.isArray(res) ? res : (res.documents ?? []);
           const filtered = docs.filter(
@@ -140,7 +152,7 @@ export default function Profile() {
     };
   }, [authUser]);
 
-  // handlers
+  // handlers (mostly unchanged)
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -154,7 +166,7 @@ export default function Profile() {
         name: authUser.name || '',
         email: authUser.email || '',
         password: '',
-        bio: authUser.prefs?.bio || '',
+        bio: profileDoc?.bio ?? '',
       });
     }
     setIsEditing(false);
@@ -170,7 +182,7 @@ export default function Profile() {
       }
       previewUrlRef.current = null;
     }
-    setPreview(authUser?.prefs?.avatar ?? null);
+    setPreview(profileDoc?.avatar ?? null);
 
     // clear file input
     if (fileRef.current) fileRef.current.value = '';
@@ -180,135 +192,116 @@ export default function Profile() {
     e.preventDefault();
     setError('');
 
+    // =========================
+    // Validation
+    // =========================
     if (!formData.name || formData.name.trim().length < 2) {
       setError('Please enter a valid name (2+ characters).');
       return;
     }
+
     if (!isValidEmail(formData.email)) {
       setError('Please enter a valid email address.');
       return;
     }
+
     if (formData.email !== authUser.email && !formData.password) {
       setError('Please enter your current password to update email.');
       return;
     }
 
     setSaving(true);
+    setAvatarUploading(false);
+
     let profileSaved = false;
     let avatarSaved = false;
-    let updatedUser = null;
 
     try {
-      // profile update
-      if (authService.updateProfile) {
-        const payload = {
-          name: formData.name,
-          bio: formData.bio,
-          email: formData.email !== authUser.email ? formData.email : undefined,
-          currentPassword:
-            formData.email !== authUser.email ? formData.password : undefined,
-        };
-        try {
-          const res = await authService.updateProfile(payload);
-          updatedUser = res?.user ?? null;
-          if (updatedUser) dispatch(setUser(updatedUser));
-          profileSaved = true;
-        } catch (err) {
-          console.error('updateProfile failed', err);
-          setError(err?.message || 'Failed to update profile details.');
-        }
-      } else {
-        try {
-          if (formData.name !== authUser.name)
-            await authService.updateName(formData.name);
-          if (formData.bio !== authUser.prefs?.bio) {
-            if (authService.updateBio)
-              await authService.updateBio(formData.bio);
-            else if (authService.updatePrefs)
-              await authService.updatePrefs({ bio: formData.bio });
-          }
-          if (formData.email !== authUser.email) {
-            await authService.updateEmail(formData.email, formData.password);
-          }
-          if (authService.getCurrentUser) {
-            updatedUser = await authService.getCurrentUser();
-            if (updatedUser) dispatch(setUser(updatedUser));
-          } else {
-            dispatch(
-              setUser({
-                ...authUser,
-                name: formData.name,
-                email: formData.email,
-                prefs: { ...authUser.prefs, bio: formData.bio },
-              }),
-            );
-          }
-          profileSaved = true;
-        } catch (err) {
-          console.error('Per-field profile update failed', err);
-          setError(err?.message || 'Failed to update profile details.');
-        }
+      // =========================
+      // PROFILE UPDATES
+      // =========================
+
+      let updatedUser = authUser;
+
+      // Update name
+      if (formData.name !== authUser.name) {
+        updatedUser = await authService.updateName(formData.name);
       }
 
-      // avatar upload if selected
+      // Update email
+      if (formData.email !== authUser.email && formData.password) {
+        updatedUser = await authService.updateEmail(
+          formData.email,
+          formData.password,
+        );
+      }
+
+      // Update bio (profile document)
+      if (formData.bio !== profileDoc?.bio) {
+        await authService.updateBio(updatedUser.$id, formData.bio);
+      }
+
+      // Refresh account data into Redux
+      const freshUser = await authService.getAccount();
+      if (freshUser) {
+        dispatch(setUser(freshUser));
+      }
+
+      profileSaved = true;
+
+      // =========================
+      // AVATAR UPLOAD (optional)
+      // =========================
       if (pendingAvatarFile) {
         setAvatarUploading(true);
-        try {
-          const avatarResult =
-            await authService.updateAvatar(pendingAvatarFile);
-          const finalUser = avatarResult?.user ?? avatarResult ?? null;
 
-          if (finalUser) {
-            dispatch(setUser(finalUser));
-            setPreview(finalUser?.prefs?.avatar ?? null);
-          } else if (avatarResult?.prefs?.avatar) {
-            setPreview(avatarResult.prefs.avatar);
+        await authService.updateAvatar(pendingAvatarFile);
+
+        // cleanup preview URL
+        if (previewUrlRef.current) {
+          try {
+            URL.revokeObjectURL(previewUrlRef.current);
+          } catch {
+            // ignore
           }
-
-          if (previewUrlRef.current) {
-            try {
-              URL.revokeObjectURL(previewUrlRef.current);
-            } catch (e) {}
-            previewUrlRef.current = null;
-          }
-
-          setPendingAvatarFile(null);
-          if (fileRef.current) fileRef.current.value = '';
-          avatarSaved = true;
-        } catch (err) {
-          console.error('Avatar upload failed during save:', err);
-          toast.error(err?.message || 'Failed to upload avatar.');
-        } finally {
-          setAvatarUploading(false);
+          previewUrlRef.current = null;
         }
+
+        setPendingAvatarFile(null);
+        if (fileRef.current) fileRef.current.value = '';
+
+        avatarSaved = true;
+        setAvatarUploading(false);
       }
 
-      // final toasts
+      // =========================
+      // Final Messages
+      // =========================
       if (profileSaved && avatarSaved) {
         toast.success('Profile and avatar updated successfully!');
-      } else if (profileSaved && !avatarSaved) {
-        toast.success('Profile updated. Avatar upload failed — you can retry.');
-      } else if (!profileSaved && avatarSaved) {
-        toast.success('Avatar uploaded. Profile update failed.');
+      } else if (profileSaved) {
+        toast.success('Profile updated.');
+      } else if (avatarSaved) {
+        toast.success('Avatar updated.');
       } else {
-        if (!error) setError('No changes were saved.');
-        toast.error(error || 'Update failed. Please try again.');
-        return;
+        setError('No changes were saved.');
+        toast.error('No changes were saved.');
       }
 
       setIsEditing(false);
-      setFormData((p) => ({ ...p, password: '' }));
+      setFormData((prev) => ({ ...prev, password: '' }));
     } catch (err) {
-      console.error('handleSave unexpected error', err);
-      setError(err?.message || 'Update failed. Please try again.');
-      toast.error(err?.message || 'Update failed.');
+      console.error('Update failed:', err);
+      const msg = err?.message || 'Update failed. Please try again.';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setSaving(false);
       setAvatarUploading(false);
     }
   };
 
-  // avatar click
+  // avatar click triggers file input
   const handleAvatarClick = () => fileRef.current?.click();
 
   // avatar selection: only preview + store file; do NOT upload here
@@ -333,7 +326,7 @@ export default function Profile() {
     if (previewUrlRef.current) {
       try {
         URL.revokeObjectURL(previewUrlRef.current);
-      } catch (e) {
+      } catch {
         // ignore
       }
       previewUrlRef.current = null;
@@ -352,7 +345,7 @@ export default function Profile() {
   const following = authUser.prefs?.following ?? 0;
 
   // show skeleton while auth loading or user not ready
-  if (authLoading || !authUser) return <ProfileSkeleton />;
+  if (authLoading || !authUser || profileLoading) return <ProfileSkeleton />;
 
   return (
     <main className="min-h-screen">
@@ -364,10 +357,7 @@ export default function Profile() {
               <div className="relative">
                 <Avatar className="w-28 h-28">
                   {/* optimistic preview*/}
-                  <AvatarImage
-                    src={preview ?? authUser?.prefs?.avatars}
-                    alt={authUser?.name}
-                  />
+                  <AvatarImage src={preview} alt={authUser?.name} />
                   <AvatarFallback className="text-2xl">
                     <User className="w-12 h-12" />
                   </AvatarFallback>
@@ -555,11 +545,7 @@ export default function Profile() {
                       key={tab}
                       type="button"
                       onClick={() => setActiveTab(tab)}
-                      className={`px-4 py-2 rounded-md text-sm font-medium ${
-                        activeTab === tab
-                          ? 'bg-card/60 border border-border/40'
-                          : 'text-muted-foreground'
-                      }`}
+                      className={`px-4 py-2 rounded-md text-sm font-medium ${activeTab === tab ? 'bg-card/60 border border-border/40' : 'text-muted-foreground'}`}
                       aria-pressed={activeTab === tab}
                     >
                       {tab === 'posts'
@@ -613,9 +599,7 @@ export default function Profile() {
                         About {authUser.name}
                       </h3>
                       <p>
-                        {authUser.prefs?.bio ||
-                          formData.bio ||
-                          'No bio provided.'}
+                        {profileDoc?.bio ?? formData.bio ?? 'No bio provided.'}
                       </p>
 
                       {/* optional details */}

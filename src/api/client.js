@@ -2,7 +2,7 @@ import { Client, Databases, Account, Storage } from 'appwrite';
 
 // Initialize the Appwrite client
 const client = new Client()
-  .setEndpoint(import.meta.env.VITE_APPWRITE_URL)
+  .setEndpoint(import.meta.env.VITE_APPWRITE_ENDPOINT)
   .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID);
 
 export const databases = new Databases(client);
