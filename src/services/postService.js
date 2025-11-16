@@ -12,6 +12,7 @@ class PostService {
       // post data
       const postData = {
         authorId: user.$id,
+        authorName: user.name,
         title,
         content,
       };
