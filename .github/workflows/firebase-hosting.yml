@@ -4,15 +4,13 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    types: [opened, synchronize, reopened]
+      - dev
 
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    outputs:
-      build-path: dist
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -39,7 +37,7 @@ jobs:
     name: Deploy to Firebase Hosting
     needs: build
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || github.event_name == 'pull_request'
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -61,4 +59,4 @@ jobs:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
           projectId: "${{ secrets.FIREBASE_PROJECT_ID }}"
-          channelId: ${{ github.event_name == 'pull_request' && format('pr-{}', github.event.pull_request.number) || 'live' }}
+          channelId: ${{ github.ref_name == 'main' && 'live' || github.ref_name }}
