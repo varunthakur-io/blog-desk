@@ -5,12 +5,14 @@ on:
     branches:
       - main
       - dev
+  pull_request:
 
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-
+    outputs:
+      build-path: dist
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -59,4 +61,9 @@ jobs:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
           projectId: "${{ secrets.FIREBASE_PROJECT_ID }}"
-          channelId: ${{ github.ref_name == 'main' && 'live' || github.ref_name }}
+
+          channelId: ${{ 
+            github.ref == 'refs/heads/main' && 'live' 
+            || github.ref == 'refs/heads/dev' && 'dev-preview'
+            || github.event_name == 'pull_request' && format('pr-{}', github.event.pull_request.number)
+          }}
