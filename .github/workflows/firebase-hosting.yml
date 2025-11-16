@@ -4,13 +4,16 @@ on:
   push:
     branches:
       - main
-      - dev
+      - develop
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-
+    outputs:
+      build-path: dist
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,6 +26,14 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Run tests (if present)
+        run: |
+          if [ -f package.json ] && jq -r '.scripts.test // empty' package.json | grep -q '.'; then
+            npm test
+          else
+            echo "No tests script defined, skipping"
+          fi
 
       - name: Build
         run: npm run build
@@ -37,7 +48,8 @@ jobs:
     name: Deploy to Firebase Hosting
     needs: build
     runs-on: ubuntu-latest
-
+    # only run deploy for pushes and PRs (not other events)
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -59,4 +71,8 @@ jobs:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
           projectId: "${{ secrets.FIREBASE_PROJECT_ID }}"
-          channelId: ${{ github.ref_name == 'main' && 'live' || github.ref_name }}
+          # channel selection:
+          # - PRs -> pr-<number>
+          # - push to main -> live
+          # - push to develop -> dev-preview
+          channelId: ${{ github.event_name == 'pull_request' && format('pr-{}', github.event.pull_request.number) || (github.ref == 'refs/heads/main' && 'live') || (github.ref == 'refs/heads/develop' && 'dev-preview') }}
