@@ -1,6 +1,5 @@
-name: CI / Deploy Firebase Hosting
+name: CI / Deploy Firebase Hosting (Frontend)
 
-# build + deploy on pushes to dev/main
 on:
   push:
     branches:
@@ -11,6 +10,11 @@ on:
 concurrency:
   group: ci-deploy-${{ github.ref }}
   cancel-in-progress: true
+
+permissions:
+  contents: read
+  id-token: write
+  deployments: write
 
 jobs:
   build:
@@ -27,16 +31,36 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci
-
-      # Ensure Vite sees only VITE_* variables at build time
-      - name: Build (Vite)
+      - name: Load APPWRITE_CONFIG (single repository Variable) and export VITE_ envs
         env:
-          VITE_APPWRITE_ENDPOINT: ${{ secrets.APPWRITE_ENDPOINT }}
-          VITE_APPWRITE_PROJECT:  ${{ secrets.APPWRITE_PROJECT }}
-          VITE_APPWRITE_BUCKET:   ${{ secrets.APPWRITE_BUCKET }}
-        run: npm run build
+          APPWRITE_CONFIG: ${{ vars.APPWRITE_CONFIG }}
+        run: |
+          # write the JSON to a file
+          echo "$APPWRITE_CONFIG" > appwrite.json
+
+          # parse JSON using Node and export VITE_ variables for Vite build
+          export VITE_APPWRITE_ENDPOINT=$(node -p "require('./appwrite.json').endpoint")
+          export VITE_APPWRITE_PROJECT_ID=$(node -p "require('./appwrite.json').project")
+          export VITE_APPWRITE_DATABASE_ID=$(node -p "require('./appwrite.json').database")
+          export VITE_APPWRITE_COLLECTION_ID=$(node -p "require('./appwrite.json').collection")
+          export VITE_APPWRITE_BUCKET_ID=$(node -p "require('./appwrite.json').bucket")
+
+          # show that envs are set (no secrets printed)
+          node -e "console.log('VITE vars set for build')"
+
+          # install & build (these will pick up the exported VITE_ envs)
+          npm ci
+          npm run build
+
+      - name: Verify build output
+        run: |
+          if [ ! -d dist ]; then
+            echo "Error: dist directory not found. Build failed."
+            ls -la || true
+            exit 1
+          fi
+          echo "dist exists, size:"
+          du -sh dist || true
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -49,6 +73,7 @@ jobs:
     name: Deploy to Firebase Hosting
     needs: build
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
