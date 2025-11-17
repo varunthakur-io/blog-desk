@@ -93,8 +93,26 @@ class AuthService {
   // Login user with email & password
   async loginUser({ email, password }) {
     try {
+      // after successful session creation
       await account.createEmailPasswordSession(email, password);
       const user = await account.get();
+
+      // try to fetch public profile doc and merge avatar if present
+      try {
+        const profile = await this.getProfile(user.$id);
+        if (profile?.avatar) {
+          // merge into user so UI reads avatar from user.avatar
+          user.avatar = profile.avatar;
+        }
+        if (profile?.bio) {
+          user.bio = profile.bio;
+        }
+      } catch (err) {
+        // profile may not exist — not fatal
+        console.warn('Could not load profile for avatar merge', err);
+      }
+
+      // cache and return enriched user
       this.cacheUser(user);
       toast.success('Logged in successfully!');
       return user;
@@ -147,6 +165,15 @@ class AuthService {
 
       // If cached user exists → optionally verify on server
       const user = await account.get();
+      const profile = await this.getProfile(user.$id);
+
+      if (profile?.avatar) {
+        user.avatar = profile.avatar;
+      }
+      if (profile?.bio) {
+        user.bio = profile.bio;
+      }
+
       this.cacheUser(user);
       return user;
     } catch {
@@ -289,11 +316,11 @@ class AuthService {
       );
 
       // Generate public view URL (no transformations)
-      const avatarUrl = `${appwrite.url}/storage/buckets/${appwrite.bucketId}/files/${uploaded.$id}/view?project=${appwrite.projectId}`;
+      const avatar = `${appwrite.url}/storage/buckets/${appwrite.bucketId}/files/${uploaded.$id}/view?project=${appwrite.projectId}`;
 
       // sync avatar to profile doc
       try {
-        await this.updateProfile(profile.$id, { avatar: avatarUrl });
+        await this.updateProfile(profile.$id, { avatar: avatar });
       } catch (profileErr) {
         console.warn(
           'Failed to sync avatar URL to profile document:',

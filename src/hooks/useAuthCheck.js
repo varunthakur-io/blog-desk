@@ -7,7 +7,7 @@ import { authService } from '../services/authService';
 
 const useAuthCheck = () => {
   const dispatch = useDispatch();
-  const { status } = useSelector((state) => state.auth);
+  const { status } = useSelector((state) => state.auth.status);
   const [isAuthChecked, setIsAuthChecked] = useState(false);
   const mountedRef = useRef(true);
 

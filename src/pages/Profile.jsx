@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { useParams } from 'react-router-dom';
 import { User, Edit, Save, X, Camera } from 'lucide-react';
 import { Spinner } from '@/components/Loader';
 import toast from 'react-hot-toast';
@@ -32,14 +33,18 @@ const isValidEmail = (email) =>
 
 export default function Profile() {
   const dispatch = useDispatch();
+
+  // auth from redux
   const authUser = useSelector((state) => state.auth?.user);
   const authLoading = useSelector((state) => state.auth?.loading);
-  const fileRef = useRef(null);
 
-  // keep track of local object URL so we can revoke it
+  // route param
+  const { id } = useParams();
+
+  // local refs and state
+  const fileRef = useRef(null);
   const previewUrlRef = useRef(null);
 
-  // local UI state
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -47,11 +52,9 @@ export default function Profile() {
     bio: '',
   });
 
-  // profile doc loaded from "profiles" collection
-  const [profileDoc, setProfileDoc] = useState(null);
+  const [profileDoc, setProfileDoc] = useState(null); // public profile doc from "profiles" collection
   const [profileLoading, setProfileLoading] = useState(false);
 
-  // UI state
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
@@ -59,132 +62,176 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState('posts'); // posts | likes | about
   const [userPosts, setUserPosts] = useState([]);
   const [postsLoading, setPostsLoading] = useState(false);
+
+  // pending local preview and file
   const [preview, setPreview] = useState(null);
-  // NEW: hold the selected file until Save is clicked
   const [pendingAvatarFile, setPendingAvatarFile] = useState(null);
 
-  // Fetch profile document when authUser changes
+  // computed profileId: explicit URL id or fallback to logged in user
+  const profileId = id || authUser?.$id;
+  const isOwner = !!authUser && authUser.$id === profileId;
+
+  // ----------------------------------------
+  // Load profile document for profileId
+  // ----------------------------------------
   useEffect(() => {
     let mounted = true;
-    async function loadProfile() {
-      if (!authUser?.$id) {
+    async function loadProfileDoc(pid) {
+      if (!pid) {
         setProfileDoc(null);
+        setPreview(null);
         return;
       }
 
       setProfileLoading(true);
       try {
-        const doc = await authService.getProfile(authUser.$id);
+        const doc = await authService.getProfile(pid);
         if (!mounted) return;
         setProfileDoc(doc ?? null);
 
-        // initialize form with user + profile data
-        setFormData((prev) => ({
-          ...prev,
-          name: authUser.name || '',
-          email: authUser.email || '',
-          password: '',
-          bio: doc?.bio ?? '',
-        }));
+        // if viewing self, initialize form with authUser + profile doc
+        if (isOwner && authUser) {
+          setFormData((prev) => ({
+            ...prev,
+            name: authUser.name || '',
+            email: authUser.email || '',
+            password: '',
+            bio: doc?.bio ?? '',
+          }));
+        } else {
+          // viewing someone else - show public fields
+          setFormData((prev) => ({
+            ...prev,
+            name: doc?.name ?? '',
+            email: '', // don't show private email for other users
+            password: '',
+            bio: doc?.bio ?? '',
+          }));
+        }
 
-        // preview: prefer server profile avatar, then authUser prefs avatar
-        const avatar = doc?.avatar ?? null;
-        setPreview(avatar ?? null);
+        // pick avatar for preview: prefer profileDoc.avatar, else authUser.prefs.avatar when owner
+        const avatarUrl =
+          doc?.avatar ?? (isOwner ? (authUser?.prefs?.avatar ?? null) : null);
+        setPreview(avatarUrl ?? null);
       } catch (err) {
         console.error('Failed to load profile doc:', err);
+        // keep silent on public missing profile
+        setProfileDoc(null);
+        setPreview(isOwner ? (authUser?.prefs?.avatar ?? null) : null);
       } finally {
         if (mounted) setProfileLoading(false);
       }
     }
 
-    loadProfile();
+    loadProfileDoc(profileId);
     return () => {
       mounted = false;
     };
-  }, [authUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profileId, authUser]); // re-run when profileId or authUser changes
 
-  // cleanup on unmount: revoke any object URL
+  // cleanup object URL on unmount
   useEffect(() => {
     return () => {
       if (previewUrlRef.current) {
         try {
           URL.revokeObjectURL(previewUrlRef.current);
         } catch (e) {
-          console.error('Failed to revoke object URL on unmount', e);
+          // ignore
         }
         previewUrlRef.current = null;
       }
     };
   }, []);
 
-  // fetch user's posts (unchanged logic)
+  // ----------------------------------------
+  // Load posts for profileId
+  // ----------------------------------------
   useEffect(() => {
     let mounted = true;
-    async function loadPosts() {
+    async function loadUserPosts(pid) {
+      if (!pid) {
+        setUserPosts([]);
+        return;
+      }
       try {
         setPostsLoading(true);
         if (postService.getPostsByAuthor) {
-          const res = await postService.getPostsByAuthor(authUser.$id);
+          const res = await postService.getPostsByAuthor(pid);
           if (!mounted) return;
           setUserPosts(Array.isArray(res) ? res : (res.documents ?? []));
         } else {
+          // fallback: fetch some posts and filter client-side (not ideal for production)
           const res = await postService.getAllPosts(1, 100);
           if (!mounted) return;
           const docs = Array.isArray(res) ? res : (res.documents ?? []);
           const filtered = docs.filter(
-            (p) =>
-              p.authorId === authUser.$id ||
-              p.authorEmail === authUser.email ||
-              p.authorName === authUser.name,
+            (p) => p.authorId === pid || p.authorId === pid.toString(),
           );
           setUserPosts(filtered);
         }
       } catch (err) {
         console.error('Failed to load user posts', err);
+        setUserPosts([]);
       } finally {
         if (mounted) setPostsLoading(false);
       }
     }
 
-    if (authUser) loadPosts();
+    loadUserPosts(profileId);
     return () => {
       mounted = false;
     };
-  }, [authUser]);
+  }, [profileId]);
 
-  // handlers (mostly unchanged)
+  // ----------------------------------------
+  // Handlers
+  // ----------------------------------------
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
+
   const handleEdit = () => {
+    if (!isOwner) {
+      toast.error('You can only edit your own profile.');
+      return;
+    }
     setIsEditing(true);
     setError('');
   };
+
   const handleCancel = () => {
-    if (authUser) {
+    // revert to loaded profile/doc values
+    if (isOwner && authUser) {
       setFormData({
         name: authUser.name || '',
         email: authUser.email || '',
         password: '',
         bio: profileDoc?.bio ?? '',
       });
+      setPreview(profileDoc?.avatar ?? authUser?.prefs?.avatar ?? null);
+    } else {
+      setFormData({
+        name: profileDoc?.name ?? '',
+        email: '',
+        password: '',
+        bio: profileDoc?.bio ?? '',
+      });
+      setPreview(profileDoc?.avatar ?? null);
     }
+
     setIsEditing(false);
     setError('');
-
-    // discard pending avatar file and revert preview to server avatar (if any)
     setPendingAvatarFile(null);
+
+    // clear local object url
     if (previewUrlRef.current) {
       try {
         URL.revokeObjectURL(previewUrlRef.current);
-      } catch (e) {
-        console.error('Failed to revoke object URL on cancel', e);
-      }
+      } catch (e) {}
       previewUrlRef.current = null;
     }
-    setPreview(profileDoc?.avatar ?? null);
 
-    // clear file input
     if (fileRef.current) fileRef.current.value = '';
   };
 
@@ -192,104 +239,89 @@ export default function Profile() {
     e.preventDefault();
     setError('');
 
-    // =========================
-    // Validation
-    // =========================
+    if (!isOwner) {
+      toast.error('You can only update your own profile.');
+      return;
+    }
+
+    // validation
     if (!formData.name || formData.name.trim().length < 2) {
       setError('Please enter a valid name (2+ characters).');
       return;
     }
-
     if (!isValidEmail(formData.email)) {
       setError('Please enter a valid email address.');
       return;
     }
-
     if (formData.email !== authUser.email && !formData.password) {
       setError('Please enter your current password to update email.');
       return;
     }
 
     setSaving(true);
-    setAvatarUploading(false);
-
-    let profileSaved = false;
-    let avatarSaved = false;
 
     try {
-      // =========================
-      // PROFILE UPDATES
-      // =========================
-
-      let updatedUser = authUser;
-
-      // Update name
+      // Update name if changed
       if (formData.name !== authUser.name) {
-        updatedUser = await authService.updateName(formData.name);
+        await authService.updateName(formData.name);
       }
 
-      // Update email
+      // Update email if changed
       if (formData.email !== authUser.email && formData.password) {
-        updatedUser = await authService.updateEmail(
-          formData.email,
-          formData.password,
-        );
+        await authService.updateEmail(formData.email, formData.password);
       }
 
-      // Update bio (profile document)
+      // Update bio in profile document (create/update)
       if (formData.bio !== profileDoc?.bio) {
-        await authService.updateBio(updatedUser.$id, formData.bio);
+        // your authService should expose updateBio(userId, bio) or use updateProfile
+        if (authService.updateBio) {
+          await authService.updateBio(authUser.$id, formData.bio);
+        } else if (authService.updateProfile) {
+          await authService.updateProfile({
+            name: formData.name,
+            bio: formData.bio,
+          });
+        } else if (authService.updatePrefs) {
+          await authService.updatePrefs({
+            ...(authUser.prefs ?? {}),
+            bio: formData.bio,
+          });
+        } else {
+          // fallback: update profile through databases API via authService.createProfile/updateProfile
+          await authService.updateProfile?.(authUser.$id, {
+            bio: formData.bio,
+          });
+        }
       }
 
-      // Refresh account data into Redux
-      const freshUser = await authService.getAccount();
-      if (freshUser) {
-        dispatch(setUser(freshUser));
-      }
-
-      profileSaved = true;
-
-      // =========================
-      // AVATAR UPLOAD (optional)
-      // =========================
+      // Avatar upload (deferred upload on Save)
       if (pendingAvatarFile) {
         setAvatarUploading(true);
-
-        await authService.updateAvatar(pendingAvatarFile);
-
-        // cleanup preview URL
-        if (previewUrlRef.current) {
-          try {
-            URL.revokeObjectURL(previewUrlRef.current);
-          } catch {
-            // ignore
-          }
-          previewUrlRef.current = null;
+        const res = await authService.updateAvatar(pendingAvatarFile);
+        // If updateAvatar returns user or updated prefs, handle it:
+        const newUser = res?.user ?? res ?? null;
+        if (newUser && newUser.$id === authUser.$id) {
+          dispatch(setUser(newUser));
+          setPreview(newUser?.prefs?.avatar ?? newUser?.prefs?.avatar ?? null);
+        } else if (res?.prefs?.avatar) {
+          setPreview(res.prefs.avatar);
         }
-
         setPendingAvatarFile(null);
         if (fileRef.current) fileRef.current.value = '';
-
-        avatarSaved = true;
         setAvatarUploading(false);
       }
 
-      // =========================
-      // Final Messages
-      // =========================
-      if (profileSaved && avatarSaved) {
-        toast.success('Profile and avatar updated successfully!');
-      } else if (profileSaved) {
-        toast.success('Profile updated.');
-      } else if (avatarSaved) {
-        toast.success('Avatar updated.');
-      } else {
-        setError('No changes were saved.');
-        toast.error('No changes were saved.');
-      }
+      // refresh current user and profile doc
+      const freshUser = await authService.getAccount();
+      if (freshUser) dispatch(setUser(freshUser));
+      const refreshedProfile = await authService
+        .getProfile(authUser.$id)
+        .catch(() => null);
+      if (refreshedProfile) setProfileDoc(refreshedProfile);
 
+      toast.success('Profile updated successfully!');
       setIsEditing(false);
-      setFormData((prev) => ({ ...prev, password: '' }));
+      setFormData((p) => ({ ...p, password: '' }));
     } catch (err) {
       console.error('Update failed:', err);
       const msg = err?.message || 'Update failed. Please try again.';
@@ -301,38 +333,40 @@ export default function Profile() {
     }
   };
 
-  // avatar click triggers file input
-  const handleAvatarClick = () => fileRef.current?.click();
+  const handleAvatarClick = () => {
+    if (!isOwner) return;
+    fileRef.current?.click();
+  };
 
-  // avatar selection: only preview + store file; do NOT upload here
   const handleAvatarChange = (e) => {
+    if (!isOwner) {
+      toast.error('You can only change your own avatar.');
+      if (fileRef.current) fileRef.current.value = '';
+      return;
+    }
+
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Basic client-side validation
     if (!file.type.startsWith('image/')) {
       toast.error('Please select an image file.');
       if (fileRef.current) fileRef.current.value = '';
       return;
     }
-
     if (file.size > 3 * 1024 * 1024) {
       toast.error('Image must be smaller than 3 MB.');
       if (fileRef.current) fileRef.current.value = '';
       return;
     }
 
-    // revoke any previous local preview URL
+    // revoke previous
     if (previewUrlRef.current) {
       try {
         URL.revokeObjectURL(previewUrlRef.current);
-      } catch {
-        // ignore
-      }
+      } catch (e) {}
       previewUrlRef.current = null;
     }
 
-    // create local preview and store selected file for later upload
     const objectUrl = URL.createObjectURL(file);
     previewUrlRef.current = objectUrl;
     setPreview(objectUrl);
@@ -340,12 +374,12 @@ export default function Profile() {
   };
 
   // derived stats (fallback to prefs/counts if available)
-  const postsCount = userPosts.length ?? authUser.prefs?.postsCount ?? 0;
-  const followers = authUser.prefs?.followers ?? 0;
-  const following = authUser.prefs?.following ?? 0;
+  const postsCount = userPosts.length ?? authUser?.prefs?.postsCount ?? 0;
+  const followers = authUser?.prefs?.followers ?? 0;
+  const following = authUser?.prefs?.following ?? 0;
 
-  // show skeleton while auth loading or user not ready
-  if (authLoading || !authUser || profileLoading) return <ProfileSkeleton />;
+  // Loading / skeleton conditions:
+  if (authLoading || profileLoading || !profileId) return <ProfileSkeleton />;
 
   return (
     <main className="min-h-screen">
@@ -356,14 +390,16 @@ export default function Profile() {
               {/* avatar + camera */}
               <div className="relative">
                 <Avatar className="w-28 h-28">
-                  {/* optimistic preview*/}
-                  <AvatarImage src={preview} alt={authUser?.name} />
+                  <AvatarImage
+                    src={preview ?? null}
+                    alt={formData.name || 'User avatar'}
+                  />
                   <AvatarFallback className="text-2xl">
                     <User className="w-12 h-12" />
                   </AvatarFallback>
                 </Avatar>
 
-                {isEditing && (
+                {isOwner && (
                   <button
                     type="button"
                     onClick={handleAvatarClick}
@@ -391,10 +427,10 @@ export default function Profile() {
               {/* name + email + edit */}
               <div className="flex-1 min-w-0 text-left md:text-left">
                 <CardTitle className="text-2xl leading-tight">
-                  {authUser.name}
+                  {profileDoc?.name ?? formData.name}
                 </CardTitle>
                 <CardDescription className="text-muted-foreground mt-1">
-                  {authUser.email}
+                  {isOwner ? authUser?.email : (profileDoc?.email ?? ' — ')}
                 </CardDescription>
 
                 <div className="mt-4 flex items-center gap-3">
@@ -418,7 +454,7 @@ export default function Profile() {
               </div>
 
               <div className="ml-auto">
-                {!isEditing ? (
+                {!isOwner ? null : !isEditing ? (
                   <Button onClick={handleEdit} variant="outline">
                     <Edit className="mr-2 h-4 w-4" />
                     Edit Profile
@@ -442,7 +478,7 @@ export default function Profile() {
           <Separator />
 
           <CardContent className="pt-6">
-            {/* Edit form */}
+            {/* Edit form (if owner) or public read-only info */}
             <form onSubmit={handleSave} className="space-y-6">
               {error && (
                 <Alert variant="destructive">
@@ -456,10 +492,10 @@ export default function Profile() {
                   id="name"
                   name="name"
                   type="text"
-                  placeholder="Your Full Name"
+                  placeholder="Full Name"
                   value={formData.name}
                   onChange={handleChange}
-                  disabled={!isEditing || saving}
+                  disabled={!isEditing}
                 />
               </div>
 
@@ -469,10 +505,10 @@ export default function Profile() {
                   id="email"
                   name="email"
                   type="email"
-                  placeholder="Your Email"
+                  placeholder={isOwner ? 'Your Email' : 'Email hidden'}
                   value={formData.email}
                   onChange={handleChange}
-                  disabled={!isEditing || saving}
+                  disabled={!isEditing || !isOwner}
                 />
               </div>
 
@@ -485,7 +521,7 @@ export default function Profile() {
                   placeholder="A short bio"
                   value={formData.bio}
                   onChange={handleChange}
-                  disabled={!isEditing || saving}
+                  disabled={!isEditing}
                 />
               </div>
 
@@ -568,11 +604,15 @@ export default function Profile() {
                       ) : userPosts.length === 0 ? (
                         <div className="text-center py-12 text-muted-foreground">
                           <p className="mb-4">
-                            You haven't published any posts yet.
+                            {isOwner
+                              ? "You haven't published any posts yet."
+                              : "This user hasn't published any posts yet."}
                           </p>
-                          <Button asChild>
-                            <a href="/create">Create your first post</a>
-                          </Button>
+                          {isOwner && (
+                            <Button asChild>
+                              <a href="/create">Create your first post</a>
+                            </Button>
+                          )}
                         </div>
                       ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -587,8 +627,7 @@ export default function Profile() {
                   {activeTab === 'likes' && (
                     <div className="text-muted-foreground">
                       <p>
-                        Liked posts will show up here. (Implement your likes API
-                        or client-side list.)
+                        Liked posts will show up here. (Implement likes API.)
                       </p>
                     </div>
                   )}
@@ -596,13 +635,12 @@ export default function Profile() {
                   {activeTab === 'about' && (
                     <div className="prose max-w-none text-muted-foreground">
                       <h3 className="text-lg font-semibold mb-2">
-                        About {authUser.name}
+                        About {profileDoc?.name ?? formData.name}
                       </h3>
                       <p>
                         {profileDoc?.bio ?? formData.bio ?? 'No bio provided.'}
                       </p>
 
-                      {/* optional details */}
                       <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                           <p className="text-sm text-muted-foreground">
@@ -610,13 +648,17 @@ export default function Profile() {
                           </p>
                           <p>
                             {new Date(
-                              authUser.$createdAt ?? Date.now(),
+                              authUser?.$createdAt ?? Date.now(),
                             ).toLocaleDateString()}
                           </p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Email</p>
-                          <p>{authUser.email}</p>
+                          <p className="text-sm text-muted-foreground">
+                            User ID
+                          </p>
+                          <p className="font-mono text-sm break-all">
+                            {profileId}
+                          </p>
                         </div>
                       </div>
                     </div>
