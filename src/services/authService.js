@@ -59,7 +59,8 @@ class AuthService {
 
       if (!profileCreated) {
         // We do NOT log the user in if profile creation failed.
-        // Note: at this point an account exists but no profile — consider server-side cleanup.
+        // Note: at this point an account exists but no profile
+        // Implemet account deletion
         const message =
           'Signup failed: could not create profile. Please try again.';
         console.error(message);
@@ -81,7 +82,7 @@ class AuthService {
 
   // Create or update the public profile document
   async createProfile(user) {
-    if (!user) return;
+    if (!user || user.$id) throw new Error('Invalid user for profile creation');
 
     const profileData = {
       name: user.name || '',
@@ -89,11 +90,10 @@ class AuthService {
 
     try {
       // Create the profile doc with id = user.$id
-      // Make it readable by anyone, writable only by the user
       await databases.createDocument(
         appwrite.databaseId,
-        'profiles',
-        user.$id,
+        'profiles', // collection id
+        user.$id, // document id
         profileData,
       );
     } catch (err) {
@@ -104,12 +104,14 @@ class AuthService {
   // Update user profile
   async updateProfile(userId, profileData) {
     try {
-      await databases.updateDocument(
+      const updatedProfile = await databases.updateDocument(
         appwrite.databaseId,
         'profiles',
         userId,
         profileData,
       );
+
+      return updatedProfile;
     } catch (error) {
       console.error('Error updating profile:', error);
       throw error;
