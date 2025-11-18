@@ -82,7 +82,8 @@ class AuthService {
 
   // Create or update the public profile document
   async createProfile(user) {
-    if (!user || user.$id) throw new Error('Invalid user for profile creation');
+    if (!user || !user.$id)
+      throw new Error('Invalid user for profile creation');
 
     const profileData = {
       name: user.name || '',
@@ -98,6 +99,7 @@ class AuthService {
       );
     } catch (err) {
       console.log('Error creating profile:', err);
+      throw err;
     }
   }
 
@@ -326,7 +328,7 @@ class AuthService {
       const currentUser = await account.get();
       const profile = await this.getProfile(currentUser.$id);
 
-      const currentAvatarFileId = profile.avatar;
+      const currentAvatarFileId = profile?.avatarId;
 
       // Delete old avatar file if exists
       if (currentAvatarFileId) {
@@ -334,7 +336,6 @@ class AuthService {
           await storage.deleteFile(appwrite.bucketId, currentAvatarFileId);
         } catch (deleteError) {
           console.warn('Failed to delete old avatar file:', deleteError);
-          // Continue even if old avatar deletion fails
         }
       }
 
@@ -344,24 +345,26 @@ class AuthService {
         ID.unique(),
         file,
       );
+      const fileId = uploaded.$id;
 
-      // Generate public view URL (no transformations)
-      const avatar = `${appwrite.url}/storage/buckets/${appwrite.bucketId}/files/${uploaded.$id}/view?project=${appwrite.projectId}`;
+      // Generate public view URL
+      const avatarUrl = `${appwrite.url}/storage/buckets/${appwrite.bucketId}/files/${fileId}/view?project=${appwrite.projectId}`;
 
-      // sync avatar to profile doc
-      try {
-        await this.updateProfile(profile.$id, { avatar: avatar });
-      } catch (profileErr) {
-        console.warn(
-          'Failed to sync avatar URL to profile document:',
-          profileErr,
-        );
+      // sync both file id and url to profile doc
+      const updatedProfile = await this.updateProfile(profile.$id, {
+        avatarId: fileId,
+        avatarUrl,
+      });
+
+      // Optionally update cached user
+      const cached = this.getCachedUser();
+      if (cached && cached.profile && cached.profile.$id === profile.$id) {
+        const merged = { ...cached, profile: updatedProfile };
+        this.cacheUser(merged);
       }
 
-      // Update cache and return
-      // this.cacheUser(updatedUser);
       toast.success('Profile photo updated!');
-      return;
+      return updatedProfile;
     } catch (error) {
       console.error('Error updating avatar:', error);
       toast.error(error.message || 'Failed to update avatar.');
