@@ -93,35 +93,34 @@ class AuthService {
   // Login user with email & password
   async loginUser({ email, password }) {
     try {
-      // after successful session creation
+      // create session
       await account.createEmailPasswordSession(email, password);
-      const user = await account.get();
+      const user = await account.get(); // auth user
 
-      // try to fetch public profile doc and merge avatar if present
+      // attempt to load profile document (returns null/throws if missing)
+      let profile = null;
       try {
-        const profile = await this.getProfile(user.$id);
-        if (profile?.avatar) {
-          // merge into user so UI reads avatar from user.avatar
-          user.avatar = profile.avatar;
-        }
-        if (profile?.bio) {
-          user.bio = profile.bio;
-        }
+        // if getProfile returns a document object, keep it; otherwise null
+        profile = await this.getProfile(user.$id);
       } catch (err) {
-        // profile may not exist — not fatal
-        console.warn('Could not load profile for avatar merge', err);
+        console.warn('Could not load profile for merge:', err);
       }
 
+      // merge safely (no shadowing). Keep profile nested to avoid key collisions.
+      const mergedUser = { ...user, profile };
+
       // cache and return enriched user
-      this.cacheUser(user);
+      this.cacheUser(mergedUser);
+
       toast.success('Logged in successfully!');
-      return user;
+      return mergedUser;
     } catch (error) {
       console.error('Error logging in:', error);
       toast.error(
-        error.message || 'Login failed. Please check your credentials.',
+        error?.message || 'Login failed. Please check your credentials.',
       );
-      throw new Error(error.message);
+      // rethrow original error for callers to handle
+      throw error;
     }
   }
 
