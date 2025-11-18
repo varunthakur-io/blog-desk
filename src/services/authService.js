@@ -28,28 +28,54 @@ class AuthService {
   // Authentication
   // =========================
 
-  // Register a new user
+  // Register a new user — only log in if profile creation succeeds
   async createUser({ email, password, name }) {
     try {
-      // Create account in Appwrite Auth
-      await account.create(ID.unique(), email, password, name);
-      // login the user immediately after registration
-      const loggedInUser = await this.loginUser({ email, password });
+      // 1) Create account in Appwrite Auth
+      const createdUser = await account.create(
+        ID.unique(),
+        email,
+        password,
+        name,
+      );
 
-      // Create a public profile document (document id = user.$id)
-      try {
-        await this.createProfile(loggedInUser);
-      } catch (profileErr) {
-        // If profile creation fails, don't block signup; just warn
-        console.warn('Profile creation failed at signup:', profileErr);
+      // 2) Try to create profile BEFORE login. Retry on transient failures.
+      const maxRetries = 2;
+      let profileCreated = false;
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+          // create a profile for the created user
+          await this.createProfile(createdUser);
+          profileCreated = true;
+          break;
+        } catch (err) {
+          console.warn(`createProfile attempt ${attempt + 1} failed:`, err);
+          if (attempt < maxRetries) {
+            // small backoff
+            await new Promise((r) => setTimeout(r, 300));
+          }
+        }
       }
 
-      toast.success('Account created successfully!');
+      if (!profileCreated) {
+        // We do NOT log the user in if profile creation failed.
+        // Note: at this point an account exists but no profile — consider server-side cleanup.
+        const message =
+          'Signup failed: could not create profile. Please try again.';
+        console.error(message);
+        toast.error(message);
+        throw new Error(message);
+      }
+
+      // 3) Profile created successfully -> create session (login)
+      const loggedInUser = await this.loginUser({ email, password });
+
+      toast.success('Account created and logged in!');
       return loggedInUser;
     } catch (error) {
-      console.error('Error creating user:', error);
-      toast.error(error.message || 'Failed to create user.');
-      throw new Error(error.message || 'Failed to create user.');
+      console.error('Error creating user & profile:', error);
+      // preserve original error
+      throw error;
     }
   }
 
@@ -127,7 +153,10 @@ class AuthService {
   // Logout current session
   async logout() {
     try {
+      // delete the current session
       await account.deleteSession('current');
+
+      // clear the user from cache
       this.clearCachedUser();
       toast.success('Logged out successfully!');
     } catch (error) {
