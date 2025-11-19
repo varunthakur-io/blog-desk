@@ -199,15 +199,13 @@ class AuthService {
       const user = await account.get();
       const profile = await this.getProfile(user.$id);
 
-      if (profile?.avatar) {
-        user.avatar = profile.avatar;
-      }
-      if (profile?.bio) {
-        user.bio = profile.bio;
-      }
+      const mergedUser = {
+        ...user,
+        profile: profile ? { ...profile } : null,
+      };
 
-      this.cacheUser(user);
-      return user;
+      this.cacheUser(mergedUser);
+      return mergedUser;
     } catch {
       // If Appwrite says session is invalid → user is logged out
       this.clearCachedUser();
@@ -254,7 +252,7 @@ class AuthService {
       const user = await account.updateEmail(email, password);
       this.cacheUser(user);
       toast.success('Email updated successfully!');
-      return user;
+      return user.email;
     } catch (error) {
       console.error('Error updating email:', error);
       toast.error(error.message || 'Failed to update email.');
@@ -283,6 +281,7 @@ class AuthService {
         userId,
         { bio }, // only updates the bio field
       );
+      return true;
     } catch (error) {
       console.error('Error updating bio:', error);
       throw error;
