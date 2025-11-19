@@ -76,6 +76,7 @@ export default function Profile() {
   // ----------------------------------------
   useEffect(() => {
     let mounted = true;
+
     async function loadProfileDoc(pid) {
       if (!pid) {
         setProfileDoc(null);
@@ -84,51 +85,55 @@ export default function Profile() {
       }
 
       setProfileLoading(true);
+
       try {
+        // Fetch profile
         const doc = await authService.getProfile(pid);
         if (!mounted) return;
-        setProfileDoc(doc ?? null);
 
-        // if viewing self, initialize form with authUser + profile doc
+        setProfileDoc(doc);
+
+        // Initialize form fields using fresh profile doc
         if (isOwner && authUser) {
-          setFormData((prev) => ({
-            ...prev,
+          setFormData({
             name: authUser.name || '',
             email: authUser.email || '',
             password: '',
             bio: doc?.bio ?? '',
-          }));
+          });
         } else {
-          // viewing someone else - show public fields
-          setFormData((prev) => ({
-            ...prev,
+          setFormData({
             name: doc?.name ?? '',
-            email: '', // don't show private email for other users
+            email: '',
             password: '',
             bio: doc?.bio ?? '',
-          }));
+          });
         }
 
-        // pick avatar for preview: prefer profileDoc.avatar, else authUser.prefs.avatar when owner
-        const avatarUrl =
-          doc?.avatar ?? (isOwner ? (authUser?.prefs?.avatar ?? null) : null);
+        // Set avatar preview (safe optional chaining)
+        const avatarUrl = isOwner
+          ? authUser?.profile?.avatarUrl
+          : doc?.avatarUrl;
+
         setPreview(avatarUrl ?? null);
       } catch (err) {
         console.error('Failed to load profile doc:', err);
-        // keep silent on public missing profile
         setProfileDoc(null);
-        setPreview(isOwner ? (authUser?.prefs?.avatar ?? null) : null);
+
+        // Fallback avatar if owner has cached image
+        setPreview(isOwner ? authUser?.profile?.avatarUrl : null);
       } finally {
         if (mounted) setProfileLoading(false);
       }
     }
 
     loadProfileDoc(profileId);
+
     return () => {
       mounted = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profileId, authUser]); // re-run when profileId or authUser changes
+  }, [profileId, authUser]);
 
   // cleanup object URL on unmount
   useEffect(() => {
@@ -136,7 +141,7 @@ export default function Profile() {
       if (previewUrlRef.current) {
         try {
           URL.revokeObjectURL(previewUrlRef.current);
-        } catch (e) {
+        } catch {
           // ignore
         }
         previewUrlRef.current = null;
@@ -207,9 +212,9 @@ export default function Profile() {
         name: authUser.name || '',
         email: authUser.email || '',
         password: '',
-        bio: profileDoc?.bio ?? '',
+        bio: authUser?.profile?.bio ?? '',
       });
-      setPreview(profileDoc?.avatar ?? authUser?.prefs?.avatar ?? null);
+      setPreview(authUser?.profile?.avatarUrl ?? '');
     } else {
       setFormData({
         name: profileDoc?.name ?? '',
@@ -217,7 +222,7 @@ export default function Profile() {
         password: '',
         bio: profileDoc?.bio ?? '',
       });
-      setPreview(profileDoc?.avatar ?? null);
+      setPreview(profileDoc?.avatarUrl ?? null);
     }
 
     setIsEditing(false);
@@ -228,7 +233,9 @@ export default function Profile() {
     if (previewUrlRef.current) {
       try {
         URL.revokeObjectURL(previewUrlRef.current);
-      } catch (e) {}
+      } catch {
+        // ignore
+      }
       previewUrlRef.current = null;
     }
 
@@ -261,67 +268,71 @@ export default function Profile() {
     setSaving(true);
 
     try {
-      // Update name if changed
+      // Update name in auth and profile document
       if (formData.name !== authUser.name) {
-        await authService.updateName(formData.name);
+        try {
+          await authService.updateName(formData.name);
+          const newUser = {
+            ...authUser,
+            profile: {
+              ...(authUser?.profile || {}),
+              name: formData.name,
+            },
+          };
+
+          dispatch(setUser(newUser));
+        } catch (error) {
+          toast.error(error);
+        }
       }
 
-      // Update email if changed
+      // Update email in auth if changed
       if (formData.email !== authUser.email && formData.password) {
         await authService.updateEmail(formData.email, formData.password);
+
+        const newUser = {
+          ...authUser,
+          email: formData.email,
+        };
+
+        dispatch(setUser(newUser));
       }
 
-      // Update bio in profile document (create/update)
-      if (formData.bio !== profileDoc?.bio) {
-        // your authService should expose updateBio(userId, bio) or use updateProfile
-        if (authService.updateBio) {
-          await authService.updateBio(authUser.$id, formData.bio);
-        } else if (authService.updateProfile) {
-          await authService.updateProfile({
-            name: formData.name,
+      // Update bio in profile document
+      if (formData.bio !== authUser?.profile?.bio) {
+        await authService.updateBio(authUser.$id, formData.bio);
+
+        const newUser = {
+          ...authUser,
+          profile: {
+            ...(authUser?.profile || {}),
             bio: formData.bio,
-          });
-        } else if (authService.updatePrefs) {
-          await authService.updatePrefs({
-            ...(authUser.prefs ?? {}),
-            bio: formData.bio,
-          });
-        } else {
-          // fallback: update profile through databases API via authService.createProfile/updateProfile
-          await authService.updateProfile?.(authUser.$id, {
-            bio: formData.bio,
-          });
-        }
+          },
+        };
+
+        dispatch(setUser(newUser));
       }
 
       // Avatar upload (deferred upload on Save)
       if (pendingAvatarFile) {
         setAvatarUploading(true);
-        const res = await authService.updateAvatar(pendingAvatarFile);
+        const updatedProfile =
+          await authService.updateAvatar(pendingAvatarFile);
         // If updateAvatar returns user or updated prefs, handle it:
-        const newUser = res?.user ?? res ?? null;
-        if (newUser && newUser.$id === authUser.$id) {
-          dispatch(setUser(newUser));
-          setPreview(newUser?.prefs?.avatar ?? newUser?.prefs?.avatar ?? null);
-        } else if (res?.prefs?.avatar) {
-          setPreview(res.prefs.avatar);
+        // const newUser = res?.user ?? res ?? null;
+        if (updatedProfile) {
+          setPreview(updatedProfile.avatarUrl);
         }
+        setProfileDoc(updatedProfile);
         setPendingAvatarFile(null);
         if (fileRef.current) fileRef.current.value = '';
         setAvatarUploading(false);
       }
 
-      // refresh current user and profile doc
-      const freshUser = await authService.getAccount();
-      if (freshUser) dispatch(setUser(freshUser));
-      const refreshedProfile = await authService
-        .getProfile(authUser.$id)
-        .catch(() => null);
-      if (refreshedProfile) setProfileDoc(refreshedProfile);
-
       toast.success('Profile updated successfully!');
       setIsEditing(false);
-      setFormData((p) => ({ ...p, password: '' }));
+      // remove password from password field
+      setFormData((prev) => ({ ...prev, password: '' }));
     } catch (err) {
       console.error('Update failed:', err);
       const msg = err?.message || 'Update failed. Please try again.';
@@ -363,7 +374,9 @@ export default function Profile() {
     if (previewUrlRef.current) {
       try {
         URL.revokeObjectURL(previewUrlRef.current);
-      } catch (e) {}
+      } catch {
+        // ignore
+      }
       previewUrlRef.current = null;
     }
 
@@ -399,7 +412,7 @@ export default function Profile() {
                   </AvatarFallback>
                 </Avatar>
 
-                {isOwner && (
+                {isEditing && (
                   <button
                     type="button"
                     onClick={handleAvatarClick}
@@ -427,11 +440,13 @@ export default function Profile() {
               {/* name + email + edit */}
               <div className="flex-1 min-w-0 text-left md:text-left">
                 <CardTitle className="text-2xl leading-tight">
-                  {profileDoc?.name ?? formData.name}
+                  {isOwner ? authUser?.name : profileDoc?.name}
                 </CardTitle>
-                <CardDescription className="text-muted-foreground mt-1">
-                  {isOwner ? authUser?.email : (profileDoc?.email ?? ' — ')}
-                </CardDescription>
+                {isOwner && (
+                  <CardDescription className="text-muted-foreground mt-1">
+                    {authUser?.email}
+                  </CardDescription>
+                )}
 
                 <div className="mt-4 flex items-center gap-3">
                   <div className="flex items-center gap-3">
@@ -454,7 +469,11 @@ export default function Profile() {
               </div>
 
               <div className="ml-auto">
-                {!isOwner ? null : !isEditing ? (
+                {!isOwner ? (
+                  <Button onClick={null} variant="default">
+                    Follow
+                  </Button>
+                ) : !isEditing ? (
                   <Button onClick={handleEdit} variant="outline">
                     <Edit className="mr-2 h-4 w-4" />
                     Edit Profile
@@ -499,18 +518,20 @@ export default function Profile() {
                 />
               </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder={isOwner ? 'Your Email' : 'Email hidden'}
-                  value={formData.email}
-                  onChange={handleChange}
-                  disabled={!isEditing || !isOwner}
-                />
-              </div>
+              {isOwner && (
+                <div className="grid gap-2">
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder={'Your Email'}
+                    value={formData.email}
+                    onChange={handleChange}
+                    disabled={!isEditing}
+                  />
+                </div>
+              )}
 
               <div className="grid gap-2">
                 <Label htmlFor="bio">Bio</Label>
