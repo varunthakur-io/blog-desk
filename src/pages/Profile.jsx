@@ -6,6 +6,7 @@ import { Spinner } from '@/components/Loader';
 import toast from 'react-hot-toast';
 import PostCard from '../components/PostCard';
 import ProfileSkeleton from '@/components/ProfileSkeleton';
+import { setProfile } from '@/store/profileSlice';
 
 // services
 import { authService } from '../services/authService';
@@ -37,6 +38,7 @@ export default function Profile() {
   // auth from redux
   const authUser = useSelector((state) => state.auth?.user);
   const authLoading = useSelector((state) => state.auth?.loading);
+  const cachedProfiles = useSelector((state) => state.profile?.profiles);
 
   // route param
   const { id } = useParams();
@@ -44,6 +46,8 @@ export default function Profile() {
   // local refs and state
   const fileRef = useRef(null);
   const previewUrlRef = useRef(null);
+  const prevProfileIdRef = useRef(null);
+  const prevPostsProfileIdRef = useRef(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -70,6 +74,7 @@ export default function Profile() {
   // computed profileId: explicit URL id or fallback to logged in user
   const profileId = id || authUser?.$id;
   const isOwner = !!authUser && authUser.$id === profileId;
+  const cachedProfile = cachedProfiles?.[profileId];
 
   // ----------------------------------------
   // Load profile document for profileId
@@ -81,9 +86,42 @@ export default function Profile() {
       if (!pid) {
         setProfileDoc(null);
         setPreview(null);
+        prevProfileIdRef.current = null;
         return;
       }
 
+      // Check if we have cached data
+      if (cachedProfile && prevProfileIdRef.current === pid) {
+        setProfileDoc(cachedProfile);
+
+        // Initialize form fields from cached profile
+        if (isOwner && authUser) {
+          setFormData({
+            name: authUser.name || '',
+            email: authUser.email || '',
+            password: '',
+            bio: cachedProfile?.bio ?? '',
+          });
+        } else {
+          setFormData({
+            name: cachedProfile?.name ?? '',
+            email: '',
+            password: '',
+            bio: cachedProfile?.bio ?? '',
+          });
+        }
+
+        // Set avatar preview from cached data
+        const avatarUrl = isOwner
+          ? authUser?.profile?.avatarUrl
+          : cachedProfile?.avatarUrl;
+        setPreview(avatarUrl ?? null);
+
+        setProfileLoading(false);
+        return;
+      }
+
+      prevProfileIdRef.current = pid;
       setProfileLoading(true);
 
       try {
@@ -92,6 +130,8 @@ export default function Profile() {
         if (!mounted) return;
 
         setProfileDoc(doc);
+        // Cache in Redux
+        dispatch(setProfile({ profileId: pid, data: doc }));
 
         // Initialize form fields using fresh profile doc
         if (isOwner && authUser) {
@@ -133,7 +173,7 @@ export default function Profile() {
       mounted = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profileId, authUser]);
+  }, [profileId, cachedProfile]);
 
   // cleanup object URL on unmount
   useEffect(() => {
@@ -157,8 +197,17 @@ export default function Profile() {
     async function loadUserPosts(pid) {
       if (!pid) {
         setUserPosts([]);
+        prevPostsProfileIdRef.current = null;
         return;
       }
+
+      // Skip if profileId hasn't actually changed and we already have posts
+      if (prevPostsProfileIdRef.current === pid && userPosts.length > 0) {
+        return;
+      }
+
+      prevPostsProfileIdRef.current = pid;
+
       try {
         setPostsLoading(true);
         if (postService.getPostsByAuthor) {
@@ -187,6 +236,7 @@ export default function Profile() {
     return () => {
       mounted = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profileId]);
 
   // ----------------------------------------
