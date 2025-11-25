@@ -1,18 +1,21 @@
 import { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { User, Edit, Save, X, Camera } from 'lucide-react';
-import { Spinner } from '@/components/Loader';
 import toast from 'react-hot-toast';
-import PostCard from '../components/PostCard';
-import ProfileSkeleton from '@/components/ProfileSkeleton';
-import { setProfile } from '@/store/profileSlice';
 
-// services
+// Icons
+import { User, Edit, Save, X, Camera } from 'lucide-react';
+
+// Store & Services
+import { setProfile } from '@/store/profileSlice';
+import { setUser } from '@/store/authSlice';
 import { authService } from '../services/authService';
 import { postService } from '../services/postService';
 
-// UI primitives
+// UI Components
+import { Spinner } from '@/components/Loader';
+import PostCard from '../components/PostCard';
+import ProfileSkeleton from '@/components/ProfileSkeleton';
 import {
   Card,
   CardContent,
@@ -26,423 +29,380 @@ import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { setUser } from '@/store/authSlice';
 
-// utils
+// --- Utilities ---
 const isValidEmail = (email) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email?.trim() ?? '');
 
 export default function Profile() {
   const dispatch = useDispatch();
+  const { id } = useParams();
 
-  // auth from redux
+  // --- Redux Selectors ---
   const authUser = useSelector((state) => state.auth?.user);
   const authLoading = useSelector((state) => state.auth?.loading);
   const cachedProfiles = useSelector((state) => state.profile?.profiles);
 
-  // route param
-  const { id } = useParams();
+  // --- Derived Identity & Refs ---
+  const profileId = id || authUser?.$id;
+  const isOwner = !!authUser && authUser.$id === profileId;
+  const cachedData = cachedProfiles?.[profileId];
 
-  // local refs and state
-  const fileRef = useRef(null);
-  const previewUrlRef = useRef(null);
-  const prevProfileIdRef = useRef(null);
-  const prevPostsProfileIdRef = useRef(null);
+  // Refs
+  const fileInputRef = useRef(null);
+  const previewUrlRef = useRef(null); // Tracks object URL for memory cleanup
+  const prevPostsIdRef = useRef(null); // Prevents duplicate post fetches
 
-  const [formData, setFormData] = useState({
+  // --- Component State ---
+
+  // Data State
+  const [fetchedProfile, setFetchedProfile] = useState(null);
+  const [userPosts, setUserPosts] = useState([]);
+
+  // Form & UI State
+  const [editForm, setEditForm] = useState({
     name: '',
     email: '',
     password: '',
     bio: '',
   });
+  const [avatarPreview, setAvatarPreview] = useState(null);
+  const [avatarFileToUpload, setAvatarFileToUpload] = useState(null);
+  const [activeTab, setActiveTab] = useState('posts');
 
-  const [profileDoc, setProfileDoc] = useState(null); // public profile doc from "profiles" collection
-  const [profileLoading, setProfileLoading] = useState(false);
-
+  // Loading & Error Flags
+  const [isLoadingProfile, setIsLoadingProfile] = useState(
+    () => !cachedData && !!profileId,
+  );
+  const [isLoadingPosts, setIsLoadingPosts] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [avatarUploading, setAvatarUploading] = useState(false);
-  const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState('posts'); // posts | likes | about
-  const [userPosts, setUserPosts] = useState([]);
-  const [postsLoading, setPostsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  // pending local preview and file
-  const [preview, setPreview] = useState(null);
-  const [pendingAvatarFile, setPendingAvatarFile] = useState(null);
+  // --- Helper: Determine who to display ---
+  // This simplifies JSX by abstracting the "Is it me or someone else?" logic
+  const displayUser = isOwner ? authUser : fetchedProfile || cachedData;
 
-  // computed profileId: explicit URL id or fallback to logged in user
-  const profileId = id || authUser?.$id;
-  const isOwner = !!authUser && authUser.$id === profileId;
-  const cachedProfile = cachedProfiles?.[profileId];
-
-  // ----------------------------------------
-  // Load profile document for profileId
-  // ----------------------------------------
+  // --------------------------------------------------------------------------
+  // Effect 1: Load Profile Data (UserInfo)
+  // --------------------------------------------------------------------------
   useEffect(() => {
     let mounted = true;
 
-    async function loadProfileDoc(pid) {
+    async function fetchProfileData(pid) {
       if (!pid) {
-        setProfileDoc(null);
-        setPreview(null);
-        prevProfileIdRef.current = null;
+        setFetchedProfile(null);
+        setAvatarPreview(null);
+        setIsLoadingProfile(false);
         return;
       }
 
-      // Check if we have cached data
-      if (cachedProfile && prevProfileIdRef.current === pid) {
-        setProfileDoc(cachedProfile);
+      // 1. Optimization: Use Redux cache if available
+      if (cachedData) {
+        if (!mounted) return;
+        setFetchedProfile(cachedData);
 
-        // Initialize form fields from cached profile
-        if (isOwner && authUser) {
-          setFormData({
-            name: authUser.name || '',
-            email: authUser.email || '',
-            password: '',
-            bio: cachedProfile?.bio ?? '',
-          });
-        } else {
-          setFormData({
-            name: cachedProfile?.name ?? '',
-            email: '',
-            password: '',
-            bio: cachedProfile?.bio ?? '',
-          });
-        }
-
-        // Set avatar preview from cached data
-        const avatarUrl = isOwner
+        // Sync preview with cached data
+        const currentAvatar = isOwner
           ? authUser?.profile?.avatarUrl
-          : cachedProfile?.avatarUrl;
-        setPreview(avatarUrl ?? null);
+          : cachedData.avatarUrl;
+        setAvatarPreview(currentAvatar ?? null);
 
-        setProfileLoading(false);
+        setIsLoadingProfile(false);
         return;
       }
 
-      prevProfileIdRef.current = pid;
-      setProfileLoading(true);
-
+      // 2. Fetch from API
+      setIsLoadingProfile(true);
       try {
-        // Fetch profile
         const doc = await authService.getProfile(pid);
         if (!mounted) return;
 
-        setProfileDoc(doc);
-        // Cache in Redux
+        setFetchedProfile(doc);
+
+        // Update Redux Cache
         dispatch(setProfile({ profileId: pid, data: doc }));
 
-        // Initialize form fields using fresh profile doc
-        if (isOwner && authUser) {
-          setFormData({
-            name: authUser.name || '',
-            email: authUser.email || '',
-            password: '',
-            bio: doc?.bio ?? '',
-          });
-        } else {
-          setFormData({
-            name: doc?.name ?? '',
-            email: '',
-            password: '',
-            bio: doc?.bio ?? '',
-          });
-        }
-
-        // Set avatar preview (safe optional chaining)
-        const avatarUrl = isOwner
+        // Sync preview
+        const currentAvatar = isOwner
           ? authUser?.profile?.avatarUrl
           : doc?.avatarUrl;
-
-        setPreview(avatarUrl ?? null);
+        setAvatarPreview(currentAvatar ?? null);
       } catch (err) {
-        console.error('Failed to load profile doc:', err);
-        setProfileDoc(null);
-
-        // Fallback avatar if owner has cached image
-        setPreview(isOwner ? authUser?.profile?.avatarUrl : null);
+        console.error('Profile fetch error:', err);
+        setFetchedProfile(null);
+        // Fallback to authUser image if available
+        setAvatarPreview(isOwner ? authUser?.profile?.avatarUrl : null);
       } finally {
-        if (mounted) setProfileLoading(false);
+        if (mounted) setIsLoadingProfile(false);
       }
     }
 
-    loadProfileDoc(profileId);
+    fetchProfileData(profileId);
 
     return () => {
       mounted = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profileId, cachedProfile]);
+  }, [profileId, cachedData, isOwner, authUser, dispatch]);
 
-  // cleanup object URL on unmount
+  // --------------------------------------------------------------------------
+  // Effect 2: Load User Posts (With Redux Caching)
+  // --------------------------------------------------------------------------
+  useEffect(() => {
+    let mounted = true;
+
+    async function fetchUserPosts(pid) {
+      if (!pid) {
+        setUserPosts([]);
+        return;
+      }
+
+      // 1. Check Redux cache first
+      // We check Array.isArray to allow empty arrays (0 posts) to be valid cache hits
+      const cachedPosts = cachedProfiles?.[pid]?.posts;
+
+      if (Array.isArray(cachedPosts)) {
+        setUserPosts(cachedPosts);
+        setIsLoadingPosts(false); // Stop loading immediately if we hit cache
+
+        // Prevent background re-fetch if ID hasn't changed
+        if (prevPostsIdRef.current === pid) return;
+      }
+
+      prevPostsIdRef.current = pid;
+
+      try {
+        // Only show spinner if we didn't show cached data
+        if (!Array.isArray(cachedPosts)) {
+          setIsLoadingPosts(true);
+        }
+
+        // Fetch Logic
+        let docs = [];
+        if (postService.getPostsByAuthor) {
+          const res = await postService.getPostsByAuthor(pid);
+          if (!mounted) return;
+          docs = Array.isArray(res) ? res : (res.documents ?? []);
+        } else {
+          // Fallback logic
+          const res = await postService.getAllPosts(1, 100);
+          if (!mounted) return;
+          const allDocs = Array.isArray(res) ? res : (res.documents ?? []);
+          docs = allDocs.filter((p) => String(p.authorId) === String(pid));
+        }
+
+        setUserPosts(docs);
+
+        // 2. Update Redux Cache with new posts
+        const currentCache = cachedProfiles?.[pid] || {};
+        if (pid) {
+          dispatch(
+            setProfile({
+              profileId: pid,
+              data: { ...currentCache, posts: docs },
+            }),
+          );
+        }
+      } catch (err) {
+        console.error('Post fetch error:', err);
+        // Don't clear posts on error if we have old ones
+      } finally {
+        if (mounted) setIsLoadingPosts(false);
+      }
+    }
+
+    fetchUserPosts(profileId);
+    return () => {
+      mounted = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profileId, cachedProfiles]);
+
+  // --------------------------------------------------------------------------
+  // Effect 3: Memory Cleanup for Image Previews
+  // --------------------------------------------------------------------------
   useEffect(() => {
     return () => {
       if (previewUrlRef.current) {
-        try {
-          URL.revokeObjectURL(previewUrlRef.current);
-        } catch {
-          // ignore
-        }
+        URL.revokeObjectURL(previewUrlRef.current);
         previewUrlRef.current = null;
       }
     };
   }, []);
 
-  // ----------------------------------------
-  // Load posts for profileId
-  // ----------------------------------------
-  useEffect(() => {
-    let mounted = true;
-    async function loadUserPosts(pid) {
-      if (!pid) {
-        setUserPosts([]);
-        prevPostsProfileIdRef.current = null;
-        return;
-      }
+  // --------------------------------------------------------------------------
+  // Event Handlers
+  // --------------------------------------------------------------------------
 
-      // Skip if profileId hasn't actually changed and we already have posts
-      if (prevPostsProfileIdRef.current === pid && userPosts.length > 0) {
-        return;
-      }
-
-      prevPostsProfileIdRef.current = pid;
-
-      try {
-        setPostsLoading(true);
-        if (postService.getPostsByAuthor) {
-          const res = await postService.getPostsByAuthor(pid);
-          if (!mounted) return;
-          setUserPosts(Array.isArray(res) ? res : (res.documents ?? []));
-        } else {
-          // fallback: fetch some posts and filter client-side (not ideal for production)
-          const res = await postService.getAllPosts(1, 100);
-          if (!mounted) return;
-          const docs = Array.isArray(res) ? res : (res.documents ?? []);
-          const filtered = docs.filter(
-            (p) => p.authorId === pid || p.authorId === pid.toString(),
-          );
-          setUserPosts(filtered);
-        }
-      } catch (err) {
-        console.error('Failed to load user posts', err);
-        setUserPosts([]);
-      } finally {
-        if (mounted) setPostsLoading(false);
-      }
-    }
-
-    loadUserPosts(profileId);
-    return () => {
-      mounted = false;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profileId]);
-
-  // ----------------------------------------
-  // Handlers
-  // ----------------------------------------
-  const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleInputChange = (e) => {
+    setEditForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleEdit = () => {
+  const handleStartEditing = () => {
     if (!isOwner) {
       toast.error('You can only edit your own profile.');
       return;
     }
+
+    // Initialize form with fresh data ONLY when editing starts
+    setEditForm({
+      name: displayUser?.name || '',
+      email: authUser?.email || '',
+      password: '',
+      bio: displayUser?.profile?.bio || displayUser?.bio || '',
+    });
+
+    // Ensure preview is consistent with current real data
+    setAvatarPreview(
+      displayUser?.profile?.avatarUrl || displayUser?.avatarUrl || null,
+    );
+
     setIsEditing(true);
-    setError('');
+    setErrorMessage('');
   };
 
-  const handleCancel = () => {
-    // revert to loaded profile/doc values
-    if (isOwner && authUser) {
-      setFormData({
-        name: authUser.name || '',
-        email: authUser.email || '',
-        password: '',
-        bio: authUser?.profile?.bio ?? '',
-      });
-      setPreview(authUser?.profile?.avatarUrl ?? '');
-    } else {
-      setFormData({
-        name: profileDoc?.name ?? '',
-        email: '',
-        password: '',
-        bio: profileDoc?.bio ?? '',
-      });
-      setPreview(profileDoc?.avatarUrl ?? null);
-    }
-
+  const handleCancelEditing = () => {
     setIsEditing(false);
-    setError('');
-    setPendingAvatarFile(null);
+    setErrorMessage('');
+    setAvatarFileToUpload(null);
+    setEditForm((prev) => ({ ...prev, password: '' })); // Clear password for security
 
-    // clear local object url
+    // Revert preview to the actual saved image
+    const savedUrl = authUser?.profile?.avatarUrl || fetchedProfile?.avatarUrl;
+    setAvatarPreview(savedUrl ?? null);
+
+    // Clean up local blob
     if (previewUrlRef.current) {
-      try {
-        URL.revokeObjectURL(previewUrlRef.current);
-      } catch {
-        // ignore
-      }
+      URL.revokeObjectURL(previewUrlRef.current);
       previewUrlRef.current = null;
     }
-
-    if (fileRef.current) fileRef.current.value = '';
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleSave = async (e) => {
-    e.preventDefault();
-    setError('');
-
-    if (!isOwner) {
-      toast.error('You can only update your own profile.');
-      return;
-    }
-
-    // validation
-    if (!formData.name || formData.name.trim().length < 2) {
-      setError('Please enter a valid name (2+ characters).');
-      return;
-    }
-    if (!isValidEmail(formData.email)) {
-      setError('Please enter a valid email address.');
-      return;
-    }
-    if (formData.email !== authUser.email && !formData.password) {
-      setError('Please enter your current password to update email.');
-      return;
-    }
-
-    setSaving(true);
-
-    try {
-      // Update name in auth and profile document
-      if (formData.name !== authUser.name) {
-        try {
-          await authService.updateName(formData.name);
-          const newUser = {
-            ...authUser,
-            profile: {
-              ...(authUser?.profile || {}),
-              name: formData.name,
-            },
-          };
-
-          dispatch(setUser(newUser));
-        } catch (error) {
-          toast.error(error);
-        }
-      }
-
-      // Update email in auth if changed
-      if (formData.email !== authUser.email && formData.password) {
-        await authService.updateEmail(formData.email, formData.password);
-
-        const newUser = {
-          ...authUser,
-          email: formData.email,
-        };
-
-        dispatch(setUser(newUser));
-      }
-
-      // Update bio in profile document
-      if (formData.bio !== authUser?.profile?.bio) {
-        await authService.updateBio(authUser.$id, formData.bio);
-
-        const newUser = {
-          ...authUser,
-          profile: {
-            ...(authUser?.profile || {}),
-            bio: formData.bio,
-          },
-        };
-
-        dispatch(setUser(newUser));
-      }
-
-      // Avatar upload (deferred upload on Save)
-      if (pendingAvatarFile) {
-        setAvatarUploading(true);
-        const updatedProfile =
-          await authService.updateAvatar(pendingAvatarFile);
-        // If updateAvatar returns user or updated prefs, handle it:
-        // const newUser = res?.user ?? res ?? null;
-        if (updatedProfile) {
-          setPreview(updatedProfile.avatarUrl);
-        }
-        setProfileDoc(updatedProfile);
-        setPendingAvatarFile(null);
-        if (fileRef.current) fileRef.current.value = '';
-        setAvatarUploading(false);
-      }
-
-      toast.success('Profile updated successfully!');
-      setIsEditing(false);
-      // remove password from password field
-      setFormData((prev) => ({ ...prev, password: '' }));
-    } catch (err) {
-      console.error('Update failed:', err);
-      const msg = err?.message || 'Update failed. Please try again.';
-      setError(msg);
-      toast.error(msg);
-    } finally {
-      setSaving(false);
-      setAvatarUploading(false);
-    }
-  };
-
-  const handleAvatarClick = () => {
+  const handleAvatarSelect = (e) => {
     if (!isOwner) return;
-    fileRef.current?.click();
-  };
-
-  const handleAvatarChange = (e) => {
-    if (!isOwner) {
-      toast.error('You can only change your own avatar.');
-      if (fileRef.current) fileRef.current.value = '';
-      return;
-    }
 
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file.');
-      if (fileRef.current) fileRef.current.value = '';
+      toast.error('Please select a valid image file.');
       return;
     }
     if (file.size > 3 * 1024 * 1024) {
+      // 3MB Limit
       toast.error('Image must be smaller than 3 MB.');
-      if (fileRef.current) fileRef.current.value = '';
       return;
     }
 
-    // revoke previous
-    if (previewUrlRef.current) {
-      try {
-        URL.revokeObjectURL(previewUrlRef.current);
-      } catch {
-        // ignore
-      }
-      previewUrlRef.current = null;
-    }
+    // Cleanup previous blob
+    if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
 
+    // Create new blob for instant feedback
     const objectUrl = URL.createObjectURL(file);
     previewUrlRef.current = objectUrl;
-    setPreview(objectUrl);
-    setPendingAvatarFile(file);
+    setAvatarPreview(objectUrl);
+    setAvatarFileToUpload(file);
   };
 
-  // derived stats (fallback to prefs/counts if available)
-  const postsCount = userPosts.length ?? authUser?.prefs?.postsCount ?? 0;
-  const followers = authUser?.prefs?.followers ?? 0;
-  const following = authUser?.prefs?.following ?? 0;
+  const handleSaveChanges = async (e) => {
+    e.preventDefault();
+    setErrorMessage('');
 
-  // Loading / skeleton conditions:
-  if (authLoading || profileLoading || !profileId) return <ProfileSkeleton />;
+    if (!isOwner) return;
+
+    // Validation
+    if (!editForm.name || editForm.name.trim().length < 2) {
+      setErrorMessage('Name must be at least 2 characters.');
+      return;
+    }
+    if (!isValidEmail(editForm.email)) {
+      setErrorMessage('Please enter a valid email address.');
+      return;
+    }
+    if (editForm.email !== authUser.email && !editForm.password) {
+      setErrorMessage('Current password is required to change email.');
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      // 1. Update Name
+      if (editForm.name !== authUser.name) {
+        await authService.updateName(editForm.name);
+        dispatch(
+          setUser({
+            ...authUser,
+            name: editForm.name,
+            profile: { ...(authUser?.profile || {}), name: editForm.name },
+          }),
+        );
+      }
+
+      // 2. Update Email
+      if (editForm.email !== authUser.email) {
+        await authService.updateEmail(editForm.email, editForm.password);
+        dispatch(setUser({ ...authUser, email: editForm.email }));
+      }
+
+      // 3. Update Bio
+      if (editForm.bio !== authUser?.profile?.bio) {
+        await authService.updateBio(authUser.$id, editForm.bio);
+        dispatch(
+          setUser({
+            ...authUser,
+            profile: { ...(authUser?.profile || {}), bio: editForm.bio },
+          }),
+        );
+      }
+
+      // 4. Update Avatar
+      if (avatarFileToUpload) {
+        setIsUploadingAvatar(true);
+        const updatedProfile =
+          await authService.updateAvatar(avatarFileToUpload);
+
+        if (updatedProfile) {
+          setAvatarPreview(updatedProfile.avatarUrl);
+
+          // FIX: Dispatch new avatar URL to Redux so it persists on navigation
+          dispatch(
+            setUser({
+              ...authUser,
+              profile: {
+                ...(authUser?.profile || {}),
+                avatarUrl: updatedProfile.avatarUrl,
+              },
+            }),
+          );
+        }
+
+        setAvatarFileToUpload(null);
+        setIsUploadingAvatar(false);
+      }
+
+      toast.success('Profile updated successfully!');
+      setIsEditing(false);
+      setEditForm((prev) => ({ ...prev, password: '' }));
+    } catch (err) {
+      console.error('Save failed:', err);
+      const msg = err?.message || 'Failed to update profile. Please try again.';
+      setErrorMessage(msg);
+      toast.error(msg);
+    } finally {
+      setIsSaving(false);
+      setIsUploadingAvatar(false);
+    }
+  };
+
+  // --- Render Helpers ---
+  const postsCount = userPosts.length ?? authUser?.prefs?.postsCount ?? 0;
+  const followersCount = authUser?.prefs?.followers ?? 0;
+  const followingCount = authUser?.prefs?.following ?? 0;
+
+  if (authLoading || isLoadingProfile || !profileId) return <ProfileSkeleton />;
 
   return (
     <main className="min-h-screen">
@@ -450,12 +410,12 @@ export default function Profile() {
         <Card className="border-0">
           <CardHeader className="text-center">
             <div className="flex flex-col md:flex-row items-center gap-6">
-              {/* avatar + camera */}
+              {/* --- Avatar Section --- */}
               <div className="relative">
                 <Avatar className="w-28 h-28">
                   <AvatarImage
-                    src={preview ?? null}
-                    alt={formData.name || 'User avatar'}
+                    src={avatarPreview ?? undefined}
+                    alt={displayUser?.name || 'User'}
                   />
                   <AvatarFallback className="text-2xl">
                     <User className="w-12 h-12" />
@@ -465,12 +425,12 @@ export default function Profile() {
                 {isEditing && (
                   <button
                     type="button"
-                    onClick={handleAvatarClick}
-                    disabled={avatarUploading || saving}
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploadingAvatar || isSaving}
                     className="absolute bottom-0 right-0 -translate-y-2 translate-x-2 bg-card/80 border border-border/40 rounded-full p-2 shadow-sm hover:scale-105 transition-transform"
                     aria-label="Change avatar"
                   >
-                    {avatarUploading ? (
+                    {isUploadingAvatar ? (
                       <Spinner size={16} className="text-primary" />
                     ) : (
                       <Camera className="h-4 w-4" />
@@ -479,19 +439,20 @@ export default function Profile() {
                 )}
 
                 <input
-                  ref={fileRef}
+                  ref={fileInputRef}
                   type="file"
                   accept="image/*"
                   className="hidden"
-                  onChange={handleAvatarChange}
+                  onChange={handleAvatarSelect}
                 />
               </div>
 
-              {/* name + email + edit */}
+              {/* --- Header Info Section --- */}
               <div className="flex-1 min-w-0 text-left md:text-left">
                 <CardTitle className="text-2xl leading-tight">
-                  {isOwner ? authUser?.name : profileDoc?.name}
+                  {displayUser?.name}
                 </CardTitle>
+
                 {isOwner && (
                   <CardDescription className="text-muted-foreground mt-1">
                     {authUser?.email}
@@ -502,43 +463,42 @@ export default function Profile() {
                   <div className="flex items-center gap-3">
                     <div className="px-3 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
                       Posts{' '}
-                      <span className="ml-2 font-semibold text-primary">
-                        {postsCount}
-                      </span>
+                      <span className="ml-2 font-semibold">{postsCount}</span>
                     </div>
                     <div className="px-3 py-2 rounded-full bg-muted/10 text-muted-foreground text-sm">
                       Followers{' '}
-                      <span className="ml-2 font-semibold">{followers}</span>
+                      <span className="ml-2 font-semibold">
+                        {followersCount}
+                      </span>
                     </div>
                     <div className="px-3 py-2 rounded-full bg-muted/10 text-muted-foreground text-sm">
                       Following{' '}
-                      <span className="ml-2 font-semibold">{following}</span>
+                      <span className="ml-2 font-semibold">
+                        {followingCount}
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
 
+              {/* --- Action Buttons --- */}
               <div className="ml-auto">
                 {!isOwner ? (
-                  <Button onClick={null} variant="default">
-                    Follow
-                  </Button>
+                  <Button variant="default">Follow</Button>
                 ) : !isEditing ? (
-                  <Button onClick={handleEdit} variant="outline">
+                  <Button onClick={handleStartEditing} variant="outline">
                     <Edit className="mr-2 h-4 w-4" />
                     Edit Profile
                   </Button>
                 ) : (
-                  <div className="flex gap-3">
-                    <Button
-                      onClick={handleCancel}
-                      variant="ghost"
-                      className="border"
-                    >
-                      <X className="mr-2 h-4 w-4" />
-                      Cancel
-                    </Button>
-                  </div>
+                  <Button
+                    onClick={handleCancelEditing}
+                    variant="ghost"
+                    className="border"
+                  >
+                    <X className="mr-2 h-4 w-4" />
+                    Cancel
+                  </Button>
                 )}
               </div>
             </div>
@@ -547,14 +507,14 @@ export default function Profile() {
           <Separator />
 
           <CardContent className="pt-6">
-            {/* Edit form (if owner) or public read-only info */}
-            <form onSubmit={handleSave} className="space-y-6">
-              {error && (
+            <form onSubmit={handleSaveChanges} className="space-y-6">
+              {errorMessage && (
                 <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
+                  <AlertDescription>{errorMessage}</AlertDescription>
                 </Alert>
               )}
 
+              {/* --- Name Input --- */}
               <div className="grid gap-2">
                 <Label htmlFor="name">Full Name</Label>
                 <Input
@@ -562,12 +522,14 @@ export default function Profile() {
                   name="name"
                   type="text"
                   placeholder="Full Name"
-                  value={formData.name}
-                  onChange={handleChange}
+                  // If editing, show form state. If viewing, show derived display user.
+                  value={isEditing ? editForm.name : displayUser?.name || ''}
+                  onChange={handleInputChange}
                   disabled={!isEditing}
                 />
               </div>
 
+              {/* --- Email Input (Owner Only) --- */}
               {isOwner && (
                 <div className="grid gap-2">
                   <Label htmlFor="email">Email Address</Label>
@@ -575,14 +537,15 @@ export default function Profile() {
                     id="email"
                     name="email"
                     type="email"
-                    placeholder={'Your Email'}
-                    value={formData.email}
-                    onChange={handleChange}
+                    placeholder="Your Email"
+                    value={isEditing ? editForm.email : authUser?.email || ''}
+                    onChange={handleInputChange}
                     disabled={!isEditing}
                   />
                 </div>
               )}
 
+              {/* --- Bio Input --- */}
               <div className="grid gap-2">
                 <Label htmlFor="bio">Bio</Label>
                 <Input
@@ -590,12 +553,17 @@ export default function Profile() {
                   name="bio"
                   type="text"
                   placeholder="A short bio"
-                  value={formData.bio}
-                  onChange={handleChange}
+                  value={
+                    isEditing
+                      ? editForm.bio
+                      : displayUser?.profile?.bio || displayUser?.bio || ''
+                  }
+                  onChange={handleInputChange}
                   disabled={!isEditing}
                 />
               </div>
 
+              {/* --- Password Input (Only when editing) --- */}
               {isEditing && (
                 <div className="grid gap-2">
                   <Label htmlFor="password">
@@ -609,27 +577,31 @@ export default function Profile() {
                     name="password"
                     type="password"
                     placeholder="Enter your current password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    disabled={saving}
+                    value={editForm.password}
+                    onChange={handleInputChange}
+                    disabled={isSaving}
                   />
                 </div>
               )}
 
+              {/* --- Save / Cancel Buttons --- */}
               {isEditing && (
                 <div className="flex gap-4 justify-end pt-2">
                   <Button
                     type="button"
-                    onClick={handleCancel}
+                    onClick={handleCancelEditing}
                     variant="outline"
-                    disabled={saving}
+                    disabled={isSaving}
                   >
                     <X className="mr-2 h-4 w-4" />
                     Cancel
                   </Button>
 
-                  <Button type="submit" disabled={saving || avatarUploading}>
-                    {saving || avatarUploading ? (
+                  <Button
+                    type="submit"
+                    disabled={isSaving || isUploadingAvatar}
+                  >
+                    {isSaving || isUploadingAvatar ? (
                       <>
                         <Spinner size={16} className="mr-2 text-current" />
                         Saving...
@@ -644,7 +616,7 @@ export default function Profile() {
                 </div>
               )}
 
-              {/* Tabs */}
+              {/* --- Tabs Section --- */}
               <div className="mt-8">
                 <div className="flex gap-3 border-b border-gray-200/10 pb-3">
                   {['posts', 'likes', 'about'].map((tab) => (
@@ -652,23 +624,23 @@ export default function Profile() {
                       key={tab}
                       type="button"
                       onClick={() => setActiveTab(tab)}
-                      className={`px-4 py-2 rounded-md text-sm font-medium ${activeTab === tab ? 'bg-card/60 border border-border/40' : 'text-muted-foreground'}`}
+                      className={`px-4 py-2 rounded-md text-sm font-medium ${
+                        activeTab === tab
+                          ? 'bg-card/60 border border-border/40'
+                          : 'text-muted-foreground'
+                      }`}
                       aria-pressed={activeTab === tab}
                     >
-                      {tab === 'posts'
-                        ? 'Posts'
-                        : tab === 'likes'
-                          ? 'Likes'
-                          : 'About'}
+                      {tab.charAt(0).toUpperCase() + tab.slice(1)}
                     </button>
                   ))}
                 </div>
 
-                {/* Tab content */}
                 <div className="mt-6">
+                  {/* Posts Tab */}
                   {activeTab === 'posts' && (
                     <>
-                      {postsLoading ? (
+                      {isLoadingPosts ? (
                         <div className="text-center py-12 text-muted-foreground">
                           Loading posts...
                         </div>
@@ -695,21 +667,23 @@ export default function Profile() {
                     </>
                   )}
 
+                  {/* Likes Tab */}
                   {activeTab === 'likes' && (
                     <div className="text-muted-foreground">
-                      <p>
-                        Liked posts will show up here. (Implement likes API.)
-                      </p>
+                      <p>Liked posts will show up here.</p>
                     </div>
                   )}
 
+                  {/* About Tab */}
                   {activeTab === 'about' && (
                     <div className="prose max-w-none text-muted-foreground">
                       <h3 className="text-lg font-semibold mb-2">
-                        About {profileDoc?.name ?? formData.name}
+                        About {displayUser?.name}
                       </h3>
                       <p>
-                        {profileDoc?.bio ?? formData.bio ?? 'No bio provided.'}
+                        {displayUser?.profile?.bio ||
+                          displayUser?.bio ||
+                          'No bio provided.'}
                       </p>
 
                       <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
