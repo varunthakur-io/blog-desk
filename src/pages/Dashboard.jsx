@@ -1,17 +1,22 @@
-
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { MoreHorizontal, Edit2, Trash2, Plus } from 'lucide-react';
-import Loader from '@/components/Loader';
+import {
+  MoreHorizontal,
+  Edit2,
+  Trash2,
+  Plus,
+  Search,
+  FileText,
+} from 'lucide-react';
+import toast from 'react-hot-toast';
 
-// Redux actions and services
-import { postService } from '../services/postService';
-import { setError, setLoading, setPosts } from '../store/postSlice';
-
-// Shadcn UI components
+// Components
+import { Spinner } from '@/components/Loader';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,13 +27,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -42,204 +41,265 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-// Empty state
-const EmptyState = ({ onCreate }) => (
-  <div className="flex flex-col items-center gap-4 py-16 text-center">
-    <svg
-      width="120"
-      height="96"
-      viewBox="0 0 120 96"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <rect
-        x="8"
-        y="20"
-        width="104"
-        height="64"
-        rx="6"
-        stroke="#CBD5E1"
-        strokeWidth="2"
-      />
-      <path d="M20 36h80" stroke="#E2E8F0" strokeWidth="2" />
-      <path d="M20 52h50" stroke="#E2E8F0" strokeWidth="2" />
-    </svg>
-    <h3 className="text-lg font-medium">No posts yet</h3>
-    <p className="text-sm text-muted-foreground max-w-xs">
-      Write your first post and share your ideas with the world.
+// Services & Store
+import { postService } from '../services/postService';
+import { setError, setLoading, setPosts } from '../store/postSlice';
+
+// --- Sub-Component: Empty State ---
+const EmptyState = ({ onCreate, hasQuery }) => (
+  <div className="flex flex-col items-center justify-center py-16 text-center border-2 border-dashed rounded-lg bg-muted/10">
+    <div className="bg-muted/30 p-4 rounded-full mb-4">
+      {hasQuery ? (
+        <Search className="h-8 w-8 text-muted-foreground/50" />
+      ) : (
+        <FileText className="h-8 w-8 text-muted-foreground/50" />
+      )}
+    </div>
+    <h3 className="text-lg font-semibold tracking-tight">
+      {hasQuery ? 'No matching posts found' : 'No posts created yet'}
+    </h3>
+    <p className="text-sm text-muted-foreground max-w-sm mt-2 mb-6">
+      {hasQuery
+        ? "We couldn't find any posts matching your search. Try different keywords."
+        : 'Get started by creating your first post. Share your thoughts and ideas with the world.'}
     </p>
-    <Button onClick={onCreate} className="mt-2">
-      <Plus className="mr-2 h-4 w-4" /> Create Post
-    </Button>
+    {!hasQuery && (
+      <Button onClick={onCreate}>
+        <Plus className="mr-2 h-4 w-4" /> Create First Post
+      </Button>
+    )}
   </div>
 );
 
-const Dashboard = () => {
+export default function Dashboard() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { posts, loading, error, fetched } = useSelector(
+  // --- Redux State ---
+  const { posts, loading, error, fetched, stale } = useSelector(
     (state) => state.posts,
   );
   const { user } = useSelector((state) => state.auth);
 
-  // Local dialog state
+  // --- Local State ---
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [postToDelete, setPostToDelete] = useState(null);
-  const [query, setQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  // Filtered posts
-  const userPosts = useMemo(
-    () => posts.filter((post) => post.authorId === user?.$id),
-    [posts, user],
-  );
+  // --- Derived State (Filtering) ---
+  const filteredPosts = useMemo(() => {
+    // 1. Filter by current user
+    const myPosts = posts.filter((post) => post.authorId === user?.$id);
 
-  // Fetch posts on mount if not already fetched
+    // 2. Filter by search query
+    if (!searchQuery.trim()) return myPosts;
+
+    const lowerQuery = searchQuery.toLowerCase();
+    return myPosts.filter((p) =>
+      (p.title || '').toLowerCase().includes(lowerQuery),
+    );
+  }, [posts, user, searchQuery]);
+
+  // --- Effects ---
+
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        dispatch(setLoading(true));
-        const data = await postService.getAllPosts();
-        dispatch(setPosts(data));
-      } catch (err) {
-        dispatch(setError(err.message || 'Failed to fetch posts'));
-      } finally {
-        dispatch(setLoading(false));
-      }
-    };
+    const shouldFetch = !fetched || stale;
 
-    if (!fetched) fetchPosts();
-  }, [dispatch, fetched]);
+    if (shouldFetch) {
+      const fetchPosts = async () => {
+        try {
+          dispatch(setLoading(true));
+          const data = await postService.getAllPosts();
+          dispatch(setPosts(data));
+        } catch (err) {
+          console.error('Fetch error:', err);
+          dispatch(setError(err.message || 'Failed to fetch posts'));
+        } finally {
+          dispatch(setLoading(false));
+        }
+      };
 
+      fetchPosts();
+    }
+  }, [dispatch, fetched, stale]);
+
+  // --- Handlers ---
 
   const handleEdit = (postId) => navigate(`/edit/${postId}`);
 
-  // Handle delete button click
   const handleDeleteClick = (postId) => {
     setPostToDelete(postId);
     setIsDeleteDialogOpen(true);
   };
 
-  // Handle confirm delete
   const confirmDelete = async () => {
     if (!postToDelete) return;
+
+    setIsDeleting(true);
+
+    // Store previous state for rollback
+    const previousPosts = [...posts];
+
     try {
+      // Optimistic update
+      const newPosts = posts.filter((post) => post.$id !== postToDelete);
+      dispatch(setPosts(newPosts));
+
       await postService.deletePost(postToDelete);
-      dispatch(setPosts(posts.filter((post) => post.$id !== postToDelete)));
+      toast.success('Post deleted successfully');
     } catch (err) {
-      dispatch(setError(err.message || 'Failed to delete post'));
+      console.error('Delete error:', err);
+      toast.error('Failed to delete post');
+      dispatch(setPosts(previousPosts));
     } finally {
+      setIsDeleting(false);
       setIsDeleteDialogOpen(false);
       setPostToDelete(null);
     }
   };
 
-  // Search filter posts
-  const filtered = useMemo(() => {
-    if (!query.trim()) return userPosts;
-    const q = query.toLowerCase();
-    return userPosts.filter((p) => (p.title || '').toLowerCase().includes(q));
-  }, [userPosts, query]);
-
   return (
-    <div className="container mx-auto py-12 px-12">
-      <Card className="border-none shadow-sm">
-        <CardHeader className="flex flex-row items-center justify-between pb-6">
+    <div className="container mx-auto py-8 px-4 md:px-8 max-w-6xl min-h-[80vh]">
+      <Card className="border-none shadow-none bg-transparent">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
           <div>
-            <CardTitle className="text-2xl font-semibold">Your Posts</CardTitle>
-            <CardDescription className="text-sm text-muted-foreground">
-              Manage and edit posts you’ve created.
-            </CardDescription>
+            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+            <p className="text-muted-foreground mt-1">
+              Manage your posts and track performance
+            </p>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="flex items-center bg-muted border rounded-md px-4 py-1">
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                className="bg-transparent outline-none text-sm w-60 placeholder:text-muted-foreground"
-                placeholder="Search title..."
+          <div className="flex w-full md:w-auto items-center gap-3">
+            <div className="relative flex-1 md:w-72">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search posts..."
+                className="pl-9 bg-background/60 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
 
-            <Button onClick={() => navigate('/create')} className="px-5">
+            <Button
+              onClick={() => navigate('/create')}
+              className="shrink-0 shadow-sm"
+            >
               <Plus className="mr-2 h-4 w-4" /> New Post
             </Button>
           </div>
-        </CardHeader>
+        </div>
 
-        <CardContent>
-          {error && (
-            <Alert variant="destructive" className="mb-6">
-              <AlertDescription className="text-center">
-                {error}
-              </AlertDescription>
-            </Alert>
-          )}
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
-          {loading ? (
-            <Loader text="Fetching your posts..." size={28} />
-          ) : filtered.length === 0 ? (
-            <EmptyState onCreate={() => navigate('/create')} />
-          ) : (
+        {loading && !fetched ? (
+          <div className="py-24 flex flex-col items-center justify-center gap-4">
+            <Spinner size={32} />
+            <p className="text-muted-foreground animate-pulse">
+              Loading your dashboard...
+            </p>
+          </div>
+        ) : filteredPosts.length === 0 ? (
+          <EmptyState
+            onCreate={() => navigate('/create')}
+            hasQuery={!!searchQuery}
+          />
+        ) : (
+          <Card className="border shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Title</TableHead>
+                  <TableRow className="bg-muted/40 hover:bg-muted/40">
+                    <TableHead className="w-[45%] pl-6">Title</TableHead>
+                    <TableHead>Status</TableHead>
                     <TableHead>Date</TableHead>
-                    <TableHead className="w-32 text-right">Actions</TableHead>
+                    <TableHead className="text-right pr-6">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filtered.map((post) => (
-                    <TableRow key={post.$id} className="hover:bg-muted/40">
-                      <TableCell>
-                        <div className="font-medium">{post.title}</div>
-                        <div className="text-xs text-muted-foreground truncate max-w-[30rem]">
-                          {post.excerpt || ''}
+                  {filteredPosts.map((post) => (
+                    <TableRow
+                      key={post.$id}
+                      className="group hover:bg-muted/30 transition-colors"
+                    >
+                      <TableCell className="pl-6 py-4">
+                        <div className="flex flex-col gap-1.5">
+                          <span className="font-semibold text-base leading-none text-foreground/90 group-hover:text-primary transition-colors">
+                            {post.title}
+                          </span>
+                          <span className="text-sm text-muted-foreground/80 line-clamp-1 font-normal">
+                            {post.excerpt || 'No description provided'}
+                          </span>
                         </div>
                       </TableCell>
-                      <TableCell>
-                        {new Date(post.$createdAt).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                        })}
+
+                      <TableCell className="py-4">
+                        <Badge
+                          variant="secondary"
+                          className="bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-400 border-transparent font-medium"
+                        >
+                          Published
+                        </Badge>
                       </TableCell>
-                      <TableCell className="text-right">
-                        <div className="inline-flex items-center">
+
+                      <TableCell className="py-4">
+                        <span className="text-sm text-muted-foreground font-medium">
+                          {new Date(post.$createdAt).toLocaleDateString(
+                            'en-US',
+                            {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                            },
+                          )}
+                        </span>
+                      </TableCell>
+
+                      <TableCell className="text-right pr-6 py-4">
+                        {/* Actions are now always visible */}
+                        <div className="flex items-center justify-end gap-2">
                           <Button
                             variant="ghost"
-                            size="sm"
+                            size="icon"
                             onClick={() => handleEdit(post.$id)}
-                            className="mr-2"
+                            className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+                            title="Edit"
                           >
                             <Edit2 className="h-4 w-4" />
                           </Button>
+
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8"
+                                className="h-8 w-8 text-muted-foreground hover:text-foreground"
                               >
                                 <MoreHorizontal className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuContent align="end" className="w-40">
+                              <DropdownMenuLabel>Manage Post</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 onClick={() => handleEdit(post.$id)}
+                                className="cursor-pointer"
                               >
                                 <Edit2 className="h-4 w-4 mr-2" /> Edit
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => handleDeleteClick(post.$id)}
-                                className="text-destructive"
+                                className="text-destructive focus:text-destructive cursor-pointer"
                               >
                                 <Trash2 className="h-4 w-4 mr-2" /> Delete
                               </DropdownMenuItem>
@@ -252,33 +312,41 @@ const Dashboard = () => {
                 </TableBody>
               </Table>
             </div>
-          )}
-        </CardContent>
+          </Card>
+        )}
       </Card>
 
-      {/* Delete confirmation dialog */}
+      {/* Delete Confirmation Dialog */}
       <AlertDialog
         open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
+        onOpenChange={(open) => !isDeleting && setIsDeleteDialogOpen(open)}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>Delete this post?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your
-              post and remove its data from our servers.
+              This action cannot be undone. This will permanently delete "
+              <span className="font-medium text-foreground">
+                {posts.find((p) => p.$id === postToDelete)?.title}
+              </span>
+              " and remove it from our servers.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete}>
-              Continue
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                confirmDelete();
+              }}
+              disabled={isDeleting}
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+            >
+              {isDeleting ? 'Deleting...' : 'Delete Post'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>
   );
-};
-
-export default Dashboard;
+}
