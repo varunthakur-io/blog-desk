@@ -1,9 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { Loader2, Save, ArrowLeft } from 'lucide-react';
+import toast from 'react-hot-toast';
 
+// Services & Store
 import { postService } from '../services/postService';
-import { markStale, setError, setLoading, setPosts } from '../store/postSlice';
+import { markStale, setPosts } from '../store/postSlice';
+import { setProfile } from '@/store/profileSlice';
+
+// UI Components
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -17,60 +23,70 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
-const EditPost = () => {
+export default function EditPost() {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { posts, loading, error } = useSelector((state) => state.posts);
+  // --- Redux State ---
+  const { posts } = useSelector((state) => state.posts);
+  const { user } = useSelector((state) => state.auth);
+  const cachedProfiles = useSelector((state) => state.profile?.profiles);
 
+  // --- Local State ---
   const [formData, setFormData] = useState({ title: '', content: '' });
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState('');
 
-  // Find the current post in Redux state
-  const currentPostFromRedux = posts.find((post) => post.$id == id);
-
-  // Fetch the post data when component mounts or id changes
+  // --- Effect: Load Post Data ---
   useEffect(() => {
-    const fetchAndSetPost = async () => {
+    let mounted = true;
+
+    const loadPost = async () => {
       if (!id) {
-        dispatch(setError('No post ID provided for editing.'));
-        console.error('No post ID provided for editing.');
+        setError('Invalid post ID.');
+        setIsLoading(false);
         return;
       }
 
-      // If the post is already in Redux, use it to populate form
-      if (currentPostFromRedux) {
+      // 1. Check Global Redux State first (Fastest)
+      const existingPost = posts.find((p) => String(p.$id) === String(id));
+
+      if (existingPost) {
         setFormData({
-          title: currentPostFromRedux.title,
-          content: currentPostFromRedux.content,
+          title: existingPost.title,
+          content: existingPost.content,
         });
-        return; // Don't fetch if already available
+        setIsLoading(false);
+        return;
       }
 
-      // If not in Redux, fetch it from the service
+      // 2. Fallback: Fetch from API
       try {
-        dispatch(setLoading(true));
         const data = await postService.getPostById(id);
-
-        if (data) {
+        if (mounted && data) {
           setFormData({
             title: data.title,
             content: data.content,
           });
-        } else {
-          dispatch(setError('Post not found.'));
-          console.error('Post not found for ID:', id);
+        } else if (mounted) {
+          setError('Post not found.');
         }
       } catch (err) {
-        dispatch(setError(err.message || 'Failed to fetch post.'));
-        console.error('Error fetching post:', err);
+        if (mounted) setError(err.message || 'Failed to load post.');
       } finally {
-        dispatch(setLoading(false));
+        if (mounted) setIsLoading(false);
       }
     };
 
-    fetchAndSetPost();
-  }, [id, dispatch, currentPostFromRedux]);
+    loadPost();
+    return () => {
+      mounted = false;
+    };
+  }, [id, posts]);
+
+  // --- Handlers ---
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -79,70 +95,96 @@ const EditPost = () => {
     }));
   };
 
-  // Handle form submission to update the post
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!id) {
-      dispatch(setError('Cannot update: No post ID.'));
+    if (!id) return;
+
+    // Validation
+    if (!formData.title.trim() || !formData.content.trim()) {
+      toast.error('Title and content are required.');
       return;
     }
+
+    setIsSaving(true);
+
     try {
-      const responseData = await postService.updatePost(id, formData);
-      console.log('Post update response:', responseData);
+      // 1. API Update
+      const updatedPost = await postService.updatePost(id, formData);
 
-      if (responseData && responseData.$id) {
-        // Create a new array with the updated post
+      if (updatedPost && updatedPost.$id) {
+        // 2. Update Global Posts Feed (Redux)
+        // This ensures the dashboard reflects changes immediately
         const updatedPostsArray = posts.map((post) =>
-          String(post.$id) === String(responseData.$id) ? responseData : post,
+          String(post.$id) === String(updatedPost.$id) ? updatedPost : post,
         );
-        // Dispatch setPosts with the new array
         dispatch(setPosts(updatedPostsArray));
-        dispatch(markStale());
-      }
 
-      navigate('/dashboard');
+        // 3. Update Profile Cache (Redux)
+        // If this is the user's own post, update their cached profile posts too
+        // so "My Profile" tab is accurate without re-fetching.
+        if (user && String(updatedPost.authorId) === String(user.$id)) {
+          const userProfileCache = cachedProfiles?.[user.$id];
+
+          if (userProfileCache && Array.isArray(userProfileCache.posts)) {
+            const updatedProfilePosts = userProfileCache.posts.map((p) =>
+              String(p.$id) === String(updatedPost.$id) ? updatedPost : p,
+            );
+
+            dispatch(
+              setProfile({
+                profileId: user.$id,
+                data: {
+                  ...userProfileCache,
+                  posts: updatedProfilePosts,
+                },
+              }),
+            );
+          }
+        }
+
+        // 4. Mark stale to ensure other parts of app refresh eventually
+        dispatch(markStale());
+
+        toast.success('Post updated successfully');
+        navigate('/dashboard');
+      }
     } catch (err) {
-      dispatch(setError(err.message || 'Failed to update post'));
-      console.error('Error updating post:', err);
+      console.error('Update failed:', err);
+      toast.error(err.message || 'Failed to update post');
+      setError(err.message || 'Failed to update post');
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  if (loading) {
+  // --- Render States ---
+
+  if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <Card className="w-full max-w-2xl">
-          <CardContent className="p-6">
-            <p className="text-center text-muted-foreground">Loading post...</p>
-          </CardContent>
-        </Card>
+      <div className="flex flex-col justify-center items-center min-h-[60vh] gap-4">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="text-muted-foreground">Loading post...</p>
       </div>
     );
   }
 
-  // Display error if fetching failed AND there's no data to show
-  if (error && !formData.title && !formData.content) {
+  if (error) {
     return (
-      <div className="flex justify-center items-center min-h-screen p-4">
-        <Card className="w-full max-w-2xl">
-          <CardContent className="p-6">
-            <Alert>
-              <AlertDescription>Error: {error}</AlertDescription>
+      <div className="flex justify-center items-center min-h-[60vh] p-4">
+        <Card className="w-full max-w-lg border-destructive/50">
+          <CardContent className="pt-6">
+            <Alert variant="destructive" className="border-none">
+              <AlertDescription className="text-center font-medium">
+                {error}
+              </AlertDescription>
             </Alert>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // If we are here and formData is empty, it means post wasn't found or still loading
-  if (!formData.title && !formData.content && !loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen p-4">
-        <Card className="w-full max-w-2xl">
-          <CardContent className="p-6">
-            <Alert>
-              <AlertDescription>Post not found or invalid ID.</AlertDescription>
-            </Alert>
+            <Button
+              variant="outline"
+              className="w-full mt-4"
+              onClick={() => navigate('/dashboard')}
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -150,20 +192,23 @@ const EditPost = () => {
   }
 
   return (
-    <div className="">
-      <Card className="border-none shadow-none">
-        <CardHeader>
-          <CardTitle>Edit Post</CardTitle>
-          <CardDescription>Make changes to your post below.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <Alert>
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
+    <div className="container max-w-3xl py-8">
+      <Button
+        variant="ghost"
+        className="mb-4 pl-0 hover:pl-2 transition-all"
+        onClick={() => navigate('/dashboard')}
+      >
+        <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
+      </Button>
 
+      <Card className="border-none shadow-none">
+        <CardHeader className="px-0">
+          <CardTitle className="text-2xl">Edit Post</CardTitle>
+          <CardDescription>Make changes to your existing post.</CardDescription>
+        </CardHeader>
+
+        <CardContent className="px-0">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid gap-2">
               <Label htmlFor="title">Title</Label>
               <Input
@@ -172,7 +217,8 @@ const EditPost = () => {
                 value={formData.title}
                 onChange={handleChange}
                 placeholder="Post title"
-                required
+                disabled={isSaving}
+                className="text-lg font-medium"
               />
             </div>
 
@@ -183,20 +229,43 @@ const EditPost = () => {
                 name="content"
                 value={formData.content}
                 onChange={handleChange}
-                placeholder="Post content"
-                className="min-h-[400px] resize-none"
-                required
+                placeholder="Write your post content here..."
+                className="min-h-[400px] resize-none leading-relaxed"
+                disabled={isSaving}
               />
             </div>
 
-            <div className="flex justify-between">
-              <Button type="submit">Update Post</Button>
+            <div className="flex items-center justify-end gap-4 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate('/dashboard')}
+                disabled={isSaving}
+              >
+                Cancel
+              </Button>
+
+              <Button
+                type="submit"
+                disabled={isSaving}
+                className="min-w-[120px]"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    Update Post
+                  </>
+                )}
+              </Button>
             </div>
           </form>
         </CardContent>
       </Card>
     </div>
   );
-};
-
-export default EditPost;
+}
