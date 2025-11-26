@@ -1,6 +1,5 @@
 import { account, databases } from '@/api/client';
 import { toast } from 'react-hot-toast';
-// import { ID } from 'appwrite';
 import { appwriteConfig as appwrite } from '../config/appwrite';
 
 class PostService {
@@ -110,6 +109,34 @@ class PostService {
       console.error('Error deleting post:', error);
       toast.error(error.message || 'Failed to delete post.');
       throw error;
+    }
+  }
+
+  // Update likes count
+  async updateLikes(postId, value) {
+    try {
+      // 1. Get the current document
+      const doc = await databases.getDocument(
+        appwrite.databaseId,
+        appwrite.collectionId,
+        postId,
+      );
+
+      // 2. Compute new likes
+      const current = doc.likesCount ?? 0;
+      const next = current + value;
+
+      // 3. Update the document
+      await databases.updateDocument(
+        appwrite.databaseId,
+        appwrite.collectionId,
+        postId,
+        { likesCount: next },
+      );
+    } catch (error) {
+      console.error('Like update failed:', error);
+      toast.error('Failed to update like');
+      throw error; // so UI can rollback
     }
   }
 }
