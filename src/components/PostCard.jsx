@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, Calendar, User } from 'lucide-react';
+import { ArrowRight, Calendar, User, Clock } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -8,26 +8,50 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 const PostCard = ({ post }) => {
+  // Calculate read time (rough estimate: 200 words per minute)
+  const readTime = Math.max(
+    1,
+    Math.ceil((post.content || '').split(' ').length / 200),
+  );
+
   return (
-    <Card className="h-full flex flex-col overflow-hidden transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-lg rounded-lg border-border/40 bg-card/50 backdrop-blur-sm">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-xl font-bold leading-tight">
-          <Link
-            to={`/posts/${post.$id}`}
-            className="hover:text-primary transition-colors"
+    <Card className="group h-full flex flex-col overflow-hidden border-border/50 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:border-primary/50 hover:-translate-y-1">
+      <CardHeader className="pb-3 pt-6 px-6">
+        {/* Meta Top Row */}
+        <div className="flex items-center justify-between mb-3">
+          <Badge
+            variant="outline"
+            className="font-normal text-xs text-muted-foreground border-border/60 bg-background/50"
           >
+            Article
+          </Badge>
+          <div className="flex items-center text-xs text-muted-foreground/80">
+            <Clock className="mr-1.5 h-3 w-3" />
+            {readTime} min read
+          </div>
+        </div>
+
+        {/* Title */}
+        <CardTitle className="text-xl font-bold leading-tight tracking-tight mb-2 group-hover:text-primary transition-colors">
+          <Link to={`/posts/${post.$id}`} className="line-clamp-2">
             {post.title}
           </Link>
         </CardTitle>
-        <div className="flex items-center gap-4 text-sm text-muted-foreground pt-2">
+
+        {/* Author & Date */}
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
           <div className="flex items-center gap-1.5">
-            <User className="h-4 w-4" />
-            <span>{post.authorName || 'Anonymous'}</span>
+            <User className="h-3.5 w-3.5" />
+            <span className="font-medium text-foreground/80">
+              {post.authorName || 'Anonymous'}
+            </span>
           </div>
+          <span className="h-1 w-1 rounded-full bg-border" />
           <div className="flex items-center gap-1.5">
-            <Calendar className="h-4 w-4" />
+            <Calendar className="h-3.5 w-3.5" />
             <time dateTime={post.$createdAt}>
               {post.$createdAt
                 ? new Date(post.$createdAt).toLocaleDateString('en-US', {
@@ -41,17 +65,22 @@ const PostCard = ({ post }) => {
         </div>
       </CardHeader>
 
-      <CardContent className="flex-grow">
-        <p className="text-muted-foreground text-sm line-clamp-3">
+      {/* Content Excerpt */}
+      <CardContent className="flex-grow px-6 pb-2">
+        <p className="text-muted-foreground text-sm line-clamp-3 leading-relaxed">
           {post.content}
         </p>
       </CardContent>
 
-      <CardFooter>
+      {/* Footer Action */}
+      <CardFooter className="px-6 pb-6 pt-4">
         <Link to={`/posts/${post.$id}`} className="w-full">
-          <Button variant="secondary" className="w-full">
-            <span>Read More</span>
-            <ArrowUpRight className="h-4 w-4 ml-2" />
+          <Button
+            variant="secondary"
+            className="w-full justify-between group/btn bg-secondary/50 hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+          >
+            <span className="font-medium">Read Article</span>
+            <ArrowRight className="h-4 w-4 ml-2 transition-transform group-hover/btn:translate-x-1" />
           </Button>
         </Link>
       </CardFooter>
