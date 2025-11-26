@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import {
   Moon,
@@ -6,12 +7,17 @@ import {
   Trash2,
   Globe,
   Settings as SettingsIcon,
+  Laptop,
+  ShieldAlert,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 import useDarkMode from '../hooks/useDarkMode';
 import { authService } from '../services/authService';
 import { clearUser } from '../store/authSlice';
-import { useNavigate } from 'react-router';
+
+// UI Components
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -30,162 +36,269 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 const Settings = () => {
   const [isDarkMode, setDarkMode] = useDarkMode();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Function to actually toggle dark mode
-  const handleToggleDarkMode = () => {
-    setDarkMode(!isDarkMode);
+  // --- Sync Logic ---
+  // This ensures the Switch stays in sync if the theme is changed from the Navbar
+  useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (
+          mutation.type === 'attributes' &&
+          mutation.attributeName === 'class'
+        ) {
+          const isDarkNow = document.documentElement.classList.contains('dark');
+          if (isDarkNow !== isDarkMode) {
+            setDarkMode(isDarkNow);
+          }
+        }
+      });
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true, // Configure it to listen to attribute changes
+      attributeFilter: ['class'], // Filter it to only look at the class attribute
+    });
+
+    return () => observer.disconnect();
+  }, [isDarkMode, setDarkMode]);
+
+  // Toggle Dark Mode
+  const handleToggleDarkMode = (checked) => {
+    setDarkMode(checked);
+    toast.success(`Theme switched to ${checked ? 'Dark' : 'Light'}`);
   };
 
-  // Function to handle delete sessions
+  // Handle Delete Sessions
   const handleDeleteSessions = async () => {
+    setIsLoading(true);
     try {
-      if (window.confirm('Areyou sure you want to log out from all devices?')) {
-        await authService.deleteAllSessions();
-        dispatch(clearUser());
-        navigate('/login');
-      }
+      await authService.deleteAllSessions();
+      dispatch(clearUser());
+      navigate('/login');
+      toast.success('Logged out from all devices.');
     } catch (err) {
       console.error('Error deleting sessions:', err);
-      alert('Failed to delete sessions. Please try again later.');
+      toast.error('Failed to delete sessions. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Function to handle delete account
+  // Handle Delete Account
   const handleDeleteAccount = async () => {
+    setIsLoading(true);
     try {
-      if (
-        window.confirm(
-          'Are you sure you want to delete your account? This action cannot be undone.',
-        )
-      ) {
-        await authService.deleteAccount();
-        dispatch(clearUser());
-        navigate('/login');
-      }
+      await authService.deleteAccount();
+      dispatch(clearUser());
+      navigate('/login');
+      toast.success('Account deleted successfully.');
     } catch (error) {
       console.error('Error deleting account:', error);
-      alert('Failed to delete account. Please try again later.');
+      toast.error('Failed to delete account. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="container mx-auto py-10">
-      <Card className="max-w-3xl mx-auto">
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <SettingsIcon className="mr-2 h-6 w-6" />
-            Settings
-          </CardTitle>
-          <CardDescription>
-            Manage your account settings and preferences.
-          </CardDescription>
-        </CardHeader>
+    <div className="container mx-auto py-12 px-4 max-w-3xl">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+        <p className="text-muted-foreground mt-2">
+          Manage your account preferences and security settings.
+        </p>
+      </div>
 
-        <CardContent className="space-y-6">
-          <div>
-            <h3 className="text-lg font-semibold mb-4">General</h3>
-
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="space-y-0.5">
-                  <Label className="text-base cursor-pointer flex items-center">
-                    {isDarkMode ? (
-                      <Moon className="mr-2 h-4 w-4" />
-                    ) : (
-                      <Sun className="mr-2 h-4 w-4" />
-                    )}
+      <div className="space-y-6">
+        {/* General Settings Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <SettingsIcon className="h-5 w-5" />
+              General Preferences
+            </CardTitle>
+            <CardDescription>
+              Customize your interface experience.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Theme Toggle */}
+            <div className="flex items-center justify-between space-x-4">
+              <div className="flex items-center space-x-4">
+                <div className="p-2 bg-muted rounded-full">
+                  {isDarkMode ? (
+                    <Moon className="h-5 w-5" />
+                  ) : (
+                    <Sun className="h-5 w-5" />
+                  )}
+                </div>
+                <div>
+                  <Label htmlFor="theme-mode" className="text-base font-medium">
                     Dark Mode
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    Toggle between light and dark themes
+                    Switch between light and dark themes.
                   </p>
                 </div>
-                <Switch
-                  checked={isDarkMode}
-                  onCheckedChange={handleToggleDarkMode}
-                />
               </div>
-
-              <div className="space-y-2">
-                <Label className="text-base flex items-center">
-                  <Globe className="mr-2 h-4 w-4" />
-                  Language
-                </Label>
-                <Select defaultValue="en">
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a language" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="en">English</SelectItem>
-                    <SelectItem value="es">Español</SelectItem>
-                    <SelectItem value="fr">Français</SelectItem>
-                    <SelectItem value="de">Deutsch</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <Switch
+                id="theme-mode"
+                checked={isDarkMode}
+                onCheckedChange={handleToggleDarkMode}
+              />
             </div>
-          </div>
 
-          <Separator />
+            <Separator />
 
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Account & Security</h3>
-
-            <div className="space-y-4">
-              <div className="p-4 border rounded-lg">
-                <div className="space-y-2">
-                  <div className="flex items-center">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span className="font-medium">Session Management</span>
-                  </div>
+            {/* Language Select */}
+            <div className="flex items-center justify-between space-x-4">
+              <div className="flex items-center space-x-4">
+                <div className="p-2 bg-muted rounded-full">
+                  <Globe className="h-5 w-5" />
+                </div>
+                <div>
+                  <Label className="text-base font-medium">Language</Label>
                   <p className="text-sm text-muted-foreground">
-                    Log out from all active sessions across all your devices.
+                    Select your preferred language.
                   </p>
                 </div>
-                <Button
-                  onClick={handleDeleteSessions}
-                  variant="destructive"
-                  className="w-full mt-3"
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Log Out from All Devices
-                </Button>
+              </div>
+              <Select defaultValue="en">
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Language" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="en">English</SelectItem>
+                  <SelectItem value="es">Español</SelectItem>
+                  <SelectItem value="fr">Français</SelectItem>
+                  <SelectItem value="de">Deutsch</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Security Settings Card */}
+        <Card className="border-destructive/10">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-destructive">
+              <ShieldAlert className="h-5 w-5" />
+              Danger Zone
+            </CardTitle>
+            <CardDescription>
+              Manage sensitive account actions. Proceed with caution.
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="space-y-6">
+            {/* Session Management */}
+            <div className="flex items-center justify-between p-4 border rounded-lg bg-background">
+              <div className="flex items-start gap-4">
+                <div className="p-2 bg-muted rounded-full mt-1">
+                  <Laptop className="h-5 w-5" />
+                </div>
+                <div>
+                  <h4 className="text-base font-medium">Active Sessions</h4>
+                  <p className="text-sm text-muted-foreground max-w-[250px] sm:max-w-md">
+                    Log out from all other devices where you are currently
+                    signed in.
+                  </p>
+                </div>
               </div>
 
-              <Alert>
-                <Trash2 className="h-4 w-4" />
-                <AlertDescription>
-                  <div className="space-y-3">
-                    <div>
-                      <h4 className="font-semibold text-destructive">
-                        Danger Zone
-                      </h4>
-                      <p className="text-sm">
-                        Permanently delete your account and all associated data.
-                        This action is irreversible.
-                      </p>
-                    </div>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" disabled={isLoading}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Log Out All
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Sign out everywhere?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will log you out from all devices, including this
+                      one. You will need to log in again.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDeleteSessions}>
+                      Confirm Log Out
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+
+            {/* Delete Account Alert */}
+            <Alert
+              variant="destructive"
+              className="border-destructive/50 bg-destructive/5"
+            >
+              <Trash2 className="h-4 w-4" />
+              <AlertTitle>Delete Account</AlertTitle>
+              <AlertDescription className="mt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <p className="text-sm text-destructive-foreground/80">
+                  Permanently remove your account and all associated data. This
+                  action is irreversible.
+                </p>
+
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
                     <Button
-                      onClick={handleDeleteAccount}
                       variant="destructive"
                       size="sm"
+                      disabled={isLoading}
                     >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete My Account
+                      Delete Account
                     </Button>
-                  </div>
-                </AlertDescription>
-              </Alert>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        Are you absolutely sure?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently
+                        delete your account and remove your data from our
+                        servers.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleDeleteAccount}
+                        className="bg-destructive hover:bg-destructive/90"
+                      >
+                        Delete My Account
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
