@@ -28,34 +28,62 @@ class AuthService {
   // Authentication
   // =========================
 
-  // Register a new user
+  // Register a new user — only log in if profile creation succeeds
   async createUser({ email, password, name }) {
     try {
-      // Create account in Appwrite Auth
-      await account.create(ID.unique(), email, password, name);
-      // login the user immediately after registration
-      const loggedInUser = await this.loginUser({ email, password });
+      // 1) Create account in Appwrite Auth
+      const createdUser = await account.create(
+        ID.unique(),
+        email,
+        password,
+        name,
+      );
 
-      // Create a public profile document (document id = user.$id)
-      try {
-        await this.createProfile(loggedInUser);
-      } catch (profileErr) {
-        // If profile creation fails, don't block signup; just warn
-        console.warn('Profile creation failed at signup:', profileErr);
+      // 2) Try to create profile BEFORE login. Retry on transient failures.
+      const maxRetries = 2;
+      let profileCreated = false;
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+          // create a profile for the created user
+          await this.createProfile(createdUser);
+          profileCreated = true;
+          break;
+        } catch (err) {
+          console.warn(`createProfile attempt ${attempt + 1} failed:`, err);
+          if (attempt < maxRetries) {
+            // small backoff
+            await new Promise((r) => setTimeout(r, 300));
+          }
+        }
       }
 
-      toast.success('Account created successfully!');
+      if (!profileCreated) {
+        // We do NOT log the user in if profile creation failed.
+        // Note: at this point an account exists but no profile
+        // Implemet account deletion
+        const message =
+          'Signup failed: could not create profile. Please try again.';
+        console.error(message);
+        toast.error(message);
+        throw new Error(message);
+      }
+
+      // 3) Profile created successfully -> create session (login)
+      const loggedInUser = await this.loginUser({ email, password });
+
+      toast.success('Account created and logged in!');
       return loggedInUser;
     } catch (error) {
-      console.error('Error creating user:', error);
-      toast.error(error.message || 'Failed to create user.');
-      throw new Error(error.message || 'Failed to create user.');
+      console.error('Error creating user & profile:', error);
+      // preserve original error
+      throw error;
     }
   }
 
   // Create or update the public profile document
   async createProfile(user) {
-    if (!user) return;
+    if (!user || !user.$id)
+      throw new Error('Invalid user for profile creation');
 
     const profileData = {
       name: user.name || '',
@@ -63,27 +91,29 @@ class AuthService {
 
     try {
       // Create the profile doc with id = user.$id
-      // Make it readable by anyone, writable only by the user
       await databases.createDocument(
         appwrite.databaseId,
-        'profiles',
-        user.$id,
+        'profiles', // collection id
+        user.$id, // document id
         profileData,
       );
     } catch (err) {
       console.log('Error creating profile:', err);
+      throw err;
     }
   }
 
   // Update user profile
   async updateProfile(userId, profileData) {
     try {
-      await databases.updateDocument(
+      const updatedProfile = await databases.updateDocument(
         appwrite.databaseId,
         'profiles',
         userId,
         profileData,
       );
+
+      return updatedProfile;
     } catch (error) {
       console.error('Error updating profile:', error);
       throw error;
@@ -93,24 +123,44 @@ class AuthService {
   // Login user with email & password
   async loginUser({ email, password }) {
     try {
+      // create session
       await account.createEmailPasswordSession(email, password);
-      const user = await account.get();
-      this.cacheUser(user);
+      const user = await account.get(); // auth user
+
+      // attempt to load profile document (returns null/throws if missing)
+      let profile = null;
+      try {
+        // if getProfile returns a document object, keep it; otherwise null
+        profile = await this.getProfile(user.$id);
+      } catch (err) {
+        console.warn('Could not load profile for merge:', err);
+      }
+
+      // merge safely (no shadowing). Keep profile nested to avoid key collisions.
+      const mergedUser = { ...user, profile };
+
+      // cache and return enriched user
+      this.cacheUser(mergedUser);
+
       toast.success('Logged in successfully!');
-      return user;
+      return mergedUser;
     } catch (error) {
       console.error('Error logging in:', error);
       toast.error(
-        error.message || 'Login failed. Please check your credentials.',
+        error?.message || 'Login failed. Please check your credentials.',
       );
-      throw new Error(error.message);
+      // rethrow original error for callers to handle
+      throw error;
     }
   }
 
   // Logout current session
   async logout() {
     try {
+      // delete the current session
       await account.deleteSession('current');
+
+      // clear the user from cache
       this.clearCachedUser();
       toast.success('Logged out successfully!');
     } catch (error) {
@@ -147,8 +197,15 @@ class AuthService {
 
       // If cached user exists → optionally verify on server
       const user = await account.get();
-      this.cacheUser(user);
-      return user;
+      const profile = await this.getProfile(user.$id);
+
+      const mergedUser = {
+        ...user,
+        profile: profile ? { ...profile } : null,
+      };
+
+      this.cacheUser(mergedUser);
+      return mergedUser;
     } catch {
       // If Appwrite says session is invalid → user is logged out
       this.clearCachedUser();
@@ -195,7 +252,7 @@ class AuthService {
       const user = await account.updateEmail(email, password);
       this.cacheUser(user);
       toast.success('Email updated successfully!');
-      return user;
+      return user.email;
     } catch (error) {
       console.error('Error updating email:', error);
       toast.error(error.message || 'Failed to update email.');
@@ -224,6 +281,7 @@ class AuthService {
         userId,
         { bio }, // only updates the bio field
       );
+      return true;
     } catch (error) {
       console.error('Error updating bio:', error);
       throw error;
@@ -269,7 +327,7 @@ class AuthService {
       const currentUser = await account.get();
       const profile = await this.getProfile(currentUser.$id);
 
-      const currentAvatarFileId = profile.avatar;
+      const currentAvatarFileId = profile?.avatarId;
 
       // Delete old avatar file if exists
       if (currentAvatarFileId) {
@@ -277,7 +335,6 @@ class AuthService {
           await storage.deleteFile(appwrite.bucketId, currentAvatarFileId);
         } catch (deleteError) {
           console.warn('Failed to delete old avatar file:', deleteError);
-          // Continue even if old avatar deletion fails
         }
       }
 
@@ -287,24 +344,26 @@ class AuthService {
         ID.unique(),
         file,
       );
+      const fileId = uploaded.$id;
 
-      // Generate public view URL (no transformations)
-      const avatarUrl = `${appwrite.url}/storage/buckets/${appwrite.bucketId}/files/${uploaded.$id}/view?project=${appwrite.projectId}`;
+      // Generate public view URL
+      const avatarUrl = `${appwrite.url}/storage/buckets/${appwrite.bucketId}/files/${fileId}/view?project=${appwrite.projectId}`;
 
-      // sync avatar to profile doc
-      try {
-        await this.updateProfile(profile.$id, { avatar: avatarUrl });
-      } catch (profileErr) {
-        console.warn(
-          'Failed to sync avatar URL to profile document:',
-          profileErr,
-        );
+      // sync both file id and url to profile doc
+      const updatedProfile = await this.updateProfile(profile.$id, {
+        avatarId: fileId,
+        avatarUrl,
+      });
+
+      // Optionally update cached user
+      const cached = this.getCachedUser();
+      if (cached && cached.profile && cached.profile.$id === profile.$id) {
+        const merged = { ...cached, profile: updatedProfile };
+        this.cacheUser(merged);
       }
 
-      // Update cache and return
-      // this.cacheUser(updatedUser);
       toast.success('Profile photo updated!');
-      return;
+      return updatedProfile;
     } catch (error) {
       console.error('Error updating avatar:', error);
       toast.error(error.message || 'Failed to update avatar.');
