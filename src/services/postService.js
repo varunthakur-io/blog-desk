@@ -1,5 +1,5 @@
 import { toast } from 'react-hot-toast';
-import { Query } from 'appwrite';
+import { ID, Query } from 'appwrite';
 import { account, databases } from '@/api/client';
 import { appwriteConfig as appwrite } from '../config/appwrite';
 
@@ -153,6 +153,23 @@ class PostService {
       ],
     );
     return res.total > 0 ? res.documents[0] : null;
+  }
+
+  // user liked a post
+  async likePost(userId, postId) {
+    // create like document
+    await databases.createDocument(
+      appwrite.databaseId,
+      appwrite.likesCollectionId,
+      ID.unique(),
+      {
+        postId,
+        userId,
+      },
+    );
+
+    // increment likes count on post
+    await this.updateLikes(postId, +1);
   }
 }
 
