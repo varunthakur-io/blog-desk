@@ -29,6 +29,7 @@ import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { tr } from 'zod/v4/locales';
 
 // --- Utilities ---
 const isValidEmail = (email) =>
@@ -59,6 +60,12 @@ export default function Profile() {
   const [fetchedProfile, setFetchedProfile] = useState(null);
   const [userPosts, setUserPosts] = useState([]);
 
+  // Liked posts state (for Likes tab)
+  const [likedPosts, setLikedPosts] = useState([]);
+  const [isLoadingLikes, setIsLoadingLikes] = useState(false);
+  const [likesError, setLikesError] = useState('');
+  // const [hasLoadedLikesOnce, setHasLoadedLikesOnce] = useState(false);
+
   // Form & UI State
   const [editForm, setEditForm] = useState({
     name: '',
@@ -81,7 +88,6 @@ export default function Profile() {
   const [errorMessage, setErrorMessage] = useState('');
 
   // --- Helper: Determine who to display ---
-  // This simplifies JSX by abstracting the "Is it me or someone else?" logic
   const displayUser = isOwner ? authUser : fetchedProfile || cachedData;
 
   // --------------------------------------------------------------------------
@@ -159,12 +165,11 @@ export default function Profile() {
       }
 
       // 1. Check Redux cache first
-      // We check Array.isArray to allow empty arrays (0 posts) to be valid cache hits
       const cachedPosts = cachedProfiles?.[pid]?.posts;
 
       if (Array.isArray(cachedPosts)) {
         setUserPosts(cachedPosts);
-        setIsLoadingPosts(false); // Stop loading immediately if we hit cache
+        setIsLoadingPosts(false);
 
         // Prevent background re-fetch if ID hasn't changed
         if (prevPostsIdRef.current === pid) return;
@@ -173,7 +178,6 @@ export default function Profile() {
       prevPostsIdRef.current = pid;
 
       try {
-        // Only show spinner if we didn't show cached data
         if (!Array.isArray(cachedPosts)) {
           setIsLoadingPosts(true);
         }
@@ -206,7 +210,6 @@ export default function Profile() {
         }
       } catch (err) {
         console.error('Post fetch error:', err);
-        // Don't clear posts on error if we have old ones
       } finally {
         if (mounted) setIsLoadingPosts(false);
       }
@@ -220,7 +223,83 @@ export default function Profile() {
   }, [profileId, cachedProfiles]);
 
   // --------------------------------------------------------------------------
-  // Effect 3: Memory Cleanup for Image Previews
+  // Effect 3: Load Liked Posts (Owner's Likes Tab)
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  // Effect 3: Load Liked Posts (Owner's Likes Tab) — with comments
+  // --------------------------------------------------------------------------
+  useEffect(() => {
+    // Only run if:
+    // 1. The user is the profile owner
+    // 2. The active tab is "likes"
+    // 3. A valid profileId exists
+    if (!isOwner) return;
+    if (activeTab !== 'likes') return;
+    if (!profileId) return;
+
+    // Track component mount state to prevent state updates after unmount
+    let mounted = true;
+
+    // Main function to load liked posts
+    async function fetchLikedPosts(pid) {
+      try {
+        // Start loading and clear any old errors
+        setIsLoadingLikes(true);
+        setLikesError('');
+
+        // Check Redux cache first
+        const likedCachePost = cachedProfiles?.[pid]?.likedPosts;
+
+        // If cached data exists, use it immediately
+        if (likedCachePost) {
+          setLikedPosts(likedCachePost);
+          setIsLoadingLikes(false);
+          return;
+        }
+
+        // If not cached, request from API
+        const posts = await postService.getLikedPostsByUser(pid);
+
+        // Component might have unmounted during the fetch
+        if (!mounted) return;
+
+        // Normalize posts and store in local state
+        setLikedPosts(Array.isArray(posts) ? posts : (posts?.documents ?? []));
+
+        // Build new cache entry for Redux
+        const currentCache = cachedProfiles?.[pid] || {};
+
+        // Save fetched posts to Redux cache
+        dispatch(
+          setProfile({
+            profileId: pid,
+            data: { ...currentCache, likedPosts: posts },
+          }),
+        );
+      } catch (err) {
+        console.error('Liked posts fetch error:', err);
+
+        // Only update error state if component is still mounted
+        if (mounted) {
+          setLikesError('Failed to load liked posts. Please try again.');
+        }
+      } finally {
+        // Ensure loading state resets only if still mounted
+        if (mounted) setIsLoadingLikes(false);
+      }
+    }
+
+    // Call the function with the correct profileId
+    fetchLikedPosts(profileId);
+
+    // Cleanup: runs when tab changes, profile changes, or component unmounts
+    return () => {
+      mounted = false;
+    };
+  }, [activeTab, isOwner, profileId, cachedProfiles, dispatch]);
+
+  // --------------------------------------------------------------------------
+  // Effect 4: Memory Cleanup for Image Previews
   // --------------------------------------------------------------------------
   useEffect(() => {
     return () => {
@@ -669,9 +748,30 @@ export default function Profile() {
 
                   {/* Likes Tab */}
                   {activeTab === 'likes' && (
-                    <div className="text-muted-foreground">
-                      <p>Liked posts will show up here.</p>
-                    </div>
+                    <>
+                      {!isOwner ? (
+                        <p className="text-muted-foreground">
+                          Liked posts are visible only to the profile owner.
+                        </p>
+                      ) : isLoadingLikes ? (
+                        <div className="flex items-center justify-center gap-2 text-muted-foreground py-8">
+                          <Spinner size={16} className="text-current" />
+                          <span>Loading liked posts...</span>
+                        </div>
+                      ) : likesError ? (
+                        <p className="text-sm text-red-500">{likesError}</p>
+                      ) : likedPosts.length === 0 ? (
+                        <p className="text-muted-foreground">
+                          You haven&apos;t liked any posts yet.
+                        </p>
+                      ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                          {likedPosts.map((post) => (
+                            <PostCard key={post.$id} post={post} />
+                          ))}
+                        </div>
+                      )}
+                    </>
                   )}
 
                   {/* About Tab */}

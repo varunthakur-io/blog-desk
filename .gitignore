@@ -25,3 +25,4 @@ dist-ssr
 *.sw?
 .env
 WARP.md
+notes.jsx
