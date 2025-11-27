@@ -171,6 +171,34 @@ class PostService {
     // increment likes count on post
     await this.updateLikes(postId, +1);
   }
+
+  // user unliked a post
+  async unlikePost(userId, postId) {
+    const res = await databases.listDocuments(
+      appwrite.databaseId,
+      appwrite.likesCollectionId,
+      [
+        Query.equal('postId', postId),
+        Query.equal('userId', userId),
+        Query.limit(1),
+      ],
+    );
+
+    if (res.total === 0) return;
+
+    // delete like document
+    if (res.total > 0) {
+      const likeDocId = res.documents[0].$id;
+      await databases.deleteDocument(
+        appwrite.databaseId,
+        appwrite.likesCollectionId,
+        likeDocId,
+      );
+    }
+
+    // decrement likes count on post
+    await this.updateLikes(postId, -1);
+  }
 }
 
 // Export a single shared instance
