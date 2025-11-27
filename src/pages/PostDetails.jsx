@@ -72,13 +72,12 @@ const PostDetails = () => {
         // Determine if the user has liked the post
         if (user?.$id) {
           setIsLikedLoading(true);
-          const likeDoc = await postService.hasUserLiked(
+          const liked = await postService.hasUserLiked(
             currentPostFromRedux.$id,
             user.$id,
           );
           if (!mounted) return;
-          setIsLiked(!!likeDoc);
-          // console.log('status saved');
+          setIsLiked(liked);
           setIsLikedLoading(false);
         } else {
           setIsLiked(false);

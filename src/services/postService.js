@@ -3,6 +3,9 @@ import { ID, Query } from 'appwrite';
 import { account, databases } from '@/api/client';
 import { appwriteConfig as appwrite } from '../config/appwrite';
 
+// Simple in-memory cache: key = `${userId}:${postId}` → boolean
+const likedCache = new Map();
+
 class PostService {
   // Create a new blog post
   async createPost({ title, content }) {
@@ -143,8 +146,16 @@ class PostService {
     }
   }
 
-  // check if user has liked a post
+  // check if user has liked a post (cached)
   async hasUserLiked(postId, userId) {
+    const key = `${userId}:${postId}`;
+
+    // 1) Return from cache if present
+    if (likedCache.has(key)) {
+      return likedCache.get(key); // boolean true/false
+    }
+
+    // 2) Otherwise hit the API once
     const res = await databases.listDocuments(
       appwrite.databaseId,
       appwrite.likesCollectionId,
@@ -154,11 +165,16 @@ class PostService {
         Query.limit(1),
       ],
     );
-    return res.total > 0 ? res.documents[0] : null;
+
+    const liked = res.total > 0;
+    likedCache.set(key, liked);
+    return liked;
   }
 
   // user liked a post
   async likePost(postId, userId) {
+    const key = `${userId}:${postId}`;
+
     // avoid duplicates
     const existing = await this.hasUserLiked(postId, userId);
     if (existing) return;
@@ -176,10 +192,15 @@ class PostService {
 
     // increment likes count on post
     await this.updateLikes(postId, +1);
+
+    // update cache
+    likedCache.set(key, true);
   }
 
   // user unliked a post
   async unlikePost(postId, userId) {
+    const key = `${userId}:${postId}`;
+
     const res = await databases.listDocuments(
       appwrite.databaseId,
       appwrite.likesCollectionId,
@@ -204,6 +225,9 @@ class PostService {
 
     // decrement likes count on post
     await this.updateLikes(postId, -1);
+
+    // update cache
+    likedCache.set(key, false);
   }
 }
 
