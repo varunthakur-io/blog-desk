@@ -1,5 +1,6 @@
-import { account, databases } from '@/api/client';
 import { toast } from 'react-hot-toast';
+import { Query } from 'appwrite';
+import { account, databases } from '@/api/client';
 import { appwriteConfig as appwrite } from '../config/appwrite';
 
 class PostService {
@@ -138,6 +139,20 @@ class PostService {
       toast.error('Failed to update like');
       throw error; // so UI can rollback
     }
+  }
+
+  // check if user has liked a post
+  async hasUserLiked(userId, postId) {
+    const res = await databases.listDocuments(
+      appwrite.databaseId,
+      appwrite.likesCollectionId,
+      [
+        Query.equal('postId', postId),
+        Query.equal('userId', userId),
+        Query.limit(1),
+      ],
+    );
+    return res.total > 0 ? res.documents[0] : null;
   }
 }
 

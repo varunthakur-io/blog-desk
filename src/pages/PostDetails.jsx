@@ -68,8 +68,17 @@ const PostDetails = () => {
         // Initialize likes state from cached object
         setLikesCount(currentPostFromRedux.likesCount || 0);
 
-        // Determine if the user has liked the post (false for now)
-        setIsLiked(false);
+        // Determine if the user has liked the post
+        if (user?.$id) {
+          const likeDoc = await postService.hasUserLiked(
+            currentPostFromRedux.$id,
+            user.$id,
+          );
+          if (!mounted) return;
+          setIsLiked(!!likeDoc);
+        } else {
+          setIsLiked(false);
+        }
 
         // NOTE: Initialize comments here if cached posts include comments.
 
