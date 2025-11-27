@@ -15,6 +15,7 @@ class PostService {
         authorName: user.name,
         title,
         content,
+        likesCount: 0,
       };
 
       // create post document
@@ -125,7 +126,8 @@ class PostService {
 
       // 2. Compute new likes
       const current = doc.likesCount ?? 0;
-      const next = current + value;
+      // const next = current + value;
+      const next = Math.max(0, current + value); // NEVER below 0
 
       // 3. Update the document
       await databases.updateDocument(
@@ -157,6 +159,10 @@ class PostService {
 
   // user liked a post
   async likePost(postId, userId) {
+    // avoid duplicates
+    const existing = await this.hasUserLiked(postId, userId);
+    if (existing) return;
+
     // create like document
     await databases.createDocument(
       appwrite.databaseId,
