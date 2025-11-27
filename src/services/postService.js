@@ -142,7 +142,7 @@ class PostService {
   }
 
   // check if user has liked a post
-  async hasUserLiked(userId, postId) {
+  async hasUserLiked(postId, userId) {
     const res = await databases.listDocuments(
       appwrite.databaseId,
       appwrite.likesCollectionId,
@@ -156,7 +156,7 @@ class PostService {
   }
 
   // user liked a post
-  async likePost(userId, postId) {
+  async likePost(postId, userId) {
     // create like document
     await databases.createDocument(
       appwrite.databaseId,
@@ -173,7 +173,7 @@ class PostService {
   }
 
   // user unliked a post
-  async unlikePost(userId, postId) {
+  async unlikePost(postId, userId) {
     const res = await databases.listDocuments(
       appwrite.databaseId,
       appwrite.likesCollectionId,

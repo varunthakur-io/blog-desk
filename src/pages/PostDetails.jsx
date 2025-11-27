@@ -125,20 +125,26 @@ const PostDetails = () => {
   // --- Handlers ---
   const handleLike = async () => {
     if (!user) return toast.error('Login to like');
-    if (!post?.$id) return; // ← prevents crash
+    if (!post?.$id) return;
 
     const wasLiked = isLiked;
     const delta = wasLiked ? -1 : 1;
 
+    // optimistic UI
     setIsLiked(!wasLiked);
-    setLikesCount((c) => c + delta);
+    setLikesCount((prev) => prev + delta);
 
     try {
-      await postService.updateLikes(post.$id, delta);
-    } catch {
+      if (wasLiked) {
+        await postService.unlikePost(post.$id, user.$id);
+      } else {
+        await postService.likePost(post.$id, user.$id);
+      }
+    } catch (err) {
+      // rollback
       setIsLiked(wasLiked);
-      setLikesCount((c) => c - delta);
-      toast.error('Like failed');
+      setLikesCount((prev) => prev - delta);
+      toast.error('Like action failed');
     }
   };
 
