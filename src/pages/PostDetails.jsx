@@ -42,8 +42,9 @@ const PostDetails = () => {
 
   // Using likesCount from post collection
   const [likesCount, setLikesCount] = useState(post?.likesCount || 0);
-
   const [isLiked, setIsLiked] = useState(false);
+  const [isLikedLoading, setIsLikedLoading] = useState(true);
+  const [isLiking, setIsLiking] = useState(false);
 
   // NOTE: Comments collection is separate; mock structure for now
   const [comments, setComments] = useState([]);
@@ -70,17 +71,19 @@ const PostDetails = () => {
 
         // Determine if the user has liked the post
         if (user?.$id) {
+          setIsLikedLoading(true);
           const likeDoc = await postService.hasUserLiked(
             currentPostFromRedux.$id,
             user.$id,
           );
           if (!mounted) return;
           setIsLiked(!!likeDoc);
+          // console.log('status saved');
+          setIsLikedLoading(false);
         } else {
           setIsLiked(false);
+          setIsLikedLoading(false);
         }
-
-        // NOTE: Initialize comments here if cached posts include comments.
 
         setIsLoading(false);
         return;
@@ -90,16 +93,25 @@ const PostDetails = () => {
       setIsLoading(true);
       try {
         const fetchedPost = await postService.getPostById(id);
-
         if (!mounted) return;
 
         if (fetchedPost) {
           setPost(fetchedPost);
-
-          // Initialize state from fetched object using explicit column names
           setLikesCount(fetchedPost.likesCount || 0);
-          // setIsLiked(false);
-          // NOTE: Initialize comments here if fetchedPost includes comments.
+
+          if (user?.$id) {
+            setIsLikedLoading(true);
+            const likeDoc = await postService.hasUserLiked(
+              fetchedPost.$id,
+              user.$id,
+            );
+            if (!mounted) return;
+            setIsLiked(!!likeDoc);
+            setIsLikedLoading(false);
+          } else {
+            setIsLiked(false);
+            setIsLikedLoading(false);
+          }
         } else {
           dispatch(setError('Post not found.'));
         }
@@ -108,7 +120,6 @@ const PostDetails = () => {
           dispatch(
             setError(err.message || 'Failed to load post. Please try again.'),
           );
-          console.error('Error details:', err);
         }
       } finally {
         if (mounted) setIsLoading(false);
@@ -126,13 +137,16 @@ const PostDetails = () => {
   const handleLike = async () => {
     if (!user) return toast.error('Login to like');
     if (!post?.$id) return;
+    if (isLikedLoading || isLiking) return;
+
+    setIsLiking(true);
 
     const wasLiked = isLiked;
     const delta = wasLiked ? -1 : 1;
 
     // optimistic UI
     setIsLiked(!wasLiked);
-    setLikesCount((prev) => prev + delta);
+    setLikesCount((prev) => Math.max(0, prev + delta));
 
     try {
       if (wasLiked) {
@@ -140,11 +154,13 @@ const PostDetails = () => {
       } else {
         await postService.likePost(post.$id, user.$id);
       }
-    } catch (err) {
+    } catch {
       // rollback
       setIsLiked(wasLiked);
-      setLikesCount((prev) => prev - delta);
+      setLikesCount((prev) => Math.max(0, prev - delta));
       toast.error('Like action failed');
+    } finally {
+      setIsLiking(false);
     }
   };
 
@@ -179,7 +195,7 @@ const PostDetails = () => {
         prev.map((c) => (String(c.$id) === String(tempId) ? actualComment : c)),
       );
       toast.success('Comment posted.');
-    } catch (err) {
+    } catch {
       // Rollback on failure
       setComments((prev) =>
         prev.filter((c) => String(c.$id) !== String(tempId)),
@@ -197,7 +213,7 @@ const PostDetails = () => {
     try {
       await navigator.clipboard.writeText(url);
       toast.success('Link copied to clipboard');
-    } catch (err) {
+    } catch {
       // fallback for older browsers
       const el = document.createElement('textarea');
       el.value = url;
@@ -314,12 +330,22 @@ const PostDetails = () => {
               onClick={handleLike}
               variant={isLiked ? 'default' : 'outline'}
               className="group transition-colors"
+              disabled={isLikedLoading || isLiking}
             >
-              <Heart
-                className={`mr-2 h-4 w-4 transition-transform ${isLiked ? 'fill-white' : 'group-hover:fill-primary group-hover:text-primary'}`}
-              />
+              {isLikedLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Heart
+                  className={`mr-2 h-4 w-4 transition-transform ${
+                    isLiked
+                      ? 'fill-white'
+                      : 'group-hover:fill-primary group-hover:text-primary'
+                  }`}
+                />
+              )}
               {likesCount} {likesCount === 1 ? 'Like' : 'Likes'}
             </Button>
+
             <Button
               onClick={handleShare}
               variant="ghost"
