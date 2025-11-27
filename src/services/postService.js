@@ -229,6 +229,32 @@ class PostService {
     // update cache
     likedCache.set(key, false);
   }
+
+  // get all posts liked by a user
+  async getLikedPostsByUser(userId) {
+    // 1) Fetch like documents for userId from likesCollection
+    const likesRes = await databases.listDocuments(
+      appwrite.databaseId,
+      appwrite.likesCollectionId,
+      [Query.equal('userId', userId)],
+    );
+
+    const likeDocs = likesRes.documents || [];
+    const postIds = likeDocs.map((doc) => doc.postId).filter(Boolean);
+
+    if (postIds.length === 0) {
+      return [];
+    }
+
+    // 2. Fetch posts by those IDs
+    const postsRes = await databases.listDocuments(
+      appwrite.databaseId,
+      appwrite.collectionId,
+      [Query.equal('$id', postIds), Query.orderDesc('$createdAt')],
+    );
+
+    return postsRes.documents || [];
+  }
 }
 
 // Export a single shared instance
