@@ -29,7 +29,7 @@ import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { tr } from 'zod/v4/locales';
+// import { tr } from 'zod/v4/locales';
 
 // --- Utilities ---
 const isValidEmail = (email) =>

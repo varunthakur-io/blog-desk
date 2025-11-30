@@ -24,7 +24,7 @@ class PostService {
       // create post document
       const res = await databases.createDocument(
         appwrite.databaseId,
-        appwrite.collectionId,
+        appwrite.postsCollectionId,
         'unique()',
         postData,
       );
@@ -48,7 +48,7 @@ class PostService {
 
       const res = await databases.updateDocument(
         appwrite.databaseId,
-        appwrite.collectionId,
+        appwrite.postsCollectionId,
         postId,
         postData,
       );
@@ -67,7 +67,7 @@ class PostService {
     try {
       const res = await databases.getDocument(
         appwrite.databaseId,
-        appwrite.collectionId,
+        appwrite.postsCollectionId,
         postId,
       );
       return res;
@@ -84,7 +84,7 @@ class PostService {
       // fetch all documents (no queries)
       const res = await databases.listDocuments(
         appwrite.databaseId,
-        appwrite.collectionId,
+        appwrite.postsCollectionId,
       );
 
       // client-side pagination
@@ -105,7 +105,7 @@ class PostService {
     try {
       await databases.deleteDocument(
         appwrite.databaseId,
-        appwrite.collectionId,
+        appwrite.postsCollectionId,
         postId,
       );
       toast.success('Post deleted successfully!');
@@ -123,7 +123,7 @@ class PostService {
       // 1. Get the current document
       const doc = await databases.getDocument(
         appwrite.databaseId,
-        appwrite.collectionId,
+        appwrite.postsCollectionId,
         postId,
       );
 
@@ -135,7 +135,7 @@ class PostService {
       // 3. Update the document
       await databases.updateDocument(
         appwrite.databaseId,
-        appwrite.collectionId,
+        appwrite.postsCollectionId,
         postId,
         { likesCount: next },
       );
@@ -249,7 +249,7 @@ class PostService {
     // 2. Fetch posts by those IDs
     const postsRes = await databases.listDocuments(
       appwrite.databaseId,
-      appwrite.collectionId,
+      appwrite.postsCollectionId,
       [Query.equal('$id', postIds), Query.orderDesc('$createdAt')],
     );
 
