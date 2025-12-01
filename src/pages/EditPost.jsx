@@ -4,11 +4,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Loader2, Save, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-// Services & Store
-import { postService } from '../services/postService';
-import { markStale, setPosts } from '../store/postSlice';
-import { setProfile } from '@/store/profileSlice';
-
 // UI Components
 import { Button } from '@/components/ui/button';
 import {
@@ -23,23 +18,28 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
+// Services & Store
+import { postService } from '../services/postService';
+import { markStale, selectPostById, setPosts } from '../store/postSlice';
+import { setProfile } from '@/store/profileSlice';
+
 export default function EditPost() {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // --- Redux State ---
-  const { posts } = useSelector((state) => state.posts);
+  // Selectors
+  const post = useSelector((state) => selectPostById(state, id));
   const { user } = useSelector((state) => state.auth);
   const cachedProfiles = useSelector((state) => state.profile?.profiles);
 
-  // --- Local State ---
+  // Local States
   const [formData, setFormData] = useState({ title: '', content: '' });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
 
-  // --- Effect: Load Post Data ---
+  // Effect: Load Post Data
   useEffect(() => {
     let mounted = true;
 
@@ -50,19 +50,16 @@ export default function EditPost() {
         return;
       }
 
-      // 1. Check Global Redux State first (Fastest)
-      const existingPost = posts.find((p) => String(p.$id) === String(id));
-
-      if (existingPost) {
+      if (post) {
         setFormData({
-          title: existingPost.title,
-          content: existingPost.content,
+          title: post.title,
+          content: post.content,
         });
         setIsLoading(false);
         return;
       }
 
-      // 2. Fallback: Fetch from API
+      // Fallback: Fetch from API
       try {
         const data = await postService.getPostById(id);
         if (mounted && data) {
@@ -84,10 +81,9 @@ export default function EditPost() {
     return () => {
       mounted = false;
     };
-  }, [id, posts]);
+  }, [id, post]);
 
-  // --- Handlers ---
-
+  // Event Handlers
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
@@ -114,7 +110,7 @@ export default function EditPost() {
       if (updatedPost && updatedPost.$id) {
         // 2. Update Global Posts Feed (Redux)
         // This ensures the dashboard reflects changes immediately
-        const updatedPostsArray = posts.map((post) =>
+        const updatedPostsArray = post.map((post) =>
           String(post.$id) === String(updatedPost.$id) ? updatedPost : post,
         );
         dispatch(setPosts(updatedPostsArray));
@@ -157,8 +153,7 @@ export default function EditPost() {
     }
   };
 
-  // --- Render States ---
-
+  // Render States
   if (isLoading) {
     return (
       <div className="flex flex-col justify-center items-center min-h-[60vh] gap-4">

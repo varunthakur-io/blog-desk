@@ -4,10 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Loader2, Send } from 'lucide-react';
 
-// Services and Store
-import { postService } from '../services/postService';
-import { markStale } from '../store/postSlice';
-import { setProfile } from '@/store/profileSlice';
 import { getRandomPostData } from '../utils/fakePostData';
 
 // UI Components
@@ -23,21 +19,22 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
+// Services and Store
+import { postService } from '@/services/postService';
+import { upsertPost } from '@/store/postSlice';
+
 const CreatePost = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // --- Redux State ---
+  // Selectors
   const { user } = useSelector((state) => state.auth);
-  // We need access to the cache to update it immediately after posting
-  const cachedProfiles = useSelector((state) => state.profile?.profiles);
 
-  // --- Local State ---
+  // Local states
   const [formData, setFormData] = useState({ title: '', content: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // --- Handlers ---
-
+  // Event handers
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
@@ -63,35 +60,14 @@ const CreatePost = () => {
     setIsSubmitting(true);
 
     try {
-      // 1. Create Post via API
+      // Create Post via API
       const newPost = await postService.createPost({
         title: formData.title,
         content: formData.content,
       });
 
-      // 2. Mark Global Feed as Stale (forces refresh on dashboard)
-      dispatch(markStale());
-
-      // 3. Update Profile Cache (Optimistic UI)
-      // If we have visited the profile, update the cached posts list immediately
-      // so the user sees their new post without a re-fetch when they visit "My Profile".
-      const userProfileCache = cachedProfiles?.[user.$id];
-
-      if (userProfileCache) {
-        // Ensure we have a valid posts array to append to
-        const currentPosts = Array.isArray(userProfileCache.posts)
-          ? userProfileCache.posts
-          : [];
-
-        dispatch(
-          setProfile({
-            profileId: user.$id,
-            data: {
-              ...userProfileCache,
-              posts: [newPost, ...currentPosts], // Prepend new post
-            },
-          }),
-        );
+      if (newPost) {
+        dispatch(upsertPost(newPost));
       }
 
       toast.success('Post published successfully!');
