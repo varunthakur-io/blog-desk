@@ -125,7 +125,7 @@ const PostDetails = () => {
 
   // Handlers
   const handleLike = async () => {
-    if (!user) return toast.error('Login to like');
+    if (!user) return toast.error('You must be logged in to like.');
     if (!post?.$id) return;
     if (isLikedLoading || isLiking) return;
 
@@ -148,7 +148,7 @@ const PostDetails = () => {
       // rollback
       setIsLiked(wasLiked);
       setLikesCount((prev) => Math.max(0, prev - delta));
-      toast.error('Like action failed');
+      toast.error('Like action failed.');
     } finally {
       setIsLiking(false);
     }
@@ -214,7 +214,7 @@ const PostDetails = () => {
         document.execCommand('copy');
         toast.success('Link copied to clipboard!');
       } catch {
-        toast.error('Failed to copy URL');
+        toast.error('Failed to copy URL.');
       }
 
       document.body.removeChild(el);
