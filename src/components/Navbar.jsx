@@ -6,7 +6,6 @@ import {
   Moon,
   Menu,
   X,
-  Search,
   LogOut,
   User,
   Settings,
@@ -15,11 +14,9 @@ import {
 
 import { authService } from '../services/authService';
 import { clearUser } from '../store/authSlice';
-import { setSearchTerm } from '../store/postSlice';
 import useDarkMode from '../hooks/useDarkMode';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,10 +48,6 @@ const Navbar = () => {
     }
   };
 
-  const handleSearchChange = (e) => {
-    dispatch(setSearchTerm(e.target.value));
-  };
-
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   const navItems = [
@@ -65,55 +58,48 @@ const Navbar = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between px-4 md:px-8">
-        {/* Logo Area */}
-        <NavLink
-          to="/"
-          className="flex items-center space-x-2.5 transition-opacity hover:opacity-80"
-        >
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-lg shadow-sm">
-            B
-          </div>
-          <span className="font-bold text-xl tracking-tight hidden sm:inline-block">
-            Blog Desk
-          </span>
-        </NavLink>
+      {/* container + padding now match Home */}
+      <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Left side: logo + nav */}
+        <div className="flex items-center gap-8">
+          {/* Logo */}
+          <NavLink
+            to="/"
+            className="flex items-center space-x-2.5 transition-opacity hover:opacity-80"
+          >
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-lg shadow-sm">
+              B
+            </div>
+            <span className="font-bold text-xl tracking-tight hidden sm:inline-block">
+              Blog Desk
+            </span>
+          </NavLink>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-          {navItems.map(
-            (item) =>
-              (!item.requiresAuth || isLoggedIn) && (
-                <NavLink
-                  key={item.name}
-                  to={item.slug}
-                  className={({ isActive }) =>
-                    `transition-colors hover:text-primary ${
-                      isActive
-                        ? 'text-foreground font-semibold'
-                        : 'text-muted-foreground'
-                    }`
-                  }
-                >
-                  {item.name}
-                </NavLink>
-              ),
-          )}
-        </nav>
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+            {navItems.map(
+              (item) =>
+                (!item.requiresAuth || isLoggedIn) && (
+                  <NavLink
+                    key={item.name}
+                    to={item.slug}
+                    className={({ isActive }) =>
+                      `transition-colors hover:text-primary ${
+                        isActive
+                          ? 'text-foreground font-semibold'
+                          : 'text-muted-foreground'
+                      }`
+                    }
+                  >
+                    {item.name}
+                  </NavLink>
+                ),
+            )}
+          </nav>
+        </div>
 
         {/* Right Actions Area */}
         <div className="flex items-center gap-2 md:gap-4">
-          {/* Search Bar (Desktop) */}
-          <div className="relative hidden md:block">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search posts..."
-              className="pl-9 h-9 w-48 lg:w-64 bg-muted/50 border-transparent focus:bg-background transition-all"
-              onChange={handleSearchChange}
-            />
-          </div>
-
           {/* Theme Toggle */}
           <Button
             variant="ghost"
@@ -219,17 +205,6 @@ const Navbar = () => {
       {isMobileMenuOpen && (
         <div className="md:hidden fixed inset-x-0 top-16 bg-background border-b shadow-lg animate-in slide-in-from-top-5 z-40">
           <nav className="grid gap-2 p-4">
-            {/* Mobile Search */}
-            <div className="relative mb-2">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search posts..."
-                className="pl-9 bg-muted/50"
-                onChange={handleSearchChange}
-              />
-            </div>
-
             {navItems.map(
               (item) =>
                 (!item.requiresAuth || isLoggedIn) && (
