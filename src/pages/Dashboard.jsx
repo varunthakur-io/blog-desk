@@ -176,7 +176,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="container mx-auto py-8 px-4 md:px-8 max-w-6xl min-h-[80vh]">
+    <div className="container mx-auto py-4 px-4 sm:px-6 lg:px-8">
       <Card className="border-none shadow-none bg-transparent">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
@@ -188,12 +188,12 @@ export default function Dashboard() {
           </div>
 
           <div className="flex w-full md:w-auto items-center gap-3">
-            <div className="relative flex-1 md:w-72">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <div className="rounded-xl border border-border/60 bg-card/60 shadow-sm px-3 py-1 flex items-center gap-2">
+              <Search className="h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
                 placeholder="Search posts..."
-                className="pl-9 bg-background/60 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+                className="border-none shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 px-1"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -234,7 +234,7 @@ export default function Dashboard() {
                   <TableRow className="bg-muted/40 hover:bg-muted/40">
                     <TableHead className="w-[45%] pl-6">Title</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Date</TableHead>
+                    <TableHead>Created Date</TableHead>
                     <TableHead className="text-right pr-6">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -326,7 +326,6 @@ export default function Dashboard() {
           </Card>
         )}
       </Card>
-
       {/* Delete Confirmation Dialog */}
       <AlertDialog
         open={isDeleteDialogOpen}

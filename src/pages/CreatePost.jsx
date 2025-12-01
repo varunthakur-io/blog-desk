@@ -81,7 +81,7 @@ const CreatePost = () => {
   };
 
   return (
-    <div className="">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
       <Card className="border-none shadow-none">
         <CardHeader>
           <CardTitle>Create a New Post</CardTitle>
