@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 // Auth service and Redux actions
 import { setUser } from '../store/authSlice';
@@ -68,6 +69,7 @@ const Login = () => {
 
       // Update Redux auth state
       dispatch(setUser(user));
+      toast.success('Logged in successfully!');
 
       // Immediate navigation avoids flicker; the effect above will also redirect on refresh.
       // NOTE: Doing both is fine; only one navigation will effectively apply.

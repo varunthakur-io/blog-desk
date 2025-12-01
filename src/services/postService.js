@@ -1,4 +1,3 @@
-import { toast } from 'react-hot-toast';
 import { ID, Query } from 'appwrite';
 import { account, databases } from '@/api/client';
 import { appwriteConfig as appwrite } from '../config/appwrite';
@@ -29,11 +28,9 @@ class PostService {
         postData,
       );
 
-      toast.success('Post created successfully!');
       return res;
     } catch (error) {
       console.error('Error creating post:', error);
-      toast.error(error.message || 'Failed to create post.');
       throw error;
     }
   }
@@ -53,11 +50,9 @@ class PostService {
         postData,
       );
 
-      toast.success('Post updated successfully!');
       return res;
     } catch (error) {
       console.error('Error updating post:', error);
-      toast.error(error.message || 'Failed to update post.');
       throw error;
     }
   }
@@ -73,7 +68,6 @@ class PostService {
       return res;
     } catch (error) {
       console.error('Error fetching post:', error);
-      toast.error(error.message || 'Failed to fetch post.');
       throw error;
     }
   }
@@ -95,7 +89,6 @@ class PostService {
       return pageDocs;
     } catch (error) {
       console.error('Error fetching posts:', error);
-      toast.error(error?.message || 'Failed to fetch posts.');
       throw error;
     }
   }
@@ -108,11 +101,9 @@ class PostService {
         appwrite.postsCollectionId,
         postId,
       );
-      toast.success('Post deleted successfully!');
       return true;
     } catch (error) {
       console.error('Error deleting post:', error);
-      toast.error(error.message || 'Failed to delete post.');
       throw error;
     }
   }
@@ -141,7 +132,6 @@ class PostService {
       );
     } catch (error) {
       console.error('Like update failed:', error);
-      toast.error('Failed to update like');
       throw error; // so UI can rollback
     }
   }

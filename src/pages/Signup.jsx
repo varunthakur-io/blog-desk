@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import toast from 'react-hot-toast';
 
 // auth service and Redux actions
 import { authService } from '../services/authService';
@@ -45,6 +46,7 @@ const Signup = () => {
     try {
       const user = await authService.createUser(formData);
       dispatch(setUser(user));
+      toast.success('Account created and logged in!');
       navigate('/');
     } catch (err) {
       setError(err.message || 'Signup failed. Please try again.');
