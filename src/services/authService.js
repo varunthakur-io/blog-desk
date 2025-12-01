@@ -178,27 +178,21 @@ class AuthService {
 
   // Get current user's account details
   async getAccount() {
+    // 1. Try cached user first — if exists, trust it
+    const cachedUser = this.getCachedUser();
+    if (cachedUser) {
+      return cachedUser; // ← Fast, no network call, no flicker
+    }
+
+    // 2. No cache → ask Appwrite
     try {
-      const cachedUser = this.getCachedUser();
-
-      // If no cached user → user is guest → DO NOT call account.get()
-      if (!cachedUser) {
-        return null;
-      }
-
-      // If cached user exists → optionally verify on server
       const user = await account.get();
-      const profile = await this.getProfile(user.$id);
-
-      const mergedUser = {
-        ...user,
-        profile: profile ? { ...profile } : null,
-      };
-
-      this.cacheUser(mergedUser);
-      return mergedUser;
+      const profile = await this.getProfile(user.$id).catch(() => null);
+      const merged = { ...user, profile };
+      this.cacheUser(merged);
+      return merged;
     } catch {
-      // If Appwrite says session is invalid → user is logged out
+      // 401 = no session, any other = network → both mean "guest"
       this.clearCachedUser();
       return null;
     }
