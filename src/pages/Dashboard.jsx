@@ -1,3 +1,4 @@
+// Dashboard.jsx
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,7 +12,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-// Components
+// UI Components
 import { Spinner } from '@/components/Loader';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -46,10 +47,21 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 // Services & Store
-import { postService } from '../services/postService';
-import { setError, setLoading, setPosts } from '../store/postSlice';
+import { postService } from '@/services/postService';
+import {
+  selectAllPosts,
+  selectPostsByAuthor,
+  selectPostsLoading,
+  selectPostsError,
+  selectInitialLoaded,
+  setPostsLoading,
+  setPostsError,
+  setPosts,
+  setInitialLoaded,
+  removePost,
+} from '@/store/postSlice';
 
-// --- Sub-Component: Empty State ---
+// Empty state component
 const EmptyState = ({ onCreate, hasQuery }) => (
   <div className="flex flex-col items-center justify-center py-16 text-center border-2 border-dashed rounded-lg bg-muted/10">
     <div className="bg-muted/30 p-4 rounded-full mb-4">
@@ -79,57 +91,58 @@ export default function Dashboard() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // --- Redux State ---
-  const { posts, loading, error, fetched, stale } = useSelector(
-    (state) => state.posts,
-  );
+  // Selectors
+  const allPosts = useSelector(selectAllPosts);
+  const loading = useSelector(selectPostsLoading);
+  const error = useSelector(selectPostsError);
+  const initialLoaded = useSelector(selectInitialLoaded);
   const { user } = useSelector((state) => state.auth);
 
-  // --- Local State ---
+  // Only posts of the current user
+  const myPosts = useSelector((state) => selectPostsByAuthor(state, user?.$id));
+
+  // Local states
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [postToDelete, setPostToDelete] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // --- Derived State (Filtering) ---
+  // Filtering by search
   const filteredPosts = useMemo(() => {
-    // 1. Filter by current user
-    const myPosts = posts.filter((post) => post.authorId === user?.$id);
-
-    // 2. Filter by search query
     if (!searchQuery.trim()) return myPosts;
 
     const lowerQuery = searchQuery.toLowerCase();
     return myPosts.filter((p) =>
       (p.title || '').toLowerCase().includes(lowerQuery),
     );
-  }, [posts, user, searchQuery]);
-
-  // --- Effects ---
+  }, [myPosts, searchQuery]);
 
   useEffect(() => {
-    const shouldFetch = !fetched || stale;
+    // Fetch all posts if not initially loaded
+    if (initialLoaded) return;
 
-    if (shouldFetch) {
-      const fetchPosts = async () => {
-        try {
-          dispatch(setLoading(true));
-          const data = await postService.getAllPosts();
-          dispatch(setPosts(data));
-        } catch (err) {
-          console.error('Fetch error:', err);
-          dispatch(setError(err.message || 'Failed to fetch posts'));
-        } finally {
-          dispatch(setLoading(false));
-        }
-      };
+    const fetchPosts = async () => {
+      try {
+        dispatch(setPostsLoading(true));
+        dispatch(setPostsError(null));
 
-      fetchPosts();
-    }
-  }, [dispatch, fetched, stale]);
+        const data = await postService.getAllPosts();
+        const docs = Array.isArray(data) ? data : (data?.documents ?? []);
 
-  // --- Handlers ---
+        dispatch(setPosts(docs));
+        dispatch(setInitialLoaded(true));
+      } catch (err) {
+        console.error('Fetch error:', err);
+        dispatch(setPostsError(err?.message || 'Failed to fetch posts'));
+      } finally {
+        dispatch(setPostsLoading(false));
+      }
+    };
 
+    fetchPosts();
+  }, [dispatch, initialLoaded]);
+
+  // Event handers
   const handleEdit = (postId) => navigate(`/edit/${postId}`);
 
   const handleDeleteClick = (postId) => {
@@ -142,19 +155,18 @@ export default function Dashboard() {
 
     setIsDeleting(true);
 
-    // Store previous state for rollback
-    const previousPosts = [...posts];
+    // Keep full list for rollback
+    const previousPosts = [...allPosts];
 
     try {
-      // Optimistic update
-      const newPosts = posts.filter((post) => post.$id !== postToDelete);
-      dispatch(setPosts(newPosts));
+      // remove from store
+      dispatch(removePost(postToDelete));
 
       await postService.deletePost(postToDelete);
       toast.success('Post deleted successfully');
     } catch (err) {
-      console.error('Delete error:', err);
-      toast.error('Failed to delete post');
+      toast.error(err.message);
+      // Rollback
       dispatch(setPosts(previousPosts));
     } finally {
       setIsDeleting(false);
@@ -202,7 +214,7 @@ export default function Dashboard() {
           </Alert>
         )}
 
-        {loading && !fetched ? (
+        {loading && !initialLoaded ? (
           <div className="py-24 flex flex-col items-center justify-center gap-4">
             <Spinner size={32} />
             <p className="text-muted-foreground animate-pulse">
@@ -266,7 +278,6 @@ export default function Dashboard() {
                       </TableCell>
 
                       <TableCell className="text-right pr-6 py-4">
-                        {/* Actions are now always visible */}
                         <div className="flex items-center justify-end gap-2">
                           <Button
                             variant="ghost"
@@ -327,7 +338,7 @@ export default function Dashboard() {
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete "
               <span className="font-medium text-foreground">
-                {posts.find((p) => p.$id === postToDelete)?.title}
+                {allPosts.find((p) => p.$id === postToDelete)?.title}
               </span>
               " and remove it from our servers.
             </AlertDialogDescription>

@@ -1,82 +1,93 @@
-import { useEffect, useMemo, useCallback } from 'react';
+import { useEffect, useMemo, useCallback, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { BookOpen, Search } from 'lucide-react';
+
+// UI Components
 import Loader, { Spinner } from '@/components/Loader';
-
-// Components
-import PostCard from '../components/PostCard';
-
-// Services
-import { postService } from '../services/postService';
-
-// Redux actions
-import {
-  setError,
-  setLoading,
-  setPosts,
-  addPosts,
-} from '../store/postSlice';
-
-// Shadcn UI Components
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import PostCard from '@/components/PostCard';
+
+// Services & Store
+import { postService } from '@/services/postService';
+import {
+  appendPosts,
+  selectAllPosts,
+  selectInitialLoaded,
+  setInitialLoaded,
+  setPostsLoading,
+  setPosts,
+  setPostsError,
+  selectPostsLoading,
+  selectPostsError,
+  selectHasMore,
+  selectPage,
+  setPage,
+  setHasMore,
+} from '@/store/postSlice';
+
+const LIMIT = 6;
 
 const Home = () => {
   const dispatch = useDispatch();
-  const { posts, loading, error, searchTerm, page, hasMore } = useSelector(
-    (state) => state.posts,
-  );
 
-  // Fetch posts from the API (defaults [page=1, limit=6])
-  const fetchPosts = useCallback(
+  // Selectors
+  const posts = useSelector(selectAllPosts);
+  const loading = useSelector(selectPostsLoading);
+  const error = useSelector(selectPostsError);
+  const hasMore = useSelector(selectHasMore);
+  const page = useSelector(selectPage);
+  const initialLoaded = useSelector(selectInitialLoaded);
+
+  // Local states
+  const [searchTerm] = useState('');
+
+  // loadPage (Memoized)
+  const loadPage = useCallback(
     async (pageNum) => {
-      try {
-        dispatch(setLoading(true));
-        const data = await postService.getAllPosts(pageNum);
+      dispatch(setPostsLoading(true));
+      dispatch(setPostsError(null));
 
-        if (pageNum === 1) {
-          dispatch(setPosts(data));
-        } else {
-          dispatch(addPosts(data));
-        }
+      try {
+        const data = await postService.getAllPosts(pageNum, LIMIT);
+        const docs = Array.isArray(data) ? data : (data?.documents ?? []);
+
+        dispatch(pageNum === 1 ? setPosts(docs) : appendPosts(docs));
+        dispatch(setPage(pageNum));
+        dispatch(setHasMore(docs.length === LIMIT));
       } catch (err) {
-        dispatch(setError(err.message || 'Failed to fetch posts'));
-        console.error('Failed to fetch posts:', err);
+        dispatch(setPostsError(err?.message ?? 'Failed to fetch posts'));
       } finally {
-        dispatch(setLoading(false));
+        dispatch(setPostsLoading(false));
       }
     },
     [dispatch],
   );
 
-  // Fetch initial posts only if not already loaded
+  // Initial load / runs exactly once
   useEffect(() => {
-    if (posts.length === 0) {
-      fetchPosts(1);
-    }
-  }, [fetchPosts, posts.length]);
+    if (initialLoaded) return;
+    loadPage(1);
+    dispatch(setInitialLoaded(true));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  // handle load more button click
+  // Event handers
   const handleLoadMore = () => {
-    // guard: don't fire if already loading or nothing more to load
     if (loading || !hasMore) return;
-    fetchPosts(page + 1);
+    const nextPage = page + 1;
+    loadPage(nextPage);
   };
 
-  // filter posts based on search term
   const filteredPosts = useMemo(() => {
-    if (!searchTerm) {
-      return posts;
-    }
+    if (!searchTerm) return posts;
     return posts.filter((post) =>
       post.title.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [posts, searchTerm]);
 
-  // render content based on state
   const renderContent = () => {
-    // Loading state
     if (loading && posts.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center text-center py-32">
@@ -90,7 +101,6 @@ const Home = () => {
       );
     }
 
-    // Error state
     if (error) {
       return (
         <div className="flex justify-center py-20">
@@ -102,7 +112,6 @@ const Home = () => {
       );
     }
 
-    // No posts state
     if (filteredPosts.length === 0) {
       return (
         <div className="text-center py-32">
@@ -165,7 +174,6 @@ const Home = () => {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-      {/* Hero Section */}
       {!searchTerm && (
         <div className="text-center py-20 sm:py-32">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-4">
@@ -177,8 +185,6 @@ const Home = () => {
           </p>
         </div>
       )}
-
-      {/* Content Section */}
       {renderContent()}
     </div>
   );
