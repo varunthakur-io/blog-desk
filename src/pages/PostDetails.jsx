@@ -141,8 +141,10 @@ const PostDetails = () => {
     try {
       if (wasLiked) {
         await postService.unlikePost(post.$id, user.$id);
+        toast.success('Post unliked!');
       } else {
         await postService.likePost(post.$id, user.$id);
+        toast.success('Post liked!');
       }
     } catch {
       // rollback

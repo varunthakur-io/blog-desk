@@ -30,6 +30,11 @@ function App() {
 
   return (
     <Suspense fallback={<SkeletonLoader />}>
+      <Toaster
+        position="bottom-right"
+        reverseOrder={false}
+        toastOptions={{ duration: 2500 }}
+      />
       <Routes>
         {/* Routes with layout */}
         <Route element={<MainLayout />}>
@@ -51,24 +56,8 @@ function App() {
         </Route>
 
         {/* Auth pages (no layout) */}
-        <Route
-          path="/login"
-          element={
-            <div>
-              <Toaster position="top-right" reverseOrder={false} />
-              <Login />
-            </div>
-          }
-        />
-        <Route
-          path="/signup"
-          element={
-            <div>
-              <Toaster position="top-right" reverseOrder={false} />
-              <Signup />
-            </div>
-          }
-        />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
       </Routes>
     </Suspense>
   );
