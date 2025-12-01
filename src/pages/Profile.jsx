@@ -420,7 +420,7 @@ export default function Profile() {
   if (authLoading || isLoadingProfile || !profileId) return <ProfileSkeleton />;
 
   return (
-    <main className="min-h-screen">
+    <main className="container mx-auto px-4 sm:px-6 lg:px-8">
       <div>
         <Card className="border-0">
           <CardHeader className="text-center">
