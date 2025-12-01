@@ -11,6 +11,7 @@ import {
   Settings,
   PenSquare,
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 import { authService } from '../services/authService';
 import { clearUser } from '../store/authSlice';
@@ -42,9 +43,11 @@ const Navbar = () => {
     try {
       await authService.logout();
       dispatch(clearUser());
+      toast.success('Logged out successfully!');
       navigate('/login');
     } catch (err) {
       console.error('Logout failed:', err.message);
+      toast.error('Logout failed. Please try again.');
     }
   };
 
