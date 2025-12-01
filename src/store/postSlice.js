@@ -1,5 +1,5 @@
-// src/store/postsSlice.js
-import { createSlice } from '@reduxjs/toolkit';
+// src/store/postSlice.js
+import { createSlice, createSelector } from '@reduxjs/toolkit';
 
 const initialState = {
   byId: {}, // postId -> post object
@@ -50,18 +50,20 @@ const postsSlice = createSlice({
       }
     },
 
-    // Append posts (for pagination)
+    // Append / upsert a page of posts
     appendPosts(state, action) {
       const posts = action.payload || [];
 
       for (const post of posts) {
-        if (!post?.$id) continue; // ✅ fixed condition
+        if (!post?.$id) continue;
         const id = String(post.$id);
+        const exists = !!state.byId[id];
 
+        // upsert into byId
         state.byId[id] = post;
 
-        if (!state.allIds.includes(id)) {
-          // ✅ keep ordering
+        // only push into allIds if not already present
+        if (!exists) {
           state.allIds.push(id);
         }
       }
@@ -78,7 +80,8 @@ const postsSlice = createSlice({
       state.byId[id] = post;
 
       if (!exists) {
-        state.allIds.unshift(id); // prepend new post to list
+        // prepend new post to feed
+        state.allIds.unshift(id);
       }
     },
 
@@ -91,9 +94,9 @@ const postsSlice = createSlice({
       state.allIds = state.allIds.filter((pid) => pid !== id);
     },
 
-    // TODO: implement or remove if unused
+    // Optional: global search term (if you ever use it in navbar again)
     setSearchTerm(state, action) {
-      // left empty for now
+      state.searchTerm = action.payload || '';
     },
   },
 });
@@ -113,23 +116,40 @@ export const {
 
 export default postsSlice.reducer;
 
-/* ========= Selectors ========= */
+/* ========= Base slice selector ========= */
+const selectPostsState = (state) => state.posts;
 
-export const selectAllPosts = (state) =>
-  state.posts.allIds.map((id) => state.posts.byId[id]).filter(Boolean);
+/* ========= Memoized selectors ========= */
 
-export const selectPostById = (state, postId) =>
-  postId ? state.posts.byId[String(postId)] : undefined;
+// All posts in feed order
+export const selectAllPosts = createSelector([selectPostsState], (postsState) =>
+  postsState.allIds.map((id) => postsState.byId[id]).filter(Boolean),
+);
 
-export const selectPostsByAuthor = (state, authorId) => {
-  if (!authorId) return [];
-  return selectAllPosts(state).filter(
-    (p) => String(p.authorId) === String(authorId),
-  );
-};
+// Single post by id
+export const selectPostById = createSelector(
+  [selectPostsState, (_, postId) => postId],
+  (postsState, postId) => {
+    if (!postId) return undefined;
+    return postsState.byId[String(postId)];
+  },
+);
 
-export const selectPostsLoading = (state) => state.posts.loading;
-export const selectPostsError = (state) => state.posts.error;
-export const selectPage = (state) => state.posts.page;
-export const selectHasMore = (state) => state.posts.hasMore;
-export const selectInitialLoaded = (state) => state.posts.initialLoaded;
+// Posts by author
+export const selectPostsByAuthor = createSelector(
+  [selectAllPosts, (_, authorId) => authorId],
+  (allPosts, authorId) => {
+    if (!authorId) return [];
+    return allPosts.filter((p) => p && String(p.authorId) === String(authorId));
+  },
+);
+
+// Simple scalar selectors (no referential problems)
+export const selectPostsLoading = (state) => selectPostsState(state).loading;
+export const selectPostsError = (state) => selectPostsState(state).error;
+export const selectPage = (state) => selectPostsState(state).page;
+export const selectHasMore = (state) => selectPostsState(state).hasMore;
+export const selectInitialLoaded = (state) =>
+  selectPostsState(state).initialLoaded;
+export const selectPostsSearchTerm = (state) =>
+  selectPostsState(state).searchTerm;
