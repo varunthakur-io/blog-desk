@@ -93,7 +93,7 @@ const Settings = () => {
       await authService.deleteAllSessions();
       dispatch(clearUser());
       navigate('/login');
-      toast.success('Logged out from all devices.');
+      toast.success('Logged out from all devices!');
     } catch (err) {
       console.error('Error deleting sessions:', err);
       toast.error('Failed to delete sessions. Please try again.');
@@ -109,7 +109,7 @@ const Settings = () => {
       await authService.deleteAccount();
       dispatch(clearUser());
       navigate('/login');
-      toast.success('Account deleted successfully.');
+      toast.success('Account deleted successfully!');
     } catch (error) {
       console.error('Error deleting account:', error);
       toast.error('Failed to delete account. Please try again.');

@@ -184,7 +184,7 @@ const PostDetails = () => {
       setComments((prev) =>
         prev.map((c) => (String(c.$id) === String(tempId) ? actualComment : c)),
       );
-      toast.success('Comment posted.');
+      toast.success('Comment posted!');
     } catch {
       // Rollback on failure
       setComments((prev) =>
@@ -202,7 +202,7 @@ const PostDetails = () => {
 
     try {
       await navigator.clipboard.writeText(url);
-      toast.success('Link copied to clipboard');
+      toast.success('Link copied to clipboard!');
     } catch {
       // fallback for older browsers
       const el = document.createElement('textarea');
@@ -212,7 +212,7 @@ const PostDetails = () => {
 
       try {
         document.execCommand('copy');
-        toast.success('Link copied to clipboard');
+        toast.success('Link copied to clipboard!');
       } catch {
         toast.error('Failed to copy URL');
       }

@@ -163,7 +163,7 @@ export default function Dashboard() {
       dispatch(removePost(postToDelete));
 
       await postService.deletePost(postToDelete);
-      toast.success('Post deleted successfully');
+      toast.success('Post deleted successfully!');
     } catch (err) {
       toast.error(err.message);
       // Rollback

@@ -116,7 +116,7 @@ export default function EditPost() {
       if (updatedPost && updatedPost.$id) {
         // Update global posts state
         dispatch(upsertPost(updatedPost));
-        toast.success('Post updated successfully');
+        toast.success('Post updated successfully!');
         navigate('/dashboard');
       } else {
         toast.error('Failed to update post.');
