@@ -2,19 +2,11 @@ import { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-
-// Icons
 import { User, Edit, Save, X, Camera } from 'lucide-react';
-
-// Store & Services
-import { setProfile } from '@/store/profileSlice';
-import { setUser } from '@/store/authSlice';
-import { authService } from '../services/authService';
-import { postService } from '../services/postService';
 
 // UI Components
 import { Spinner } from '@/components/Loader';
-import PostCard from '../components/PostCard';
+import PostCard from '@/components/PostCard';
 import ProfileSkeleton from '@/components/ProfileSkeleton';
 import {
   Card,
@@ -29,42 +21,61 @@ import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-// import { tr } from 'zod/v4/locales';
 
-// --- Utilities ---
+// Utilities;
 const isValidEmail = (email) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email?.trim() ?? '');
+
+// Store & Services
+import { setProfile } from '@/store/profileSlice';
+import { setUser } from '@/store/authSlice';
+import { authService } from '@/services/authService';
+import { postService } from '@/services/postService';
+
+// NEW: postsSlice imports
+import {
+  selectPostsByAuthor,
+  selectPostsLoading,
+  selectInitialLoaded,
+  setPostsLoading,
+  setPostsError,
+  setPosts,
+  setInitialLoaded,
+} from '@/store/postSlice';
 
 export default function Profile() {
   const dispatch = useDispatch();
   const { id } = useParams();
 
-  // --- Redux Selectors ---
+  // Selectors
   const authUser = useSelector((state) => state.auth?.user);
   const authLoading = useSelector((state) => state.auth?.loading);
   const cachedProfiles = useSelector((state) => state.profile?.profiles);
 
-  // --- Derived Identity & Refs ---
+  const initialPostsLoaded = useSelector(selectInitialLoaded);
+  const postsLoading = useSelector(selectPostsLoading);
+
+  // Derived Identity
   const profileId = id || authUser?.$id;
   const isOwner = !!authUser && authUser.$id === profileId;
   const cachedData = cachedProfiles?.[profileId];
 
+  // Posts for this profile from postsSlice
+  const userPosts = useSelector((state) =>
+    selectPostsByAuthor(state, profileId),
+  );
+
   // Refs
   const fileInputRef = useRef(null);
   const previewUrlRef = useRef(null); // Tracks object URL for memory cleanup
-  const prevPostsIdRef = useRef(null); // Prevents duplicate post fetches
 
-  // --- Component State ---
-
-  // Data State
+  // Local states
   const [fetchedProfile, setFetchedProfile] = useState(null);
-  const [userPosts, setUserPosts] = useState([]);
 
   // Liked posts state (for Likes tab)
   const [likedPosts, setLikedPosts] = useState([]);
   const [isLoadingLikes, setIsLoadingLikes] = useState(false);
   const [likesError, setLikesError] = useState('');
-  // const [hasLoadedLikesOnce, setHasLoadedLikesOnce] = useState(false);
 
   // Form & UI State
   const [editForm, setEditForm] = useState({
@@ -81,18 +92,15 @@ export default function Profile() {
   const [isLoadingProfile, setIsLoadingProfile] = useState(
     () => !cachedData && !!profileId,
   );
-  const [isLoadingPosts, setIsLoadingPosts] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // --- Helper: Determine who to display ---
+  // Helper: Determine who to display
   const displayUser = isOwner ? authUser : fetchedProfile || cachedData;
 
-  // --------------------------------------------------------------------------
-  // Effect 1: Load Profile Data (UserInfo)
-  // --------------------------------------------------------------------------
+  // Load Profile Data (UserInfo)
   useEffect(() => {
     let mounted = true;
 
@@ -152,155 +160,96 @@ export default function Profile() {
     };
   }, [profileId, cachedData, isOwner, authUser, dispatch]);
 
-  // --------------------------------------------------------------------------
-  // Effect 2: Load User Posts (With Redux Caching)
-  // --------------------------------------------------------------------------
+  //  Load User's Posts
   useEffect(() => {
-    let mounted = true;
+    if (initialPostsLoaded) return;
 
-    async function fetchUserPosts(pid) {
-      if (!pid) {
-        setUserPosts([]);
-        return;
-      }
+    let cancelled = false;
 
-      // 1. Check Redux cache first
-      const cachedPosts = cachedProfiles?.[pid]?.posts;
-
-      if (Array.isArray(cachedPosts)) {
-        setUserPosts(cachedPosts);
-        setIsLoadingPosts(false);
-
-        // Prevent background re-fetch if ID hasn't changed
-        if (prevPostsIdRef.current === pid) return;
-      }
-
-      prevPostsIdRef.current = pid;
-
+    async function fetchPostsOnce() {
       try {
-        if (!Array.isArray(cachedPosts)) {
-          setIsLoadingPosts(true);
-        }
+        dispatch(setPostsLoading(true));
+        dispatch(setPostsError(null));
 
-        // Fetch Logic
-        let docs = [];
-        if (postService.getPostsByAuthor) {
-          const res = await postService.getPostsByAuthor(pid);
-          if (!mounted) return;
-          docs = Array.isArray(res) ? res : (res.documents ?? []);
-        } else {
-          // Fallback logic
-          const res = await postService.getAllPosts(1, 100);
-          if (!mounted) return;
-          const allDocs = Array.isArray(res) ? res : (res.documents ?? []);
-          docs = allDocs.filter((p) => String(p.authorId) === String(pid));
-        }
+        const data = await postService.getAllPosts();
+        if (cancelled) return;
 
-        setUserPosts(docs);
-
-        // 2. Update Redux Cache with new posts
-        const currentCache = cachedProfiles?.[pid] || {};
-        if (pid) {
-          dispatch(
-            setProfile({
-              profileId: pid,
-              data: { ...currentCache, posts: docs },
-            }),
-          );
-        }
+        const docs = Array.isArray(data) ? data : (data?.documents ?? []);
+        dispatch(setPosts(docs));
+        dispatch(setInitialLoaded(true));
       } catch (err) {
-        console.error('Post fetch error:', err);
+        if (cancelled) return;
+        dispatch(setPostsError(err?.message || 'Failed to fetch posts'));
       } finally {
-        if (mounted) setIsLoadingPosts(false);
+        if (!cancelled) {
+          dispatch(setPostsLoading(false));
+        }
       }
     }
 
-    fetchUserPosts(profileId);
-    return () => {
-      mounted = false;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profileId, cachedProfiles]);
+    fetchPostsOnce();
 
-  // --------------------------------------------------------------------------
-  // Effect 3: Load Liked Posts (Owner's Likes Tab)
-  // --------------------------------------------------------------------------
-  // --------------------------------------------------------------------------
-  // Effect 3: Load Liked Posts (Owner's Likes Tab) — with comments
-  // --------------------------------------------------------------------------
+    return () => {
+      cancelled = true;
+    };
+  }, [dispatch, initialPostsLoaded]);
+
+  // Load Liked Posts (Owner's Likes Tab)
   useEffect(() => {
-    // Only run if:
-    // 1. The user is the profile owner
-    // 2. The active tab is "likes"
-    // 3. A valid profileId exists
     if (!isOwner) return;
     if (activeTab !== 'likes') return;
     if (!profileId) return;
 
-    // Track component mount state to prevent state updates after unmount
     let mounted = true;
 
-    // Main function to load liked posts
     async function fetchLikedPosts(pid) {
       try {
-        // Start loading and clear any old errors
         setIsLoadingLikes(true);
         setLikesError('');
 
         // Check Redux cache first
         const likedCachePost = cachedProfiles?.[pid]?.likedPosts;
 
-        // If cached data exists, use it immediately
         if (likedCachePost) {
           setLikedPosts(likedCachePost);
           setIsLoadingLikes(false);
           return;
         }
 
-        // If not cached, request from API
         const posts = await postService.getLikedPostsByUser(pid);
-
-        // Component might have unmounted during the fetch
         if (!mounted) return;
 
-        // Normalize posts and store in local state
-        setLikedPosts(Array.isArray(posts) ? posts : (posts?.documents ?? []));
+        const normalized = Array.isArray(posts)
+          ? posts
+          : (posts?.documents ?? []);
 
-        // Build new cache entry for Redux
+        setLikedPosts(normalized);
+
         const currentCache = cachedProfiles?.[pid] || {};
-
-        // Save fetched posts to Redux cache
         dispatch(
           setProfile({
             profileId: pid,
-            data: { ...currentCache, likedPosts: posts },
+            data: { ...currentCache, likedPosts: normalized },
           }),
         );
       } catch (err) {
         console.error('Liked posts fetch error:', err);
-
-        // Only update error state if component is still mounted
         if (mounted) {
           setLikesError('Failed to load liked posts. Please try again.');
         }
       } finally {
-        // Ensure loading state resets only if still mounted
         if (mounted) setIsLoadingLikes(false);
       }
     }
 
-    // Call the function with the correct profileId
     fetchLikedPosts(profileId);
 
-    // Cleanup: runs when tab changes, profile changes, or component unmounts
     return () => {
       mounted = false;
     };
   }, [activeTab, isOwner, profileId, cachedProfiles, dispatch]);
 
-  // --------------------------------------------------------------------------
-  // Effect 4: Memory Cleanup for Image Previews
-  // --------------------------------------------------------------------------
+  // Effect for Memory Cleanup for Image Previews
   useEffect(() => {
     return () => {
       if (previewUrlRef.current) {
@@ -310,10 +259,7 @@ export default function Profile() {
     };
   }, []);
 
-  // --------------------------------------------------------------------------
   // Event Handlers
-  // --------------------------------------------------------------------------
-
   const handleInputChange = (e) => {
     setEditForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -324,7 +270,6 @@ export default function Profile() {
       return;
     }
 
-    // Initialize form with fresh data ONLY when editing starts
     setEditForm({
       name: displayUser?.name || '',
       email: authUser?.email || '',
@@ -332,7 +277,6 @@ export default function Profile() {
       bio: displayUser?.profile?.bio || displayUser?.bio || '',
     });
 
-    // Ensure preview is consistent with current real data
     setAvatarPreview(
       displayUser?.profile?.avatarUrl || displayUser?.avatarUrl || null,
     );
@@ -345,13 +289,11 @@ export default function Profile() {
     setIsEditing(false);
     setErrorMessage('');
     setAvatarFileToUpload(null);
-    setEditForm((prev) => ({ ...prev, password: '' })); // Clear password for security
+    setEditForm((prev) => ({ ...prev, password: '' }));
 
-    // Revert preview to the actual saved image
     const savedUrl = authUser?.profile?.avatarUrl || fetchedProfile?.avatarUrl;
     setAvatarPreview(savedUrl ?? null);
 
-    // Clean up local blob
     if (previewUrlRef.current) {
       URL.revokeObjectURL(previewUrlRef.current);
       previewUrlRef.current = null;
@@ -370,15 +312,12 @@ export default function Profile() {
       return;
     }
     if (file.size > 3 * 1024 * 1024) {
-      // 3MB Limit
       toast.error('Image must be smaller than 3 MB.');
       return;
     }
 
-    // Cleanup previous blob
     if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
 
-    // Create new blob for instant feedback
     const objectUrl = URL.createObjectURL(file);
     previewUrlRef.current = objectUrl;
     setAvatarPreview(objectUrl);
@@ -391,7 +330,6 @@ export default function Profile() {
 
     if (!isOwner) return;
 
-    // Validation
     if (!editForm.name || editForm.name.trim().length < 2) {
       setErrorMessage('Name must be at least 2 characters.');
       return;
@@ -445,8 +383,6 @@ export default function Profile() {
 
         if (updatedProfile) {
           setAvatarPreview(updatedProfile.avatarUrl);
-
-          // FIX: Dispatch new avatar URL to Redux so it persists on navigation
           dispatch(
             setUser({
               ...authUser,
@@ -476,10 +412,10 @@ export default function Profile() {
     }
   };
 
-  // --- Render Helpers ---
-  const postsCount = userPosts.length ?? authUser?.prefs?.postsCount ?? 0;
-  const followersCount = authUser?.prefs?.followers ?? 0;
-  const followingCount = authUser?.prefs?.following ?? 0;
+  // Render Helpers
+  const postsCount = userPosts.length ?? 0;
+  const followersCount = 0;
+  const followingCount = 0;
 
   if (authLoading || isLoadingProfile || !profileId) return <ProfileSkeleton />;
 
@@ -601,7 +537,6 @@ export default function Profile() {
                   name="name"
                   type="text"
                   placeholder="Full Name"
-                  // If editing, show form state. If viewing, show derived display user.
                   value={isEditing ? editForm.name : displayUser?.name || ''}
                   onChange={handleInputChange}
                   disabled={!isEditing}
@@ -719,7 +654,7 @@ export default function Profile() {
                   {/* Posts Tab */}
                   {activeTab === 'posts' && (
                     <>
-                      {isLoadingPosts ? (
+                      {postsLoading && !initialPostsLoaded ? (
                         <div className="text-center py-12 text-muted-foreground">
                           Loading posts...
                         </div>

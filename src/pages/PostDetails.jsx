@@ -1,12 +1,9 @@
+// PostDetails.jsx
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { ArrowLeft, Calendar, Heart, User, Send, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-
-// Store & Services
-import { postService } from '../services/postService';
-import { setError } from '../store/postSlice';
 
 // UI Components
 import { Button } from '@/components/ui/button';
@@ -22,62 +19,56 @@ import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Textarea } from '@/components/ui/textarea';
 
+// Store & Services
+import { postService } from '@/services/postService';
+import { appendPosts, selectPostById } from '@/store/postSlice';
+
 const PostDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // --- Redux Selectors ---
-  const { posts, error } = useSelector((state) => state.posts);
+  // Selectors
+  const post = useSelector((state) => selectPostById(state, id)); // ✅ fixed
   const { user } = useSelector((state) => state.auth);
 
-  // Find the current post in Redux state
-  const currentPostFromRedux = posts.find((post) => {
-    return post && post.$id !== undefined && String(post.$id) === String(id);
-  });
+  // Local States
+  const [isLoading, setIsLoading] = useState(!post);
+  const [error, setError] = useState(''); // ✅ local error
 
-  // --- Local State for Data & UI ---
-  const [post, setPost] = useState(currentPostFromRedux || null);
-  const [isLoading, setIsLoading] = useState(!currentPostFromRedux);
-
-  // Using likesCount from post collection
   const [likesCount, setLikesCount] = useState(post?.likesCount || 0);
   const [isLiked, setIsLiked] = useState(false);
   const [isLikedLoading, setIsLikedLoading] = useState(true);
   const [isLiking, setIsLiking] = useState(false);
 
-  // NOTE: Comments collection is separate; mock structure for now
+  // Comments
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [isCommenting, setIsCommenting] = useState(false);
 
-  // --- Effect: Load Post Data ---
+  // Effect: Load Post Data
   useEffect(() => {
     let mounted = true;
 
     const fetchPost = async () => {
       if (!id) {
-        dispatch(setError('No post ID provided.'));
+        setError('No post ID provided.'); // local
         return;
       }
 
-      // 1. Use cached data
-      if (currentPostFromRedux) {
+      // Use cached data from redux
+      if (post) {
         if (!mounted) return;
-        setPost(currentPostFromRedux);
 
-        // Initialize likes state from cached object
-        setLikesCount(currentPostFromRedux.likesCount || 0);
+        dispatch(appendPosts([post]));
 
-        // Determine if the user has liked the post
+        setLikesCount(post.likesCount || 0);
+
         if (user?.$id) {
           setIsLikedLoading(true);
-          const liked = await postService.hasUserLiked(
-            currentPostFromRedux.$id,
-            user.$id,
-          );
+          const liked = await postService.hasUserLiked(post.$id, user.$id);
           if (!mounted) return;
-          setIsLiked(liked);
+          setIsLiked(!!liked);
           setIsLikedLoading(false);
         } else {
           setIsLiked(false);
@@ -88,37 +79,37 @@ const PostDetails = () => {
         return;
       }
 
-      // 2. Fetch from API
+      // Fetch from API
       setIsLoading(true);
+      setError('');
+
       try {
         const fetchedPost = await postService.getPostById(id);
         if (!mounted) return;
 
         if (fetchedPost) {
-          setPost(fetchedPost);
+          dispatch(appendPosts([fetchedPost]));
           setLikesCount(fetchedPost.likesCount || 0);
 
           if (user?.$id) {
             setIsLikedLoading(true);
-            const likeDoc = await postService.hasUserLiked(
+            const liked = await postService.hasUserLiked(
               fetchedPost.$id,
               user.$id,
             );
             if (!mounted) return;
-            setIsLiked(!!likeDoc);
+            setIsLiked(!!liked);
             setIsLikedLoading(false);
           } else {
             setIsLiked(false);
             setIsLikedLoading(false);
           }
         } else {
-          dispatch(setError('Post not found.'));
+          setError('Post not found.');
         }
       } catch (err) {
         if (mounted) {
-          dispatch(
-            setError(err.message || 'Failed to load post. Please try again.'),
-          );
+          setError(err.message || 'Failed to load post. Please try again.');
         }
       } finally {
         if (mounted) setIsLoading(false);
@@ -130,9 +121,9 @@ const PostDetails = () => {
     return () => {
       mounted = false;
     };
-  }, [id, dispatch, currentPostFromRedux, user?.$id]);
+  }, [id, dispatch, post, user?.$id]);
 
-  // --- Handlers ---
+  // Handlers
   const handleLike = async () => {
     if (!user) return toast.error('Login to like');
     if (!post?.$id) return;
@@ -230,8 +221,7 @@ const PostDetails = () => {
     }
   };
 
-  // --- Render States ---
-
+  // Render States
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-3">
