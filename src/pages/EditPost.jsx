@@ -20,8 +20,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 // Services & Store
 import { postService } from '../services/postService';
-import { markStale, selectPostById, setPosts } from '../store/postSlice';
-import { setProfile } from '@/store/profileSlice';
+import { selectPostById, upsertPost } from '../store/postSlice';
 
 export default function EditPost() {
   const { id } = useParams();
@@ -30,8 +29,6 @@ export default function EditPost() {
 
   // Selectors
   const post = useSelector((state) => selectPostById(state, id));
-  const { user } = useSelector((state) => state.auth);
-  const cachedProfiles = useSelector((state) => state.profile?.profiles);
 
   // Local States
   const [formData, setFormData] = useState({ title: '', content: '' });
@@ -50,38 +47,48 @@ export default function EditPost() {
         return;
       }
 
+      // If post already in Redux, use it
       if (post) {
         setFormData({
-          title: post.title,
-          content: post.content,
+          title: post.title || '',
+          content: post.content || '',
         });
         setIsLoading(false);
         return;
       }
 
-      // Fallback: Fetch from API
+      // Fallback: fetch from API
       try {
         const data = await postService.getPostById(id);
-        if (mounted && data) {
+
+        if (!mounted) return;
+
+        if (data && data.$id) {
           setFormData({
-            title: data.title,
-            content: data.content,
+            title: data.title || '',
+            content: data.content || '',
           });
-        } else if (mounted) {
+
+          // keep Redux posts cache in sync
+          dispatch(upsertPost(data));
+        } else {
           setError('Post not found.');
         }
       } catch (err) {
-        if (mounted) setError(err.message || 'Failed to load post.');
+        if (mounted) {
+          setError(err.message || 'Failed to load post.');
+        }
       } finally {
         if (mounted) setIsLoading(false);
       }
     };
 
     loadPost();
+
     return () => {
       mounted = false;
     };
-  }, [id, post]);
+  }, [id, post, dispatch]);
 
   // Event Handlers
   const handleChange = (e) => {
@@ -95,59 +102,30 @@ export default function EditPost() {
     e.preventDefault();
     if (!id) return;
 
-    // Validation
     if (!formData.title.trim() || !formData.content.trim()) {
       toast.error('Title and content are required.');
       return;
     }
 
     setIsSaving(true);
+    setError('');
 
     try {
-      // 1. API Update
       const updatedPost = await postService.updatePost(id, formData);
 
       if (updatedPost && updatedPost.$id) {
-        // 2. Update Global Posts Feed (Redux)
-        // This ensures the dashboard reflects changes immediately
-        const updatedPostsArray = post.map((post) =>
-          String(post.$id) === String(updatedPost.$id) ? updatedPost : post,
-        );
-        dispatch(setPosts(updatedPostsArray));
-
-        // 3. Update Profile Cache (Redux)
-        // If this is the user's own post, update their cached profile posts too
-        // so "My Profile" tab is accurate without re-fetching.
-        if (user && String(updatedPost.authorId) === String(user.$id)) {
-          const userProfileCache = cachedProfiles?.[user.$id];
-
-          if (userProfileCache && Array.isArray(userProfileCache.posts)) {
-            const updatedProfilePosts = userProfileCache.posts.map((p) =>
-              String(p.$id) === String(updatedPost.$id) ? updatedPost : p,
-            );
-
-            dispatch(
-              setProfile({
-                profileId: user.$id,
-                data: {
-                  ...userProfileCache,
-                  posts: updatedProfilePosts,
-                },
-              }),
-            );
-          }
-        }
-
-        // 4. Mark stale to ensure other parts of app refresh eventually
-        dispatch(markStale());
-
+        // Update global posts state
+        dispatch(upsertPost(updatedPost));
         toast.success('Post updated successfully');
         navigate('/dashboard');
+      } else {
+        toast.error('Failed to update post.');
       }
     } catch (err) {
       console.error('Update failed:', err);
-      toast.error(err.message || 'Failed to update post');
-      setError(err.message || 'Failed to update post');
+      const msg = err.message || 'Failed to update post';
+      toast.error(msg);
+      setError(msg);
     } finally {
       setIsSaving(false);
     }
