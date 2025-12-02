@@ -1,44 +1,71 @@
+// src/store/profileSlice.js
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  profiles: {}, // keyed by profileId
-  loading: false,
-  error: null,
+  byId: {
+    // [userId]: { $id, name, bio, avatarUrl, followersCount, ... }
+  },
+  loadingById: {
+    // [userId]: boolean
+  },
+  errorById: {
+    // [userId]: string | null
+  },
 };
 
 const profileSlice = createSlice({
   name: 'profile',
   initialState,
   reducers: {
-    setProfile: (state, action) => {
-      const { profileId, data } = action.payload;
-      state.profiles[profileId] = data;
-      state.loading = false;
-      state.error = null;
+    upsertProfile(state, action) {
+      const profile = action.payload;
+      if (!profile?.$id) return;
+
+      const id = String(profile.$id);
+
+      // Merge with existing (so we can add custom fields like likedPosts, posts, etc.)
+      state.byId[id] = {
+        ...(state.byId[id] || {}),
+        ...profile,
+      };
     },
-    setProfileLoading: (state, action) => {
-      state.loading = action.payload;
+
+    setProfileLoading(state, action) {
+      const { userId, loading } = action.payload;
+      if (!userId) return;
+      state.loadingById[String(userId)] = !!loading;
     },
-    setProfileError: (state, action) => {
-      state.error = action.payload;
-      state.loading = false;
-    },
-    clearProfile: (state, action) => {
-      const { profileId } = action.payload;
-      delete state.profiles[profileId];
-    },
-    clearAllProfiles: (state) => {
-      state.profiles = {};
+
+    setProfileError(state, action) {
+      const { userId, error } = action.payload;
+      if (!userId) return;
+      state.errorById[String(userId)] = error || null;
     },
   },
 });
 
 export const {
-  setProfile,
+  upsertProfile,
+  upsertProfiles,
   setProfileLoading,
   setProfileError,
-  clearProfile,
-  clearAllProfiles,
+  setProfileExtra,
 } = profileSlice.actions;
 
 export default profileSlice.reducer;
+
+// --------- Selectors ----------
+export const selectProfileById = (state, userId) => {
+  if (!userId) return null;
+  return state.profile.byId[String(userId)] || null;
+};
+
+export const selectProfileLoading = (state, userId) => {
+  if (!userId) return false;
+  return !!state.profile.loadingById[String(userId)];
+};
+
+export const selectProfileError = (state, userId) => {
+  if (!userId) return null;
+  return state.profile.errorById[String(userId)] || null;
+};
