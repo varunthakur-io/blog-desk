@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 // authSlice actions and services
-import { setUser, clearUser, setLoading } from '../store/authSlice';
+import { setAuthUser, clearAuthUser, setAuthLoading } from '../store/authSlice';
 import { authService } from '../services/authService';
 
 const useAuthCheck = () => {
@@ -21,23 +21,23 @@ const useAuthCheck = () => {
 
   useEffect(() => {
     const checkUser = async () => {
-      dispatch(setLoading(true));
+      dispatch(setAuthLoading(true));
       try {
         const currentUser = await authService.getAccount();
         if (!mountedRef.current) return; // bail out if unmounted
         if (currentUser) {
-          dispatch(setUser(currentUser));
+          dispatch(setAuthUser(currentUser));
         } else {
-          dispatch(clearUser());
+          dispatch(clearAuthUser());
         }
       } catch (err) {
         if (mountedRef.current) {
-          dispatch(clearUser());
+          dispatch(clearAuthUser());
           console.error('Error checking user:', err);
         }
       } finally {
         if (mountedRef.current) {
-          dispatch(setLoading(false));
+          dispatch(setAuthLoading(false));
           setIsAuthChecked(true);
         }
       }

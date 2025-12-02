@@ -13,10 +13,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-import { authService } from '../services/authService';
-import { clearUser } from '../store/authSlice';
-import useDarkMode from '../hooks/useDarkMode';
-
+// UI Components
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -28,21 +25,30 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
+// Services & Store
+import { authService } from '../services/authService';
+import { clearAuthUser, selectAuthUserId } from '../store/authSlice';
+import useDarkMode from '../hooks/useDarkMode';
+
 const Navbar = () => {
+  // TODO: need to get user's info from profile collection
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  // Selectors
+  const userId = useSelector(selectAuthUserId);
 
   const [isDarkMode, setDarkMode] = useDarkMode();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Derived state for auth status
-  const isLoggedIn = !!user;
+  const isLoggedIn = !!userId;
 
   const handleLogout = async () => {
     try {
       await authService.logout();
-      dispatch(clearUser());
+      dispatch(clearAuthUser());
       toast.success('Logged out successfully!');
       navigate('/login');
     } catch (err) {

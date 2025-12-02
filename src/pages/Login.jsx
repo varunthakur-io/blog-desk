@@ -3,10 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
-// Auth service and Redux actions
-import { setUser } from '../store/authSlice';
-import { authService } from '../services/authService';
-
 // Shadcn UI components
 import { Button } from '@/components/ui/button';
 import {
@@ -20,6 +16,10 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
+// Auth service and Redux actions
+import { selectAuthUserId, setAuthUser } from '../store/authSlice';
+import { authService } from '../services/authService';
+
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -32,8 +32,8 @@ const Login = () => {
   const [error, setError] = useState('');
 
   // Pull auth state from Redux
-  const currentUser = useSelector((state) => state.auth.user);
-  const isAuthenticated = Boolean(currentUser);
+  const currentUserID = useSelector(selectAuthUserId);
+  const isAuthenticated = Boolean(currentUserID);
 
   // Redirect if already authenticated.
   useEffect(() => {
@@ -61,14 +61,14 @@ const Login = () => {
     setError('');
 
     try {
-      // EXPECTATION: authService.loginUser throws on error OR returns a user object.
+      // authService.loginUser throws on error OR returns a user object.
       const user = await authService.loginUser(formData);
 
       // Defensive check in case the service returns falsy without throwing.
       if (!user) throw new Error('Invalid credentials.');
 
       // Update Redux auth state
-      dispatch(setUser(user));
+      dispatch(setAuthUser(user.$id));
       toast.success('Logged in successfully!');
 
       // Immediate navigation avoids flicker; the effect above will also redirect on refresh.
