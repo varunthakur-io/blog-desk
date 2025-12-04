@@ -134,12 +134,12 @@ class AuthService {
       }
 
       // merge safely (no shadowing). Keep profile nested to avoid key collisions.
-      const mergedUser = { ...user, profile };
+      // const mergedUser = { ...user, profile };
 
       // cache and return enriched user
-      this.cacheUser(mergedUser);
+      this.cacheUser(user);
 
-      return mergedUser;
+      return { user, profile };
     } catch (error) {
       console.error('Error logging in:', error);
       // rethrow original error for callers to handle
@@ -153,8 +153,8 @@ class AuthService {
       // delete the current session
       await account.deleteSession('current');
 
-      // clear the user from cache
       this.clearCachedUser();
+      // clear the user from cache
     } catch (error) {
       console.error('Error logging out:', error);
       throw new Error(error.message);
@@ -187,10 +187,8 @@ class AuthService {
     // 2. No cache → ask Appwrite
     try {
       const user = await account.get();
-      const profile = await this.getProfile(user.$id).catch(() => null);
-      const merged = { ...user, profile };
-      this.cacheUser(merged);
-      return merged;
+      this.cacheUser(user);
+      return user;
     } catch {
       // 401 = no session, any other = network → both mean "guest"
       this.clearCachedUser();
