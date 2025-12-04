@@ -134,6 +134,25 @@ const PostDetails = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPost?.$id, authUserId]);
 
+  // Effect 3: Fetch Comments
+  useEffect(() => {
+    if (!currentPost?.$id) return;
+
+    const fetchComments = async () => {
+      try {
+        const fetchedComments = await postService.getCommentsByPost(
+          currentPost.$id,
+        );
+        console.log('Fetched comments:', fetchedComments);
+        setComments(fetchedComments);
+      } catch (err) {
+        console.error('Failed to load comments', err.message);
+      }
+    };
+
+    fetchComments();
+  }, [currentPost?.$id]);
+
   // Handlers
   const handleLike = async () => {
     if (!authUserId) return toast.error('You must be logged in to like.');

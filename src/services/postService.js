@@ -278,6 +278,25 @@ class PostService {
       console.error('Error adding comment:', err.message);
     }
   }
+
+  // Get comments for a post
+  async getCommentsByPost(postId) {
+    try {
+      const res = await databases.listDocuments(
+        appwrite.databaseId,
+        appwrite.commentsCollectionId,
+        [
+          Query.equal('postId', postId),
+          Query.orderDesc('$createdAt'),
+          Query.limit(10),
+        ],
+      );
+      return res.documents;
+    } catch (err) {
+      console.error('Failed to load comments', err.message);
+      return [];
+    }
+  }
 }
 
 // Export a single shared instance
