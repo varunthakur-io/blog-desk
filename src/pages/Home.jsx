@@ -7,6 +7,7 @@ import { BookOpen, Search } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import PostCard from '@/components/PostCard';
 import FeaturedPost from '@/components/FeaturedPost';
 
@@ -30,6 +31,17 @@ import {
 import PostCardSkeleton from '@/components/skeletons/PostCardSkeleton';
 
 const LIMIT = 6;
+const CATEGORIES = [
+  'All', // Special category to show all posts
+  'Technology',
+  'Lifestyle',
+  'Travel',
+  'Programming',
+  'Thoughts',
+  'Science',
+  'Art',
+  'Health',
+];
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -44,15 +56,20 @@ const Home = () => {
 
   // Local search state (Home-only search)
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
 
   // Load a page of posts (page 1 = fresh load, >1 = append)
   const loadPage = useCallback(
-    async (pageNum) => {
+    async (pageNum, categoryFilter = null) => {
       dispatch(setPostsLoading(true));
       dispatch(setPostsError(null));
 
       try {
-        const data = await postService.getAllPosts(pageNum, LIMIT);
+        const data = await postService.getAllPosts(
+          pageNum,
+          LIMIT,
+          categoryFilter === 'All' ? null : categoryFilter,
+        );
         const docs = data.documents ?? [];
         const totalFetched = (pageNum - 1) * LIMIT + docs.length;
 
@@ -68,6 +85,14 @@ const Home = () => {
     [dispatch],
   );
 
+  // Effect for initial load or category change
+  useEffect(() => {
+    // If category changes, reset pagination and load first page
+    dispatch(setPage(1));
+    loadPage(1, selectedCategory);
+  }, [selectedCategory, loadPage, dispatch]);
+
+
   // Infinite scroll listener
   useEffect(() => {
     const handleScroll = () => {
@@ -75,35 +100,55 @@ const Home = () => {
         window.innerHeight + document.documentElement.scrollTop >=
           document.documentElement.offsetHeight - 150 &&
         !loading &&
-        hasMore
+        hasMore &&
+        !searchTerm // Disable infinite scroll if search is active
       ) {
-        loadPage(page + 1);
+        loadPage(page + 1, selectedCategory);
       }
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [loading, hasMore, page, loadPage]);
+  }, [loading, hasMore, page, loadPage, searchTerm, selectedCategory]);
 
-  // Initial load (run only once)
+  // Initial load (run only once if no category selected)
   useEffect(() => {
-    if (!initialLoaded) {
-      loadPage(1);
+    if (!initialLoaded && selectedCategory === 'All') {
+      loadPage(1, selectedCategory);
       dispatch(setInitialLoaded(true));
     }
-  }, [initialLoaded, loadPage, dispatch]);
+  }, [initialLoaded, loadPage, dispatch, selectedCategory]);
+
 
   // Client-side search filter
   const filteredPosts = useMemo(() => {
-    if (!searchTerm) return posts;
-
-    const q = searchTerm.toLowerCase();
-    return posts.filter((post) => {
-      const title = post.title?.toLowerCase() ?? '';
-      const content = post.content?.toLowerCase() ?? '';
-      return title.includes(q) || content.includes(q);
-    });
+    // If a category is selected, filtering is done on the server-side
+    // This client-side filter only applies if no category is selected OR if searchTerm is present
+    if (searchTerm) {
+      const q = searchTerm.toLowerCase();
+      return posts.filter((post) => {
+        const title = post.title?.toLowerCase() ?? '';
+        const content = post.content?.toLowerCase() ?? '';
+        return title.includes(q) || content.includes(q);
+      });
+    }
+    return posts;
   }, [posts, searchTerm]);
+
+  // Handle category change
+  const handleCategoryChange = (category) => {
+    setSelectedCategory(category);
+    setSearchTerm(''); // Clear search when category changes
+    dispatch(setInitialLoaded(false)); // Force reload with new category
+  };
+
+  // Handle search term change
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setSelectedCategory('All'); // Clear category when search changes
+    dispatch(setInitialLoaded(false)); // Force reload with new search
+  };
+
 
   const renderContent = () => {
     // First load – show full-screen skeletons
@@ -163,13 +208,6 @@ const Home = () => {
 
     // Determine if we should show the Featured Post layout
     const showFeatured = !searchTerm && filteredPosts.length > 0;
-
-    console.log('Home Debug:', {
-      searchTerm,
-      totalPosts: filteredPosts.length,
-      showFeatured,
-      firstPost: filteredPosts[0],
-    });
 
     const featuredPost = showFeatured ? filteredPosts[0] : null;
     const gridPosts = showFeatured ? filteredPosts.slice(1) : filteredPosts;
@@ -232,11 +270,25 @@ const Home = () => {
               placeholder="Search posts..."
               className="border-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 px-1"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleSearchChange}
             />
           </div>
         </div>
       </section>
+
+      {/* Category Pills */}
+      <div className="flex flex-wrap justify-center gap-3 mb-12">
+        {CATEGORIES.map((category) => (
+          <Badge
+            key={category}
+            variant={selectedCategory === category ? 'default' : 'secondary'}
+            className="cursor-pointer px-4 py-1.5 text-sm transition-all hover:bg-primary hover:text-primary-foreground"
+            onClick={() => handleCategoryChange(category)}
+          >
+            {category}
+          </Badge>
+        ))}
+      </div>
 
       {/* Content Section */}
       <div className="py-6">{renderContent()}</div>

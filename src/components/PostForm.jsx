@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, Save, Send, ArrowLeft } from 'lucide-react'; // Import ArrowLeft
+import { Loader2, Save, Send, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -12,13 +12,32 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { getRandomPostData } from '@/utils/fakePostData';
+
+const CATEGORIES = [
+  'Technology',
+  'Lifestyle',
+  'Travel',
+  'Programming',
+  'Thoughts',
+  'Science',
+  'Art',
+  'Health',
+];
 
 const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBackClick }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: initialData?.title || '',
     content: initialData?.content || '',
+    category: initialData?.category || '', // Add category to form data
   });
 
   // Update local state if initialData changes (e.g., after fetch)
@@ -27,6 +46,7 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
       setFormData({
         title: initialData.title || '',
         content: initialData.content || '',
+        category: initialData.category || '',
       });
     }
   }, [initialData]);
@@ -36,21 +56,26 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleCategoryChange = (value) => {
+    setFormData((prev) => ({ ...prev, category: value }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit(formData);
   };
 
   const handleRandomData = () => {
-    setFormData(getRandomPostData());
+    const data = getRandomPostData();
+    setFormData((prev) => ({ ...prev, title: data.title, content: data.content }));
   };
 
   const isEdit = mode === 'edit';
 
   return (
     <Card className="border-none shadow-none">
-      <CardHeader className={isEdit ? 'px-0 flex-row items-center justify-between' : ''}> {/* Add flex classes */}
-        <div> {/* Wrap title and description for proper flex behavior */}
+      <CardHeader className={isEdit ? 'px-0 flex-row items-center justify-between' : ''}>
+        <div>
           <CardTitle className={isEdit ? 'text-2xl' : ''}>
             {isEdit ? 'Edit Post' : 'Create a New Post'}
           </CardTitle>
@@ -86,6 +111,27 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
               disabled={isSubmitting}
               className="font-medium text-lg"
             />
+          </div>
+
+          {/* Category */}
+          <div className="grid gap-2">
+            <Label htmlFor="category">Category</Label>
+            <Select
+              value={formData.category}
+              onValueChange={handleCategoryChange}
+              disabled={isSubmitting}
+            >
+              <SelectTrigger id="category" className="w-full">
+                <SelectValue placeholder="Select a category" />
+              </SelectTrigger>
+              <SelectContent>
+                {CATEGORIES.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Content */}

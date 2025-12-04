@@ -19,9 +19,10 @@ class PostService {
    * @param {Object} params
    * @param {string} params.title
    * @param {string} params.content
+   * @param {string} [params.category] - Optional category for the post
    * @returns {Promise<Object>} The created post document
    */
-  async createPost({ title, content }) {
+  async createPost({ title, content, category }) {
     try {
       const user = await account.get();
       const postData = {
@@ -29,6 +30,7 @@ class PostService {
         authorName: user.name,
         title,
         content,
+        category: category || 'Uncategorized', // Default if not provided
         likesCount: 0,
       };
 
@@ -50,15 +52,21 @@ class PostService {
    * @param {Object} params
    * @param {string} params.title
    * @param {string} params.content
+   * @param {string} [params.category] - Optional category for the post
    * @returns {Promise<Object>} The updated post document
    */
-  async updatePost(postId, { title, content }) {
+  async updatePost(postId, { title, content, category }) {
     try {
+      const postData = {
+        title,
+        content,
+        category: category || 'Uncategorized', // Ensure category is updated
+      };
       return await databases.updateDocument(
         appwrite.databaseId,
         appwrite.postsCollectionId,
         postId,
-        { title, content }
+        postData
       );
     } catch (error) {
       console.error('PostService :: updatePost()', error);
@@ -85,20 +93,26 @@ class PostService {
   }
 
   /**
-   * Get all posts with pagination
+   * Get all posts with pagination, optionally filtered by category
    * @param {number} page - Page number (1-based)
    * @param {number} skip - Number of items to return
+   * @param {string} [category] - Optional category to filter posts by
    * @returns {Promise<Object>} List of documents
    */
-  async getAllPosts(page = 1, skip = 6) {
+  async getAllPosts(page = 1, skip = 6, category = null) {
     try {
       const offset = (page - 1) * skip;
       const limit = skip;
+      const queries = [Query.limit(limit), Query.offset(offset)];
+
+      if (category) {
+        queries.push(Query.equal('category', category));
+      }
 
       return await databases.listDocuments(
         appwrite.databaseId,
         appwrite.postsCollectionId,
-        [Query.limit(limit), Query.offset(offset)]
+        queries
       );
     } catch (error) {
       console.error('PostService :: getAllPosts()', error);
@@ -152,7 +166,7 @@ class PostService {
    * Check if user has liked a post (uses cache)
    * @param {string} postId
    * @param {string} userId
-   * @returns {Promise<boolean>}
+   * @returns {Promise<boolean>} 
    */
   async hasUserLiked(postId, userId) {
     const key = `${userId}:${postId}`;
