@@ -53,13 +53,13 @@ import {
   selectPostsByAuthor,
   selectPostsLoading,
   selectPostsError,
-  selectInitialLoaded,
   setPostsLoading,
   setPostsError,
   setPosts,
-  setInitialLoaded,
+  appendPosts,
   removePost,
 } from '@/store/postSlice';
+import { selectAuthUserId } from '@/store/authSlice';
 
 // Empty state component
 const EmptyState = ({ onCreate, hasQuery }) => (
@@ -91,15 +91,18 @@ export default function Dashboard() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Selectors
-  const allPosts = useSelector(selectAllPosts);
-  const loading = useSelector(selectPostsLoading);
-  const error = useSelector(selectPostsError);
-  const initialLoaded = useSelector(selectInitialLoaded);
-  const { user } = useSelector((state) => state.auth);
+  // Post Store Selectors
+  const globalPosts = useSelector(selectAllPosts);
+  const postsLoading = useSelector(selectPostsLoading);
+  const postsError = useSelector(selectPostsError);
+
+  // Auth Store Selector
+  const authUserId = useSelector(selectAuthUserId);
 
   // Only posts of the current user
-  const myPosts = useSelector((state) => selectPostsByAuthor(state, user?.$id));
+  const userPosts = useSelector((state) =>
+    selectPostsByAuthor(state, authUserId),
+  );
 
   // Local states
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -109,28 +112,26 @@ export default function Dashboard() {
 
   // Filtering by search
   const filteredPosts = useMemo(() => {
-    if (!searchQuery.trim()) return myPosts;
+    if (!searchQuery.trim()) return userPosts;
 
     const lowerQuery = searchQuery.toLowerCase();
-    return myPosts.filter((p) =>
+    return userPosts.filter((p) =>
       (p.title || '').toLowerCase().includes(lowerQuery),
     );
-  }, [myPosts, searchQuery]);
+  }, [userPosts, searchQuery]);
 
   useEffect(() => {
-    // Fetch all posts if not initially loaded
-    if (initialLoaded) return;
+    if (!authUserId) return;
 
-    const fetchPosts = async () => {
+    const fetchUserPosts = async () => {
       try {
         dispatch(setPostsLoading(true));
         dispatch(setPostsError(null));
 
-        const data = await postService.getAllPosts();
-        const docs = Array.isArray(data) ? data : (data?.documents ?? []);
+        const data = await postService.getPostsByUser(authUserId);
+        const docs = Array.isArray(data) ? data : [];
 
-        dispatch(setPosts(docs));
-        dispatch(setInitialLoaded(true));
+        dispatch(appendPosts(docs));
       } catch (err) {
         console.error('Fetch error:', err);
         dispatch(setPostsError(err?.message || 'Failed to fetch posts'));
@@ -139,8 +140,8 @@ export default function Dashboard() {
       }
     };
 
-    fetchPosts();
-  }, [dispatch, initialLoaded]);
+    fetchUserPosts();
+  }, [dispatch, authUserId]);
 
   // Event handers
   const handleEdit = (postId) => navigate(`/edit/${postId}`);
@@ -156,7 +157,7 @@ export default function Dashboard() {
     setIsDeleting(true);
 
     // Keep full list for rollback
-    const previousPosts = [...allPosts];
+    const previousPosts = [...globalPosts];
 
     try {
       // remove from store
@@ -208,13 +209,13 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {error && (
+        {postsError && (
           <Alert variant="destructive" className="mb-6">
-            <AlertDescription>{error}</AlertDescription>
+            <AlertDescription>{postsError}</AlertDescription>
           </Alert>
         )}
 
-        {loading && !initialLoaded ? (
+        {postsLoading && filteredPosts.length === 0 ? (
           <div className="py-24 flex flex-col items-center justify-center gap-4">
             <Spinner size={32} />
             <p className="text-muted-foreground animate-pulse">
