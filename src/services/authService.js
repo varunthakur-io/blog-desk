@@ -3,31 +3,46 @@ import { ID } from 'appwrite';
 import { appwriteConfig as appwrite } from '../config/appwrite';
 
 class AuthService {
-  // =========================
-  // Local Storage Management
-  // =========================
+  // ==========================================
+  //           LOCAL STORAGE MANAGEMENT
+  // ==========================================
 
-  // Cache user in localStorage
+  /**
+   * Cache user object in localStorage
+   * @param {Object} user
+   */
   cacheUser(user) {
     localStorage.setItem('user', JSON.stringify(user));
   }
 
-  // Retrieve cached user
+  /**
+   * Retrieve cached user from localStorage
+   * @returns {Object|null} User object or null
+   */
   getCachedUser() {
     const user = localStorage.getItem('user');
     return user ? JSON.parse(user) : null;
   }
 
-  // Clear cached user
+  /**
+   * Clear cached user from localStorage
+   */
   clearCachedUser() {
     localStorage.removeItem('user');
   }
 
-  // =========================
-  // Authentication
-  // =========================
+  // ==========================================
+  //             AUTHENTICATION
+  // ==========================================
 
-  // Register a new user — only log in if profile creation succeeds
+  /**
+   * Register a new user and create their profile
+   * @param {Object} params
+   * @param {string} params.email
+   * @param {string} params.password
+   * @param {string} params.name
+   * @returns {Promise<Object>} Logged in user object
+   */
   async createUser({ email, password, name }) {
     try {
       // 1) Create account in Appwrite Auth
@@ -35,275 +50,289 @@ class AuthService {
         ID.unique(),
         email,
         password,
-        name,
+        name
       );
 
       // 2) Try to create profile BEFORE login. Retry on transient failures.
       const maxRetries = 2;
       let profileCreated = false;
+
       for (let attempt = 0; attempt <= maxRetries; attempt++) {
         try {
-          // create a profile for the created user
           await this.createProfile(createdUser);
           profileCreated = true;
           break;
         } catch (err) {
-          console.warn(`createProfile attempt ${attempt + 1} failed:`, err);
+          console.warn(`AuthService :: createUser() profile attempt ${attempt + 1} failed:`, err);
           if (attempt < maxRetries) {
-            // small backoff
             await new Promise((r) => setTimeout(r, 300));
           }
         }
       }
 
       if (!profileCreated) {
-        // We do NOT log the user in if profile creation failed.
-        // Note: at this point an account exists but no profile
-        // Implemet account deletion
-        const message =
-          'Signup failed: could not create profile. Please try again.';
-        console.error(message);
+        const message = 'Signup failed: could not create profile. Please try again.';
+        console.error('AuthService :: createUser()', message);
         throw new Error(message);
       }
 
       // 3) Profile created successfully -> create session (login)
-      const loggedInUser = await this.loginUser({ email, password });
-
-      return loggedInUser;
+      return await this.loginUser({ email, password });
     } catch (error) {
-      console.error('Error creating user & profile:', error);
-      // preserve original error
+      console.error('AuthService :: createUser()', error);
       throw error;
     }
   }
 
-  // Create or update the public profile document
-  async createProfile(user) {
-    if (!user || !user.$id)
-      throw new Error('Invalid user for profile creation');
-
-    const profileData = {
-      name: user.name || '',
-    };
-
-    try {
-      // Create the profile doc with id = user.$id
-      await databases.createDocument(
-        appwrite.databaseId,
-        'profiles', // collection id
-        user.$id, // document id
-        profileData,
-      );
-    } catch (err) {
-      console.log('Error creating profile:', err);
-      throw err;
-    }
-  }
-
-  // Update user profile
-  async updateProfile(userId, profileData) {
-    try {
-      const updatedProfile = await databases.updateDocument(
-        appwrite.databaseId,
-        'profiles',
-        userId,
-        profileData,
-      );
-
-      return updatedProfile;
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      throw error;
-    }
-  }
-
-  // Login user with email & password
+  /**
+   * Login user with email & password
+   * @param {Object} params
+   * @param {string} params.email
+   * @param {string} params.password
+   * @returns {Promise<Object>} Object containing user and profile
+   */
   async loginUser({ email, password }) {
     try {
-      // create session
       await account.createEmailPasswordSession(email, password);
-      const user = await account.get(); // auth user
+      const user = await account.get();
 
-      // attempt to load profile document (returns null/throws if missing)
       let profile = null;
       try {
-        // if getProfile returns a document object, keep it; otherwise null
         profile = await this.getProfile(user.$id);
       } catch (err) {
-        console.warn('Could not load profile for merge:', err);
+        console.warn('AuthService :: loginUser() Could not load profile:', err);
       }
 
-      // merge safely (no shadowing). Keep profile nested to avoid key collisions.
-      // const mergedUser = { ...user, profile };
-
-      // cache and return enriched user
       this.cacheUser(user);
-
       return { user, profile };
     } catch (error) {
-      console.error('Error logging in:', error);
-      // rethrow original error for callers to handle
+      console.error('AuthService :: loginUser()', error);
       throw error;
     }
   }
 
-  // Logout current session
+  /**
+   * Logout current session
+   */
   async logout() {
     try {
-      // delete the current session
       await account.deleteSession('current');
-
       this.clearCachedUser();
-      // clear the user from cache
     } catch (error) {
-      console.error('Error logging out:', error);
+      console.error('AuthService :: logout()', error);
       throw new Error(error.message);
     }
   }
 
-  // Delete all sessions for the user
+  /**
+   * Delete all sessions for the user
+   */
   async deleteAllSessions() {
     try {
       await account.deleteSessions();
       this.clearCachedUser();
     } catch (error) {
-      console.error('Error deleting all sessions:', error);
+      console.error('AuthService :: deleteAllSessions()', error);
       throw new Error(error.message);
     }
   }
 
-  // =========================
-  // Account Management
-  // =========================
+  // ==========================================
+  //           ACCOUNT MANAGEMENT
+  // ==========================================
 
-  // Get current user's account details
+  /**
+   * Get current user's account details
+   * @returns {Promise<Object|null>} User object or null
+   */
   async getAccount() {
-    // 1. Try cached user first — if exists, trust it
     const cachedUser = this.getCachedUser();
     if (cachedUser) {
-      return cachedUser; // ← Fast, no network call, no flicker
+      return cachedUser;
     }
 
-    // 2. No cache → ask Appwrite
     try {
       const user = await account.get();
       this.cacheUser(user);
       return user;
     } catch {
-      // 401 = no session, any other = network → both mean "guest"
       this.clearCachedUser();
       return null;
     }
   }
 
-  async getProfile(userId) {
-    try {
-      const profile = await databases.getDocument(
-        appwrite.databaseId,
-        'profiles',
-        userId,
-      );
-      return profile;
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-      throw error;
-    }
-  }
-
-  // Update user account details
+  /**
+   * Update user name
+   * @param {string} name
+   * @returns {Promise<Object>} Updated user object
+   */
   async updateName(name) {
     try {
       const user = await account.updateName(name);
-
-      // Update the profile document as well
       await this.updateProfile(user.$id, { name });
-
-      // update cached user
       this.cacheUser(user);
       return user;
     } catch (error) {
-      console.error('Error updating name:', error);
+      console.error('AuthService :: updateName()', error);
       throw error;
     }
   }
 
-  // Update user email
+  /**
+   * Update user email
+   * @param {string} email
+   * @param {string} password
+   * @returns {Promise<string>} New email
+   */
   async updateEmail(email, password) {
     try {
       const user = await account.updateEmail(email, password);
       this.cacheUser(user);
       return user.email;
     } catch (error) {
-      console.error('Error updating email:', error);
+      console.error('AuthService :: updateEmail()', error);
       throw error;
     }
   }
 
-  // Update user preferences
+  /**
+   * Update user preferences
+   * @param {Object} prefs
+   * @returns {Promise<Object>} Updated user object
+   */
   async updatePrefs(prefs) {
     try {
       const updatedUser = await account.updatePrefs(prefs);
       this.cacheUser(updatedUser);
       return updatedUser;
     } catch (error) {
-      console.error('Error updating prefs:', error);
+      console.error('AuthService :: updatePrefs()', error);
       throw error;
     }
   }
 
-  // Update user bio in profile document
+  /**
+   * Delete user account
+   */
+  async deleteAccount() {
+    try {
+      // Temporarily delete the account (status update)
+      await account.updateStatus();
+
+      // Try to delete profile document
+      try {
+        const currentUser = await account.get();
+        await databases.deleteDocument(
+          appwrite.databaseId,
+          'profiles',
+          currentUser.$id
+        );
+      } catch (error) {
+        console.warn('AuthService :: deleteAccount() Error deleting profile:', error);
+      }
+
+      this.clearCachedUser();
+    } catch (error) {
+      console.error('AuthService :: deleteAccount()', error);
+      throw new Error(error.message || 'Failed to delete account.');
+    }
+  }
+
+  // ==========================================
+  //           PROFILE MANAGEMENT
+  // ==========================================
+
+  /**
+   * Get user profile document
+   * @param {string} userId
+   * @returns {Promise<Object>} Profile document
+   */
+  async getProfile(userId) {
+    try {
+      return await databases.getDocument(
+        appwrite.databaseId,
+        'profiles',
+        userId
+      );
+    } catch (error) {
+      console.error('AuthService :: getProfile()', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create the public profile document
+   * @param {Object} user
+   * @returns {Promise<void>}
+   */
+  async createProfile(user) {
+    if (!user || !user.$id) {
+      throw new Error('AuthService :: createProfile() Invalid user');
+    }
+
+    try {
+      await databases.createDocument(
+        appwrite.databaseId,
+        'profiles',
+        user.$id,
+        { name: user.name || '' }
+      );
+    } catch (error) {
+      console.error('AuthService :: createProfile()', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update user profile
+   * @param {string} userId
+   * @param {Object} profileData
+   * @returns {Promise<Object>} Updated profile document
+   */
+  async updateProfile(userId, profileData) {
+    try {
+      return await databases.updateDocument(
+        appwrite.databaseId,
+        'profiles',
+        userId,
+        profileData
+      );
+    } catch (error) {
+      console.error('AuthService :: updateProfile()', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update user bio
+   * @param {string} userId
+   * @param {string} bio
+   * @returns {Promise<boolean>} True on success
+   */
   async updateBio(userId, bio) {
     try {
       await databases.updateDocument(
         appwrite.databaseId,
         'profiles',
         userId,
-        { bio }, // only updates the bio field
+        { bio }
       );
       return true;
     } catch (error) {
-      console.error('Error updating bio:', error);
+      console.error('AuthService :: updateBio()', error);
       throw error;
     }
   }
 
-  // Delete user account
-  async deleteAccount() {
-    try {
-      // Temporarily delete the account (blocked)
-      await account.updateStatus();
-
-      // Delete all sessions
-      // not working as updateStatus() deletes the curret session
-      // await deleteAllSessions();
-
-      // Delete profile document (if exists)
-      try {
-        await databases.deleteDocument(
-          appwrite.databaseId,
-          'profiles',
-          (await account.get()).$id,
-        );
-      } catch (error) {
-        console.log('Error deleting profile:', error);
-      }
-
-      this.clearCachedUser();
-    } catch (error) {
-      console.error('Error deleting account:', error);
-      throw new Error(error.message || 'Failed to delete account.');
-    }
-  }
-
-  // =========================
-  // Avatar Upload (Public URL)
-  // =========================
+  /**
+   * Upload new avatar and update profile
+   * @param {File} file
+   * @returns {Promise<Object>} Updated profile document
+   */
   async updateAvatar(file) {
     try {
-      // Get current user to check for existing avatar
       const currentUser = await account.get();
       const profile = await this.getProfile(currentUser.$id);
-
       const currentAvatarFileId = profile?.avatarId;
 
       // Delete old avatar file if exists
@@ -311,7 +340,7 @@ class AuthService {
         try {
           await storage.deleteFile(appwrite.bucketId, currentAvatarFileId);
         } catch (deleteError) {
-          console.warn('Failed to delete old avatar file:', deleteError);
+          console.warn('AuthService :: updateAvatar() Failed to delete old avatar:', deleteError);
         }
       }
 
@@ -319,20 +348,20 @@ class AuthService {
       const uploaded = await storage.createFile(
         appwrite.bucketId,
         ID.unique(),
-        file,
+        file
       );
       const fileId = uploaded.$id;
 
       // Generate public view URL
       const avatarUrl = `${appwrite.url}/storage/buckets/${appwrite.bucketId}/files/${fileId}/view?project=${appwrite.projectId}`;
 
-      // sync both file id and url to profile doc
+      // Sync both file id and url to profile doc
       const updatedProfile = await this.updateProfile(profile.$id, {
         avatarId: fileId,
         avatarUrl,
       });
 
-      // Optionally update cached user
+      // Update cached user if applicable
       const cached = this.getCachedUser();
       if (cached && cached.profile && cached.profile.$id === profile.$id) {
         const merged = { ...cached, profile: updatedProfile };
@@ -341,11 +370,10 @@ class AuthService {
 
       return updatedProfile;
     } catch (error) {
-      console.error('Error updating avatar:', error);
+      console.error('AuthService :: updateAvatar()', error);
       throw error;
     }
   }
 }
 
-// Export a single shared instance
 export const authService = new AuthService();
