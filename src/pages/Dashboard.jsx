@@ -14,6 +14,7 @@ import toast from 'react-hot-toast';
 
 // UI Components
 import { Spinner } from '@/components/Loader';
+import DashboardSkeleton from '@/components/skeletons/DashboardSkeleton';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
@@ -218,12 +219,7 @@ export default function Dashboard() {
         )}
 
         {postsLoading && filteredPosts.length === 0 ? (
-          <div className="py-24 flex flex-col items-center justify-center gap-4">
-            <Spinner size={32} />
-            <p className="text-muted-foreground animate-pulse">
-              Loading your dashboard...
-            </p>
-          </div>
+          <DashboardSkeleton />
         ) : filteredPosts.length === 0 ? (
           <EmptyState
             onCreate={() => navigate('/create')}

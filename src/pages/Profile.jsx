@@ -8,7 +8,7 @@ import { User, Edit, Save, X, Camera } from 'lucide-react';
 // UI Components
 import { Spinner } from '@/components/Loader';
 import PostCard from '@/components/PostCard';
-import ProfileSkeleton from '@/components/ProfileSkeleton';
+import ProfileSkeleton from '@/components/skeletons/ProfileSkeleton';
 import {
   Card,
   CardContent,

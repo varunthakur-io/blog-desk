@@ -6,6 +6,7 @@ import { ArrowLeft, Calendar, Heart, User, Send, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 // UI Components
+import PostDetailsSkeleton from '@/components/skeletons/PostDetailsSkeleton';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -238,14 +239,7 @@ const PostDetails = () => {
 
   // Render States
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-3">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="text-muted-foreground font-medium animate-pulse">
-          Loading article...
-        </p>
-      </div>
-    );
+    return <PostDetailsSkeleton />;
   }
 
   if (error || !currentPost) {

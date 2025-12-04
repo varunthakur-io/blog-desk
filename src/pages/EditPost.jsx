@@ -5,6 +5,7 @@ import { Loader2, Save, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 // UI Components
+import FormSkeleton from '@/components/skeletons/FormSkeleton';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -133,12 +134,7 @@ export default function EditPost() {
 
   // Render States
   if (isLoading) {
-    return (
-      <div className="flex flex-col justify-center items-center min-h-[60vh] gap-4">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="text-muted-foreground">Loading post...</p>
-      </div>
-    );
+    return <FormSkeleton />;
   }
 
   if (error) {

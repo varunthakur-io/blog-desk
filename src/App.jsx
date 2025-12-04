@@ -7,7 +7,7 @@ import { Toaster } from 'react-hot-toast';
 import MainLayout from './layout/MainLayout';
 import PrivateRoute from './components/PrivateRoute';
 import useAuthCheck from './hooks/useAuthCheck';
-import SkeletonLoader from './components/SkeletonLoader';
+import AppSkeleton from '@/components/skeletons/AppSkeleton';
 
 // Pages (Lazy Loaded)
 const CreatePost = lazy(() => import('./pages/CreatePost'));
@@ -25,11 +25,11 @@ function App() {
   const { loading } = useSelector((state) => state.auth);
 
   if (!isAuthChecked || loading) {
-    return <SkeletonLoader />;
+    return <AppSkeleton />;
   }
 
   return (
-    <Suspense fallback={<SkeletonLoader />}>
+    <Suspense fallback={<AppSkeleton />}>
       <Toaster
         position="bottom-right"
         reverseOrder={false}
