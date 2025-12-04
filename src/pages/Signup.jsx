@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 
 // auth service and Redux actions
 import { authService } from '../services/authService';
-import { setUser } from '../store/authSlice';
+import { setAuthUserId } from '../store/authSlice';
 
 // Shadcn UI components
 import { Button } from '@/components/ui/button';
@@ -45,7 +45,7 @@ const Signup = () => {
 
     try {
       const user = await authService.createUser(formData);
-      dispatch(setUser(user));
+      dispatch(setAuthUserId(user.id));
       toast.success('Account created and logged in!');
       navigate('/');
     } catch (err) {
