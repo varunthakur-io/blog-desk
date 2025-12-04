@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { BookOpen, Search } from 'lucide-react';
 
 // UI Components
-// import Loader, { Spinner } from '@/components/Loader';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
