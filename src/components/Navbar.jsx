@@ -1,3 +1,4 @@
+// src/components/Navbar.jsx
 import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -25,40 +26,47 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-// Services & Store
-import { authService } from '../services/authService';
-import { clearAuthUser, selectAuthUserId } from '../store/authSlice';
-import useDarkMode from '../hooks/useDarkMode';
+// Store & Services
+import {
+  selectAuthUserId,
+  selectAuthStatus,
+  clearAuthUserId,
+} from '@/store/authSlice';
+import { selectProfileById } from '@/store/profileSlice';
+import { authService } from '@/services/authService';
+import useDarkMode from '@/hooks/useDarkMode';
 
 const Navbar = () => {
-  // TODO: need to get user's info from profile collection
-  const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Selectors
-  const userId = useSelector(selectAuthUserId);
+  // Auth state
+  const authUserId = useSelector(selectAuthUserId);
+  const authStatus = useSelector(selectAuthStatus);
 
+  // Profile data
+  const profile = useSelector((state) => selectProfileById(state, authUserId));
+
+  const isLoggedIn = authStatus === 'authenticated' && !!authUserId;
+  console.log('Navbar render - isLoggedIn:', isLoggedIn);
   const [isDarkMode, setDarkMode] = useDarkMode();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Derived state for auth status
-  const isLoggedIn = !!userId;
-
+  // Logout handler
   const handleLogout = async () => {
     try {
       await authService.logout();
-      dispatch(clearAuthUser());
+      dispatch(clearAuthUserId());
       toast.success('Logged out successfully!');
       navigate('/login');
     } catch (err) {
-      console.error('Logout failed:', err.message);
-      toast.error('Logout failed. Please try again.');
+      toast.error(err.message || 'Logout failed. Please try again.');
     }
   };
 
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
+  // Navigation items
   const navItems = [
     { name: 'Home', slug: '/', requiresAuth: false },
     { name: 'Dashboard', slug: '/dashboard', requiresAuth: true },
@@ -67,11 +75,9 @@ const Navbar = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
-      {/* container + padding now match Home */}
       <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Left side: logo + nav */}
+        {/* Logo + Desktop Nav */}
         <div className="flex items-center gap-8">
-          {/* Logo */}
           <NavLink
             to="/"
             className="flex items-center space-x-2.5 transition-opacity hover:opacity-80"
@@ -121,7 +127,7 @@ const Navbar = () => {
             <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           </Button>
 
-          {/* User Dropdown or Login */}
+          {/* User Menu */}
           {isLoggedIn ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -131,12 +137,12 @@ const Navbar = () => {
                 >
                   <Avatar className="h-9 w-9">
                     <AvatarImage
-                      src={user?.profile?.avatarUrl}
-                      alt={user?.name}
+                      src={profile?.avatarUrl}
+                      alt={profile?.name || 'User Avatar'}
                       className="object-cover"
                     />
                     <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                      {user?.name?.charAt(0).toUpperCase() || 'U'}
+                      {profile?.name?.charAt(0).toUpperCase() || 'U'}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
@@ -145,10 +151,10 @@ const Navbar = () => {
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">
-                      {user?.name}
+                      {profile?.name || 'User'}
                     </p>
                     <p className="text-xs leading-none text-muted-foreground truncate">
-                      {user?.email}
+                      {profile?.email}
                     </p>
                   </div>
                 </DropdownMenuLabel>
