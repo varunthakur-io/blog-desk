@@ -193,41 +193,36 @@ const Home = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-      {/* Header + search bar row */}
-      <div className="py-10 sm:py-12">
-        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-          {/* Left: hero text */}
-          <div className="text-center md:text-left max-w-xl">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-3">
-              Stories &amp; Ideas
-            </h1>
-            <p className="text-lg text-muted-foreground">
-              A minimal blog for creative minds. Explore and share your thoughts
-              with the world.
-            </p>
-          </div>
-
-          {/* Right: search bar card */}
-          <div className="w-full max-w-md md:max-w-sm md:ml-auto">
-            <div className="rounded-xl border border-border/60 bg-card/60 shadow-sm px-3 py-2 flex items-center gap-2">
-              <Search className="h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search posts..."
-                className="border-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 px-1"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
+    <div className="container relative max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 pb-10">
+      {/* Hero Section */}
+      <section className="mx-auto flex flex-col items-center gap-4 py-12 md:py-24 lg:py-32 text-center">
+        <h1 className="text-3xl font-bold leading-tight tracking-tighter md:text-6xl lg:leading-[1.1]">
+          Build your digital presence.
+        </h1>
+        <p className="max-w-[750px] text-lg text-muted-foreground sm:text-xl">
+          A minimal blog platform built for developers and creators. Share your ideas, code, and stories with the world.
+        </p>
+        
+        {/* Search Bar */}
+        <div className="w-full max-w-md md:max-w-sm items-center space-x-2 pt-4">
+          <div className="rounded-xl border border-border/60 bg-card/60 shadow-sm px-3 py-2 flex items-center gap-2">
+            <Search className="h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search posts..."
+              className="border-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 px-1"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Content Section */}
-      <div className="py-4">{renderContent()}</div>
+      <div className="py-6">{renderContent()}</div>
     </div>
   );
 };
 
 export default Home;
+

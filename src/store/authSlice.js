@@ -1,5 +1,5 @@
 // src/store/authSlice.js
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createSelector } from '@reduxjs/toolkit';
 
 const initialState = {
   userId: null,
@@ -41,8 +41,26 @@ export const { setAuthLoading, setAuthError, setAuthUserId, clearAuthUserId } =
 
 export default authSlice.reducer;
 
-// -------- Selectors ----------
-export const selectAuthUserId = (state) => state.auth.userId;
-export const selectAuthStatus = (state) => state.auth.status;
-export const selectAuthLoading = (state) => state.auth.loading;
-export const selectAuthError = (state) => state.auth.error;
+/* ========= Base slice selector ========= */
+const selectAuthState = (state) => state.auth;
+
+/* ========= Memoized selectors ========= */
+export const selectAuthUserId = createSelector(
+  [selectAuthState],
+  (authState) => authState.userId,
+);
+
+export const selectAuthStatus = createSelector(
+  [selectAuthState],
+  (authState) => authState.status,
+);
+
+export const selectAuthLoading = createSelector(
+  [selectAuthState],
+  (authState) => authState.loading,
+);
+
+export const selectAuthError = createSelector(
+  [selectAuthState],
+  (authState) => authState.error,
+);

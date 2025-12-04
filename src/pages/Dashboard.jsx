@@ -179,40 +179,37 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="container mx-auto py-4 px-4 sm:px-6 lg:px-8">
-      <Card className="border-none shadow-none bg-transparent">
+    <div className="container mx-auto py-10 px-4 sm:px-6 lg:px-8">
+      <div className="flex flex-col gap-8">
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
             <p className="text-muted-foreground mt-1">
-              Manage your posts and track performance
+              Manage your posts and track performance.
             </p>
           </div>
 
-          <div className="flex w-full md:w-auto items-center gap-3">
-            <div className="rounded-xl border border-border/60 bg-card/60 shadow-sm px-3 py-1 flex items-center gap-2">
-              <Search className="h-4 w-4 text-muted-foreground" />
+          <div className="flex w-full md:w-auto items-center gap-2">
+            <div className="relative w-full md:w-[300px]">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
                 placeholder="Search posts..."
-                className="border-none shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 px-1"
+                className="pl-9 w-full"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
 
-            <Button
-              onClick={() => navigate('/create')}
-              className="shrink-0 shadow-sm"
-            >
+            <Button onClick={() => navigate('/create')} className="shrink-0">
               <Plus className="mr-2 h-4 w-4" /> New Post
             </Button>
           </div>
         </div>
 
         {postsError && (
-          <Alert variant="destructive" className="mb-6">
+          <Alert variant="destructive">
             <AlertDescription>{postsError}</AlertDescription>
           </Alert>
         )}
@@ -225,105 +222,75 @@ export default function Dashboard() {
             hasQuery={!!searchQuery}
           />
         ) : (
-          <Card className="border shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/40 hover:bg-muted/40">
-                    <TableHead className="w-[45%] pl-6">Title</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Created Date</TableHead>
-                    <TableHead className="text-right pr-6">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredPosts.map((post) => (
-                    <TableRow
-                      key={post.$id}
-                      className="group hover:bg-muted/30 transition-colors"
-                    >
-                      <TableCell className="pl-6 py-4">
-                        <div className="flex flex-col gap-1.5">
-                          <span className="font-semibold text-base leading-none text-foreground/90 group-hover:text-primary transition-colors">
-                            {post.title}
-                          </span>
-                          <span className="text-sm text-muted-foreground/80 line-clamp-1 font-normal">
-                            {post.excerpt || 'No description provided'}
-                          </span>
-                        </div>
-                      </TableCell>
-
-                      <TableCell className="py-4">
-                        <Badge
-                          variant="secondary"
-                          className="bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-400 border-transparent font-medium"
-                        >
-                          Published
-                        </Badge>
-                      </TableCell>
-
-                      <TableCell className="py-4">
-                        <span className="text-sm text-muted-foreground font-medium">
-                          {new Date(post.$createdAt).toLocaleDateString(
-                            'en-US',
-                            {
-                              month: 'short',
-                              day: 'numeric',
-                              year: 'numeric',
-                            },
-                          )}
+          <div className="border rounded-md">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[400px]">Title</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredPosts.map((post) => (
+                  <TableRow key={post.$id}>
+                    <TableCell className="font-medium">
+                      <div className="flex flex-col gap-0.5">
+                        <span>{post.title}</span>
+                        <span className="text-xs text-muted-foreground line-clamp-1 font-normal">
+                          {post.excerpt || 'No description'}
                         </span>
-                      </TableCell>
+                      </div>
+                    </TableCell>
 
-                      <TableCell className="text-right pr-6 py-4">
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleEdit(post.$id)}
-                            className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
-                            title="Edit"
-                          >
-                            <Edit2 className="h-4 w-4" />
+                    <TableCell>
+                      <Badge variant="outline" className="font-normal">
+                        Published
+                      </Badge>
+                    </TableCell>
+
+                    <TableCell>
+                      <span className="text-muted-foreground">
+                        {new Date(post.$createdAt).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })}
+                      </span>
+                    </TableCell>
+
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
                           </Button>
-
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                              >
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-40">
-                              <DropdownMenuLabel>Manage Post</DropdownMenuLabel>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                onClick={() => handleEdit(post.$id)}
-                                className="cursor-pointer"
-                              >
-                                <Edit2 className="h-4 w-4 mr-2" /> Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => handleDeleteClick(post)}
-                                className="text-destructive focus:text-destructive cursor-pointer"
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" /> Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </Card>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuItem onClick={() => handleEdit(post.$id)}>
+                            <Edit2 className="mr-2 h-4 w-4" /> Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => handleDeleteClick(post)}
+                            className="text-destructive focus:text-destructive"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" /> Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         )}
-      </Card>
+      </div>
+
       {/* Delete Confirmation Dialog */}
       <AlertDialog
         open={isDeleteDialogOpen}
@@ -331,7 +298,7 @@ export default function Dashboard() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete this post?</AlertDialogTitle>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete "
               <span className="font-medium text-foreground">
@@ -350,7 +317,7 @@ export default function Dashboard() {
               disabled={isDeleting}
               className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
             >
-              {isDeleting ? 'Deleting...' : 'Delete Post'}
+              {isDeleting ? 'Deleting...' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

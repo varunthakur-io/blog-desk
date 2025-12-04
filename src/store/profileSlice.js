@@ -1,5 +1,5 @@
 // src/store/profileSlice.js
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createSelector } from '@reduxjs/toolkit';
 
 const initialState = {
   byId: {
@@ -49,18 +49,30 @@ export const { upsertProfile, setProfileLoading, setProfileError } =
 
 export default profileSlice.reducer;
 
-// --------- Selectors ----------
-export const selectProfileById = (state, userId) => {
-  if (!userId) return null;
-  return state.profile.byId[String(userId)] || null;
-};
+/* ========= Base slice selector ========= */
+const selectProfileState = (state) => state.profile;
 
-export const selectProfileLoading = (state, userId) => {
-  if (!userId) return false;
-  return !!state.profile.loadingById[String(userId)];
-};
+/* ========= Memoized selectors ========= */
+export const selectProfileById = createSelector(
+  [selectProfileState, (_, userId) => userId],
+  (profileState, userId) => {
+    if (!userId) return null;
+    return profileState.byId[String(userId)] || null;
+  },
+);
 
-export const selectProfileError = (state, userId) => {
-  if (!userId) return null;
-  return state.profile.errorById[String(userId)] || null;
-};
+export const selectProfileLoading = createSelector(
+  [selectProfileState, (_, userId) => userId],
+  (profileState, userId) => {
+    if (!userId) return false;
+    return !!profileState.loadingById[String(userId)];
+  },
+);
+
+export const selectProfileError = createSelector(
+  [selectProfileState, (_, userId) => userId],
+  (profileState, userId) => {
+    if (!userId) return null;
+    return profileState.errorById[String(userId)] || null;
+  },
+);
