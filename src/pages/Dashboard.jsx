@@ -338,7 +338,7 @@ export default function Dashboard() {
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete "
               <span className="font-medium text-foreground">
-                {allPosts.find((p) => p.$id === postToDelete)?.title}
+                {globalPosts.find((p) => p.$id === postToDelete)?.title}
               </span>
               " and remove it from our servers.
             </AlertDialogDescription>
