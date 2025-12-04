@@ -2,7 +2,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { ArrowLeft, Calendar, Heart, User, Send, Loader2 } from 'lucide-react';
+import {
+  ArrowLeft,
+  Calendar,
+  Heart,
+  User,
+  Loader2,
+  MessageCircle,
+} from 'lucide-react';
 import toast from 'react-hot-toast';
 
 // UI Components
@@ -286,7 +293,7 @@ const PostDetails = () => {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <Card className="p-0 border-none">
+      <Card className="p-0 border-none shadow-none">
         <CardHeader className="border-0 pb-4 px-0">
           <div className="flex justify-between items-start px-4 sm:px-6 lg:px-8">
             <div className="flex-1">
@@ -359,7 +366,7 @@ const PostDetails = () => {
                 ) : (
                   <Heart
                     className="mr-2 h-4 w-4 transition-all"
-                    fill={isLiked ? 'red' : 'transparent'} // red-500
+                    fill={isLiked ? 'red' : 'transparent'}
                     stroke={isLiked ? 'red' : 'currentColor'}
                     strokeWidth={2}
                   />
@@ -380,67 +387,103 @@ const PostDetails = () => {
 
         <Separator />
 
-        {/* Comments Section */}
-        <CardContent className="py-6 px-0">
-          <div className="px-4 sm:px-6 lg:px-8">
-            <h3 className="text-xl font-semibold mb-4 border-b pb-2">
-              Comments ({comments.length})
-            </h3>
-
-            {/* Comment Submission Form */}
-            <form onSubmit={handleCommentSubmit} className="mb-8">
-              <Textarea
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Write a public comment..."
-                className="resize-none mb-3"
-                rows={3}
-                disabled={isCommenting}
-              />
-              <div className="flex justify-end">
-                <Button
-                  type="submit"
-                  disabled={isCommenting || !newComment.trim()}
-                >
-                  {isCommenting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />{' '}
-                      Posting...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="mr-2 h-4 w-4" /> Post Comment
-                    </>
-                  )}
-                </Button>
+        {/* Comments Section – restyled to match your theme */}
+        <CardContent className="py-4 px-0 ">
+          <div className="flex flex-col  px-4 sm:px-6 lg:px-8">
+            {/* Header */}
+            <div className="flex items-center border-2-b pb-4 mb-6 justify-between">
+              <div>
+                <h3 className="text-xl font-semibold tracking-tight">
+                  {comments.length}{' '}
+                  {comments.length === 1 ? 'comment' : 'comments'}
+                </h3>
               </div>
-            </form>
+            </div>
 
-            {/* Comment List */}
-            <div className="space-y-4">
+            {/* Comment Form */}
+            <div className="space-y-6 mb-8">
+              <div className="flex gap-4">
+                <div className="shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-xs sm:text-sm">
+                  {authUserName?.[0]?.toUpperCase() || 'U'}
+                </div>
+
+                <div className="flex-1">
+                  <Textarea
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    placeholder="Share your thoughts..."
+                    className="resize-none bg-background/60 border-border/60 focus-visible:ring-1 focus-visible:ring-primary/60 placeholder:text-muted-foreground/60 min-h-[80px]"
+                    rows={3}
+                    disabled={isCommenting}
+                  />
+                  <div className="flex justify-end mt-3">
+                    <Button
+                      onClick={handleCommentSubmit}
+                      disabled={isCommenting || !newComment.trim()}
+                      className="rounded px-3"
+                    >
+                      {isCommenting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Posting...
+                        </>
+                      ) : (
+                        'Post Comment'
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Comments List */}
+            <div className="space-y-6">
               {comments.length === 0 ? (
-                <p className="text-muted-foreground text-center py-4">
-                  No comments yet. Be the first!
-                </p>
+                <div className="text-center py-12 rounded-2xl border border-dashed border-border/60 bg-muted/30">
+                  <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-muted/60 flex items-center justify-center">
+                    <MessageCircle className="w-7 h-7 text-muted-foreground/60" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    No comments yet. Be the first to share your thoughts.
+                  </p>
+                </div>
               ) : (
                 comments.map((comment) => (
-                  <div
-                    key={comment.$id}
-                    className="border-b pb-3 last:border-b-0"
-                  >
-                    <div className="flex items-center justify-between text-sm mb-1">
-                      <span className="font-semibold text-foreground">
-                        {comment?.authorName || 'Guest'}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {comment?.$createdAt
-                          ? new Date(comment.$createdAt).toLocaleDateString()
-                          : 'Just now'}
-                      </span>
+                  <div key={comment.$id} className="flex gap-3 sm:gap-4">
+                    {/* Avatar */}
+                    <div className="shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-xs sm:text-sm">
+                      {comment.authorName?.[0]?.toUpperCase() || 'G'}
                     </div>
-                    <p className="text-sm text-foreground/90 whitespace-pre-wrap">
-                      {comment.content}
-                    </p>
+
+                    {/* Comment Bubble */}
+                    <div className="flex-1">
+                      <div className="rounded-md bg-card/80 border border-border/60 px-4 py-3">
+                        <div className="flex items-center gap-2 mb-1.5">
+                          <span className="font-semibold text-sm text-foreground">
+                            {comment.authorName || 'Guest'}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            •
+                          </span>
+                          <time className="text-xs text-muted-foreground">
+                            {comment.$createdAt
+                              ? new Date(comment.$createdAt).toLocaleDateString(
+                                  'en-US',
+                                  {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    hour: 'numeric',
+                                    minute: '2-digit',
+                                  },
+                                )
+                              : 'Just now'}
+                          </time>
+                        </div>
+                        <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap">
+                          {comment.content}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 ))
               )}
