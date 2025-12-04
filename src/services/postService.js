@@ -2,16 +2,28 @@ import { ID, Query } from 'appwrite';
 import { account, databases } from '@/api/client';
 import { appwriteConfig as appwrite } from '../config/appwrite';
 
-// Simple in-memory cache: key = `${userId}:${postId}` → boolean
+/**
+ * Simple in-memory cache for likes
+ * Key: `${userId}:${postId}`
+ * Value: boolean
+ */
 const likedCache = new Map();
 
 class PostService {
-  // Create a new blog post
+  // ==========================================
+  //                 POSTS
+  // ==========================================
+
+  /**
+   * Create a new blog post
+   * @param {Object} params
+   * @param {string} params.title
+   * @param {string} params.content
+   * @returns {Promise<Object>} The created post document
+   */
   async createPost({ title, content }) {
     try {
       const user = await account.get();
-
-      // post data
       const postData = {
         authorId: user.$id,
         authorName: user.name,
@@ -20,266 +32,309 @@ class PostService {
         likesCount: 0,
       };
 
-      // create post document
-      const res = await databases.createDocument(
+      return await databases.createDocument(
         appwrite.databaseId,
         appwrite.postsCollectionId,
         'unique()',
-        postData,
+        postData
       );
-
-      return res;
     } catch (error) {
-      console.error('Error creating post:', error);
+      console.error('PostService :: createPost()', error);
       throw error;
     }
   }
 
-  // Update an existing blog post
+  /**
+   * Update an existing blog post
+   * @param {string} postId
+   * @param {Object} params
+   * @param {string} params.title
+   * @param {string} params.content
+   * @returns {Promise<Object>} The updated post document
+   */
   async updatePost(postId, { title, content }) {
     try {
-      const postData = {
-        title,
-        content,
-      };
-
-      const res = await databases.updateDocument(
+      return await databases.updateDocument(
         appwrite.databaseId,
         appwrite.postsCollectionId,
         postId,
-        postData,
+        { title, content }
       );
-
-      return res;
     } catch (error) {
-      console.error('Error updating post:', error);
+      console.error('PostService :: updatePost()', error);
       throw error;
     }
   }
 
-  // Get a single post by its ID
+  /**
+   * Get a single post by its ID
+   * @param {string} postId
+   * @returns {Promise<Object>} The post document
+   */
   async getPostById(postId) {
     try {
-      const res = await databases.getDocument(
+      return await databases.getDocument(
         appwrite.databaseId,
         appwrite.postsCollectionId,
-        postId,
+        postId
       );
-      return res;
     } catch (error) {
-      console.error('Error fetching post:', error);
+      console.error('PostService :: getPostById()', error);
       throw error;
     }
   }
 
-  // Get all posts
+  /**
+   * Get all posts with pagination
+   * @param {number} page - Page number (1-based)
+   * @param {number} skip - Number of items to return
+   * @returns {Promise<Object>} List of documents
+   */
   async getAllPosts(page = 1, skip = 6) {
     try {
       const offset = (page - 1) * skip;
       const limit = skip;
 
-      const res = await databases.listDocuments(
+      return await databases.listDocuments(
         appwrite.databaseId,
         appwrite.postsCollectionId,
-        [Query.limit(limit), Query.offset(offset)],
+        [Query.limit(limit), Query.offset(offset)]
       );
-
-      return res;
     } catch (error) {
-      console.error('Error fetching posts:', error);
+      console.error('PostService :: getAllPosts()', error);
       throw error;
     }
   }
 
-  // Get posts created by a specific user
+  /**
+   * Get posts created by a specific user
+   * @param {string} userId
+   * @returns {Promise<Array>} Array of post documents
+   */
   async getPostsByUser(userId) {
     try {
       const res = await databases.listDocuments(
         appwrite.databaseId,
         appwrite.postsCollectionId,
-        [Query.equal('authorId', userId), Query.orderDesc('$createdAt')],
+        [Query.equal('authorId', userId), Query.orderDesc('$createdAt')]
       );
       return res.documents;
     } catch (error) {
-      console.error('Error fetching user posts:', error);
+      console.error('PostService :: getPostsByUser()', error);
       throw error;
     }
   }
 
-  // Delete a post by ID
+  /**
+   * Delete a post by ID
+   * @param {string} postId
+   * @returns {Promise<boolean>} True on success
+   */
   async deletePost(postId) {
     try {
       await databases.deleteDocument(
         appwrite.databaseId,
         appwrite.postsCollectionId,
-        postId,
+        postId
       );
       return true;
     } catch (error) {
-      console.error('Error deleting post:', error);
+      console.error('PostService :: deletePost()', error);
       throw error;
     }
   }
 
-  // Update likes count
-  async updateLikes(postId, value) {
+  // ==========================================
+  //                 LIKES
+  // ==========================================
+
+  /**
+   * Check if user has liked a post (uses cache)
+   * @param {string} postId
+   * @param {string} userId
+   * @returns {Promise<boolean>}
+   */
+  async hasUserLiked(postId, userId) {
+    const key = `${userId}:${postId}`;
+    if (likedCache.has(key)) {
+      return likedCache.get(key);
+    }
+
     try {
-      // 1. Get the current document
+      const res = await databases.listDocuments(
+        appwrite.databaseId,
+        appwrite.likesCollectionId,
+        [
+          Query.equal('postId', postId),
+          Query.equal('userId', userId),
+          Query.limit(1),
+        ]
+      );
+
+      const liked = res.total > 0;
+      likedCache.set(key, liked);
+      return liked;
+    } catch (error) {
+      console.error('PostService :: hasUserLiked()', error);
+      return false;
+    }
+  }
+
+  /**
+   * Toggle like status: Like a post
+   * @param {string} postId
+   * @param {string} userId
+   */
+  async likePost(postId, userId) {
+    const key = `${userId}:${postId}`;
+
+    try {
+      const existing = await this.hasUserLiked(postId, userId);
+      if (existing) return;
+
+      await databases.createDocument(
+        appwrite.databaseId,
+        appwrite.likesCollectionId,
+        ID.unique(),
+        { postId, userId }
+      );
+
+      await this._updateLikesCount(postId, 1);
+      likedCache.set(key, true);
+    } catch (error) {
+      console.error('PostService :: likePost()', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Toggle like status: Unlike a post
+   * @param {string} postId
+   * @param {string} userId
+   */
+  async unlikePost(postId, userId) {
+    const key = `${userId}:${postId}`;
+
+    try {
+      const res = await databases.listDocuments(
+        appwrite.databaseId,
+        appwrite.likesCollectionId,
+        [
+          Query.equal('postId', postId),
+          Query.equal('userId', userId),
+          Query.limit(1),
+        ]
+      );
+
+      if (res.total > 0) {
+        const likeDocId = res.documents[0].$id;
+        await databases.deleteDocument(
+          appwrite.databaseId,
+          appwrite.likesCollectionId,
+          likeDocId
+        );
+
+        await this._updateLikesCount(postId, -1);
+        likedCache.set(key, false);
+      }
+    } catch (error) {
+      console.error('PostService :: unlikePost()', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get all posts liked by a user
+   * @param {string} userId
+   * @returns {Promise<Array>} Array of post documents
+   */
+  async getLikedPostsByUser(userId) {
+    try {
+      const likesRes = await databases.listDocuments(
+        appwrite.databaseId,
+        appwrite.likesCollectionId,
+        [Query.equal('userId', userId)]
+      );
+
+      const likeDocs = likesRes.documents || [];
+      const postIds = likeDocs.map((doc) => doc.postId).filter(Boolean);
+
+      if (postIds.length === 0) return [];
+
+      const postsRes = await databases.listDocuments(
+        appwrite.databaseId,
+        appwrite.postsCollectionId,
+        [Query.equal('$id', postIds), Query.orderDesc('$createdAt')]
+      );
+
+      return postsRes.documents || [];
+    } catch (error) {
+      console.error('PostService :: getLikedPostsByUser()', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Internal helper to update likes count on a post
+   * @param {string} postId
+   * @param {number} increment - Value to add (can be negative)
+   * @private
+   */
+  async _updateLikesCount(postId, increment) {
+    try {
       const doc = await databases.getDocument(
         appwrite.databaseId,
         appwrite.postsCollectionId,
-        postId,
+        postId
       );
 
-      // 2. Compute new likes
       const current = doc.likesCount ?? 0;
-      // const next = current + value;
-      const next = Math.max(0, current + value); // NEVER below 0
+      const next = Math.max(0, current + increment);
 
-      // 3. Update the document
       await databases.updateDocument(
         appwrite.databaseId,
         appwrite.postsCollectionId,
         postId,
-        { likesCount: next },
+        { likesCount: next }
       );
     } catch (error) {
-      console.error('Like update failed:', error);
-      throw error; // so UI can rollback
+      console.error('PostService :: _updateLikesCount()', error);
+      throw error;
     }
   }
 
-  // check if user has liked a post (cached)
-  async hasUserLiked(postId, userId) {
-    const key = `${userId}:${postId}`;
+  // ==========================================
+  //                 COMMENTS
+  // ==========================================
 
-    // 1) Return from cache if present
-    if (likedCache.has(key)) {
-      return likedCache.get(key); // boolean true/false
-    }
-
-    // 2) Otherwise hit the API once
-    const res = await databases.listDocuments(
-      appwrite.databaseId,
-      appwrite.likesCollectionId,
-      [
-        Query.equal('postId', postId),
-        Query.equal('userId', userId),
-        Query.limit(1),
-      ],
-    );
-
-    const liked = res.total > 0;
-    likedCache.set(key, liked);
-    return liked;
-  }
-
-  // user liked a post
-  async likePost(postId, userId) {
-    const key = `${userId}:${postId}`;
-
-    // avoid duplicates
-    const existing = await this.hasUserLiked(postId, userId);
-    if (existing) return;
-
-    // create like document
-    await databases.createDocument(
-      appwrite.databaseId,
-      appwrite.likesCollectionId,
-      ID.unique(),
-      {
-        postId,
-        userId,
-      },
-    );
-
-    // increment likes count on post
-    await this.updateLikes(postId, +1);
-
-    // update cache
-    likedCache.set(key, true);
-  }
-
-  // user unliked a post
-  async unlikePost(postId, userId) {
-    const key = `${userId}:${postId}`;
-
-    const res = await databases.listDocuments(
-      appwrite.databaseId,
-      appwrite.likesCollectionId,
-      [
-        Query.equal('postId', postId),
-        Query.equal('userId', userId),
-        Query.limit(1),
-      ],
-    );
-
-    if (res.total === 0) return;
-
-    // delete like document
-    if (res.total > 0) {
-      const likeDocId = res.documents[0].$id;
-      await databases.deleteDocument(
-        appwrite.databaseId,
-        appwrite.likesCollectionId,
-        likeDocId,
-      );
-    }
-
-    // decrement likes count on post
-    await this.updateLikes(postId, -1);
-
-    // update cache
-    likedCache.set(key, false);
-  }
-
-  // get all posts liked by a user
-  async getLikedPostsByUser(userId) {
-    // 1) Fetch like documents for userId from likesCollection
-    const likesRes = await databases.listDocuments(
-      appwrite.databaseId,
-      appwrite.likesCollectionId,
-      [Query.equal('userId', userId)],
-    );
-
-    const likeDocs = likesRes.documents || [];
-    const postIds = likeDocs.map((doc) => doc.postId).filter(Boolean);
-
-    if (postIds.length === 0) {
-      return [];
-    }
-
-    // 2. Fetch posts by those IDs
-    const postsRes = await databases.listDocuments(
-      appwrite.databaseId,
-      appwrite.postsCollectionId,
-      [Query.equal('$id', postIds), Query.orderDesc('$createdAt')],
-    );
-
-    return postsRes.documents || [];
-  }
-
-  //  Add a comment to a post
+  /**
+   * Add a comment to a post
+   * @param {Object} params
+   * @param {string} params.postId
+   * @param {string} params.userId
+   * @param {string} params.authorName
+   * @param {string} params.content
+   * @returns {Promise<Object>} The created comment document
+   */
   async addComment({ postId, userId, authorName, content }) {
     try {
-      const res = await databases.createDocument(
+      return await databases.createDocument(
         appwrite.databaseId,
         appwrite.commentsCollectionId,
         ID.unique(),
-        {
-          postId,
-          userId,
-          authorName,
-          content,
-        },
+        { postId, userId, authorName, content }
       );
-      return res;
-    } catch (err) {
-      console.error('Error adding comment:', err.message);
+    } catch (error) {
+      console.error('PostService :: addComment()', error);
+      throw error;
     }
   }
 
-  // Get comments for a post
+  /**
+   * Get comments for a post
+   * @param {string} postId
+   * @returns {Promise<Array>} List of comment documents
+   */
   async getCommentsByPost(postId) {
     try {
       const res = await databases.listDocuments(
@@ -289,15 +344,14 @@ class PostService {
           Query.equal('postId', postId),
           Query.orderDesc('$createdAt'),
           Query.limit(10),
-        ],
+        ]
       );
       return res.documents;
-    } catch (err) {
-      console.error('Failed to load comments', err.message);
-      return [];
+    } catch (error) {
+      console.error('PostService :: getCommentsByPost()', error);
+      return []; // Return empty array so UI doesn't break
     }
   }
 }
 
-// Export a single shared instance
 export const postService = new PostService();
