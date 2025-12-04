@@ -3,12 +3,12 @@ import { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { User, Edit, Save, X, Camera } from 'lucide-react';
+import { User, Edit, Save, X, Camera, Loader2 } from 'lucide-react';
 
 // UI Components
-import { Spinner } from '@/components/Loader';
 import PostCard from '@/components/PostCard';
 import ProfileSkeleton from '@/components/skeletons/ProfileSkeleton';
+import PostCardSkeleton from '@/components/skeletons/PostCardSkeleton';
 import {
   Card,
   CardContent,
@@ -461,7 +461,7 @@ export default function Profile() {
                     aria-label="Change avatar"
                   >
                     {isUploadingAvatar ? (
-                      <Spinner size={16} className="text-primary" />
+                      <Loader2 className="h-4 w-4 animate-spin text-primary" />
                     ) : (
                       <Camera className="h-4 w-4" />
                     )}
@@ -628,7 +628,7 @@ export default function Profile() {
                   >
                     {isSaving || isUploadingAvatar ? (
                       <>
-                        <Spinner size={16} className="mr-2 text-current" />
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Saving...
                       </>
                     ) : (
@@ -666,8 +666,10 @@ export default function Profile() {
                   {activeTab === 'posts' && (
                     <>
                       {postsLoading && !initialPostsLoaded ? (
-                        <div className="text-center py-12 text-muted-foreground">
-                          Loading posts...
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                           {[...Array(4)].map((_, i) => (
+                             <PostCardSkeleton key={i} />
+                           ))}
                         </div>
                       ) : userPosts.length === 0 ? (
                         <div className="text-center py-12 text-muted-foreground">
@@ -700,9 +702,10 @@ export default function Profile() {
                           Liked posts are visible only to the profile owner.
                         </p>
                       ) : isLoadingLikes ? (
-                        <div className="flex items-center justify-center gap-2 text-muted-foreground py-8">
-                          <Spinner size={16} className="text-current" />
-                          <span>Loading liked posts...</span>
+                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                           {[...Array(4)].map((_, i) => (
+                             <PostCardSkeleton key={i} />
+                           ))}
                         </div>
                       ) : likesError ? (
                         <p className="text-sm text-red-500">{likesError}</p>

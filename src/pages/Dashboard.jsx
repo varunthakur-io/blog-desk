@@ -13,7 +13,6 @@ import {
 import toast from 'react-hot-toast';
 
 // UI Components
-import { Spinner } from '@/components/Loader';
 import DashboardSkeleton from '@/components/skeletons/DashboardSkeleton';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
