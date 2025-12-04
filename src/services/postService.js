@@ -93,6 +93,21 @@ class PostService {
     }
   }
 
+  // Get posts created by a specific user
+  async getPostsByUser(userId) {
+    try {
+      const res = await databases.listDocuments(
+        appwrite.databaseId,
+        appwrite.postsCollectionId,
+        [Query.equal('authorId', userId), Query.orderDesc('$createdAt')],
+      );
+      return res.documents;
+    } catch (error) {
+      console.error('Error fetching user posts:', error);
+      throw error;
+    }
+  }
+
   // Delete a post by ID
   async deletePost(postId) {
     try {
