@@ -34,9 +34,9 @@ const PostDetails = () => {
   // Post & User State from Redux
   const currentPost = useSelector((state) => selectPostById(state, id));
   const authUserId = useSelector(selectAuthUserId);
-  const userProfile = useSelector((state) =>
+  const authUserName = useSelector((state) =>
     selectProfileById(state, authUserId),
-  );
+  )?.name;
 
   // Local States
   const [isLoading, setIsLoading] = useState(!currentPost);
@@ -96,7 +96,7 @@ const PostDetails = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, dispatch]);
 
-  // Effect 2: Sync Local State & Check Like Status
+  // Effect 2: Handle Likes State
   useEffect(() => {
     if (!currentPost) return;
 
@@ -167,47 +167,48 @@ const PostDetails = () => {
     }
   };
 
+  // Comment Submission Handler
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
-    if (!newComment.trim()) return;
-    if (!authUserId) {
-      toast.error('You must be logged in to comment.');
-      return;
-    }
+    const content = newComment.trim();
+    if (!content || !currentPost?.$id || !authUserId) return;
 
     setIsCommenting(true);
-    const tempId = Date.now();
 
-    const commentData = {
+    // Optimistic comment (with temporary ID)
+    const tempId = 'temp-' + Date.now();
+    const optimisticComment = {
       $id: tempId,
-      text: newComment,
-      authorName: userProfile?.name || 'You',
+      postId: currentPost.$id,
+      userId: authUserId,
+      authorName: authUserName || 'Anonymous',
+      content,
       $createdAt: new Date().toISOString(),
     };
 
-    // Optimistic update
-    setComments((prev) => [commentData, ...prev]);
+    // Add optimistically
+    setComments((prev) => [optimisticComment, ...prev]);
     setNewComment('');
 
     try {
-      // Assuming postService.addComment exists and returns the permanent comment object
-      const actualComment = await postService.addComment(
-        currentPost.$id,
-        newComment,
-      );
+      // Send to server
+      const createdComment = await postService.addComment({
+        postId: currentPost.$id,
+        userId: authUserId,
+        authorName: authUserName || 'Anonymous',
+        content,
+      });
 
-      // Replace temporary comment with actual data from backend
+      // Replace temp with real comment
       setComments((prev) =>
-        prev.map((c) => (String(c.$id) === String(tempId) ? actualComment : c)),
+        prev.map((c) => (c.$id === tempId ? createdComment : c)),
       );
       toast.success('Comment posted!');
-    } catch {
-      // Rollback on failure
-      setComments((prev) =>
-        prev.filter((c) => String(c.$id) !== String(tempId)),
-      );
-      setNewComment(commentData.text);
-      toast.error('Failed to post comment.');
+    } catch (err) {
+      // Remove failed comment
+      setComments((prev) => prev.filter((c) => c.$id !== tempId));
+      setNewComment(content);
+      toast.error('Failed to post comment', err.message);
     } finally {
       setIsCommenting(false);
     }
@@ -410,16 +411,16 @@ const PostDetails = () => {
                   >
                     <div className="flex items-center justify-between text-sm mb-1">
                       <span className="font-semibold text-foreground">
-                        {comment.authorName || 'Guest'}
+                        {comment?.authorName || 'Guest'}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {comment.$createdAt
+                        {comment?.$createdAt
                           ? new Date(comment.$createdAt).toLocaleDateString()
                           : 'Just now'}
                       </span>
                     </div>
                     <p className="text-sm text-foreground/90 whitespace-pre-wrap">
-                      {comment.text}
+                      {comment.content}
                     </p>
                   </div>
                 ))

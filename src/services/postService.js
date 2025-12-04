@@ -258,6 +258,26 @@ class PostService {
 
     return postsRes.documents || [];
   }
+
+  //  Add a comment to a post
+  async addComment({ postId, userId, authorName, content }) {
+    try {
+      const res = await databases.createDocument(
+        appwrite.databaseId,
+        appwrite.commentsCollectionId,
+        ID.unique(),
+        {
+          postId,
+          userId,
+          authorName,
+          content,
+        },
+      );
+      return res;
+    } catch (err) {
+      console.error('Error adding comment:', err.message);
+    }
+  }
 }
 
 // Export a single shared instance
