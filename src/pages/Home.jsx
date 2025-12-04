@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { BookOpen, Search } from 'lucide-react';
 
 // UI Components
-import Loader, { Spinner } from '@/components/Loader';
+// import Loader, { Spinner } from '@/components/Loader';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,6 +27,7 @@ import {
   setPage,
   setHasMore,
 } from '@/store/postSlice';
+import PostCardSkeleton from '@/components/skeletons/PostCardSkeleton';
 
 const LIMIT = 6;
 
@@ -44,7 +45,7 @@ const Home = () => {
   // Local search state (Home-only search)
   const [searchTerm, setSearchTerm] = useState('');
 
-  // loadPage (Memoized)
+  // Load a page of posts (page 1 = fresh load, >1 = append)
   const loadPage = useCallback(
     async (pageNum) => {
       dispatch(setPostsLoading(true));
@@ -52,7 +53,7 @@ const Home = () => {
 
       try {
         const data = await postService.getAllPosts(pageNum, LIMIT);
-        const docs = Array.isArray(data.documents) ? data.documents : [];
+        const docs = data.documents ?? [];
         const totalFetched = (pageNum - 1) * LIMIT + docs.length;
 
         dispatch(pageNum === 1 ? setPosts(docs) : appendPosts(docs));
@@ -67,48 +68,64 @@ const Home = () => {
     [dispatch],
   );
 
-  // Initial load / runs exactly once
+  // Infinite scroll listener
   useEffect(() => {
-    if (initialLoaded) return;
-    loadPage(1);
-    dispatch(setInitialLoaded(true));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    const handleScroll = () => {
+      if (
+        window.innerHeight + document.documentElement.scrollTop >=
+          document.documentElement.offsetHeight - 150 &&
+        !loading &&
+        hasMore
+      ) {
+        loadPage(page + 1);
+      }
+    };
 
-  // Event handlers
-  const handleLoadMore = () => {
-    if (loading || !hasMore) return;
-    const nextPage = page + 1;
-    loadPage(nextPage);
-  };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loading, hasMore, page, loadPage]);
 
+  // Initial load (run only once)
+  useEffect(() => {
+    if (!initialLoaded) {
+      loadPage(1);
+      dispatch(setInitialLoaded(true));
+    }
+  }, [initialLoaded, loadPage, dispatch]);
+
+  // Client-side search filter
   const filteredPosts = useMemo(() => {
     if (!searchTerm) return posts;
 
-    const query = searchTerm.toLowerCase();
-
+    const q = searchTerm.toLowerCase();
     return posts.filter((post) => {
-      const title = post.title?.toLowerCase() || '';
-      const content = post.content?.toLowerCase() || '';
-
-      return title.includes(query) || content.includes(query);
+      const title = post.title?.toLowerCase() ?? '';
+      const content = post.content?.toLowerCase() ?? '';
+      return title.includes(q) || content.includes(q);
     });
   }, [posts, searchTerm]);
 
   const renderContent = () => {
+    // First load – show full-screen skeletons
     if (loading && posts.length === 0) {
       return (
-        <div className="flex flex-col items-center justify-center text-center py-32">
-          <Loader
-            text="Loading posts..."
-            size={48}
-            className="flex-col gap-4 py-0"
-            textClassName="text-lg"
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 py-10">
+          {filteredPosts.map((post) => (
+            <PostCard key={post.$id} post={post} />
+          ))}
+
+          {loading && hasMore && (
+            <>
+              {Array.from({ length: LIMIT }).map((_, i) => (
+                <PostCardSkeleton key={`skeleton-${i}`} />
+              ))}
+            </>
+          )}
         </div>
       );
     }
 
+    // Error state
     if (error) {
       return (
         <div className="flex justify-center py-20">
@@ -120,26 +137,27 @@ const Home = () => {
       );
     }
 
+    // Empty state (no posts or no search results)
     if (filteredPosts.length === 0) {
       return (
         <div className="text-center py-32">
-          <div className="flex flex-col items-center space-y-4">
+          <div className="flex flex-col items-center space-y-6">
             {searchTerm ? (
-              <Search className="h-20 w-20 text-muted-foreground/50" />
+              <Search className="h-24 w-24 text-muted-foreground/40" />
             ) : (
-              <BookOpen className="h-20 w-20 text-muted-foreground/50" />
+              <BookOpen className="h-24 w-24 text-muted-foreground/40" />
             )}
             <h3 className="text-2xl font-semibold">
               {searchTerm ? 'No Results Found' : 'No Posts Yet'}
             </h3>
-            <p className="text-muted-foreground max-w-md mx-auto">
+            <p className="text-muted-foreground max-w-md">
               {searchTerm
-                ? `We couldn't find any posts matching "${searchTerm}". Try a different search.`
-                : 'There are no posts to display right now. Why not be the first to create one?'}
+                ? `We couldn't find any posts matching "${searchTerm}".`
+                : 'There are no posts to display right now.'}
             </p>
             {!searchTerm && (
               <Button asChild>
-                <NavLink to="/create">Create Post</NavLink>
+                <NavLink to="/create">Create Your First Post</NavLink>
               </Button>
             )}
           </div>
@@ -148,34 +166,29 @@ const Home = () => {
     }
 
     return (
-      <div className="space-y-8">
+      <div className="space-y-10">
         {searchTerm && (
-          <div className="text-center">
-            <p className="text-muted-foreground">
-              Found {filteredPosts.length}{' '}
-              {filteredPosts.length === 1 ? 'post' : 'posts'} for &quot;
-              {searchTerm}&quot;
-            </p>
-          </div>
+          <p className="text-center text-muted-foreground">
+            Found {filteredPosts.length}{' '}
+            {filteredPosts.length === 1 ? 'post' : 'posts'} for "{searchTerm}"
+          </p>
         )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {/* Actual posts */}
           {filteredPosts.map((post) => (
             <PostCard key={post.$id} post={post} />
           ))}
+
+          {/* Skeletons while loading next page */}
+          {loading && hasMore && (
+            <>
+              {[...Array(LIMIT)].map((_, i) => (
+                <PostCardSkeleton key={`skeleton-${i}`} />
+              ))}
+            </>
+          )}
         </div>
-        {hasMore && !searchTerm && (
-          <div className="text-center">
-            <Button onClick={handleLoadMore} disabled={loading}>
-              {loading ? (
-                <>
-                  <Spinner size={16} className="mr-2 text-current" /> Loading...
-                </>
-              ) : (
-                'Load More'
-              )}
-            </Button>
-          </div>
-        )}
       </div>
     );
   };
@@ -213,7 +226,7 @@ const Home = () => {
       </div>
 
       {/* Content Section */}
-      {renderContent()}
+      <div className="py-4">{renderContent()}</div>
     </div>
   );
 };
