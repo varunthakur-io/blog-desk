@@ -11,20 +11,29 @@ import {
 import { upsertProfile, selectProfileById } from '../store/profileSlice';
 import { authService } from '../services/authService';
 
+/**
+ * Custom hook to verify user authentication and profile status.
+ *
+ * This hook performs the following:
+ * 1. Checks if a user session exists (via `authService.getAccount()`).
+ * 2. Loads the user's profile if authenticated but missing in Redux state.
+ * 3. Manages authentication loading state in Redux.
+ *
+ * @returns {boolean} isAuthChecked - True when the initial authentication check has completed.
+ */
 const useAuthCheck = () => {
   const dispatch = useDispatch();
 
+  // Redux Selectors
   const authStatus = useSelector(selectAuthStatus); // 'guest' | 'authenticated'
   const authUserId = useSelector(selectAuthUserId);
-
-  // Check if we have the profile loaded in store
   const profile = useSelector((state) => selectProfileById(state, authUserId));
-  const hasProfile = !!profile;
 
+  const hasProfile = !!profile;
   const [isAuthChecked, setIsAuthChecked] = useState(false);
   const mountedRef = useRef(true);
 
-  // Track mounted state
+  // Track component mount status to prevent state updates on unmounted components
   useEffect(() => {
     mountedRef.current = true;
     return () => {
@@ -34,8 +43,8 @@ const useAuthCheck = () => {
 
   useEffect(() => {
     const checkUser = async () => {
-      // Only set loading if we are not already authenticated (to avoid flicker)
-      // or if we really need to show loading.
+      // Avoid UI flicker: only set loading if we aren't already authenticated
+      // or if we haven't checked yet.
       if (authStatus !== 'authenticated') {
         dispatch(setAuthLoading(true));
       }
@@ -43,7 +52,7 @@ const useAuthCheck = () => {
       try {
         let currentUserId = authUserId;
 
-        // 1. If no user ID, fetch account from Appwrite
+        // 1. If no user ID in store, try to fetch from Appwrite session
         if (!currentUserId) {
           const currentUser = await authService.getAccount();
           if (!mountedRef.current) return;
@@ -52,14 +61,13 @@ const useAuthCheck = () => {
             currentUserId = currentUser.$id;
             dispatch(setAuthUserId(currentUserId));
           } else {
+            // No session found -> User is Guest
             dispatch(clearAuthUserId());
-            // No user found, so we are guest. Stop here.
             return;
           }
         }
 
-        // 2. We have a user ID (either from store or just fetched).
-        // If profile is missing, fetch it.
+        // 2. If we have a User ID but no Profile in store, fetch the profile
         if (currentUserId && !hasProfile) {
           const profileDoc = await authService.getProfile(currentUserId);
           if (mountedRef.current && profileDoc) {
@@ -67,11 +75,9 @@ const useAuthCheck = () => {
           }
         }
       } catch (err) {
-        console.error('Auth check error:', err);
+        console.error('useAuthCheck :: Error checking auth:', err);
         if (mountedRef.current) {
-          // If strictly checking auth failed (401), clear user.
-          // If profile fetch failed, we might still be logged in, just no profile.
-          // For safety, if getAccount failed, we are guest.
+          // If authentication check fails (e.g., 401), assume guest
           if (!authUserId) {
             dispatch(clearAuthUserId());
           }
@@ -84,21 +90,19 @@ const useAuthCheck = () => {
       }
     };
 
-    // Logic Matrix:
-    // 1. Authenticated + Profile Loaded => OK
-    // 2. Authenticated + Profile Missing => Run check (to fetch profile)
-    // 3. Guest + Checked => OK
-    // 4. Guest + Unchecked => Run check
-
+    // Optimization Logic:
+    // 1. If Authenticated & Profile Loaded => Check Complete.
     if (authStatus === 'authenticated' && hasProfile) {
       if (!isAuthChecked) setIsAuthChecked(true);
       return;
     }
 
+    // 2. If Guest & Check already ran => Stop.
     if (authStatus === 'guest' && isAuthChecked) {
       return;
     }
 
+    // 3. Otherwise (Guest & Unchecked OR Authenticated & Missing Profile) => Run check.
     checkUser();
   }, [dispatch, authStatus, authUserId, hasProfile, isAuthChecked]);
 
