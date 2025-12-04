@@ -107,6 +107,7 @@ export default function Dashboard() {
   // Local states
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [postToDelete, setPostToDelete] = useState(null);
+  const [postToDeleteTitle, setPostToDeleteTitle] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -146,8 +147,9 @@ export default function Dashboard() {
   // Event handers
   const handleEdit = (postId) => navigate(`/edit/${postId}`);
 
-  const handleDeleteClick = (postId) => {
-    setPostToDelete(postId);
+  const handleDeleteClick = (post) => {
+    setPostToDelete(post.$id);
+    setPostToDeleteTitle(post.title);
     setIsDeleteDialogOpen(true);
   };
 
@@ -310,7 +312,7 @@ export default function Dashboard() {
                                 <Edit2 className="h-4 w-4 mr-2" /> Edit
                               </DropdownMenuItem>
                               <DropdownMenuItem
-                                onClick={() => handleDeleteClick(post.$id)}
+                                onClick={() => handleDeleteClick(post)}
                                 className="text-destructive focus:text-destructive cursor-pointer"
                               >
                                 <Trash2 className="h-4 w-4 mr-2" /> Delete
@@ -338,7 +340,7 @@ export default function Dashboard() {
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete "
               <span className="font-medium text-foreground">
-                {globalPosts.find((p) => p.$id === postToDelete)?.title}
+                {postToDeleteTitle}
               </span>
               " and remove it from our servers.
             </AlertDialogDescription>
