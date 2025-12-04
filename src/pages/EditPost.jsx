@@ -1,23 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Loader2, Save, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 // UI Components
 import FormSkeleton from '@/components/skeletons/FormSkeleton';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import PostForm from '@/components/PostForm';
 
 // Services & Store
 import { postService } from '../services/postService';
@@ -32,7 +24,7 @@ export default function EditPost() {
   const post = useSelector((state) => selectPostById(state, id));
 
   // Local States
-  const [formData, setFormData] = useState({ title: '', content: '' });
+  const [formData, setFormData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
@@ -92,18 +84,10 @@ export default function EditPost() {
   }, [id, post, dispatch]);
 
   // Event Handlers
-  const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleUpdate = async (data) => {
     if (!id) return;
 
-    if (!formData.title.trim() || !formData.content.trim()) {
+    if (!data.title.trim() || !data.content.trim()) {
       toast.error('Title and content are required.');
       return;
     }
@@ -112,7 +96,7 @@ export default function EditPost() {
     setError('');
 
     try {
-      const updatedPost = await postService.updatePost(id, formData);
+      const updatedPost = await postService.updatePost(id, data);
 
       if (updatedPost && updatedPost.$id) {
         // Update global posts state
@@ -161,80 +145,14 @@ export default function EditPost() {
   }
 
   return (
-    <div className="container max-w-3xl py-8">
-      <Button
-        variant="ghost"
-        className="mb-4 pl-0 hover:pl-2 transition-all"
-        onClick={() => navigate('/dashboard')}
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
-      </Button>
-
-      <Card className="border-none shadow-none">
-        <CardHeader className="px-0">
-          <CardTitle className="text-2xl">Edit Post</CardTitle>
-          <CardDescription>Make changes to your existing post.</CardDescription>
-        </CardHeader>
-
-        <CardContent className="px-0">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid gap-2">
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-                placeholder="Post title"
-                disabled={isSaving}
-                className="text-lg font-medium"
-              />
-            </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="content">Content</Label>
-              <Textarea
-                id="content"
-                name="content"
-                value={formData.content}
-                onChange={handleChange}
-                placeholder="Write your post content here..."
-                className="min-h-[400px] resize-none leading-relaxed"
-                disabled={isSaving}
-              />
-            </div>
-
-            <div className="flex items-center justify-end gap-4 pt-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate('/dashboard')}
-                disabled={isSaving}
-              >
-                Cancel
-              </Button>
-
-              <Button
-                type="submit"
-                disabled={isSaving}
-                className="min-w-[120px]"
-              >
-                {isSaving ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save className="mr-2 h-4 w-4" />
-                    Update Post
-                  </>
-                )}
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <PostForm
+        mode="edit"
+        initialData={formData}
+        onSubmit={handleUpdate}
+        isSubmitting={isSaving}
+        onBackClick={() => navigate('/dashboard')}
+      />
     </div>
   );
 }
