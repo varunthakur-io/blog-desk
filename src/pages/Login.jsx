@@ -1,3 +1,4 @@
+// src/pages/Login.jsx
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
@@ -16,31 +17,33 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-// Auth service and Redux actions
-import { selectAuthUserId, setAuthUser } from '../store/authSlice';
-import { authService } from '../services/authService';
+// Store & Services
+import {
+  selectAuthUserId,
+  setAuthLoading,
+  selectAuthStatus,
+  setAuthUserId,
+} from '@/store/authSlice';
+import { upsertProfile } from '@/store/profileSlice';
+import { authService } from '@/services/authService';
 
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Local form state
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const authUserId = useSelector(selectAuthUserId);
+  const authStatus = useSelector(selectAuthStatus);
 
-  // Local UI state flags
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Pull auth state from Redux
-  const currentUserID = useSelector(selectAuthUserId);
-  const isAuthenticated = Boolean(currentUserID);
-
-  // Redirect if already authenticated.
+  // Redirect if already logged in
   useEffect(() => {
-    if (isAuthenticated) {
+    if (authStatus === 'authenticated' && authUserId) {
       navigate('/', { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [authStatus, authUserId, navigate]);
 
   // Controlled inputs change handler
   const handleChange = (e) => {
@@ -61,23 +64,34 @@ const Login = () => {
     setError('');
 
     try {
-      // authService.loginUser throws on error OR returns a user object.
-      const user = await authService.loginUser(formData);
+      dispatch(setAuthLoading(true));
 
-      // Defensive check in case the service returns falsy without throwing.
-      if (!user) throw new Error('Invalid credentials.');
+      // 1. Login via Appwrite
+      const { user, profile } = await authService.loginUser(formData);
 
-      // Update Redux auth state
-      dispatch(setAuthUser(user.$id));
-      toast.success('Logged in successfully!');
+      // 2. Get current account (includes $id, name, email)
+      const account = user;
 
-      // Immediate navigation avoids flicker; the effect above will also redirect on refresh.
-      // NOTE: Doing both is fine; only one navigation will effectively apply.
+      // 3. Fetch full profile document (bio, avatarUrl, etc.)
+      // const profile = profileObj; // already destructured above
+
+      // 4. Update auth state
+      dispatch(setAuthUserId(account.$id));
+
+      // 5. Cache full profile in profileSlice
+      dispatch(upsertProfile(profile));
+
+      toast.success(`Welcome back, ${account.name || 'friend'}!`);
+
+      // 6. Redirect
       navigate('/', { replace: true });
     } catch (err) {
-      setError(err.message || 'Login failed. Please check your credentials.');
+      const message = err?.message || 'Invalid email or password';
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
+      dispatch(setAuthLoading(false));
     }
   };
 
