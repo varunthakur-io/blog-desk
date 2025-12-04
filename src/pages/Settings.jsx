@@ -13,10 +13,6 @@ import {
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
-import useDarkMode from '../hooks/useDarkMode';
-import { authService } from '../services/authService';
-import { clearUser } from '../store/authSlice';
-
 // UI Components
 import { Button } from '@/components/ui/button';
 import {
@@ -48,6 +44,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+
+// Custom Hooks and Services
+import useDarkMode from '../hooks/useDarkMode';
+import { authService } from '../services/authService';
+import { clearAuthUserId } from '../store/authSlice';
 
 const Settings = () => {
   const [isDarkMode, setDarkMode] = useDarkMode();
@@ -91,7 +92,7 @@ const Settings = () => {
     setIsLoading(true);
     try {
       await authService.deleteAllSessions();
-      dispatch(clearUser());
+      dispatch(clearAuthUserId());
       navigate('/login');
       toast.success('Logged out from all devices!');
     } catch (err) {
@@ -107,7 +108,7 @@ const Settings = () => {
     setIsLoading(true);
     try {
       await authService.deleteAccount();
-      dispatch(clearUser());
+      dispatch(clearAuthUserId());
       navigate('/login');
       toast.success('Account deleted successfully!');
     } catch (error) {
