@@ -30,18 +30,18 @@ const PostDetails = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // Selectors
-  const post = useSelector((state) => selectPostById(state, id));
+  // Post & User State from Redux
+  const currentPost = useSelector((state) => selectPostById(state, id));
   const authUserId = useSelector(selectAuthUserId);
   const userProfile = useSelector((state) =>
     selectProfileById(state, authUserId),
   );
 
   // Local States
-  const [isLoading, setIsLoading] = useState(!post);
-  const [error, setError] = useState(''); // ✅ local error
+  const [isLoading, setIsLoading] = useState(!currentPost);
+  const [error, setError] = useState(''); // local error
 
-  const [likesCount, setLikesCount] = useState(post?.likesCount || 0);
+  const [likesCount, setLikesCount] = useState(currentPost?.likesCount || 0);
   const [isLiked, setIsLiked] = useState(false);
   const [isLikedLoading, setIsLikedLoading] = useState(true);
   const [isLiking, setIsLiking] = useState(false);
@@ -51,64 +51,30 @@ const PostDetails = () => {
   const [newComment, setNewComment] = useState('');
   const [isCommenting, setIsCommenting] = useState(false);
 
-  // Effect: Load Post Data
+  // Effect 1: Fetch Post Data (Only if missing)
   useEffect(() => {
+    if (!id) {
+      setError('No post ID provided.');
+      return;
+    }
+
+    // If we already have the post, just ensure loading is false and stop.
+    if (currentPost) {
+      setIsLoading(false);
+      return;
+    }
+
     let mounted = true;
+    setIsLoading(true);
+    setError('');
 
     const fetchPost = async () => {
-      if (!id) {
-        setError('No post ID provided.'); // local
-        return;
-      }
-
-      // Use cached data from redux
-      if (post) {
-        if (!mounted) return;
-
-        dispatch(appendPosts([post]));
-
-        setLikesCount(post.likesCount || 0);
-
-        if (authUserId) {
-          setIsLikedLoading(true);
-          const liked = await postService.hasUserLiked(post.$id, authUserId);
-          if (!mounted) return;
-          setIsLiked(!!liked);
-          setIsLikedLoading(false);
-        } else {
-          setIsLiked(false);
-          setIsLikedLoading(false);
-        }
-
-        setIsLoading(false);
-        return;
-      }
-
-      // Fetch from API
-      setIsLoading(true);
-      setError('');
-
       try {
         const fetchedPost = await postService.getPostById(id);
         if (!mounted) return;
 
         if (fetchedPost) {
           dispatch(appendPosts([fetchedPost]));
-          setLikesCount(fetchedPost.likesCount || 0);
-
-          if (authUserId) {
-            setIsLikedLoading(true);
-            const liked = await postService.hasUserLiked(
-              fetchedPost.$id,
-              authUserId,
-            );
-            if (!mounted) return;
-            setIsLiked(!!liked);
-            setIsLikedLoading(false);
-          } else {
-            setIsLiked(false);
-            setIsLikedLoading(false);
-          }
         } else {
           setError('Post not found.');
         }
@@ -126,12 +92,51 @@ const PostDetails = () => {
     return () => {
       mounted = false;
     };
-  }, [id, dispatch, post, authUserId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, dispatch]);
+
+  // Effect 2: Sync Local State & Check Like Status
+  useEffect(() => {
+    if (!currentPost) return;
+
+    // 1. Sync likes count from store (runs when Post ID changes)
+    setLikesCount(currentPost.likesCount || 0);
+
+    // 2. Check if user liked
+    let mounted = true;
+    const checkUserLike = async () => {
+      if (!authUserId) {
+        setIsLiked(false);
+        setIsLikedLoading(false);
+        return;
+      }
+
+      setIsLikedLoading(true);
+      try {
+        const liked = await postService.hasUserLiked(
+          currentPost.$id,
+          authUserId,
+        );
+        if (mounted) setIsLiked(!!liked);
+      } catch (e) {
+        console.error('Failed to check like status:', e);
+      } finally {
+        if (mounted) setIsLikedLoading(false);
+      }
+    };
+
+    checkUserLike();
+
+    return () => {
+      mounted = false;
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPost?.$id, authUserId]);
 
   // Handlers
   const handleLike = async () => {
     if (!authUserId) return toast.error('You must be logged in to like.');
-    if (!post?.$id) return;
+    if (!currentPost?.$id) return;
     if (isLikedLoading || isLiking) return;
 
     setIsLiking(true);
@@ -145,10 +150,10 @@ const PostDetails = () => {
 
     try {
       if (wasLiked) {
-        await postService.unlikePost(post.$id, authUserId);
+        await postService.unlikePost(currentPost.$id, authUserId);
         toast.success('Post unliked!');
       } else {
-        await postService.likePost(post.$id, authUserId);
+        await postService.likePost(currentPost.$id, authUserId);
         toast.success('Post liked!');
       }
     } catch {
@@ -185,7 +190,10 @@ const PostDetails = () => {
 
     try {
       // Assuming postService.addComment exists and returns the permanent comment object
-      const actualComment = await postService.addComment(post.$id, newComment);
+      const actualComment = await postService.addComment(
+        currentPost.$id,
+        newComment,
+      );
 
       // Replace temporary comment with actual data from backend
       setComments((prev) =>
@@ -240,7 +248,7 @@ const PostDetails = () => {
     );
   }
 
-  if (error || !post) {
+  if (error || !currentPost) {
     return (
       <div className="container mx-auto py-10">
         <Card className="max-w-4xl mx-auto">
@@ -269,7 +277,7 @@ const PostDetails = () => {
           <div className="flex justify-between items-start">
             <div className="flex-1">
               <CardTitle className="text-3xl sm:text-4xl font-bold leading-tight mb-2">
-                {post.title}
+                {currentPost.title}
               </CardTitle>
 
               <CardDescription className="flex items-center space-x-3 text-sm flex-wrap mt-3">
@@ -278,18 +286,21 @@ const PostDetails = () => {
                   className="font-medium flex items-center gap-1"
                 >
                   <User className="h-3.5 w-3.5" /> By{' '}
-                  {post.authorName || 'Anonymous'}
+                  {currentPost.authorName || 'Anonymous'}
                 </Badge>
                 <span className="text-muted-foreground">•</span>
                 <div className="flex items-center gap-1.5 text-muted-foreground">
                   <Calendar className="h-3.5 w-3.5" />
-                  <time dateTime={post.$createdAt}>
-                    {post.$createdAt
-                      ? new Date(post.$createdAt).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric',
-                        })
+                  <time dateTime={currentPost.$createdAt}>
+                    {currentPost.$createdAt
+                      ? new Date(currentPost.$createdAt).toLocaleDateString(
+                          'en-US',
+                          {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                          },
+                        )
                       : '—'}
                   </time>
                 </div>
@@ -312,7 +323,7 @@ const PostDetails = () => {
         <CardContent className="pt-6">
           <div className="prose prose-lg max-w-none dark:prose-invert">
             <p className="text-lg leading-relaxed whitespace-pre-wrap text-justify">
-              {post.content}
+              {currentPost.content}
             </p>
           </div>
         </CardContent>
