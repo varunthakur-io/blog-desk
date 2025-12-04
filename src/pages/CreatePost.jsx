@@ -22,13 +22,14 @@ import { Textarea } from '@/components/ui/textarea';
 // Services and Store
 import { postService } from '@/services/postService';
 import { upsertPost } from '@/store/postSlice';
+import { selectAuthUserId } from '@/store/authSlice';
 
 const CreatePost = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   // Selectors
-  const { user } = useSelector((state) => state.auth);
+  const authUserId = useSelector(selectAuthUserId);
 
   // Local states
   const [formData, setFormData] = useState({ title: '', content: '' });
@@ -47,7 +48,7 @@ const CreatePost = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user) {
+    if (!authUserId) {
       toast.error('You must be logged in to create a post.');
       return;
     }

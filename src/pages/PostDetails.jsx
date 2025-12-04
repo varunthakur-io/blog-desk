@@ -22,6 +22,8 @@ import { Textarea } from '@/components/ui/textarea';
 // Store & Services
 import { postService } from '@/services/postService';
 import { appendPosts, selectPostById } from '@/store/postSlice';
+import { selectAuthUserId } from '@/store/authSlice';
+import { selectProfileById } from '@/store/profileSlice';
 
 const PostDetails = () => {
   const { id } = useParams();
@@ -29,8 +31,11 @@ const PostDetails = () => {
   const dispatch = useDispatch();
 
   // Selectors
-  const post = useSelector((state) => selectPostById(state, id)); // ✅ fixed
-  const { user } = useSelector((state) => state.auth);
+  const post = useSelector((state) => selectPostById(state, id));
+  const authUserId = useSelector(selectAuthUserId);
+  const userProfile = useSelector((state) =>
+    selectProfileById(state, authUserId),
+  );
 
   // Local States
   const [isLoading, setIsLoading] = useState(!post);
@@ -64,9 +69,9 @@ const PostDetails = () => {
 
         setLikesCount(post.likesCount || 0);
 
-        if (user?.$id) {
+        if (authUserId) {
           setIsLikedLoading(true);
-          const liked = await postService.hasUserLiked(post.$id, user.$id);
+          const liked = await postService.hasUserLiked(post.$id, authUserId);
           if (!mounted) return;
           setIsLiked(!!liked);
           setIsLikedLoading(false);
@@ -91,11 +96,11 @@ const PostDetails = () => {
           dispatch(appendPosts([fetchedPost]));
           setLikesCount(fetchedPost.likesCount || 0);
 
-          if (user?.$id) {
+          if (authUserId) {
             setIsLikedLoading(true);
             const liked = await postService.hasUserLiked(
               fetchedPost.$id,
-              user.$id,
+              authUserId,
             );
             if (!mounted) return;
             setIsLiked(!!liked);
@@ -121,11 +126,11 @@ const PostDetails = () => {
     return () => {
       mounted = false;
     };
-  }, [id, dispatch, post, user?.$id]);
+  }, [id, dispatch, post, authUserId]);
 
   // Handlers
   const handleLike = async () => {
-    if (!user) return toast.error('You must be logged in to like.');
+    if (!authUserId) return toast.error('You must be logged in to like.');
     if (!post?.$id) return;
     if (isLikedLoading || isLiking) return;
 
@@ -140,10 +145,10 @@ const PostDetails = () => {
 
     try {
       if (wasLiked) {
-        await postService.unlikePost(post.$id, user.$id);
+        await postService.unlikePost(post.$id, authUserId);
         toast.success('Post unliked!');
       } else {
-        await postService.likePost(post.$id, user.$id);
+        await postService.likePost(post.$id, authUserId);
         toast.success('Post liked!');
       }
     } catch {
@@ -159,7 +164,7 @@ const PostDetails = () => {
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
     if (!newComment.trim()) return;
-    if (!user) {
+    if (!authUserId) {
       toast.error('You must be logged in to comment.');
       return;
     }
@@ -170,7 +175,7 @@ const PostDetails = () => {
     const commentData = {
       $id: tempId,
       text: newComment,
-      authorName: user.name || 'You',
+      authorName: userProfile?.name || 'You',
       $createdAt: new Date().toISOString(),
     };
 

@@ -1,12 +1,15 @@
 // src/components/PrivateRoute.jsx
 import { useSelector } from 'react-redux';
 import { Navigate, Outlet } from 'react-router-dom';
+import { selectAuthStatus, selectAuthUserId } from '@/store/authSlice';
 
 const PrivateRoute = () => {
-  const { user } = useSelector((state) => state.auth);
-  // console.log('PrivateRoute check - user:', user); // Debug log
+  const authStatus = useSelector(selectAuthStatus);
+  const authUserId = useSelector(selectAuthUserId);
 
-  return user ? <Outlet /> : <Navigate to="/login" replace />;
+  const isAuthenticated = authStatus === 'authenticated' && !!authUserId;
+
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
 };
 
 export default PrivateRoute;
