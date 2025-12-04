@@ -8,6 +8,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import PostCard from '@/components/PostCard';
+import FeaturedPost from '@/components/FeaturedPost';
 
 // Services & Store
 import { postService } from '@/services/postService';
@@ -108,18 +109,14 @@ const Home = () => {
     // First load – show full-screen skeletons
     if (loading && posts.length === 0) {
       return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 py-10">
-          {filteredPosts.map((post) => (
-            <PostCard key={post.$id} post={post} />
-          ))}
-
-          {loading && hasMore && (
-            <>
-              {Array.from({ length: LIMIT }).map((_, i) => (
-                <PostCardSkeleton key={`skeleton-${i}`} />
-              ))}
-            </>
-          )}
+        <div className="space-y-10">
+          {/* Simulate featured skeleton */}
+          <div className="w-full h-[400px] rounded-3xl bg-muted animate-pulse" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <PostCardSkeleton key={`skeleton-${i}`} />
+            ))}
+          </div>
         </div>
       );
     }
@@ -164,8 +161,21 @@ const Home = () => {
       );
     }
 
+    // Determine if we should show the Featured Post layout
+    const showFeatured = !searchTerm && filteredPosts.length > 0;
+
+    console.log('Home Debug:', {
+      searchTerm,
+      totalPosts: filteredPosts.length,
+      showFeatured,
+      firstPost: filteredPosts[0],
+    });
+
+    const featuredPost = showFeatured ? filteredPosts[0] : null;
+    const gridPosts = showFeatured ? filteredPosts.slice(1) : filteredPosts;
+
     return (
-      <div className="space-y-10">
+      <div className="space-y-12">
         {searchTerm && (
           <p className="text-center text-muted-foreground">
             Found {filteredPosts.length}{' '}
@@ -173,21 +183,30 @@ const Home = () => {
           </p>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {/* Actual posts */}
-          {filteredPosts.map((post) => (
-            <PostCard key={post.$id} post={post} />
-          ))}
+        {/* Featured Section */}
+        {featuredPost && (
+          <section className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <FeaturedPost post={featuredPost} />
+          </section>
+        )}
 
-          {/* Skeletons while loading next page */}
-          {loading && hasMore && (
-            <>
-              {[...Array(LIMIT)].map((_, i) => (
-                <PostCardSkeleton key={`skeleton-${i}`} />
-              ))}
-            </>
-          )}
-        </div>
+        {/* Grid Section */}
+        {gridPosts.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {gridPosts.map((post) => (
+              <PostCard key={post.$id} post={post} />
+            ))}
+
+            {/* Skeletons while loading next page */}
+            {loading && hasMore && (
+              <>
+                {[...Array(LIMIT)].map((_, i) => (
+                  <PostCardSkeleton key={`skeleton-${i}`} />
+                ))}
+              </>
+            )}
+          </div>
+        )}
       </div>
     );
   };
@@ -195,14 +214,15 @@ const Home = () => {
   return (
     <div className="container relative max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 pb-10">
       {/* Hero Section */}
-      <section className="mx-auto flex flex-col items-center gap-4 py-12 md:py-24 lg:py-32 text-center">
+      <section className="mx-auto flex flex-col items-center gap-4 py-8 md:py-16 text-center">
         <h1 className="text-3xl font-bold leading-tight tracking-tighter md:text-6xl lg:leading-[1.1]">
           Build your digital presence.
         </h1>
         <p className="max-w-[750px] text-lg text-muted-foreground sm:text-xl">
-          A minimal blog platform built for developers and creators. Share your ideas, code, and stories with the world.
+          A minimal blog platform built for developers and creators. Share your
+          ideas, code, and stories with the world.
         </p>
-        
+
         {/* Search Bar */}
         <div className="w-full max-w-md md:max-w-sm items-center space-x-2 pt-4">
           <div className="rounded-xl border border-border/60 bg-card/60 shadow-sm px-3 py-2 flex items-center gap-2">
@@ -225,4 +245,3 @@ const Home = () => {
 };
 
 export default Home;
-
