@@ -73,20 +73,18 @@ class PostService {
   }
 
   // Get all posts
-  async getAllPosts(page = 1, limit = 6) {
+  async getAllPosts(page = 1, skip = 6) {
     try {
-      // fetch all documents (no queries)
+      const offset = (page - 1) * skip;
+      const limit = skip;
+
       const res = await databases.listDocuments(
         appwrite.databaseId,
         appwrite.postsCollectionId,
+        [Query.limit(limit), Query.offset(offset)],
       );
 
-      // client-side pagination
-      const allDocs = res?.documents ?? [];
-      const start = (page - 1) * limit;
-      const pageDocs = allDocs.slice(start, start + limit);
-
-      return pageDocs;
+      return res;
     } catch (error) {
       console.error('Error fetching posts:', error);
       throw error;

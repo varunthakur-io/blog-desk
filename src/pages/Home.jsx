@@ -52,11 +52,12 @@ const Home = () => {
 
       try {
         const data = await postService.getAllPosts(pageNum, LIMIT);
-        const docs = Array.isArray(data) ? data : (data?.documents ?? []);
+        const docs = Array.isArray(data.documents) ? data.documents : [];
+        const totalFetched = (pageNum - 1) * LIMIT + docs.length;
 
         dispatch(pageNum === 1 ? setPosts(docs) : appendPosts(docs));
         dispatch(setPage(pageNum));
-        dispatch(setHasMore(docs.length === LIMIT));
+        dispatch(setHasMore(totalFetched < data.total));
       } catch (err) {
         dispatch(setPostsError(err?.message ?? 'Failed to fetch posts'));
       } finally {
