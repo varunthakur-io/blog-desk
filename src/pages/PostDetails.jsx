@@ -130,7 +130,7 @@ const PostDetails = () => {
     return () => {
       mounted = false;
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPost?.$id, authUserId]);
 
   // Handlers
@@ -250,7 +250,7 @@ const PostDetails = () => {
 
   if (error || !currentPost) {
     return (
-      <div className="container mx-auto py-10">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <Card className="max-w-4xl mx-auto">
           <CardContent className="p-6">
             <div className="text-center space-y-4">
@@ -271,10 +271,10 @@ const PostDetails = () => {
   }
 
   return (
-    <div className="container mx-auto py-10">
-      <Card className="max-w-4xl mx-auto border-border/50 shadow-lg">
-        <CardHeader className="border-0 pb-4">
-          <div className="flex justify-between items-start">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <Card className="p-0 border-none">
+        <CardHeader className="border-0 pb-4 px-0">
+          <div className="flex justify-between items-start px-4 sm:px-6 lg:px-8">
             <div className="flex-1">
               <CardTitle className="text-3xl sm:text-4xl font-bold leading-tight mb-2">
                 {currentPost.title}
@@ -320,8 +320,8 @@ const PostDetails = () => {
         <Separator />
 
         {/* Article Content */}
-        <CardContent className="pt-6">
-          <div className="prose prose-lg max-w-none dark:prose-invert">
+        <CardContent className="pt-6 px-0">
+          <div className="prose prose-lg max-w-none dark:prose-invert px-4 sm:px-6 lg:px-8">
             <p className="text-lg leading-relaxed whitespace-pre-wrap text-justify">
               {currentPost.content}
             </p>
@@ -331,102 +331,106 @@ const PostDetails = () => {
         <Separator />
 
         {/* Like and Share Actions */}
-        <CardContent className="py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button
-              onClick={handleLike}
-              variant={isLiked ? 'default' : 'outline'}
-              className="group transition-colors"
-              disabled={isLikedLoading || isLiking}
-            >
-              {isLikedLoading ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Heart
-                  className={`mr-2 h-4 w-4 transition-transform ${
-                    isLiked
-                      ? 'fill-white'
-                      : 'group-hover:fill-primary group-hover:text-primary'
-                  }`}
-                />
-              )}
-              {likesCount} {likesCount === 1 ? 'Like' : 'Likes'}
-            </Button>
+        <CardContent className="py-4 px-0">
+          <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center gap-4">
+              <Button
+                onClick={handleLike}
+                variant={isLiked ? 'default' : 'outline'}
+                className="group transition-colors"
+                disabled={isLikedLoading || isLiking}
+              >
+                {isLikedLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Heart
+                    className="mr-2 h-4 w-4 transition-all"
+                    fill={isLiked ? 'red' : 'transparent'} // red-500
+                    stroke={isLiked ? 'red' : 'currentColor'}
+                    strokeWidth={2}
+                  />
+                )}
+                {likesCount} {likesCount === 1 ? 'Like' : 'Likes'}
+              </Button>
 
-            <Button
-              onClick={handleShare}
-              variant="ghost"
-              className="text-muted-foreground"
-            >
-              Share
-            </Button>
+              <Button
+                onClick={handleShare}
+                variant="ghost"
+                className="text-muted-foreground"
+              >
+                Share
+              </Button>
+            </div>
           </div>
         </CardContent>
 
         <Separator />
 
         {/* Comments Section */}
-        <CardContent className="py-6">
-          <h3 className="text-xl font-semibold mb-4 border-b pb-2">
-            Comments ({comments.length})
-          </h3>
+        <CardContent className="py-6 px-0">
+          <div className="px-4 sm:px-6 lg:px-8">
+            <h3 className="text-xl font-semibold mb-4 border-b pb-2">
+              Comments ({comments.length})
+            </h3>
 
-          {/* Comment Submission Form */}
-          <form onSubmit={handleCommentSubmit} className="mb-8">
-            <Textarea
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Write a public comment..."
-              className="resize-none mb-3"
-              rows={3}
-              disabled={isCommenting}
-            />
-            <div className="flex justify-end">
-              <Button
-                type="submit"
-                disabled={isCommenting || !newComment.trim()}
-              >
-                {isCommenting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Posting...
-                  </>
-                ) : (
-                  <>
-                    <Send className="mr-2 h-4 w-4" /> Post Comment
-                  </>
-                )}
-              </Button>
-            </div>
-          </form>
-
-          {/* Comment List */}
-          <div className="space-y-4">
-            {comments.length === 0 ? (
-              <p className="text-muted-foreground text-center py-4">
-                No comments yet. Be the first!
-              </p>
-            ) : (
-              comments.map((comment) => (
-                <div
-                  key={comment.$id}
-                  className="border-b pb-3 last:border-b-0"
+            {/* Comment Submission Form */}
+            <form onSubmit={handleCommentSubmit} className="mb-8">
+              <Textarea
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Write a public comment..."
+                className="resize-none mb-3"
+                rows={3}
+                disabled={isCommenting}
+              />
+              <div className="flex justify-end">
+                <Button
+                  type="submit"
+                  disabled={isCommenting || !newComment.trim()}
                 >
-                  <div className="flex items-center justify-between text-sm mb-1">
-                    <span className="font-semibold text-foreground">
-                      {comment.authorName || 'Guest'}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {comment.$createdAt
-                        ? new Date(comment.$createdAt).toLocaleDateString()
-                        : 'Just now'}
-                    </span>
+                  {isCommenting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />{' '}
+                      Posting...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="mr-2 h-4 w-4" /> Post Comment
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+
+            {/* Comment List */}
+            <div className="space-y-4">
+              {comments.length === 0 ? (
+                <p className="text-muted-foreground text-center py-4">
+                  No comments yet. Be the first!
+                </p>
+              ) : (
+                comments.map((comment) => (
+                  <div
+                    key={comment.$id}
+                    className="border-b pb-3 last:border-b-0"
+                  >
+                    <div className="flex items-center justify-between text-sm mb-1">
+                      <span className="font-semibold text-foreground">
+                        {comment.authorName || 'Guest'}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {comment.$createdAt
+                          ? new Date(comment.$createdAt).toLocaleDateString()
+                          : 'Just now'}
+                      </span>
+                    </div>
+                    <p className="text-sm text-foreground/90 whitespace-pre-wrap">
+                      {comment.text}
+                    </p>
                   </div>
-                  <p className="text-sm text-foreground/90 whitespace-pre-wrap">
-                    {comment.text}
-                  </p>
-                </div>
-              ))
-            )}
+                ))
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
