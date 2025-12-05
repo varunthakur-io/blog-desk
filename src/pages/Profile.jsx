@@ -179,10 +179,13 @@ export default function Profile() {
       dispatch(setPostsError(null));
 
       try {
-        const postsArray = await postService.getAllPosts();
+        const data = await postService.getAllPosts();
         if (cancelled) return;
 
-        const posts = Array.isArray(postsArray) ? postsArray : [];
+        // `postService.getAllPosts()` returns the Appwrite response object
+        // which contains the documents in `response.documents`.
+        // Accept either an array (legacy) or the response object.
+        const posts = Array.isArray(data) ? data : (data?.documents ?? []);
 
         dispatch(setPosts(posts));
         dispatch(setInitialLoaded(true));
@@ -667,9 +670,9 @@ export default function Profile() {
                     <>
                       {postsLoading && !initialPostsLoaded ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                           {[...Array(4)].map((_, i) => (
-                             <PostCardSkeleton key={i} />
-                           ))}
+                          {[...Array(4)].map((_, i) => (
+                            <PostCardSkeleton key={i} />
+                          ))}
                         </div>
                       ) : userPosts.length === 0 ? (
                         <div className="text-center py-12 text-muted-foreground">
@@ -702,10 +705,10 @@ export default function Profile() {
                           Liked posts are visible only to the profile owner.
                         </p>
                       ) : isLoadingLikes ? (
-                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                           {[...Array(4)].map((_, i) => (
-                             <PostCardSkeleton key={i} />
-                           ))}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                          {[...Array(4)].map((_, i) => (
+                            <PostCardSkeleton key={i} />
+                          ))}
                         </div>
                       ) : likesError ? (
                         <p className="text-sm text-red-500">{likesError}</p>
