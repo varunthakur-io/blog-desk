@@ -1,37 +1,33 @@
 // PostDetails.jsx
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   ArrowLeft,
   Calendar,
+  Clock,
   Heart,
-  User,
+  Share2,
   Loader2,
-  MessageCircle,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 // UI Components
 import PostDetailsSkeleton from '@/components/skeletons/PostDetailsSkeleton';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Textarea } from '@/components/ui/textarea';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent } from '@/components/ui/card';
 
 // Store & Services
 import { postService } from '@/services/postService';
+import { authService } from '@/services/authService';
 import { appendPosts, selectPostById } from '@/store/postSlice';
 import { selectAuthUserId } from '@/store/authSlice';
-import { selectProfileById } from '@/store/profileSlice';
+import { selectProfileById, upsertProfile } from '@/store/profileSlice';
 
 const PostDetails = () => {
   const { id } = useParams();
@@ -41,14 +37,24 @@ const PostDetails = () => {
   // Post & User State from Redux
   const currentPost = useSelector((state) => selectPostById(state, id));
   const authUserId = useSelector(selectAuthUserId);
-  const authUserName = useSelector((state) =>
+
+  // Current User Profile (for commenting)
+  const currentUserProfile = useSelector((state) =>
     selectProfileById(state, authUserId),
-  )?.name;
+  );
+  const currentUserName = currentUserProfile?.name;
+
+  // Author Profile State
+  // We select the profile using the authorId from the post
+  const authorProfile = useSelector((state) =>
+    selectProfileById(state, currentPost?.authorId),
+  );
 
   // Local States
   const [isLoading, setIsLoading] = useState(!currentPost);
-  const [error, setError] = useState(''); // local error
+  const [error, setError] = useState('');
 
+  // Likes
   const [likesCount, setLikesCount] = useState(currentPost?.likesCount || 0);
   const [isLiked, setIsLiked] = useState(false);
   const [isLikedLoading, setIsLikedLoading] = useState(true);
@@ -59,16 +65,29 @@ const PostDetails = () => {
   const [newComment, setNewComment] = useState('');
   const [isCommenting, setIsCommenting] = useState(false);
 
-  // Effect 1: Fetch Post Data (Only if missing)
+  // Calculate read time
+  const readTime = currentPost?.content
+    ? Math.max(1, Math.ceil(currentPost.content.split(' ').length / 200))
+    : 1;
+
+  // Effect 1: Fetch Post Data & Author Profile
   useEffect(() => {
     if (!id) {
       setError('No post ID provided.');
       return;
     }
 
-    // If we already have the post, just ensure loading is false and stop.
+    // If post is already in store, just ensure loading is false and check for author profile
     if (currentPost) {
       setIsLoading(false);
+
+      // If we have the post but NOT the author profile, fetch the profile
+      if (currentPost.authorId && !authorProfile) {
+        authService
+          .getProfile(currentPost.authorId)
+          .then((profile) => dispatch(upsertProfile(profile)))
+          .catch((err) => console.warn('Could not fetch author profile:', err));
+      }
       return;
     }
 
@@ -83,6 +102,18 @@ const PostDetails = () => {
 
         if (fetchedPost) {
           dispatch(appendPosts([fetchedPost]));
+
+          // Fetch author profile immediately after fetching post
+          if (fetchedPost.authorId) {
+            authService
+              .getProfile(fetchedPost.authorId)
+              .then((profile) => {
+                if (mounted) dispatch(upsertProfile(profile));
+              })
+              .catch((err) =>
+                console.warn('Could not fetch author profile:', err),
+              );
+          }
         } else {
           setError('Post not found.');
         }
@@ -101,7 +132,7 @@ const PostDetails = () => {
       mounted = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, dispatch]);
+  }, [id, dispatch, currentPost?.authorId]);
 
   // Effect 2: Handle Likes State
   useEffect(() => {
@@ -150,7 +181,6 @@ const PostDetails = () => {
         const fetchedComments = await postService.getCommentsByPost(
           currentPost.$id,
         );
-        console.log('Fetched comments:', fetchedComments);
         setComments(fetchedComments);
       } catch (err) {
         console.error('Failed to load comments', err.message);
@@ -207,7 +237,7 @@ const PostDetails = () => {
       $id: tempId,
       postId: currentPost.$id,
       userId: authUserId,
-      authorName: authUserName || 'Anonymous',
+      authorName: currentUserName || 'Anonymous',
       content,
       $createdAt: new Date().toISOString(),
     };
@@ -217,11 +247,10 @@ const PostDetails = () => {
     setNewComment('');
 
     try {
-      // Send to server
       const createdComment = await postService.addComment({
         postId: currentPost.$id,
         userId: authUserId,
-        authorName: authUserName || 'Anonymous',
+        authorName: currentUserName || 'Anonymous',
         content,
       });
 
@@ -291,206 +320,293 @@ const PostDetails = () => {
     );
   }
 
-  return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <Card className="p-0 border-none shadow-none">
-        <CardHeader className="border-0 pb-4 px-0">
-          <div className="flex justify-between items-start px-4 sm:px-6 lg:px-8">
-            <div className="flex-1">
-              <CardTitle className="text-3xl sm:text-4xl font-bold leading-tight mb-2">
-                {currentPost.title}
-              </CardTitle>
+  // Determine what to show for author info
+  // Use profile data if available, otherwise fallback to post data
+  const displayAuthorName =
+    authorProfile?.name || currentPost.authorName || 'Anonymous';
+  const displayAuthorBio = authorProfile?.bio;
+  const displayAuthorAvatar = authorProfile?.avatarUrl;
 
-              <CardDescription className="flex items-center space-x-3 text-sm flex-wrap mt-3">
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          {/* LEFT COLUMN: Main Content (8/12) */}
+          <div className="lg:col-span-8 space-y-8">
+            {/* Article Header */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
                 <Badge
                   variant="secondary"
-                  className="font-medium flex items-center gap-1"
+                  className="rounded-full px-3 py-1 text-sm font-medium"
                 >
-                  <User className="h-3.5 w-3.5" /> By{' '}
-                  {currentPost.authorName || 'Anonymous'}
+                  {currentPost.category || 'Article'}
                 </Badge>
-                <span className="text-muted-foreground">•</span>
-                <div className="flex items-center gap-1.5 text-muted-foreground">
-                  <Calendar className="h-3.5 w-3.5" />
-                  <time dateTime={currentPost.$createdAt}>
-                    {currentPost.$createdAt
-                      ? new Date(currentPost.$createdAt).toLocaleDateString(
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate(-1)}
+                  className="text-muted-foreground hover:text-foreground h-auto py-1 px-3 rounded-full hover:bg-muted/50"
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" /> Back
+                </Button>
+              </div>
+
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight text-foreground">
+                {currentPost.title}
+              </h1>
+            </div>
+
+            {/* Hero Image */}
+            {currentPost.imageUrl && (
+              <div className="relative w-full h-[250px] sm:h-[400px] rounded-2xl overflow-hidden bg-muted border shadow-sm">
+                <img
+                  src={currentPost.imageUrl}
+                  alt={currentPost.title}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              </div>
+            )}
+
+            {/* Article Body */}
+            <article className="prose prose-lg dark:prose-invert max-w-none leading-relaxed text-justify">
+              {currentPost.content
+                .split('\n')
+                .map(
+                  (paragraph, idx) =>
+                    paragraph.trim() && <p key={idx}>{paragraph}</p>,
+                )}
+            </article>
+
+            <Separator />
+
+            {/* Comments Section */}
+            <div className="space-y-8 pt-8">
+              <div className="flex items-center justify-between">
+                <h3 className="text-2xl font-bold tracking-tight">
+                  Discussion
+                </h3>
+                <Badge variant="secondary" className="rounded-full px-3">
+                  {comments.length} comments
+                </Badge>
+              </div>
+
+              {/* Comment Form */}
+              <Card className="border-dashed shadow-sm bg-muted/30">
+                <CardContent className="p-6">
+                  <div className="flex gap-4">
+                    <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
+                      {/* Use currentUserProfile for the comment input avatar if available */}
+                      {currentUserProfile?.avatarUrl ? (
+                        <AvatarImage src={currentUserProfile.avatarUrl} />
+                      ) : null}
+                      <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                        {currentUserName?.[0]?.toUpperCase() || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 space-y-4">
+                      <Textarea
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
+                        placeholder="What are your thoughts on this?"
+                        className="min-h-[100px] bg-background resize-none focus-visible:ring-1"
+                      />
+                      <div className="flex justify-end gap-2">
+                        {newComment && (
+                          <Button
+                            variant="ghost"
+                            onClick={() => setNewComment('')}
+                            disabled={isCommenting}
+                          >
+                            Cancel
+                          </Button>
+                        )}
+                        <Button
+                          onClick={handleCommentSubmit}
+                          disabled={isCommenting || !newComment.trim()}
+                          className="px-6"
+                        >
+                          {isCommenting ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Posting...
+                            </>
+                          ) : (
+                            'Post Comment'
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Comments List */}
+              <div className="space-y-6">
+                {comments.length === 0 ? (
+                  <div className="text-center py-12 text-muted-foreground bg-muted/10 rounded-xl border border-dashed">
+                    <p>No comments yet. Be the first to share your thoughts!</p>
+                  </div>
+                ) : (
+                  comments.map((comment) => (
+                    <div
+                      key={comment.$id}
+                      className="group flex gap-4 transition-all"
+                    >
+                      <Avatar className="h-10 w-10 border border-muted bg-background mt-1">
+                        <AvatarFallback className="bg-secondary text-secondary-foreground font-medium text-xs">
+                          {comment.authorName?.[0]?.toUpperCase() || 'A'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <div className="bg-card border rounded-2xl p-4 shadow-sm relative">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="font-semibold text-sm">
+                              {comment.authorName || 'Guest'}
+                            </span>
+                            <time className="text-xs text-muted-foreground">
+                              {comment.$createdAt
+                                ? new Date(
+                                    comment.$createdAt,
+                                  ).toLocaleDateString('en-US', {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    hour: 'numeric',
+                                    minute: '2-digit',
+                                  })
+                                : 'Just now'}
+                            </time>
+                          </div>
+                          <p className="text-sm leading-relaxed text-foreground/90 whitespace-pre-wrap">
+                            {comment.content}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-4 mt-2 ml-2">
+                          <button className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+                            Reply
+                          </button>
+                          <button className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+                            Like
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT COLUMN: Sidebar (4/12) */}
+          <div className="lg:col-span-4">
+            <div className="sticky top-24 space-y-6">
+              {/* Author Card */}
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex flex-col items-center text-center space-y-4">
+                    <Avatar className="h-20 w-20 border-2 border-background shadow-sm">
+                      {displayAuthorAvatar ? (
+                        <AvatarImage
+                          src={displayAuthorAvatar}
+                          alt={displayAuthorName}
+                        />
+                      ) : null}
+                      <AvatarFallback className="text-2xl bg-primary/10 text-primary">
+                        {displayAuthorName?.charAt(0).toUpperCase() || 'A'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="space-y-1">
+                      <h3 className="font-bold text-lg">{displayAuthorName}</h3>
+                      {displayAuthorBio && (
+                        <p className="text-sm text-muted-foreground max-w-[200px] line-clamp-2">
+                          {displayAuthorBio}
+                        </p>
+                      )}
+                      <p className="text-sm text-muted-foreground">Author</p>
+                    </div>
+
+                    {currentPost.authorId && (
+                      <Button
+                        asChild
+                        variant="outline"
+                        className="w-full rounded-full mt-4"
+                      >
+                        <Link to={`/profile/${currentPost.authorId}`}>
+                          View Profile
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
+
+                  <Separator className="my-6" />
+
+                  <div className="space-y-4 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground flex items-center gap-2">
+                        <Calendar className="h-4 w-4" /> Published
+                      </span>
+                      <span className="font-medium">
+                        {new Date(currentPost.$createdAt).toLocaleDateString(
                           'en-US',
                           {
                             month: 'short',
                             day: 'numeric',
                             year: 'numeric',
                           },
-                        )
-                      : '—'}
-                  </time>
-                </div>
-              </CardDescription>
-            </div>
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground flex items-center gap-2">
+                        <Clock className="h-4 w-4" /> Read time
+                      </span>
+                      <span className="font-medium">{readTime} min</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-            {/* Back Button */}
-            <div className="shrink-0 ml-4">
-              <Button onClick={() => navigate(-1)} variant="outline">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-
-        <Separator />
-
-        {/* Article Content */}
-        <CardContent className="pt-6 px-0">
-          <div className="prose prose-lg max-w-none dark:prose-invert px-4 sm:px-6 lg:px-8">
-            <p className="text-lg leading-relaxed whitespace-pre-wrap text-justify">
-              {currentPost.content}
-            </p>
-          </div>
-        </CardContent>
-
-        <Separator />
-
-        {/* Like and Share Actions */}
-        <CardContent className="py-4 px-0">
-          <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center gap-4">
-              <Button
-                onClick={handleLike}
-                variant={isLiked ? 'default' : 'outline'}
-                className="group transition-colors"
-                disabled={isLikedLoading || isLiking}
-              >
-                {isLikedLoading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Heart
-                    className="mr-2 h-4 w-4 transition-all"
-                    fill={isLiked ? 'red' : 'transparent'}
-                    stroke={isLiked ? 'red' : 'currentColor'}
-                    strokeWidth={2}
-                  />
-                )}
-                {likesCount} {likesCount === 1 ? 'Like' : 'Likes'}
-              </Button>
-
-              <Button
-                onClick={handleShare}
-                variant="ghost"
-                className="text-muted-foreground"
-              >
-                Share
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-
-        <Separator />
-
-        {/* Comments Section – restyled to match your theme */}
-        <CardContent className="py-4 px-0 ">
-          <div className="flex flex-col  px-4 sm:px-6 lg:px-8">
-            {/* Header */}
-            <div className="flex items-center border-2-b pb-4 mb-6 justify-between">
-              <div>
-                <h3 className="text-xl font-semibold tracking-tight">
-                  {comments.length}{' '}
-                  {comments.length === 1 ? 'comment' : 'comments'}
-                </h3>
-              </div>
-            </div>
-
-            {/* Comment Form */}
-            <div className="space-y-6 mb-8">
-              <div className="flex gap-4">
-                <div className="shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-xs sm:text-sm">
-                  {authUserName?.[0]?.toUpperCase() || 'U'}
-                </div>
-
-                <div className="flex-1">
-                  <Textarea
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    placeholder="Share your thoughts..."
-                    className="resize-none bg-background/60 border-border/60 focus-visible:ring-1 focus-visible:ring-primary/60 placeholder:text-muted-foreground/60 min-h-[80px]"
-                    rows={3}
-                    disabled={isCommenting}
-                  />
-                  <div className="flex justify-end mt-3">
+              {/* Actions Card */}
+              <Card>
+                <CardContent className="p-6 space-y-4">
+                  <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">
+                    Actions
+                  </h4>
+                  <div className="grid grid-cols-2 gap-3">
                     <Button
-                      onClick={handleCommentSubmit}
-                      disabled={isCommenting || !newComment.trim()}
-                      className="rounded px-3"
+                      onClick={handleLike}
+                      variant={isLiked ? 'default' : 'secondary'}
+                      className={`w-full justify-center ${isLiked ? 'bg-red-600 hover:bg-red-700 text-white' : ''}`}
+                      disabled={isLikedLoading || isLiking}
                     >
-                      {isCommenting ? (
+                      {isLiking ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Posting...
+                          Liking...
                         </>
                       ) : (
-                        'Post Comment'
+                        <>
+                          <Heart
+                            className={`mr-2 h-4 w-4 ${isLiked ? 'fill-current' : ''}`}
+                          />
+                          {likesCount}
+                        </>
                       )}
                     </Button>
+                    <Button
+                      onClick={handleShare}
+                      variant="outline"
+                      className="w-full"
+                    >
+                      <Share2 className="mr-2 h-4 w-4" /> Share
+                    </Button>
                   </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Comments List */}
-            <div className="space-y-6">
-              {comments.length === 0 ? (
-                <div className="text-center py-12 rounded-2xl border border-dashed border-border/60 bg-muted/30">
-                  <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-muted/60 flex items-center justify-center">
-                    <MessageCircle className="w-7 h-7 text-muted-foreground/60" />
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    No comments yet. Be the first to share your thoughts.
-                  </p>
-                </div>
-              ) : (
-                comments.map((comment) => (
-                  <div key={comment.$id} className="flex gap-3 sm:gap-4">
-                    {/* Avatar */}
-                    <div className="shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-xs sm:text-sm">
-                      {comment.authorName?.[0]?.toUpperCase() || 'G'}
-                    </div>
-
-                    {/* Comment Bubble */}
-                    <div className="flex-1">
-                      <div className="rounded-md bg-card/80 border border-border/60 px-4 py-3">
-                        <div className="flex items-center gap-2 mb-1.5">
-                          <span className="font-semibold text-sm text-foreground">
-                            {comment.authorName || 'Guest'}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            •
-                          </span>
-                          <time className="text-xs text-muted-foreground">
-                            {comment.$createdAt
-                              ? new Date(comment.$createdAt).toLocaleDateString(
-                                  'en-US',
-                                  {
-                                    month: 'short',
-                                    day: 'numeric',
-                                    hour: 'numeric',
-                                    minute: '2-digit',
-                                  },
-                                )
-                              : 'Just now'}
-                          </time>
-                        </div>
-                        <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap">
-                          {comment.content}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
+                </CardContent>
+              </Card>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };
