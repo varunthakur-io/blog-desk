@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import toast from 'react-hot-toast';
+import DOMPurify from 'dompurify';
 import {
   ArrowLeft,
   Calendar,
@@ -10,7 +12,6 @@ import {
   Share2,
   Loader2,
 } from 'lucide-react';
-import toast from 'react-hot-toast';
 
 // UI Components
 import PostDetailsSkeleton from '@/components/skeletons/PostDetailsSkeleton';
@@ -370,12 +371,11 @@ const PostDetails = () => {
 
             {/* Article Body */}
             <article className="prose prose-lg dark:prose-invert max-w-none leading-relaxed text-justify">
-              {currentPost.content
-                .split('\n')
-                .map(
-                  (paragraph, idx) =>
-                    paragraph.trim() && <p key={idx}>{paragraph}</p>,
-                )}
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(currentPost.content),
+                }}
+              />
             </article>
 
             <Separator />

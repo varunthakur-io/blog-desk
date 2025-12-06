@@ -1,3 +1,4 @@
+import DOMPurify from 'dompurify';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Calendar, Clock, User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -11,14 +12,16 @@ const FeaturedPost = ({ post }) => {
     Math.ceil((post.content || '').split(' ').length / 200)
   );
 
+  const plainContent = DOMPurify.sanitize(post.content || '', { USE_PROFILES: { html: false } });
+
   return (
     <div className="relative overflow-hidden rounded-3xl border bg-background/50 backdrop-blur-sm transition-all hover:shadow-md">
       <div className="grid gap-8 lg:grid-cols-2 lg:gap-0">
         {/* Content Side */}
         <div className="flex flex-col justify-center p-8 sm:p-10 lg:p-12">
           <div className="flex items-center gap-3 mb-6">
-            <Badge variant="secondary" className="px-3 py-1 text-sm font-medium">
-              Featured Story
+            <Badge variant="secondary" className="px-3 py-1 text-sm font-medium capitalize">
+              {post.category || 'Featured'}
             </Badge>
             <div className="flex items-center text-sm text-muted-foreground">
               <Clock className="mr-1.5 h-4 w-4" />
@@ -33,7 +36,7 @@ const FeaturedPost = ({ post }) => {
           </Link>
 
           <p className="text-muted-foreground text-lg leading-relaxed mb-8 line-clamp-3">
-            {post.content}
+            {plainContent}
           </p>
 
           <div className="mt-auto flex items-center justify-between">

@@ -1,3 +1,4 @@
+import DOMPurify from 'dompurify';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Calendar, User, Clock } from 'lucide-react';
 import {
@@ -17,6 +18,8 @@ const PostCard = ({ post }) => {
     Math.ceil((post.content || '').split(' ').length / 200),
   );
 
+  const plainContent = DOMPurify.sanitize(post.content || '', { USE_PROFILES: { html: false } });
+
   return (
     <Card className="group h-full flex flex-col overflow-hidden border-border/50 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:border-primary/50 hover:-translate-y-1">
       <CardHeader className="pb-3 pt-6 px-6">
@@ -24,9 +27,9 @@ const PostCard = ({ post }) => {
         <div className="flex items-center justify-between mb-3">
           <Badge
             variant="outline"
-            className="font-normal text-xs text-muted-foreground border-border/60 bg-background/50"
+            className="font-normal text-xs text-muted-foreground border-border/60 bg-background/50 capitalize"
           >
-            Article
+            {post.category || 'Article'}
           </Badge>
           <div className="flex items-center text-xs text-muted-foreground/80">
             <Clock className="mr-1.5 h-3 w-3" />
@@ -68,7 +71,7 @@ const PostCard = ({ post }) => {
       {/* Content Excerpt */}
       <CardContent className="flex-grow px-6 pb-2">
         <p className="text-muted-foreground text-sm line-clamp-3 leading-relaxed">
-          {post.content}
+          {plainContent}
         </p>
       </CardContent>
 
