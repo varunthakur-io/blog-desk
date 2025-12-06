@@ -3,25 +3,29 @@ import { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { User, Edit, Save, X, Camera, Loader2 } from 'lucide-react';
+import { User, Edit, Save, Loader2, CalendarDays, Mail } from 'lucide-react';
 
 // UI Components
 import PostCard from '@/components/PostCard';
 import ProfileSkeleton from '@/components/skeletons/ProfileSkeleton';
 import PostCardSkeleton from '@/components/skeletons/PostCardSkeleton';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 // Services
 import { authService } from '@/services/authService';
@@ -61,7 +65,7 @@ export default function Profile() {
 
   // Auth selectors
   const authUserId = useSelector(selectAuthUserId);
-  const authLoading = useSelector(selectAuthLoading); // true if auth state is loading
+  const authLoading = useSelector(selectAuthLoading);
 
   const profileId = id || authUserId;
   const isOwner = !!authUserId && authUserId === profileId;
@@ -91,7 +95,10 @@ export default function Profile() {
   const [isLoadingLikes, setIsLoadingLikes] = useState(false);
   const [likesError, setLikesError] = useState('');
 
-  // Form & UI state
+  // Dialog & Form state
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('posts');
+
   const [editForm, setEditForm] = useState({
     name: '',
     email: '',
@@ -100,9 +107,7 @@ export default function Profile() {
   });
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [avatarFileToUpload, setAvatarFileToUpload] = useState(null);
-  const [activeTab, setActiveTab] = useState('posts');
 
-  const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -111,7 +116,6 @@ export default function Profile() {
   const displayName = profile?.name || 'Unnamed User';
   const displayEmail = profile?.email || '';
   const displayBio = profile?.bio || '';
-
   const avatarUrl = profile?.avatarUrl || null;
 
   const postsCount = userPosts.length ?? 0;
@@ -119,25 +123,26 @@ export default function Profile() {
   const followingCount = profile?.followingCount ?? 0;
 
   const joinedDate = profile?.$createdAt
-    ? new Date(profile.$createdAt).toLocaleDateString()
+    ? new Date(profile.$createdAt).toLocaleDateString('en-US', {
+        month: 'long',
+        year: 'numeric',
+      })
     : '—';
 
-  // Keep local preview in sync with profile avatar when not editing
+  // Keep local preview in sync when not editing (dialog closed)
   useEffect(() => {
-    if (!isEditing) {
+    if (!isDialogOpen) {
       setAvatarPreview(avatarUrl);
     }
-  }, [avatarUrl, isEditing]);
+  }, [avatarUrl, isDialogOpen]);
 
   // Effect: Load profile data
   useEffect(() => {
     if (!profileId) return;
 
-    // If it's the owner's profile and auth is still loading,
-    // we should wait for useAuthCheck to populate it.
+    // If it's the owner's profile and auth is still loading, wait.
     if (isOwner && authLoading) return;
 
-    // If we already have a profile and no error, don't refetch
     if (profile && !profileError) return;
 
     let cancelled = false;
@@ -149,7 +154,6 @@ export default function Profile() {
       try {
         const profileObj = await authService.getProfile(profileId);
         if (cancelled) return;
-        // doc should contain: { $id, name, bio, avatarUrl, ... }
         dispatch(upsertProfile(profileObj));
       } catch (err) {
         if (cancelled) return;
@@ -185,12 +189,7 @@ export default function Profile() {
       try {
         const data = await postService.getAllPosts();
         if (cancelled) return;
-
-        // `postService.getAllPosts()` returns the Appwrite response object
-        // which contains the documents in `response.documents`.
-        // Accept either an array (legacy) or the response object.
         const posts = Array.isArray(data) ? data : (data?.documents ?? []);
-
         dispatch(setPosts(posts));
         dispatch(setInitialLoaded(true));
       } catch (err) {
@@ -211,7 +210,7 @@ export default function Profile() {
     };
   }, [dispatch, initialPostsLoaded]);
 
-  // Effect: Load liked posts (local only)
+  // Effect: Load liked posts when tab is active
   useEffect(() => {
     if (!isOwner) return;
     if (activeTab !== 'likes') return;
@@ -223,22 +222,13 @@ export default function Profile() {
       try {
         setIsLoadingLikes(true);
         setLikesError('');
-
         const likedPostsArray =
           await postService.getLikedPostsByUser(profileId);
-
         if (cancelled) return;
-
-        const likedPosts = Array.isArray(likedPostsArray)
-          ? likedPostsArray
-          : [];
-
-        setLikedPosts(likedPosts);
+        setLikedPosts(Array.isArray(likedPostsArray) ? likedPostsArray : []);
       } catch (err) {
         if (!cancelled) {
-          const errorMessage =
-            err?.message || 'Failed to load liked posts. Please try again.';
-          setLikesError(errorMessage);
+          setLikesError(err?.message || 'Failed to load liked posts.');
         }
       } finally {
         if (!cancelled) setIsLoadingLikes(false);
@@ -261,47 +251,38 @@ export default function Profile() {
     };
   }, []);
 
-  // Event Handlers
-  const handleInputChange = (e) => {
-    setEditForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
+  // --- Handlers ---
 
-  const handleStartEditing = () => {
-    if (!isOwner) {
-      toast.error('You can only edit your own profile.');
-      return;
-    }
-
+  const handleOpenDialog = () => {
+    if (!isOwner) return;
     setEditForm({
       name: displayName || '',
       email: displayEmail || '',
       password: '',
       bio: displayBio || '',
     });
-
     setAvatarPreview(avatarUrl || null);
-    setIsEditing(true);
     setErrorMessage('');
+    setIsDialogOpen(true);
   };
 
-  const handleCancelEditing = () => {
-    setIsEditing(false);
-    setErrorMessage('');
-    setAvatarFileToUpload(null);
-    setEditForm((prev) => ({ ...prev, password: '' }));
-
-    setAvatarPreview(avatarUrl || null);
-
-    if (previewUrlRef.current) {
-      URL.revokeObjectURL(previewUrlRef.current);
-      previewUrlRef.current = null;
+  const handleCloseDialog = (open) => {
+    if (!open) {
+      setIsDialogOpen(false);
+      setAvatarFileToUpload(null);
+      setErrorMessage('');
+      if (previewUrlRef.current) {
+        URL.revokeObjectURL(previewUrlRef.current);
+        previewUrlRef.current = null;
+      }
     }
-    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleInputChange = (e) => {
+    setEditForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleAvatarSelect = (e) => {
-    if (!isOwner) return;
-
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -326,7 +307,10 @@ export default function Profile() {
     e.preventDefault();
     setErrorMessage('');
 
-    if (!isOwner || !authUserId) return;
+    if (!isOwner) {
+      toast.error('You are not authorized to edit this profile.');
+      return;
+    }
 
     if (!editForm.name || editForm.name.trim().length < 2) {
       setErrorMessage('Name must be at least 2 characters.');
@@ -346,47 +330,20 @@ export default function Profile() {
     try {
       // 1. Update Name
       if (editForm.name !== displayName) {
-        try {
-          await authService.updateName(editForm.name);
-          dispatch(
-            upsertProfile({
-              ...(profile || { $id: profileId }),
-              name: editForm.name,
-            }),
-          );
-        } catch (error) {
-          toast.error(error?.message || 'Failed to update name.');
-        }
+        await authService.updateName(editForm.name);
+        dispatch(upsertProfile({ ...profile, name: editForm.name }));
       }
 
       // 2. Update Email
       if (editForm.email !== displayEmail) {
-        try {
-          await authService.updateEmail(editForm.email, editForm.password);
-          dispatch(
-            upsertProfile({
-              ...(profile || { $id: profileId }),
-              email: editForm.email,
-            }),
-          );
-        } catch (error) {
-          toast.error(error?.message || 'Failed to update email.');
-        }
+        await authService.updateEmail(editForm.email, editForm.password);
+        dispatch(upsertProfile({ ...profile, email: editForm.email }));
       }
 
       // 3. Update Bio
       if (editForm.bio !== displayBio) {
-        try {
-          await authService.updateBio(profileId, editForm.bio);
-          dispatch(
-            upsertProfile({
-              ...(profile || { $id: profileId }),
-              bio: editForm.bio,
-            }),
-          );
-        } catch (error) {
-          toast.error(error?.message || 'Failed to update bio.');
-        }
+        await authService.updateBio(profileId, editForm.bio);
+        dispatch(upsertProfile({ ...profile, bio: editForm.bio }));
       }
 
       // 4. Update Avatar
@@ -394,374 +351,318 @@ export default function Profile() {
         setIsUploadingAvatar(true);
         const updatedProfile =
           await authService.updateAvatar(avatarFileToUpload);
-
         if (updatedProfile) {
-          setAvatarPreview(updatedProfile.avatarUrl || null);
           dispatch(upsertProfile(updatedProfile));
         }
-
-        setAvatarFileToUpload(null);
         setIsUploadingAvatar(false);
       }
 
-      toast.success('Profile updated successfully!');
-      setIsEditing(false);
-      setEditForm((prev) => ({ ...prev, password: '' }));
+      toast.success('Profile updated!');
+      setIsDialogOpen(false);
     } catch (err) {
       const msg = err?.message || 'Failed to update profile.';
       setErrorMessage(msg);
       toast.error(msg);
     } finally {
       setIsSaving(false);
+      setIsUploadingAvatar(false);
     }
   };
 
-  // ---------- Render guards ----------
-  if (!profileId) {
-    return (
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <p className="text-center text-muted-foreground">
-          Profile not found or you are not logged in.
-        </p>
-      </div>
-    );
-  }
-
-  if (authLoading || profileLoading) {
-    return <ProfileSkeleton />;
-  }
-
-  if (!profile && profileError) {
-    return (
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <Alert variant="destructive">
-          <AlertDescription>{profileError}</AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
+  // --- Render Guards ---
+  if (!profileId)
+    return <div className="p-8 text-center">Profile not found.</div>;
+  if (authLoading || profileLoading) return <ProfileSkeleton />;
+  if (!profile && profileError)
+    return <div className="p-8 text-center text-red-500">{profileError}</div>;
 
   return (
-    <main className="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div>
-        <Card className="border-0">
-          <CardHeader className="text-center">
-            <div className="flex flex-col md:flex-row items-center gap-6">
-              {/* Avatar Section */}
-              <div className="relative">
-                <Avatar className="w-28 h-28">
-                  <AvatarImage
-                    src={avatarPreview ?? undefined}
-                    alt={displayName || 'User'}
-                  />
-                  <AvatarFallback className="text-2xl">
-                    <User className="w-12 h-12" />
-                  </AvatarFallback>
-                </Avatar>
+    <div className="py-2">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row gap-8 items-start">
+        <Avatar className="w-32 h-32 sm:w-40 sm:h-40 border-4 border-background shadow-xl">
+          <AvatarImage
+            src={avatarUrl}
+            alt={displayName}
+            className="object-cover"
+          />
+          <AvatarFallback className="text-4xl bg-muted">
+            {displayName.charAt(0)}
+          </AvatarFallback>
+        </Avatar>
 
-                {isEditing && (
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isUploadingAvatar || isSaving}
-                    className="absolute bottom-0 right-0 -translate-y-2 translate-x-2 bg-card/80 border border-border/40 rounded-full p-2 shadow-sm hover:scale-105 transition-transform"
-                    aria-label="Change avatar"
-                  >
-                    {isUploadingAvatar ? (
-                      <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                    ) : (
-                      <Camera className="h-4 w-4" />
-                    )}
-                  </button>
-                )}
-
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleAvatarSelect}
-                />
-              </div>
-
-              {/* Header Info Section */}
-              <div className="flex-1 min-w-0 text-left md:text-left">
-                <CardTitle className="text-2xl leading-tight">
-                  {displayName}
-                </CardTitle>
-
-                {isOwner && (
-                  <CardDescription className="text-muted-foreground mt-1">
-                    {displayEmail}
-                  </CardDescription>
-                )}
-
-                <div className="mt-4 flex items-center gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="px-3 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
-                      Posts{' '}
-                      <span className="ml-2 font-semibold">{postsCount}</span>
-                    </div>
-                    <div className="px-3 py-2 rounded-full bg-muted/10 text-muted-foreground text-sm">
-                      Followers{' '}
-                      <span className="ml-2 font-semibold">
-                        {followersCount}
-                      </span>
-                    </div>
-                    <div className="px-3 py-2 rounded-full bg-muted/10 text-muted-foreground text-sm">
-                      Following{' '}
-                      <span className="ml-2 font-semibold">
-                        {followingCount}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="ml-auto">
-                {!isOwner ? (
-                  <Button variant="default">Follow</Button>
-                ) : !isEditing ? (
-                  <Button onClick={handleStartEditing} variant="outline">
-                    <Edit className="mr-2 h-4 w-4" />
-                    Edit Profile
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={handleCancelEditing}
-                    variant="ghost"
-                    className="border"
-                  >
-                    <X className="mr-2 h-4 w-4" />
-                    Cancel
-                  </Button>
-                )}
+        <div className="flex-1 space-y-4 min-w-0 w-full">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 ">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">
+                {displayName}
+              </h1>
+              <div className="flex items-center text-muted-foreground mt-1 text-sm gap-4">
+                {isOwner && <span>{displayEmail}</span>}
+                <span className="flex items-center gap-1">
+                  <CalendarDays className="w-3 h-3" /> Joined {joinedDate}
+                </span>
               </div>
             </div>
-          </CardHeader>
 
-          <Separator />
+            <div className="flex gap-3 ">
+              {isOwner ? (
+                <Dialog open={isDialogOpen} onOpenChange={handleCloseDialog}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" onClick={handleOpenDialog}>
+                      <Edit className="w-4 h-4 mr-2" />
+                      Edit Profile
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[500px]">
+                    <DialogHeader>
+                      <DialogTitle>Edit Profile</DialogTitle>
+                      <DialogDescription>
+                        Make changes to your profile here. Click save when
+                        you're done.
+                      </DialogDescription>
+                    </DialogHeader>
 
-          <CardContent className="pt-6">
-            <form onSubmit={handleSaveChanges} className="space-y-6">
-              {errorMessage && (
-                <Alert variant="destructive">
-                  <AlertDescription>{errorMessage}</AlertDescription>
-                </Alert>
-              )}
-
-              {/* Name */}
-              <div className="grid gap-2">
-                <Label htmlFor="name">Full Name</Label>
-                <Input
-                  id="name"
-                  name="name"
-                  type="text"
-                  placeholder="Full Name"
-                  value={isEditing ? editForm.name : displayName || ''}
-                  onChange={handleInputChange}
-                  disabled={!isEditing}
-                />
-              </div>
-
-              {/* Email (owner only) */}
-              {isOwner && (
-                <div className="grid gap-2">
-                  <Label htmlFor="email">Email Address</Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="Your Email"
-                    value={isEditing ? editForm.email : displayEmail || ''}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                  />
-                </div>
-              )}
-
-              {/* Bio */}
-              <div className="grid gap-2">
-                <Label htmlFor="bio">Bio</Label>
-                <Input
-                  id="bio"
-                  name="bio"
-                  type="text"
-                  placeholder="A short bio"
-                  value={isEditing ? editForm.bio : displayBio}
-                  onChange={handleInputChange}
-                  disabled={!isEditing}
-                />
-              </div>
-
-              {/* Password (only when editing + changing email) */}
-              {isEditing && (
-                <div className="grid gap-2">
-                  <Label htmlFor="password">
-                    Current Password
-                    <span className="text-sm text-muted-foreground ml-2">
-                      (required to update email)
-                    </span>
-                  </Label>
-                  <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    placeholder="Enter your current password"
-                    value={editForm.password}
-                    onChange={handleInputChange}
-                    disabled={isSaving}
-                  />
-                </div>
-              )}
-
-              {/* Save / Cancel */}
-              {isEditing && (
-                <div className="flex gap-4 justify-end pt-2">
-                  <Button
-                    type="button"
-                    onClick={handleCancelEditing}
-                    variant="outline"
-                    disabled={isSaving}
-                  >
-                    <X className="mr-2 h-4 w-4" />
-                    Cancel
-                  </Button>
-
-                  <Button
-                    type="submit"
-                    disabled={isSaving || isUploadingAvatar}
-                  >
-                    {isSaving || isUploadingAvatar ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="mr-2 h-4 w-4" />
-                        Save Changes
-                      </>
-                    )}
-                  </Button>
-                </div>
-              )}
-
-              {/* Tabs */}
-              <div className="mt-8">
-                <div className="flex gap-3 border-b border-gray-200/10 pb-3">
-                  {['posts', 'likes', 'about'].map((tab) => (
-                    <button
-                      key={tab}
-                      type="button"
-                      onClick={() => setActiveTab(tab)}
-                      className={`px-4 py-2 rounded-md text-sm font-medium ${
-                        activeTab === tab
-                          ? 'bg-card/60 border border-border/40'
-                          : 'text-muted-foreground'
-                      }`}
-                      aria-pressed={activeTab === tab}
+                    <form
+                      onSubmit={handleSaveChanges}
+                      className="space-y-6 py-4"
                     >
-                      {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="mt-6">
-                  {/* Posts Tab */}
-                  {activeTab === 'posts' && (
-                    <>
-                      {postsLoading && !initialPostsLoaded ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                          {[...Array(4)].map((_, i) => (
-                            <PostCardSkeleton key={i} />
-                          ))}
-                        </div>
-                      ) : userPosts.length === 0 ? (
-                        <div className="text-center py-12 text-muted-foreground">
-                          <p className="mb-4">
-                            {isOwner
-                              ? "You haven't published any posts yet."
-                              : "This user hasn't published any posts yet."}
-                          </p>
-                          {isOwner && (
-                            <Button asChild>
-                              <a href="/create">Create your first post</a>
-                            </Button>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                          {userPosts.map((p) => (
-                            <PostCard key={p.$id ?? p.id} post={p} />
-                          ))}
-                        </div>
+                      {errorMessage && (
+                        <Alert variant="destructive">
+                          <AlertDescription>{errorMessage}</AlertDescription>
+                        </Alert>
                       )}
-                    </>
-                  )}
 
-                  {/* Likes Tab */}
-                  {activeTab === 'likes' && (
-                    <>
-                      {!isOwner ? (
-                        <p className="text-muted-foreground">
-                          Liked posts are visible only to the profile owner.
-                        </p>
-                      ) : isLoadingLikes ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                          {[...Array(4)].map((_, i) => (
-                            <PostCardSkeleton key={i} />
-                          ))}
-                        </div>
-                      ) : likesError ? (
-                        <p className="text-sm text-red-500">{likesError}</p>
-                      ) : likedPosts.length === 0 ? (
-                        <p className="text-muted-foreground">
-                          You haven&apos;t liked any posts yet.
-                        </p>
-                      ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                          {likedPosts.map((post) => (
-                            <PostCard key={post.$id} post={post} />
-                          ))}
-                        </div>
-                      )}
-                    </>
-                  )}
-
-                  {/* About Tab */}
-                  {activeTab === 'about' && (
-                    <div className="prose max-w-none text-muted-foreground">
-                      <h3 className="text-lg font-semibold mb-2">
-                        About {displayName}
-                      </h3>
-                      <p>{displayBio || 'No bio provided.'}</p>
-
-                      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-sm text-muted-foreground">
-                            Joined
-                          </p>
-                          <p>{joinedDate}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">
-                            User ID
-                          </p>
-                          <p className="font-mono text-sm break-all">
-                            {profileId}
-                          </p>
+                      <div className="flex justify-center">
+                        <div
+                          className="relative group cursor-pointer"
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          <Avatar className="w-24 h-24 border-2 border-border">
+                            <AvatarImage src={avatarPreview} />
+                            <AvatarFallback>
+                              <User className="w-8 h-8" />
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Edit className="w-6 h-6 text-white" />
+                          </div>
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleAvatarSelect}
+                          />
                         </div>
                       </div>
-                    </div>
-                  )}
+
+                      <div className="grid gap-4">
+                        <div className="grid gap-2">
+                          <Label htmlFor="name">Name</Label>
+                          <Input
+                            id="name"
+                            name="name"
+                            value={editForm.name}
+                            onChange={handleInputChange}
+                          />
+                        </div>
+
+                        <div className="grid gap-2">
+                          <Label htmlFor="bio">Bio</Label>
+                          <Textarea
+                            id="bio"
+                            name="bio"
+                            placeholder="Tell us a little bit about yourself"
+                            className="resize-none"
+                            value={editForm.bio}
+                            onChange={handleInputChange}
+                          />
+                        </div>
+
+                        <div className="grid gap-2">
+                          <Label htmlFor="email">Email</Label>
+                          <Input
+                            id="email"
+                            name="email"
+                            type="email"
+                            value={editForm.email}
+                            onChange={handleInputChange}
+                          />
+                        </div>
+
+                        {editForm.email !== displayEmail && (
+                          <div className="grid gap-2">
+                            <Label htmlFor="password">
+                              Current Password (Required to change email)
+                            </Label>
+                            <Input
+                              id="password"
+                              name="password"
+                              type="password"
+                              value={editForm.password}
+                              onChange={handleInputChange}
+                            />
+                          </div>
+                        )}
+                      </div>
+
+                      <DialogFooter>
+                        <Button
+                          type="submit"
+                          disabled={isSaving || isUploadingAvatar}
+                        >
+                          {isSaving || isUploadingAvatar ? (
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          ) : (
+                            <Save className="w-4 h-4 mr-2" />
+                          )}
+                          Save Changes
+                        </Button>
+                      </DialogFooter>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+              ) : (
+                <Button>Follow</Button>
+              )}
+            </div>
+          </div>
+
+          {displayBio && (
+            <p className="text-muted-foreground leading-relaxed max-w-2xl">
+              {displayBio}
+            </p>
+          )}
+
+          <div className="flex gap-6 pt-2">
+            <div className="text-sm">
+              <span className="font-bold text-foreground">{postsCount}</span>{' '}
+              <span className="text-muted-foreground">posts</span>
+            </div>
+            <div className="text-sm">
+              <span className="font-bold text-foreground">
+                {followersCount}
+              </span>{' '}
+              <span className="text-muted-foreground">followers</span>
+            </div>
+            <div className="text-sm">
+              <span className="font-bold text-foreground">
+                {followingCount}
+              </span>{' '}
+              <span className="text-muted-foreground">following</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <Separator className="my-8" />
+
+      {/* Content Tabs */}
+      <Tabs
+        defaultValue="posts"
+        className="w-full"
+        onValueChange={setActiveTab}
+      >
+        <TabsList className="grid w-full grid-cols-3 max-w-[400px] mx-auto sm:mx-0 mb-8">
+          <TabsTrigger value="posts">Posts</TabsTrigger>
+          <TabsTrigger value="likes">Liked</TabsTrigger>
+          <TabsTrigger value="about">About</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="posts" className="space-y-6">
+          {postsLoading && !initialPostsLoaded ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <PostCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : userPosts.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {userPosts.map((post) => (
+                <PostCard key={post.$id} post={post} />
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-16 text-center border rounded-lg border-dashed">
+              <div className="bg-muted/50 p-4 rounded-full mb-4">
+                <Edit className="w-8 h-8 text-muted-foreground" />
+              </div>
+              <h3 className="text-lg font-semibold">No posts yet</h3>
+              <p className="text-muted-foreground max-w-sm mt-2 mb-6">
+                {isOwner
+                  ? 'Share your thoughts with the world. Create your first post now.'
+                  : "This user hasn't posted anything yet."}
+              </p>
+              {isOwner && (
+                <Button asChild>
+                  <a href="/create">Create Post</a>
+                </Button>
+              )}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="likes">
+          {!isOwner ? (
+            <div className="py-12 text-center text-muted-foreground">
+              <p>Liked posts are private.</p>
+            </div>
+          ) : isLoadingLikes ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(3)].map((_, i) => (
+                <PostCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : likesError ? (
+            <Alert variant="destructive">
+              <AlertDescription>{likesError}</AlertDescription>
+            </Alert>
+          ) : likedPosts.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {likedPosts.map((post) => (
+                <PostCard key={post.$id} post={post} />
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-16 text-center border rounded-lg border-dashed">
+              <p className="text-muted-foreground">No liked posts yet.</p>
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="about">
+          <div className="border rounded-lg p-6 space-y-6">
+            <div>
+              <h3 className="font-semibold text-lg mb-2">Bio</h3>
+              <p className="text-muted-foreground">
+                {displayBio || 'No bio available.'}
+              </p>
+            </div>
+            <Separator />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <h4 className="text-sm font-medium text-muted-foreground mb-1">
+                  Contact
+                </h4>
+                <div className="flex items-center gap-2">
+                  <Mail className="w-4 h-4" />
+                  <span>{displayEmail}</span>
                 </div>
               </div>
-            </form>
-          </CardContent>
-        </Card>
-      </div>
-    </main>
+              <div>
+                <h4 className="text-sm font-medium text-muted-foreground mb-1">
+                  Joined
+                </h4>
+                <div className="flex items-center gap-2">
+                  <CalendarDays className="w-4 h-4" />
+                  <span>{joinedDate}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }

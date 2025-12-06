@@ -146,11 +146,6 @@ class AuthService {
    * @returns {Promise<Object|null>} User object or null
    */
   async getAccount() {
-    const cachedUser = this.getCachedUser();
-    if (cachedUser) {
-      return cachedUser;
-    }
-
     try {
       const user = await account.get();
       this.cacheUser(user);
