@@ -133,6 +133,10 @@ export default function Profile() {
   useEffect(() => {
     if (!profileId) return;
 
+    // If it's the owner's profile and auth is still loading,
+    // we should wait for useAuthCheck to populate it.
+    if (isOwner && authLoading) return;
+
     // If we already have a profile and no error, don't refetch
     if (profile && !profileError) return;
 
@@ -166,7 +170,7 @@ export default function Profile() {
     return () => {
       cancelled = true;
     };
-  }, [dispatch, profileId, profile, profileError]);
+  }, [dispatch, profileId, profile, profileError, isOwner, authLoading]);
 
   // Effect: Load posts once (global feed)
   useEffect(() => {
