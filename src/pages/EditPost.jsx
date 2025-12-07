@@ -45,6 +45,8 @@ export default function EditPost() {
         setFormData({
           title: post.title || '',
           content: post.content || '',
+          category: post.category || '',
+          published: post.published ?? true,
         });
         setIsLoading(false);
         return;
@@ -60,6 +62,8 @@ export default function EditPost() {
           setFormData({
             title: data.title || '',
             content: data.content || '',
+            category: data.category || '',
+            published: data.published ?? true,
           });
 
           // keep Redux posts cache in sync

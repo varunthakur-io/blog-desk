@@ -34,6 +34,8 @@ const CreatePost = () => {
       const newPost = await postService.createPost({
         title: formData.title,
         content: formData.content,
+        category: formData.category,
+        published: formData.published, // Include the published status
       });
 
       if (newPost) {
