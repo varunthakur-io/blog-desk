@@ -1,6 +1,6 @@
 // Dashboard.jsx
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   MoreHorizontal,
@@ -28,7 +28,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Card } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -237,16 +236,21 @@ export default function Dashboard() {
                   <TableRow key={post.$id}>
                     <TableCell className="font-medium">
                       <div className="flex flex-col gap-0.5">
-                        <span>{post.title}</span>
-                        <span className="text-xs text-muted-foreground line-clamp-1 font-normal">
-                          {post.excerpt || 'No description'}
-                        </span>
+                        <Link
+                          to={`/posts/${post.$id}`}
+                          className="hover:underline"
+                        >
+                          <span>{post.title}</span>
+                        </Link>
                       </div>
                     </TableCell>
 
                     <TableCell>
-                      <Badge variant="outline" className="font-normal">
-                        Published
+                      <Badge
+                        variant={post.published ? 'default' : 'outline'}
+                        className="font-normal"
+                      >
+                        {post.published ? 'Published' : 'Draft'}
                       </Badge>
                     </TableCell>
 
