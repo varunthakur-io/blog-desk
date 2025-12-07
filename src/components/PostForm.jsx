@@ -1,27 +1,22 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import LinkExtension from '@tiptap/extension-link';
-import ImageExtension from '@tiptap/extension-image';
 import {
   Loader2,
   Save,
-  Send,
   ArrowLeft,
   Bold,
   Italic,
   List,
   ListOrdered,
   Link as LinkIcon,
-  Image as ImageIcon,
   Code,
-  AlignLeft,
   MoreVertical,
   Calendar,
   Hash,
   Eye,
-  X,
   Heading1,
   Heading2,
   Quote,
@@ -29,13 +24,7 @@ import {
   Undo,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -81,12 +70,12 @@ const PostForm = ({
     title: initialData?.title || '',
     content: initialData?.content || '', // This will now store HTML
     category: initialData?.category || '',
+    published: initialData?.published ?? true, // Default to public
   });
 
   // UI State
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [status, setStatus] = useState(mode === 'edit' ? 'Draft' : 'Unsaved'); // Placeholder for actual status
-  const [visibility, setVisibility] = useState('public'); // Placeholder for actual visibility
 
   const isEdit = mode === 'edit';
 
@@ -144,10 +133,15 @@ const PostForm = ({
     }
   }, [editor, initialData, mode]);
 
-  // Update title when initialData changes
+  // Update formData when initialData changes
   useEffect(() => {
     if (initialData) {
-      setFormData((prev) => ({ ...prev, title: initialData.title || '' }));
+      setFormData((prev) => ({
+        ...prev,
+        title: initialData.title || '',
+        category: initialData.category || '',
+        published: initialData.published ?? true,
+      }));
     }
   }, [initialData]);
 
@@ -159,6 +153,13 @@ const PostForm = ({
 
   const handleCategoryChange = (value) => {
     setFormData((prev) => ({ ...prev, category: value }));
+  };
+
+  const handleVisibilityChange = (value) => {
+    setFormData((prev) => ({
+      ...prev,
+      published: value === 'public' ? true : false,
+    }));
   };
 
   const handleSubmit = (e) => {
@@ -445,9 +446,12 @@ const PostForm = ({
 
               <div className="space-y-2">
                 <Label className="text-xs">Visibility</Label>
-                <Select value={visibility} onValueChange={setVisibility}>
+                <Select
+                  value={formData.published ? 'public' : 'private'}
+                  onValueChange={handleVisibilityChange}
+                >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Select visibility" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="public">Public</SelectItem>
