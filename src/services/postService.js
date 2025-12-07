@@ -48,8 +48,8 @@ class PostService {
 
   /**
    * Update an existing blog post
-   * @param {string} postId
-   * @param {Object} params
+   * @param {string} postId - ID of the post to update
+   * @param {Object} params - Parameters for updating the post
    * @param {string} params.title
    * @param {string} params.content
    * @param {string} [params.category] - Optional category for the post
