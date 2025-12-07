@@ -16,7 +16,7 @@ class PostService {
 
   /**
    * Create a new blog post
-   * @param {Object} params
+   * @param {Object} params - Post parameters
    * @param {string} params.title
    * @param {string} params.content
    * @param {string} [params.category] - Optional category for the post
@@ -38,7 +38,7 @@ class PostService {
         appwrite.databaseId,
         appwrite.postsCollectionId,
         'unique()',
-        postData
+        postData,
       );
     } catch (error) {
       console.error('PostService :: createPost()', error);
@@ -48,8 +48,8 @@ class PostService {
 
   /**
    * Update an existing blog post
-   * @param {string} postId
-   * @param {Object} params
+   * @param {string} postId - ID of the post to update
+   * @param {Object} params - Parameters for updating the post
    * @param {string} params.title
    * @param {string} params.content
    * @param {string} [params.category] - Optional category for the post
@@ -66,7 +66,7 @@ class PostService {
         appwrite.databaseId,
         appwrite.postsCollectionId,
         postId,
-        postData
+        postData,
       );
     } catch (error) {
       console.error('PostService :: updatePost()', error);
@@ -84,7 +84,7 @@ class PostService {
       return await databases.getDocument(
         appwrite.databaseId,
         appwrite.postsCollectionId,
-        postId
+        postId,
       );
     } catch (error) {
       console.error('PostService :: getPostById()', error);
@@ -97,7 +97,7 @@ class PostService {
    * @param {number} page - Page number (1-based)
    * @param {number} skip - Number of items to return
    * @param {string} [category] - Optional category to filter posts by
-   * @returns {Promise<Object>} List of documents
+   * @returns {Promise<{ total: number, documents: Object[] }>} List of post documents with total count
    */
   async getAllPosts(page = 1, skip = 6, category = null) {
     try {
@@ -112,7 +112,7 @@ class PostService {
       return await databases.listDocuments(
         appwrite.databaseId,
         appwrite.postsCollectionId,
-        queries
+        queries,
       );
     } catch (error) {
       console.error('PostService :: getAllPosts()', error);
@@ -122,38 +122,58 @@ class PostService {
 
   /**
    * Get posts created by a specific user
-   * @param {string} userId
-   * @returns {Promise<Array>} Array of post documents
+   * @param {string} userId - The user's ID
+   * @returns {Promise<{ total: number, documents: Object[] }>} List of documents
    */
-  async getPostsByUser(userId) {
+  async getPostsByUserId(userId) {
+    if (!userId) {
+      throw new Error('getPostsByUserId: "userId" is required');
+    }
+
     try {
-      const res = await databases.listDocuments(
+      const queries = [
+        Query.equal('authorId', userId),
+        Query.orderDesc('$createdAt'),
+      ];
+
+      return await databases.listDocuments(
         appwrite.databaseId,
         appwrite.postsCollectionId,
-        [Query.equal('authorId', userId), Query.orderDesc('$createdAt')]
+        queries,
       );
-      return res.documents;
     } catch (error) {
-      console.error('PostService :: getPostsByUser()', error);
+      console.error('PostService :: getPostsByUserId()', error);
       throw error;
     }
   }
 
   /**
-   * Delete a post by ID
-   * @param {string} postId
-   * @returns {Promise<boolean>} True on success
+   * Delete a post and all its likes by post ID
+   * @param {string} postId - ID of the post to delete
+   * @returns {Promise<boolean>} True if deletion succeeds
    */
-  async deletePost(postId) {
+  async deletePostById(postId) {
+    if (!postId) {
+      throw new Error('deletePostById: "postId" is required');
+    }
+
     try {
+      // 1. Delete all likes for this post
+      await this.deleteLikesByPostId(postId);
+
+      // 2. Delete all comments for this post
+      await this.deleteCommentsByPostId(postId);
+
+      // 3. Delete the post itself
       await databases.deleteDocument(
         appwrite.databaseId,
         appwrite.postsCollectionId,
-        postId
+        postId,
       );
+
       return true;
     } catch (error) {
-      console.error('PostService :: deletePost()', error);
+      console.error('PostService :: deletePostById()', error);
       throw error;
     }
   }
@@ -166,7 +186,7 @@ class PostService {
    * Check if user has liked a post (uses cache)
    * @param {string} postId
    * @param {string} userId
-   * @returns {Promise<boolean>} 
+   * @returns {Promise<boolean>}
    */
   async hasUserLiked(postId, userId) {
     const key = `${userId}:${postId}`;
@@ -182,7 +202,7 @@ class PostService {
           Query.equal('postId', postId),
           Query.equal('userId', userId),
           Query.limit(1),
-        ]
+        ],
       );
 
       const liked = res.total > 0;
@@ -210,7 +230,7 @@ class PostService {
         appwrite.databaseId,
         appwrite.likesCollectionId,
         ID.unique(),
-        { postId, userId }
+        { postId, userId },
       );
 
       await this._updateLikesCount(postId, 1);
@@ -237,7 +257,7 @@ class PostService {
           Query.equal('postId', postId),
           Query.equal('userId', userId),
           Query.limit(1),
-        ]
+        ],
       );
 
       if (res.total > 0) {
@@ -245,7 +265,7 @@ class PostService {
         await databases.deleteDocument(
           appwrite.databaseId,
           appwrite.likesCollectionId,
-          likeDocId
+          likeDocId,
         );
 
         await this._updateLikesCount(postId, -1);
@@ -260,14 +280,17 @@ class PostService {
   /**
    * Get all posts liked by a user
    * @param {string} userId
-   * @returns {Promise<Array>} Array of post documents
+   * @returns {Promise<{ total: number, documents: Object[] }>} List of post documents with total count
    */
-  async getLikedPostsByUser(userId) {
+  async getLikedPostsByUserId(userId) {
+    if (!userId) {
+      throw new Error('getLikedPostsByUserId: "userId" is required');
+    }
     try {
       const likesRes = await databases.listDocuments(
         appwrite.databaseId,
         appwrite.likesCollectionId,
-        [Query.equal('userId', userId)]
+        [Query.equal('userId', userId)],
       );
 
       const likeDocs = likesRes.documents || [];
@@ -278,10 +301,10 @@ class PostService {
       const postsRes = await databases.listDocuments(
         appwrite.databaseId,
         appwrite.postsCollectionId,
-        [Query.equal('$id', postIds), Query.orderDesc('$createdAt')]
+        [Query.equal('$id', postIds), Query.orderDesc('$createdAt')],
       );
 
-      return postsRes.documents || [];
+      return postsRes || [];
     } catch (error) {
       console.error('PostService :: getLikedPostsByUser()', error);
       throw error;
@@ -299,7 +322,7 @@ class PostService {
       const doc = await databases.getDocument(
         appwrite.databaseId,
         appwrite.postsCollectionId,
-        postId
+        postId,
       );
 
       const current = doc.likesCount ?? 0;
@@ -309,10 +332,44 @@ class PostService {
         appwrite.databaseId,
         appwrite.postsCollectionId,
         postId,
-        { likesCount: next }
+        { likesCount: next },
       );
     } catch (error) {
       console.error('PostService :: _updateLikesCount()', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Delete all likes for a given post
+   * @param {string} postId - ID of the post
+   * @returns {Promise<void>}
+   */
+  async deleteLikesByPostId(postId) {
+    if (!postId) {
+      throw new Error('deleteLikesByPostId: "postId" is required');
+    }
+
+    try {
+      // 1. Find likes belonging to this post
+      const likesList = await databases.listDocuments(
+        appwrite.databaseId,
+        appwrite.likesCollectionId,
+        [Query.equal('postId', postId)],
+      );
+
+      // 2. Delete each like document
+      const deletePromises = likesList.documents.map((like) =>
+        databases.deleteDocument(
+          appwrite.databaseId,
+          appwrite.likesCollectionId,
+          like.$id,
+        ),
+      );
+
+      await Promise.all(deletePromises);
+    } catch (error) {
+      console.error('PostService :: deleteLikesByPostId()', error);
       throw error;
     }
   }
@@ -326,17 +383,16 @@ class PostService {
    * @param {Object} params
    * @param {string} params.postId
    * @param {string} params.userId
-   * @param {string} params.authorName
    * @param {string} params.content
    * @returns {Promise<Object>} The created comment document
    */
-  async addComment({ postId, userId, authorName, content }) {
+  async addComment({ postId, userId, content }) {
     try {
       return await databases.createDocument(
         appwrite.databaseId,
         appwrite.commentsCollectionId,
         ID.unique(),
-        { postId, userId, authorName, content }
+        { postId, userId, content },
       );
     } catch (error) {
       console.error('PostService :: addComment()', error);
@@ -358,12 +414,44 @@ class PostService {
           Query.equal('postId', postId),
           Query.orderDesc('$createdAt'),
           Query.limit(10),
-        ]
+        ],
       );
       return res.documents;
     } catch (error) {
       console.error('PostService :: getCommentsByPost()', error);
       return []; // Return empty array so UI doesn't break
+    }
+  }
+
+  /**
+   * Delete a comment by its ID
+   * @param {string} postId - ID of the post
+   * @returns {Promise<null>}
+   */
+  async deleteCommentsByPostId(postId) {
+    if (!postId) {
+      throw new Error('deleteCommentsByPostId: "postId" is required');
+    }
+    try {
+      // 1. Find comments belonging to this post
+      const commentsList = await databases.listDocuments(
+        appwrite.databaseId,
+        appwrite.commentsCollectionId,
+        [Query.equal('postId', postId)],
+      );
+
+      // 2. Delete each comment document
+      const deletePromises = commentsList.documents.map((comment) =>
+        databases.deleteDocument(
+          appwrite.databaseId,
+          appwrite.commentsCollectionId,
+          comment.$id,
+        ),
+      );
+      await Promise.all(deletePromises);
+    } catch (error) {
+      console.error('PostService :: deleteCommentsByPostId()', error);
+      throw error;
     }
   }
 }

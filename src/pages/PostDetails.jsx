@@ -38,6 +38,7 @@ const PostDetails = () => {
   // Post & User State from Redux
   const currentPost = useSelector((state) => selectPostById(state, id));
   const authUserId = useSelector(selectAuthUserId);
+  const profiles = useSelector((state) => state.profile.byId);
 
   // Current User Profile (for commenting)
   const currentUserProfile = useSelector((state) =>
@@ -191,6 +192,24 @@ const PostDetails = () => {
     fetchComments();
   }, [currentPost?.$id]);
 
+  // Effect: Load commenter profiles when comments are fetched
+  useEffect(() => {
+    if (comments.length === 0) return;
+
+    comments.forEach((comment) => {
+      if (comment.userId && !profiles[comment.userId]) {
+        authService
+          .getProfile(comment.userId)
+          .then((profile) => {
+            dispatch(upsertProfile(profile));
+          })
+          .catch((err) =>
+            console.warn('Could not fetch commenter profile:', err),
+          );
+      }
+    });
+  }, [comments, dispatch, profiles]);
+
   // Handlers
   const handleLike = async () => {
     if (!authUserId) return toast.error('You must be logged in to like.');
@@ -238,7 +257,6 @@ const PostDetails = () => {
       $id: tempId,
       postId: currentPost.$id,
       userId: authUserId,
-      authorName: currentUserName || 'Anonymous',
       content,
       $createdAt: new Date().toISOString(),
     };
@@ -251,7 +269,6 @@ const PostDetails = () => {
       const createdComment = await postService.addComment({
         postId: currentPost.$id,
         userId: authUserId,
-        authorName: currentUserName || 'Anonymous',
         content,
       });
 
@@ -270,6 +287,7 @@ const PostDetails = () => {
     }
   };
 
+  // Share Handler
   const handleShare = async () => {
     const url = window.location.href;
 
@@ -323,8 +341,7 @@ const PostDetails = () => {
 
   // Determine what to show for author info
   // Use profile data if available, otherwise fallback to post data
-  const displayAuthorName =
-    authorProfile?.name || currentPost.authorName || 'Anonymous';
+  const displayAuthorName = authorProfile?.name || 'Anonymous';
   const displayAuthorBio = authorProfile?.bio;
   const displayAuthorAvatar = authorProfile?.avatarUrl;
 
@@ -448,50 +465,50 @@ const PostDetails = () => {
                     <p>No comments yet. Be the first to share your thoughts!</p>
                   </div>
                 ) : (
-                  comments.map((comment) => (
-                    <div
-                      key={comment.$id}
-                      className="group flex gap-4 transition-all"
-                    >
-                      <Avatar className="h-10 w-10 border border-muted bg-background mt-1">
-                        <AvatarFallback className="bg-secondary text-secondary-foreground font-medium text-xs">
-                          {comment.authorName?.[0]?.toUpperCase() || 'A'}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <div className="bg-card border rounded-2xl p-4 shadow-sm relative">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="font-semibold text-sm">
-                              {comment.authorName || 'Guest'}
-                            </span>
-                            <time className="text-xs text-muted-foreground">
-                              {comment.$createdAt
-                                ? new Date(
-                                    comment.$createdAt,
-                                  ).toLocaleDateString('en-US', {
-                                    month: 'short',
-                                    day: 'numeric',
-                                    hour: 'numeric',
-                                    minute: '2-digit',
-                                  })
-                                : 'Just now'}
-                            </time>
+                  comments.map((comment) => {
+                    const commenterProfile = profiles[comment.userId];
+                    const name = commenterProfile?.name;
+                    const avatarUrl = commenterProfile?.avatarUrl;
+                    const commentorInitial = name?.[0]?.toUpperCase() || 'G';
+
+                    return (
+                      <div
+                        key={comment.$id}
+                        className="group flex gap-4 transition-all"
+                      >
+                        <Avatar className="h-10 w-10 border border-muted bg-background mt-1">
+                          <AvatarImage src={avatarUrl} alt={name} />
+                          <AvatarFallback className="bg-secondary text-secondary-foreground font-medium text-xs">
+                            {commentorInitial}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <div className="bg-card border rounded-2xl p-4 shadow-sm relative">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-semibold text-sm">
+                                {name}
+                              </span>
+                              <time className="text-xs text-muted-foreground">
+                                {comment.$createdAt
+                                  ? new Date(
+                                      comment.$createdAt,
+                                    ).toLocaleDateString('en-US', {
+                                      month: 'short',
+                                      day: 'numeric',
+                                      hour: 'numeric',
+                                      minute: '2-digit',
+                                    })
+                                  : 'Just now'}
+                              </time>
+                            </div>
+                            <p className="text-sm leading-relaxed text-foreground/90 whitespace-pre-wrap">
+                              {comment.content}
+                            </p>
                           </div>
-                          <p className="text-sm leading-relaxed text-foreground/90 whitespace-pre-wrap">
-                            {comment.content}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-4 mt-2 ml-2">
-                          <button className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
-                            Reply
-                          </button>
-                          <button className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
-                            Like
-                          </button>
                         </div>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </div>
