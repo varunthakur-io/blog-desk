@@ -19,19 +19,20 @@ class PostService {
    * @param {Object} params - Post parameters
    * @param {string} params.title
    * @param {string} params.content
-   * @param {string} [params.category] - Optional category for the post
+   * @param {string} params.category
+   * @param {boolean} params.published
    * @returns {Promise<Object>} The created post document
    */
-  async createPost({ title, content, category }) {
+  async createPost({ title, content, category, published }) {
     try {
       const user = await account.get();
       const postData = {
         authorId: user.$id,
-        authorName: user.name,
         title,
         content,
         category: category || 'Uncategorized', // Default if not provided
         likesCount: 0,
+        published: published ?? true, // Default to true if not provided
       };
 
       return await databases.createDocument(
@@ -52,15 +53,17 @@ class PostService {
    * @param {Object} params - Parameters for updating the post
    * @param {string} params.title
    * @param {string} params.content
-   * @param {string} [params.category] - Optional category for the post
+   * @param {string} params.category
+   * @param {boolean} [params.published] - Optional published status (default: true)
    * @returns {Promise<Object>} The updated post document
    */
-  async updatePost(postId, { title, content, category }) {
+  async updatePost(postId, { title, content, category, published }) {
     try {
       const postData = {
         title,
         content,
         category: category || 'Uncategorized', // Ensure category is updated
+        published: published ?? true, // Default to true if not provided
       };
       return await databases.updateDocument(
         appwrite.databaseId,
