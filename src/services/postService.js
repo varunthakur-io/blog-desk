@@ -383,17 +383,16 @@ class PostService {
    * @param {Object} params
    * @param {string} params.postId
    * @param {string} params.userId
-   * @param {string} params.authorName
    * @param {string} params.content
    * @returns {Promise<Object>} The created comment document
    */
-  async addComment({ postId, userId, authorName, content }) {
+  async addComment({ postId, userId, content }) {
     try {
       return await databases.createDocument(
         appwrite.databaseId,
         appwrite.commentsCollectionId,
         ID.unique(),
-        { postId, userId, authorName, content },
+        { postId, userId, content },
       );
     } catch (error) {
       console.error('PostService :: addComment()', error);
