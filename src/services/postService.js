@@ -122,19 +122,27 @@ class PostService {
 
   /**
    * Get posts created by a specific user
-   * @param {string} userId
-   * @returns {Promise<Array>} Array of post documents
+   * @param {string} userId - The user's ID
+   * @returns {Promise<{ total: number, documents: Object[] }>} List of documents
    */
-  async getPostsByUser(userId) {
+  async getPostsByUserId(userId) {
+    if (!userId) {
+      throw new Error('getPostsByUserId: "userId" is required');
+    }
+
     try {
-      const res = await databases.listDocuments(
+      const queries = [
+        Query.equal('authorId', userId),
+        Query.orderDesc('$createdAt'),
+      ];
+
+      return await databases.listDocuments(
         appwrite.databaseId,
         appwrite.postsCollectionId,
-        [Query.equal('authorId', userId), Query.orderDesc('$createdAt')],
+        queries,
       );
-      return res.documents;
     } catch (error) {
-      console.error('PostService :: getPostsByUser()', error);
+      console.error('PostService :: getPostsByUserId()', error);
       throw error;
     }
   }

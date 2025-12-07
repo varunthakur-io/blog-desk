@@ -129,8 +129,8 @@ export default function Dashboard() {
         dispatch(setPostsLoading(true));
         dispatch(setPostsError(null));
 
-        const data = await postService.getPostsByUser(authUserId);
-        const docs = Array.isArray(data) ? data : [];
+        const data = await postService.getPostsByUserId(authUserId);
+        const docs = Array.isArray(data.documents) ? data.documents : [];
 
         dispatch(appendPosts(docs));
       } catch (err) {
@@ -270,7 +270,9 @@ export default function Dashboard() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => handleEdit(post.$id)}>
+                          <DropdownMenuItem
+                            onClick={() => handleEdit(post.$id)}
+                          >
                             <Edit2 className="mr-2 h-4 w-4" /> Edit
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
