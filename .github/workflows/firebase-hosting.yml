@@ -40,11 +40,13 @@ jobs:
           echo "$APPWRITE_CONFIG" > appwrite.json
 
           # parse JSON using Node and export VITE_ variables for Vite build
-          export VITE_APPWRITE_ENDPOINT=$(node -p "require('./appwrite.json').endpoint")
-          export VITE_APPWRITE_PROJECT_ID=$(node -p "require('./appwrite.json').project")
-          export VITE_APPWRITE_DATABASE_ID=$(node -p "require('./appwrite.json').database")
-          export VITE_APPWRITE_COLLECTION_ID=$(node -p "require('./appwrite.json').collection")
-          export VITE_APPWRITE_BUCKET_ID=$(node -p "require('./appwrite.json').bucket")
+          export VITE_APPWRITE_ENDPOINT=$(node -p "require('./appwrite.json').url")
+          export VITE_APPWRITE_PROJECT_ID=$(node -p "require('./appwrite.json').projectId")
+          export VITE_APPWRITE_DATABASE_ID=$(node -p "require('./appwrite.json').databaseId")
+          export VITE_APPWRITE_POSTS_COLLECTION_ID=$(node -p "require('./appwrite.json').postsCollectionId")
+          export VITE_APPWRITE_LIKES_COLLECTION_ID=$(node -p "require('./appwrite.json').likesCollectionId")
+          export VITE_APPWRITE_COMMENTS_COLLECTION_ID=$(node -p "require('./appwrite.json').commentsCollectionId")
+          export VITE_APPWRITE_BUCKET_ID=$(node -p "require('./appwrite.json').bucketId")
 
           # show that envs are set (no secrets printed)
           node -e "console.log('VITE vars set for build')"
@@ -94,7 +96,7 @@ jobs:
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          repoToken: "${{ secrets.GITHUB_TOKEN }}"
-          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
-          projectId: "${{ secrets.FIREBASE_PROJECT_ID }}"
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          projectId: '${{ secrets.FIREBASE_PROJECT_ID }}'
           channelId: ${{ github.ref == 'refs/heads/main' && 'live' || github.ref == 'refs/heads/dev' && 'dev' || 'dev' }}
