@@ -280,9 +280,12 @@ class PostService {
   /**
    * Get all posts liked by a user
    * @param {string} userId
-   * @returns {Promise<Array>} Array of post documents
+   * @returns {Promise<{ total: number, documents: Object[] }>} List of post documents with total count
    */
-  async getLikedPostsByUser(userId) {
+  async getLikedPostsByUserId(userId) {
+    if (!userId) {
+      throw new Error('getLikedPostsByUserId: "userId" is required');
+    }
     try {
       const likesRes = await databases.listDocuments(
         appwrite.databaseId,
@@ -301,7 +304,7 @@ class PostService {
         [Query.equal('$id', postIds), Query.orderDesc('$createdAt')],
       );
 
-      return postsRes.documents || [];
+      return postsRes || [];
     } catch (error) {
       console.error('PostService :: getLikedPostsByUser()', error);
       throw error;
