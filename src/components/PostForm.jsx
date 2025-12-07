@@ -90,6 +90,9 @@ const PostForm = ({
 
   const isEdit = mode === 'edit';
 
+  // Force re-render on selection change to update toolbar state
+  const [, forceUpdate] = useState();
+
   // TipTap Editor Initialization
   const editor = useEditor({
     extensions: [
@@ -121,6 +124,8 @@ const PostForm = ({
         setStatus('Unsaved Changes');
       if (status === 'Draft' && mode === 'create') setStatus('Unsaved Draft');
     },
+    onSelectionUpdate: () => forceUpdate(Math.random()), // Force re-render for toolbar active states
+    onTransaction: () => forceUpdate(Math.random()), // Catch-all for other state changes
     editorProps: {
       attributes: {
         class:
