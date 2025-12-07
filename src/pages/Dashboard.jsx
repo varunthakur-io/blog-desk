@@ -165,7 +165,7 @@ export default function Dashboard() {
       // remove from store
       dispatch(removePost(postToDelete));
 
-      await postService.deletePost(postToDelete);
+      await postService.deletePostById(postToDelete);
       toast.success('Post deleted successfully!');
     } catch (err) {
       toast.error(err.message);

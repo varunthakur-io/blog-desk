@@ -148,20 +148,32 @@ class PostService {
   }
 
   /**
-   * Delete a post by ID
-   * @param {string} postId
-   * @returns {Promise<boolean>} True on success
+   * Delete a post and all its likes by post ID
+   * @param {string} postId - ID of the post to delete
+   * @returns {Promise<boolean>} True if deletion succeeds
    */
-  async deletePost(postId) {
+  async deletePostById(postId) {
+    if (!postId) {
+      throw new Error('deletePostById: "postId" is required');
+    }
+
     try {
+      // 1. Delete all likes for this post
+      await this.deleteLikesByPostId(postId);
+
+      // 2. Delete all comments for this post
+      await this.deleteCommentsByPostId(postId);
+
+      // 3. Delete the post itself
       await databases.deleteDocument(
         appwrite.databaseId,
         appwrite.postsCollectionId,
         postId,
       );
+
       return true;
     } catch (error) {
-      console.error('PostService :: deletePost()', error);
+      console.error('PostService :: deletePostById()', error);
       throw error;
     }
   }
@@ -325,6 +337,40 @@ class PostService {
     }
   }
 
+  /**
+   * Delete all likes for a given post
+   * @param {string} postId - ID of the post
+   * @returns {Promise<void>}
+   */
+  async deleteLikesByPostId(postId) {
+    if (!postId) {
+      throw new Error('deleteLikesByPostId: "postId" is required');
+    }
+
+    try {
+      // 1. Find likes belonging to this post
+      const likesList = await databases.listDocuments(
+        appwrite.databaseId,
+        appwrite.likesCollectionId,
+        [Query.equal('postId', postId)],
+      );
+
+      // 2. Delete each like document
+      const deletePromises = likesList.documents.map((like) =>
+        databases.deleteDocument(
+          appwrite.databaseId,
+          appwrite.likesCollectionId,
+          like.$id,
+        ),
+      );
+
+      await Promise.all(deletePromises);
+    } catch (error) {
+      console.error('PostService :: deleteLikesByPostId()', error);
+      throw error;
+    }
+  }
+
   // ==========================================
   //                 COMMENTS
   // ==========================================
@@ -372,6 +418,38 @@ class PostService {
     } catch (error) {
       console.error('PostService :: getCommentsByPost()', error);
       return []; // Return empty array so UI doesn't break
+    }
+  }
+
+  /**
+   * Delete a comment by its ID
+   * @param {string} postId - ID of the post
+   * @returns {Promise<null>}
+   */
+  async deleteCommentsByPostId(postId) {
+    if (!postId) {
+      throw new Error('deleteCommentsByPostId: "postId" is required');
+    }
+    try {
+      // 1. Find comments belonging to this post
+      const commentsList = await databases.listDocuments(
+        appwrite.databaseId,
+        appwrite.commentsCollectionId,
+        [Query.equal('postId', postId)],
+      );
+
+      // 2. Delete each comment document
+      const deletePromises = commentsList.documents.map((comment) =>
+        databases.deleteDocument(
+          appwrite.databaseId,
+          appwrite.commentsCollectionId,
+          comment.$id,
+        ),
+      );
+      await Promise.all(deletePromises);
+    } catch (error) {
+      console.error('PostService :: deleteCommentsByPostId()', error);
+      throw error;
     }
   }
 }
