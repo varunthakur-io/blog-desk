@@ -97,7 +97,7 @@ class PostService {
    * @param {number} page - Page number (1-based)
    * @param {number} skip - Number of items to return
    * @param {string} [category] - Optional category to filter posts by
-   * @returns {Promise<Object>} List of documents
+   * @returns {Promise<{ total: number, documents: Object[] }>} List of post documents with total count
    */
   async getAllPosts(page = 1, skip = 6, category = null) {
     try {
