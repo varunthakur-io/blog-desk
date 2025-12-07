@@ -16,7 +16,7 @@ class PostService {
 
   /**
    * Create a new blog post
-   * @param {Object} params
+   * @param {Object} params - Post parameters
    * @param {string} params.title
    * @param {string} params.content
    * @param {string} [params.category] - Optional category for the post
@@ -38,7 +38,7 @@ class PostService {
         appwrite.databaseId,
         appwrite.postsCollectionId,
         'unique()',
-        postData
+        postData,
       );
     } catch (error) {
       console.error('PostService :: createPost()', error);
@@ -66,7 +66,7 @@ class PostService {
         appwrite.databaseId,
         appwrite.postsCollectionId,
         postId,
-        postData
+        postData,
       );
     } catch (error) {
       console.error('PostService :: updatePost()', error);
@@ -84,7 +84,7 @@ class PostService {
       return await databases.getDocument(
         appwrite.databaseId,
         appwrite.postsCollectionId,
-        postId
+        postId,
       );
     } catch (error) {
       console.error('PostService :: getPostById()', error);
@@ -112,7 +112,7 @@ class PostService {
       return await databases.listDocuments(
         appwrite.databaseId,
         appwrite.postsCollectionId,
-        queries
+        queries,
       );
     } catch (error) {
       console.error('PostService :: getAllPosts()', error);
@@ -130,7 +130,7 @@ class PostService {
       const res = await databases.listDocuments(
         appwrite.databaseId,
         appwrite.postsCollectionId,
-        [Query.equal('authorId', userId), Query.orderDesc('$createdAt')]
+        [Query.equal('authorId', userId), Query.orderDesc('$createdAt')],
       );
       return res.documents;
     } catch (error) {
@@ -149,7 +149,7 @@ class PostService {
       await databases.deleteDocument(
         appwrite.databaseId,
         appwrite.postsCollectionId,
-        postId
+        postId,
       );
       return true;
     } catch (error) {
@@ -166,7 +166,7 @@ class PostService {
    * Check if user has liked a post (uses cache)
    * @param {string} postId
    * @param {string} userId
-   * @returns {Promise<boolean>} 
+   * @returns {Promise<boolean>}
    */
   async hasUserLiked(postId, userId) {
     const key = `${userId}:${postId}`;
@@ -182,7 +182,7 @@ class PostService {
           Query.equal('postId', postId),
           Query.equal('userId', userId),
           Query.limit(1),
-        ]
+        ],
       );
 
       const liked = res.total > 0;
@@ -210,7 +210,7 @@ class PostService {
         appwrite.databaseId,
         appwrite.likesCollectionId,
         ID.unique(),
-        { postId, userId }
+        { postId, userId },
       );
 
       await this._updateLikesCount(postId, 1);
@@ -237,7 +237,7 @@ class PostService {
           Query.equal('postId', postId),
           Query.equal('userId', userId),
           Query.limit(1),
-        ]
+        ],
       );
 
       if (res.total > 0) {
@@ -245,7 +245,7 @@ class PostService {
         await databases.deleteDocument(
           appwrite.databaseId,
           appwrite.likesCollectionId,
-          likeDocId
+          likeDocId,
         );
 
         await this._updateLikesCount(postId, -1);
@@ -267,7 +267,7 @@ class PostService {
       const likesRes = await databases.listDocuments(
         appwrite.databaseId,
         appwrite.likesCollectionId,
-        [Query.equal('userId', userId)]
+        [Query.equal('userId', userId)],
       );
 
       const likeDocs = likesRes.documents || [];
@@ -278,7 +278,7 @@ class PostService {
       const postsRes = await databases.listDocuments(
         appwrite.databaseId,
         appwrite.postsCollectionId,
-        [Query.equal('$id', postIds), Query.orderDesc('$createdAt')]
+        [Query.equal('$id', postIds), Query.orderDesc('$createdAt')],
       );
 
       return postsRes.documents || [];
@@ -299,7 +299,7 @@ class PostService {
       const doc = await databases.getDocument(
         appwrite.databaseId,
         appwrite.postsCollectionId,
-        postId
+        postId,
       );
 
       const current = doc.likesCount ?? 0;
@@ -309,7 +309,7 @@ class PostService {
         appwrite.databaseId,
         appwrite.postsCollectionId,
         postId,
-        { likesCount: next }
+        { likesCount: next },
       );
     } catch (error) {
       console.error('PostService :: _updateLikesCount()', error);
@@ -336,7 +336,7 @@ class PostService {
         appwrite.databaseId,
         appwrite.commentsCollectionId,
         ID.unique(),
-        { postId, userId, authorName, content }
+        { postId, userId, authorName, content },
       );
     } catch (error) {
       console.error('PostService :: addComment()', error);
@@ -358,7 +358,7 @@ class PostService {
           Query.equal('postId', postId),
           Query.orderDesc('$createdAt'),
           Query.limit(10),
-        ]
+        ],
       );
       return res.documents;
     } catch (error) {
