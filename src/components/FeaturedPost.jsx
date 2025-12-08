@@ -3,16 +3,24 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Calendar, Clock, User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useSelector } from 'react-redux';
+import { selectProfileById } from '@/store/profileSlice';
 
 const FeaturedPost = ({ post }) => {
+  const authorName = useSelector((state) =>
+    selectProfileById(state, post.authorId),
+  )?.name;
+
   if (!post) return null;
 
   const readTime = Math.max(
     1,
-    Math.ceil((post.content || '').split(' ').length / 200)
+    Math.ceil((post.content || '').split(' ').length / 200),
   );
 
-  const plainContent = DOMPurify.sanitize(post.content || '', { USE_PROFILES: { html: false } });
+  const plainContent = DOMPurify.sanitize(post.content || '', {
+    USE_PROFILES: { html: false },
+  });
 
   return (
     <div className="relative overflow-hidden rounded-3xl border bg-background/50 backdrop-blur-sm transition-all hover:shadow-md">
@@ -20,7 +28,10 @@ const FeaturedPost = ({ post }) => {
         {/* Content Side */}
         <div className="flex flex-col justify-center p-8 sm:p-10 lg:p-12">
           <div className="flex items-center gap-3 mb-6">
-            <Badge variant="secondary" className="px-3 py-1 text-sm font-medium capitalize">
+            <Badge
+              variant="secondary"
+              className="px-3 py-1 text-sm font-medium capitalize"
+            >
               {post.category || 'Featured'}
             </Badge>
             <div className="flex items-center text-sm text-muted-foreground">
@@ -42,11 +53,11 @@ const FeaturedPost = ({ post }) => {
           <div className="mt-auto flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                {post.authorName?.charAt(0).toUpperCase() || 'A'}
+                {authorName?.charAt(0).toUpperCase() || 'A'}
               </div>
               <div className="flex flex-col text-sm">
                 <span className="font-semibold text-foreground">
-                  {post.authorName || 'Anonymous'}
+                  {authorName || 'Anonymous'}
                 </span>
                 <div className="flex items-center text-muted-foreground">
                   <Calendar className="mr-1.5 h-3.5 w-3.5" />
@@ -71,15 +82,21 @@ const FeaturedPost = ({ post }) => {
 
         {/* Visual Side (Placeholder for Image) */}
         <div className="relative min-h-[300px] bg-muted/30 lg:min-h-full">
-           {/* Gradient / Abstract Pattern Placeholder since we don't have real images yet */}
+          {/* Gradient / Abstract Pattern Placeholder since we don't have real images yet */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-muted/50" />
           <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/20">
             {/* Abstract decorative shape */}
-            <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" className="opacity-50">
-               <path d="M0 100 C 20 0 50 0 100 100 Z" fill="currentColor" />
+            <svg
+              width="100%"
+              height="100%"
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+              className="opacity-50"
+            >
+              <path d="M0 100 C 20 0 50 0 100 100 Z" fill="currentColor" />
             </svg>
           </div>
-          
+
           {/* If you had an imageURL: 
             <img src={post.imageUrl} alt={post.title} className="absolute inset-0 w-full h-full object-cover" />
           */}
