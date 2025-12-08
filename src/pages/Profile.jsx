@@ -222,9 +222,9 @@ export default function Profile() {
       try {
         setIsLoadingLikes(true);
         setLikesError('');
-        const res = postService.getLikedPostsByUserId(profileId);
+        const res = await postService.getLikedPostsByUserId(profileId);
         if (cancelled) return;
-        const likedPostsArray = res.document;
+        const likedPostsArray = res.documents;
         setLikedPosts(Array.isArray(likedPostsArray) ? likedPostsArray : []);
       } catch (err) {
         if (!cancelled) {
