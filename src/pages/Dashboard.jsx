@@ -1,5 +1,5 @@
 // Dashboard.jsx
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -9,8 +9,11 @@ import {
   Plus,
   Search,
   FileText,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { debounce } from '@/lib/utils';
 
 // UI Components
 import DashboardSkeleton from '@/components/skeletons/DashboardSkeleton';
@@ -48,13 +51,10 @@ import {
 // Services & Store
 import { postService } from '@/services/postService';
 import {
-  selectAllPosts,
-  selectPostsByAuthor,
   selectPostsLoading,
   selectPostsError,
   setPostsLoading,
   setPostsError,
-  setPosts,
   appendPosts,
   removePost,
 } from '@/store/postSlice';
@@ -91,35 +91,44 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   // Post Store Selectors
-  const globalPosts = useSelector(selectAllPosts);
   const postsLoading = useSelector(selectPostsLoading);
   const postsError = useSelector(selectPostsError);
 
   // Auth Store Selector
   const authUserId = useSelector(selectAuthUserId);
 
-  // Only posts of the current user
-  const userPosts = useSelector((state) =>
-    selectPostsByAuthor(state, authUserId),
-  );
-
   // Local states
+  const [posts, setPosts] = useState([]); // Local state for dashboard view
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [postToDelete, setPostToDelete] = useState(null);
   const [postToDeleteTitle, setPostToDeleteTitle] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Filtering by search
-  const filteredPosts = useMemo(() => {
-    if (!searchQuery.trim()) return userPosts;
+  // Pagination & Search States
+  const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalPosts, setTotalPosts] = useState(0);
+  const LIMIT = 5;
 
-    const lowerQuery = searchQuery.toLowerCase();
-    return userPosts.filter((p) =>
-      (p.title || '').toLowerCase().includes(lowerQuery),
-    );
-  }, [userPosts, searchQuery]);
+  // Debounce search input
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const handleSearchDebounce = useCallback(
+    debounce((query) => {
+      setDebouncedQuery(query);
+      setPage(1); // Reset to first page on new search
+    }, 500),
+    [],
+  );
 
+  // Search Input Change Handler
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    handleSearchDebounce(e.target.value);
+  };
+
+  // Fetch posts on mount and when dependencies change
   useEffect(() => {
     if (!authUserId) return;
 
@@ -128,10 +137,23 @@ export default function Dashboard() {
         dispatch(setPostsLoading(true));
         dispatch(setPostsError(null));
 
-        const data = await postService.getPostsByUserId(authUserId);
+        const data = await postService.getPostsByUserId(
+          authUserId,
+          page,
+          LIMIT,
+          debouncedQuery,
+        );
+
         const docs = Array.isArray(data.documents) ? data.documents : [];
 
+        // Update local view state
+        setPosts(docs);
+
+        // Also update global cache (additive) so other components (EditPost) can use it
         dispatch(appendPosts(docs));
+
+        setTotalPosts(data.total);
+        setTotalPages(Math.ceil(data.total / LIMIT));
       } catch (err) {
         console.error('Fetch error:', err);
         dispatch(setPostsError(err?.message || 'Failed to fetch posts'));
@@ -141,34 +163,34 @@ export default function Dashboard() {
     };
 
     fetchUserPosts();
-  }, [dispatch, authUserId]);
+  }, [dispatch, authUserId, page, debouncedQuery]);
 
-  // Event handers
+  // Edit Post Handler
   const handleEdit = (postId) => navigate(`/edit/${postId}`);
 
+  // Delete Post Handlers
   const handleDeleteClick = (post) => {
     setPostToDelete(post.$id);
     setPostToDeleteTitle(post.title);
     setIsDeleteDialogOpen(true);
   };
 
+  // Confirm Delete Handler
   const confirmDelete = async () => {
     if (!postToDelete) return;
 
     setIsDeleting(true);
-
-    // Keep full list for rollback
-    const previousPosts = [...globalPosts];
+    const previousPosts = [...posts];
 
     try {
-      // remove from store
       dispatch(removePost(postToDelete));
-
       await postService.deletePostById(postToDelete);
       toast.success('Post deleted successfully!');
+
+      // Update total count locally to avoid refetch
+      setTotalPosts((prev) => Math.max(0, prev - 1));
     } catch (err) {
       toast.error(err.message);
-      // Rollback
       dispatch(setPosts(previousPosts));
     } finally {
       setIsDeleting(false);
@@ -197,7 +219,7 @@ export default function Dashboard() {
                 placeholder="Search posts..."
                 className="pl-9 w-full"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={handleSearchChange}
               />
             </div>
 
@@ -213,86 +235,121 @@ export default function Dashboard() {
           </Alert>
         )}
 
-        {postsLoading && filteredPosts.length === 0 ? (
+        {postsLoading ? (
           <DashboardSkeleton />
-        ) : filteredPosts.length === 0 ? (
+        ) : posts.length === 0 ? (
           <EmptyState
             onCreate={() => navigate('/create')}
             hasQuery={!!searchQuery}
           />
         ) : (
-          <div className="border rounded-md">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[400px]">Title</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredPosts.map((post) => (
-                  <TableRow key={post.$id}>
-                    <TableCell className="font-medium">
-                      <div className="flex flex-col gap-0.5">
-                        <Link
-                          to={`/posts/${post.$id}`}
-                          className="hover:underline"
-                        >
-                          <span>{post.title}</span>
-                        </Link>
-                      </div>
-                    </TableCell>
-
-                    <TableCell>
-                      <Badge
-                        variant={post.published ? 'default' : 'outline'}
-                        className="font-normal"
-                      >
-                        {post.published ? 'Published' : 'Draft'}
-                      </Badge>
-                    </TableCell>
-
-                    <TableCell>
-                      <span className="text-muted-foreground">
-                        {new Date(post.$createdAt).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric',
-                        })}
-                      </span>
-                    </TableCell>
-
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem
-                            onClick={() => handleEdit(post.$id)}
-                          >
-                            <Edit2 className="mr-2 h-4 w-4" /> Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => handleDeleteClick(post)}
-                            className="text-destructive focus:text-destructive"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" /> Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+          <div className="flex flex-col gap-4">
+            <div className="border rounded-md">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[400px]">Title</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Created</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {posts.map((post) => (
+                    <TableRow key={post.$id}>
+                      <TableCell className="font-medium">
+                        <div className="flex flex-col gap-0.5">
+                          <Link
+                            to={`/posts/${post.$id}`}
+                            className="hover:underline"
+                          >
+                            <span>{post.title}</span>
+                          </Link>
+                        </div>
+                      </TableCell>
+
+                      <TableCell>
+                        <Badge
+                          variant={post.published ? 'default' : 'outline'}
+                          className="font-normal"
+                        >
+                          {post.published ? 'Published' : 'Draft'}
+                        </Badge>
+                      </TableCell>
+
+                      <TableCell>
+                        <span className="text-muted-foreground">
+                          {new Date(post.$createdAt).toLocaleDateString(
+                            'en-US',
+                            {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                            },
+                          )}
+                        </span>
+                      </TableCell>
+
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <span className="sr-only">Open menu</span>
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem
+                              onClick={() => handleEdit(post.$id)}
+                            >
+                              <Edit2 className="mr-2 h-4 w-4" /> Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => handleDeleteClick(post)}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" /> Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-muted-foreground">
+                Showing {posts.length} of {totalPosts} posts
+              </div>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Previous
+                </Button>
+                <div className="text-sm font-medium">
+                  Page {page} of {totalPages || 1}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page >= totalPages}
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           </div>
         )}
       </div>
