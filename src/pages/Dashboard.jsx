@@ -235,7 +235,7 @@ export default function Dashboard() {
           </Alert>
         )}
 
-        {postsLoading ? (
+        {postsLoading && posts.length === 0 ? (
           <DashboardSkeleton />
         ) : posts.length === 0 ? (
           <EmptyState
@@ -243,7 +243,9 @@ export default function Dashboard() {
             hasQuery={!!searchQuery}
           />
         ) : (
-          <div className="flex flex-col gap-4">
+          <div
+            className={`flex flex-col gap-4 transition-opacity duration-200 ${postsLoading ? 'opacity-50 pointer-events-none' : ''}`}
+          >
             <div className="border rounded-md">
               <Table>
                 <TableHeader>
