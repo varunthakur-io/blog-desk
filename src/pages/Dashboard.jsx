@@ -47,6 +47,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 // Services & Store
 import { postService } from '@/services/postService';
@@ -108,6 +115,8 @@ export default function Dashboard() {
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('newest');
   const [totalPages, setTotalPages] = useState(1);
   const [totalPosts, setTotalPosts] = useState(0);
   const LIMIT = 5;
@@ -142,6 +151,8 @@ export default function Dashboard() {
           page,
           LIMIT,
           debouncedQuery,
+          statusFilter,
+          sortBy,
         );
 
         const docs = Array.isArray(data.documents) ? data.documents : [];
@@ -163,7 +174,7 @@ export default function Dashboard() {
     };
 
     fetchUserPosts();
-  }, [dispatch, authUserId, page, debouncedQuery]);
+  }, [dispatch, authUserId, page, debouncedQuery, statusFilter, sortBy]);
 
   // Edit Post Handler
   const handleEdit = (postId) => navigate(`/edit/${postId}`);
@@ -215,8 +226,42 @@ export default function Dashboard() {
             </p>
           </div>
 
-          <div className="flex w-full md:w-auto items-center gap-2">
-            <div className="relative w-full md:w-[300px]">
+          <div className="flex flex-col md:flex-row w-full md:w-auto items-center gap-2">
+            <Select
+              value={statusFilter}
+              onValueChange={(val) => {
+                setStatusFilter(val);
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="w-full md:w-[130px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="published">Published</SelectItem>
+                <SelectItem value="draft">Draft</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={sortBy}
+              onValueChange={(val) => {
+                setSortBy(val);
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="w-full md:w-[130px]">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Newest</SelectItem>
+                <SelectItem value="oldest">Oldest</SelectItem>
+                <SelectItem value="likes">Popular</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <div className="relative w-full md:w-[250px]">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"

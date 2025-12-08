@@ -129,9 +129,18 @@ class PostService {
    * @param {number} page - Page number (1-based)
    * @param {number} limit - Items per page
    * @param {string} [searchQuery] - Optional search query
+   * @param {string} [status] - 'all', 'published', or 'draft'
+   * @param {string} [sortBy] - 'newest', 'oldest', or 'likes'
    * @returns {Promise<{ total: number, documents: Object[] }>} List of documents
    */
-  async getPostsByUserId(userId, page = 1, limit = 10, searchQuery = '') {
+  async getPostsByUserId(
+    userId,
+    page = 1,
+    limit = 10,
+    searchQuery = '',
+    status = 'all',
+    sortBy = 'newest',
+  ) {
     if (!userId) {
       throw new Error('getPostsByUserId: "userId" is required');
     }
@@ -140,10 +149,26 @@ class PostService {
       const offset = (page - 1) * limit;
       const queries = [
         Query.equal('authorId', userId),
-        Query.orderDesc('$createdAt'),
         Query.limit(limit),
         Query.offset(offset),
       ];
+
+      // Filter by status
+      if (status === 'published') {
+        queries.push(Query.equal('published', true));
+      } else if (status === 'draft') {
+        queries.push(Query.equal('published', false));
+      }
+
+      // Sort
+      if (sortBy === 'likes') {
+        queries.push(Query.orderDesc('likesCount'));
+      } else if (sortBy === 'oldest') {
+        queries.push(Query.orderAsc('$createdAt'));
+      } else {
+        // Default: newest first
+        queries.push(Query.orderDesc('$createdAt'));
+      }
 
       if (searchQuery) {
         queries.push(Query.search('title', searchQuery));
