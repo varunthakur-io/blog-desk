@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import LinkExtension from '@tiptap/extension-link';
 import {
   Loader2,
   Save,
@@ -85,12 +84,6 @@ const PostForm = ({
   // TipTap Editor Initialization
   const editor = useEditor({
     extensions: [
-      LinkExtension.configure({
-        openOnClick: false,
-        autolink: true,
-        defaultProtocol: 'https',
-      }),
-
       StarterKit.configure({
         bold: true,
         italic: true,
@@ -101,6 +94,7 @@ const PostForm = ({
         },
         blockquote: true,
         codeBlock: true,
+        link: true,
       }),
     ],
     content: formData.content, // Initial content for the editor

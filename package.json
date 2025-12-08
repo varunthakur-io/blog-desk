@@ -26,8 +26,6 @@
     "@radix-ui/react-switch": "^1.2.6",
     "@radix-ui/react-tabs": "^1.1.13",
     "@reduxjs/toolkit": "^2.8.2",
-    "@tiptap/extension-image": "^3.13.0",
-    "@tiptap/extension-link": "^3.13.0",
     "@tiptap/react": "^3.13.0",
     "@tiptap/starter-kit": "^3.13.0",
     "appwrite": "^18.1.1",
