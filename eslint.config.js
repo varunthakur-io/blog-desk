@@ -7,7 +7,7 @@ import prettierConfig from 'eslint-config-prettier';
 
 export default [
   {
-    ignores: ['dist/', 'build/', 'src/components/ui/', 'notes.jsx'],
+    ignores: ['dist/', 'build/', 'src/components/ui/'],
   },
   js.configs.recommended,
   {
