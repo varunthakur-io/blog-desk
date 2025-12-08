@@ -189,6 +189,10 @@ export default function Dashboard() {
 
       // Update total count locally to avoid refetch
       setTotalPosts((prev) => Math.max(0, prev - 1));
+      // Update local posts state
+      setPosts((prevPosts) =>
+        prevPosts.filter((post) => post.$id !== postToDelete),
+      );
     } catch (err) {
       toast.error(err.message);
       dispatch(setPosts(previousPosts));
