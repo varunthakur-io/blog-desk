@@ -126,18 +126,28 @@ class PostService {
   /**
    * Get posts created by a specific user
    * @param {string} userId - The user's ID
+   * @param {number} page - Page number (1-based)
+   * @param {number} limit - Items per page
+   * @param {string} [searchQuery] - Optional search query
    * @returns {Promise<{ total: number, documents: Object[] }>} List of documents
    */
-  async getPostsByUserId(userId) {
+  async getPostsByUserId(userId, page = 1, limit = 10, searchQuery = '') {
     if (!userId) {
       throw new Error('getPostsByUserId: "userId" is required');
     }
 
     try {
+      const offset = (page - 1) * limit;
       const queries = [
         Query.equal('authorId', userId),
         Query.orderDesc('$createdAt'),
+        Query.limit(limit),
+        Query.offset(offset),
       ];
+
+      if (searchQuery) {
+        queries.push(Query.search('title', searchQuery));
+      }
 
       return await databases.listDocuments(
         appwrite.databaseId,
