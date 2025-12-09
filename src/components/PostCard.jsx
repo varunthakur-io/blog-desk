@@ -10,8 +10,13 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useSelector } from 'react-redux';
+import { selectProfileById } from '@/store/profileSlice';
 
 const PostCard = ({ post }) => {
+  const authorName = useSelector((state) =>
+    selectProfileById(state, post.authorId),
+  )?.name;
   // Calculate read time (rough estimate: 200 words per minute)
   const readTime = Math.max(
     1,
@@ -64,7 +69,7 @@ const PostCard = ({ post }) => {
           <div className="flex items-center gap-1.5">
             <User className="h-3.5 w-3.5" />
             <span className="font-medium text-foreground/80">
-              {post.authorName || 'Anonymous'}
+              {authorName || 'Anonymous'}
             </span>
           </div>
           <span className="h-1 w-1 rounded-full bg-border" />
