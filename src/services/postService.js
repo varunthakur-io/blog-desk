@@ -1,5 +1,5 @@
 import { ID, Query } from 'appwrite';
-import { account, databases } from '@/api/client';
+import { account, databases, storage } from '@/api/client';
 import { appwriteConfig as appwrite } from '../config/appwrite';
 
 /**
@@ -213,6 +213,43 @@ class PostService {
     } catch (error) {
       console.error('PostService :: deletePostById()', error);
       throw error;
+    }
+  }
+
+  /**
+   * Upload or replace a post image
+   * @param {File} [file] - The image file to upload
+   * @param {string} [oldFileId] - Optional old file ID to delete
+   * @returns {Promise<{ fileId: string, imageUrl: string }>} Uploaded file info
+   */
+
+  async uploadPostImage(file, oldFileId) {
+    try {
+      // 1) Delete old image if provided
+      if (oldFileId) {
+        try {
+          await storage.deleteFile(appwrite.bucketId, oldFileId);
+        } catch (err) {
+          console.warn('Failed to delete old post image:', err);
+        }
+      }
+
+      // 2) Upload new file
+      const uploaded = await storage.createFile(
+        appwrite.bucketId,
+        ID.unique(),
+        file,
+      );
+
+      const fileId = uploaded.$id;
+
+      // 3) Build public URL
+      const imageUrl = `${appwrite.url}/storage/buckets/${appwrite.bucketId}/files/${fileId}/view?project=${appwrite.projectId}`;
+
+      return { fileId, imageUrl };
+    } catch (err) {
+      console.error('Error uploading post image:', err);
+      throw err;
     }
   }
 
