@@ -26,7 +26,7 @@ const PostCard = ({ post }) => {
   const postImageURL = post.postImageURL ? post.postImageURL : null;
 
   return (
-    <Card className="group h-full flex flex-col overflow-hidden border-border/50 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:border-primary/50 hover:-translate-y-1">
+    <Card className="group h-auto flex flex-col overflow-hidden border-border/50 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:border-primary/50 hover:-translate-y-1">
       {postImageURL && (
         <div className="aspect-video w-full overflow-hidden bg-muted">
           <img

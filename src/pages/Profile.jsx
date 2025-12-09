@@ -578,7 +578,7 @@ export default function Profile() {
               ))}
             </div>
           ) : userPosts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
               {userPosts.map((post) => (
                 <PostCard key={post.$id} post={post} />
               ))}
@@ -619,7 +619,7 @@ export default function Profile() {
               <AlertDescription>{likesError}</AlertDescription>
             </Alert>
           ) : likedPosts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
               {likedPosts.map((post) => (
                 <PostCard key={post.$id} post={post} />
               ))}
