@@ -106,7 +106,11 @@ class PostService {
     try {
       const offset = (page - 1) * skip;
       const limit = skip;
-      const queries = [Query.limit(limit), Query.offset(offset)];
+      const queries = [
+        Query.limit(limit),
+        Query.offset(offset),
+        Query.equal('published', true),
+      ];
 
       if (category) {
         queries.push(Query.equal('category', category));
