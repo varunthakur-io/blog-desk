@@ -47,6 +47,7 @@ export default function EditPost() {
           content: post.content || '',
           category: post.category || '',
           published: post.published ?? true,
+          postImageURL: post.postImageURL || null,
         });
         setIsLoading(false);
         return;
@@ -64,6 +65,7 @@ export default function EditPost() {
             content: data.content || '',
             category: data.category || '',
             published: data.published ?? true,
+            postImageURL: data.postImageURL || null,
           });
 
           // keep Redux posts cache in sync

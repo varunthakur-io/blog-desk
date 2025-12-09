@@ -345,6 +345,8 @@ const PostDetails = () => {
   const displayAuthorBio = authorProfile?.bio;
   const displayAuthorAvatar = authorProfile?.avatarUrl;
 
+  const postImageURL = currentPost?.postImageURL || null;
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -376,10 +378,10 @@ const PostDetails = () => {
             </div>
 
             {/* Hero Image */}
-            {currentPost.imageUrl && (
+            {postImageURL && (
               <div className="relative w-full h-[250px] sm:h-[400px] rounded-2xl overflow-hidden bg-muted border shadow-sm">
                 <img
-                  src={currentPost.imageUrl}
+                  src={postImageURL}
                   alt={currentPost.title}
                   className="absolute inset-0 w-full h-full object-cover"
                 />

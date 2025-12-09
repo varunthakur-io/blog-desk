@@ -36,6 +36,7 @@ const CreatePost = () => {
         content: formData.content,
         category: formData.category,
         published: formData.published, // Include the published status
+        postImageURL: formData.postImageURL,
       });
 
       if (newPost) {
