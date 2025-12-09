@@ -71,6 +71,7 @@ const Navbar = () => {
     { name: 'Home', slug: '/', requiresAuth: false },
     { name: 'Dashboard', slug: '/dashboard', requiresAuth: true },
     { name: 'Create Post', slug: '/create', requiresAuth: true },
+    { name: 'About', slug: '/about', requiresAuth: false },
   ];
 
   return (
