@@ -18,10 +18,25 @@ const PostCard = ({ post }) => {
     Math.ceil((post.content || '').split(' ').length / 200),
   );
 
-  const plainContent = DOMPurify.sanitize(post.content || '', { USE_PROFILES: { html: false } });
+  const plainContent = DOMPurify.sanitize(post.content || '', {
+    USE_PROFILES: { html: false },
+  });
+
+  // Get post image URL if available
+  const postImageURL = post.postImageURL ? post.postImageURL : null;
 
   return (
     <Card className="group h-full flex flex-col overflow-hidden border-border/50 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:border-primary/50 hover:-translate-y-1">
+      {postImageURL && (
+        <div className="aspect-video w-full overflow-hidden bg-muted">
+          <img
+            src={postImageURL}
+            alt={post.title}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        </div>
+      )}
+
       <CardHeader className="pb-3 pt-6 px-6">
         {/* Meta Top Row */}
         <div className="flex items-center justify-between mb-3">

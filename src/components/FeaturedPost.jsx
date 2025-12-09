@@ -1,6 +1,6 @@
 import DOMPurify from 'dompurify';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Calendar, Clock, User } from 'lucide-react';
+import { ArrowRight, Calendar, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useSelector } from 'react-redux';
@@ -97,9 +97,12 @@ const FeaturedPost = ({ post }) => {
             </svg>
           </div>
 
-          {/* If you had an imageURL: 
-            <img src={post.imageUrl} alt={post.title} className="absolute inset-0 w-full h-full object-cover" />
-          */}
+          {/* If you had an imageURL:  */}
+          <img
+            src={post.postImageURL}
+            alt={post.title}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
         </div>
       </div>
     </div>
