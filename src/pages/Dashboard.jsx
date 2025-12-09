@@ -160,9 +160,6 @@ export default function Dashboard() {
         // Update local view state
         setPosts(docs);
 
-        // Also update global cache (additive) so other components (EditPost) can use it
-        dispatch(appendPosts(docs));
-
         setTotalPosts(data.total);
         setTotalPages(Math.ceil(data.total / LIMIT));
       } catch (err) {
