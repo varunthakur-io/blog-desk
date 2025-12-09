@@ -317,7 +317,20 @@ const PostDetails = () => {
     return <PostDetailsSkeleton />;
   }
 
-  if (error || !currentPost) {
+  // Determine what to show for author info
+  // Use profile data if available, otherwise fallback to post data
+  const displayAuthorName = authorProfile?.name || 'Anonymous';
+  const displayAuthorBio = authorProfile?.bio;
+  const displayAuthorAvatar = authorProfile?.avatarUrl;
+
+  const postImageURL = currentPost?.postImageURL || null;
+
+  // Privacy Check: Only show if published OR if the current user is the author
+  // We use strict equality for published to handle potential undefined cases gracefully (though DB should have it)
+  const isAuthorized =
+    currentPost?.published === true || currentPost?.authorId === authUserId;
+
+  if (error || !currentPost || !isAuthorized) {
     return (
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <Card className="max-w-4xl mx-auto">
@@ -325,7 +338,10 @@ const PostDetails = () => {
             <div className="text-center space-y-4">
               <Alert variant="destructive">
                 <AlertDescription>
-                  {error || 'The article you are looking for does not exist.'}
+                  {error ||
+                    (!isAuthorized
+                      ? 'This post is private.'
+                      : 'The article you are looking for does not exist.')}
                 </AlertDescription>
               </Alert>
               <Button onClick={() => navigate('/')} className="mt-4">
@@ -338,14 +354,6 @@ const PostDetails = () => {
       </div>
     );
   }
-
-  // Determine what to show for author info
-  // Use profile data if available, otherwise fallback to post data
-  const displayAuthorName = authorProfile?.name || 'Anonymous';
-  const displayAuthorBio = authorProfile?.bio;
-  const displayAuthorAvatar = authorProfile?.avatarUrl;
-
-  const postImageURL = currentPost?.postImageURL || null;
 
   return (
     <div className="min-h-screen bg-background">
