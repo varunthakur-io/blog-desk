@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { upsertProfile } from '@/store/profileSlice';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -44,8 +45,9 @@ const Signup = () => {
     setError('');
 
     try {
-      const user = await authService.createUser(formData);
-      dispatch(setAuthUserId(user.id));
+      const { user, profile } = await authService.createUser(formData);
+      dispatch(setAuthUserId(user.$id));
+      dispatch(upsertProfile(profile));
       toast.success('Account created and logged in!');
       navigate('/');
     } catch (err) {
