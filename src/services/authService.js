@@ -50,7 +50,7 @@ class AuthService {
         ID.unique(),
         email,
         password,
-        name
+        name,
       );
 
       // 2) Try to create profile BEFORE login. Retry on transient failures.
@@ -63,7 +63,10 @@ class AuthService {
           profileCreated = true;
           break;
         } catch (err) {
-          console.warn(`AuthService :: createUser() profile attempt ${attempt + 1} failed:`, err);
+          console.warn(
+            `AuthService :: createUser() profile attempt ${attempt + 1} failed:`,
+            err,
+          );
           if (attempt < maxRetries) {
             await new Promise((r) => setTimeout(r, 300));
           }
@@ -71,7 +74,8 @@ class AuthService {
       }
 
       if (!profileCreated) {
-        const message = 'Signup failed: could not create profile. Please try again.';
+        const message =
+          'Signup failed: could not create profile. Please try again.';
         console.error('AuthService :: createUser()', message);
         throw new Error(message);
       }
@@ -220,10 +224,13 @@ class AuthService {
         await databases.deleteDocument(
           appwrite.databaseId,
           'profiles',
-          currentUser.$id
+          currentUser.$id,
         );
       } catch (error) {
-        console.warn('AuthService :: deleteAccount() Error deleting profile:', error);
+        console.warn(
+          'AuthService :: deleteAccount() Error deleting profile:',
+          error,
+        );
       }
 
       this.clearCachedUser();
@@ -247,7 +254,7 @@ class AuthService {
       return await databases.getDocument(
         appwrite.databaseId,
         'profiles',
-        userId
+        userId,
       );
     } catch (error) {
       console.error('AuthService :: getProfile()', error);
@@ -270,7 +277,10 @@ class AuthService {
         appwrite.databaseId,
         'profiles',
         user.$id,
-        { name: user.name || '' }
+        {
+          name: user.name || null,
+          email: user.email || null,
+        },
       );
     } catch (error) {
       console.error('AuthService :: createProfile()', error);
@@ -290,7 +300,7 @@ class AuthService {
         appwrite.databaseId,
         'profiles',
         userId,
-        profileData
+        profileData,
       );
     } catch (error) {
       console.error('AuthService :: updateProfile()', error);
@@ -306,12 +316,9 @@ class AuthService {
    */
   async updateBio(userId, bio) {
     try {
-      await databases.updateDocument(
-        appwrite.databaseId,
-        'profiles',
-        userId,
-        { bio }
-      );
+      await databases.updateDocument(appwrite.databaseId, 'profiles', userId, {
+        bio,
+      });
       return true;
     } catch (error) {
       console.error('AuthService :: updateBio()', error);
@@ -335,7 +342,10 @@ class AuthService {
         try {
           await storage.deleteFile(appwrite.bucketId, currentAvatarFileId);
         } catch (deleteError) {
-          console.warn('AuthService :: updateAvatar() Failed to delete old avatar:', deleteError);
+          console.warn(
+            'AuthService :: updateAvatar() Failed to delete old avatar:',
+            deleteError,
+          );
         }
       }
 
@@ -343,7 +353,7 @@ class AuthService {
       const uploaded = await storage.createFile(
         appwrite.bucketId,
         ID.unique(),
-        file
+        file,
       );
       const fileId = uploaded.$id;
 
