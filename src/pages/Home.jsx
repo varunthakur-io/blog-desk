@@ -92,7 +92,6 @@ const Home = () => {
     loadPage(1, selectedCategory);
   }, [selectedCategory, loadPage, dispatch]);
 
-
   // Infinite scroll listener
   useEffect(() => {
     const handleScroll = () => {
@@ -118,7 +117,6 @@ const Home = () => {
       dispatch(setInitialLoaded(true));
     }
   }, [initialLoaded, loadPage, dispatch, selectedCategory]);
-
 
   // Client-side search filter
   const filteredPosts = useMemo(() => {
@@ -148,7 +146,6 @@ const Home = () => {
     setSelectedCategory('All'); // Clear category when search changes
     dispatch(setInitialLoaded(false)); // Force reload with new search
   };
-
 
   const renderContent = () => {
     // First load – show full-screen skeletons
@@ -209,8 +206,15 @@ const Home = () => {
     // Determine if we should show the Featured Post layout
     const showFeatured = !searchTerm && filteredPosts.length > 0;
 
-    const featuredPost = showFeatured ? filteredPosts[0] : null;
-    const gridPosts = showFeatured ? filteredPosts.slice(1) : filteredPosts;
+    const featuredPostNo = showFeatured
+      ? Math.floor(Math.random() * filteredPosts.length)
+      : null;
+
+    const featuredPost = showFeatured ? filteredPosts[featuredPostNo] : null;
+
+    const gridPosts = showFeatured
+      ? filteredPosts.filter((_, index) => index !== featuredPostNo)
+      : filteredPosts;
 
     return (
       <div className="space-y-12">
