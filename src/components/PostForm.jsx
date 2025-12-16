@@ -14,8 +14,6 @@ import {
   ListOrdered,
   Link as LinkIcon,
   Code,
-  MoreVertical,
-  Calendar,
   Hash,
   Eye,
   Heading1,
@@ -184,13 +182,6 @@ const PostForm = ({
 
   const handleCategoryChange = (value) => {
     setFormData((prev) => ({ ...prev, category: value }));
-  };
-
-  const handleVisibilityChange = (value) => {
-    setFormData((prev) => ({
-      ...prev,
-      published: value === 'public' ? true : false,
-    }));
   };
 
   const handleSubmit = (e) => {
@@ -367,7 +358,7 @@ const PostForm = ({
   }
 
   return (
-    <div className="max-w-6xl mx-auto py-8 animate-in fade-in duration-500">
+    <div className="max-w-6xl mx-auto py-4 animate-in fade-in duration-500">
       {/* Header / Navigation */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
         <div className="flex items-center gap-4">
@@ -462,31 +453,21 @@ const PostForm = ({
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label className="text-xs">Status</Label>
-                <div className="flex items-center justify-between border rounded-md p-2 bg-muted/10">
-                  <span className="text-sm font-medium flex items-center gap-2">
-                    <span
-                      className={`h-2 w-2 rounded-full ${status.includes('Unsaved') || status === 'Draft' ? 'bg-yellow-500' : 'bg-green-500'}`}
-                    />
-                    {status}
-                  </span>
-                  <Button variant="ghost" size="icon" className="h-6 w-6">
-                    <MoreVertical className="h-3 w-3" />
-                  </Button>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-xs">Visibility</Label>
                 <Select
-                  value={formData.published ? 'public' : 'private'}
-                  onValueChange={handleVisibilityChange}
+                  value={formData.published ? 'published' : 'draft'}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      published: value === 'published',
+                    }))
+                  }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select visibility" />
+                    <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="public">Public</SelectItem>
-                    <SelectItem value="private">Private</SelectItem>
+                    <SelectItem value="published">Published</SelectItem>
+                    <SelectItem value="draft">Draft</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -565,16 +546,6 @@ const PostForm = ({
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-
-              {/* Date Preview (Visual) */}
-              <div className="space-y-2">
-                <Label className="text-xs flex items-center gap-2">
-                  <Calendar className="h-3 w-3" /> Publish Date
-                </Label>
-                <div className="text-sm text-muted-foreground border rounded-md p-2 bg-muted/30">
-                  Immediately
-                </div>
               </div>
             </CardContent>
           </Card>
