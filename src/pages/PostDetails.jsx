@@ -332,7 +332,7 @@ const PostDetails = () => {
 
   if (error || !currentPost || !isAuthorized) {
     return (
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div className="py-10">
         <Card className="max-w-4xl mx-auto">
           <CardContent className="p-6">
             <div className="text-center space-y-4">
@@ -356,8 +356,8 @@ const PostDetails = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="bg-background">
+      <div>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           {/* LEFT COLUMN: Main Content (8/12) */}
           <div className="lg:col-span-8 space-y-8">
@@ -387,7 +387,7 @@ const PostDetails = () => {
 
             {/* Hero Image */}
             {postImageURL && (
-              <div className="relative w-full h-[250px] sm:h-[400px] rounded-2xl overflow-hidden bg-muted border shadow-sm">
+              <div className="relative w-full h-64 sm:h-96 rounded-2xl overflow-hidden bg-muted border shadow-sm">
                 <img
                   src={postImageURL}
                   alt={currentPost.title}
@@ -436,7 +436,7 @@ const PostDetails = () => {
                         value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}
                         placeholder="What are your thoughts on this?"
-                        className="min-h-[100px] bg-background resize-none focus-visible:ring-1"
+                        className="min-h-24 bg-background resize-none focus-visible:ring-1"
                       />
                       <div className="flex justify-end gap-2">
                         {newComment && (

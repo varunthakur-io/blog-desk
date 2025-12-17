@@ -97,10 +97,10 @@ const Login = () => {
 
   return (
     <div
-      className="min-h-screen grid place-items-center p-12
+      className="auth-container
                  bg-[radial-gradient(1200px_800px_at_80%_-10%,rgba(99,102,241,.25),transparent),radial-gradient(1000px_700px_at_-10%_110%,rgba(34,197,94,.2),transparent)]"
     >
-      <div className="w-[520px]">
+      <div className="w-full max-w-lg">
         {/* Header */}
         <div className="text-center mb-10">
           <h1 className="text-4xl font-bold tracking-tight">Welcome Back</h1>

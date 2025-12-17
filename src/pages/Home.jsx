@@ -153,7 +153,7 @@ const Home = () => {
       return (
         <div className="space-y-10">
           {/* Simulate featured skeleton */}
-          <div className="w-full h-[400px] rounded-3xl bg-muted animate-pulse" />
+          <div className="w-full h-96 rounded-3xl bg-muted animate-pulse" />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {Array.from({ length: 3 }).map((_, i) => (
               <PostCardSkeleton key={`skeleton-${i}`} />
@@ -254,9 +254,9 @@ const Home = () => {
   };
 
   return (
-    <div className="container relative max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 pb-10">
+    <div className="relative h-full">
       {/* Hero Section */}
-      <section className="mx-auto flex flex-col items-center gap-4 py-8 md:py-16 text-center">
+      <section className="mx-auto flex flex-col items-center gap-4 pb-8 md:pb-12 text-center">
         <h1 className="text-3xl font-bold leading-tight tracking-tighter md:text-6xl lg:leading-[1.1]">
           Build your digital presence.
         </h1>

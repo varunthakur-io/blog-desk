@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 const About = () => {
   return (
-    <div className="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
+    <div className="py-4">
       <section className="text-center mb-16 max-w-4xl mx-auto">
         <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
           Crafting Stories, Empowering Voices

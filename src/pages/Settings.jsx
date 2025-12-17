@@ -166,7 +166,7 @@ const Settings = () => {
   };
 
   return (
-    <div className="py-10 max-w-6xl animate-in fade-in duration-500 mx-auto">
+    <div className="py-2 max-w-6xl animate-in fade-in duration-500 mx-auto">
       <div className="mb-8 space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
         <p className="text-muted-foreground text-lg">
@@ -341,7 +341,7 @@ const Settings = () => {
                   </div>
                   <div>
                     <h4 className="text-base font-medium">Active Sessions</h4>
-                    <p className="text-sm text-muted-foreground max-w-[200px] sm:max-w-xs">
+                    <p className="text-sm text-muted-foreground max-w-xs">
                       Log out from all other devices.
                     </p>
                   </div>

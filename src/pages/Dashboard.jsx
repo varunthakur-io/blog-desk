@@ -212,7 +212,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="container mx-auto py-10 px-4 sm:px-6 lg:px-8">
+    <div className="py-2">
       <div className="flex flex-col gap-8">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
