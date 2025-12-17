@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 
 const DashboardSkeleton = () => {
   return (
-    <div className="container mx-auto py-4 px-4 sm:px-6 lg:px-8">
+    <div className="py-2">
       <Card className="border-none shadow-none bg-transparent">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">

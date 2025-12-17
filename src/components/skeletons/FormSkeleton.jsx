@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
 const FormSkeleton = () => {
   return (
-    <div className="container max-w-3xl py-8">
+    <div className="py-2">
       <Skeleton className="h-10 w-32 mb-4" /> {/* Back button */}
 
       <Card className="border-none shadow-none">
