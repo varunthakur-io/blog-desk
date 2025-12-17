@@ -81,7 +81,7 @@ const FeaturedPost = ({ post }) => {
         </div>
 
         {/* Visual Side (Placeholder for Image) */}
-        <div className="relative min-h-[300px] bg-muted/30 lg:min-h-full">
+        <div className="relative min-h-80 bg-muted/30 lg:min-h-full">
           {/* Gradient / Abstract Pattern Placeholder since we don't have real images yet */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-muted/50" />
           <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/20">

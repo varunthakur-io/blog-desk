@@ -142,7 +142,7 @@ const PostForm = ({
     editorProps: {
       attributes: {
         class:
-          'prose dark:prose-invert max-w-none focus:outline-none min-h-[400px] flex-1 py-4 text-lg leading-relaxed',
+          'prose dark:prose-invert max-w-none focus:outline-none min-h-96 flex-1 py-4 text-lg leading-relaxed',
       },
     },
   });
@@ -405,7 +405,7 @@ const PostForm = ({
           <Button
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="min-w-[120px]"
+            className="min-w-32"
           >
             {isSubmitting ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -420,7 +420,7 @@ const PostForm = ({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Editor Column */}
         <div className="lg:col-span-2 space-y-6">
-          <Card className="border-border/40 shadow-sm overflow-hidden min-h-[600px] flex flex-col">
+          <Card className="border-border/40 shadow-sm overflow-hidden min-h-[60vh] flex flex-col">
             {/* Visual Toolbar */}
             {editor && <Toolbar />}
 
@@ -501,7 +501,7 @@ const PostForm = ({
                   </div>
                 </div>
               ) : (
-                <div className="border-2 border-dashed rounded-md p-6 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:bg-muted/50 transition-colors cursor-pointer relative min-h-[150px]">
+                <div className="border-2 border-dashed rounded-md p-6 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:bg-muted/50 transition-colors cursor-pointer relative min-h-40">
                   <ImageIcon className="h-8 w-8 opacity-50" />
                   <span className="text-sm font-medium">Click to upload</span>
                   <p className="text-xs text-muted-foreground/70 text-center">
