@@ -53,23 +53,41 @@
   * {
     @apply border-border;
   }
-    body {
-      @apply bg-background text-foreground;
-      font-feature-settings: "rlig" 1, "calt" 1;
-    }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
   }
-  
-  @layer components {
-    .glass-card {
-      @apply backdrop-blur-xl bg-white/80 dark:bg-slate-900/80 border border-white/20 dark:border-slate-800/30 shadow-xl;
-    }
-  
-    .minimal-hover {
-      @apply transition-all duration-300 ease-out hover:scale-105 hover:shadow-xl;
-    }
-  
-    .gradient-text {
-      @apply bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent;
-    }
+}
+
+@layer components {
+  .glass-card {
+    @apply backdrop-blur-xl bg-white/80 dark:bg-slate-900/80 border border-white/20 dark:border-slate-800/30 shadow-xl;
   }
-  
+
+  .minimal-hover {
+    @apply transition-all duration-300 ease-out hover:scale-105 hover:shadow-xl;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent;
+  }
+
+  /* Standard Layout Classes */
+  .page-wrapper {
+    @apply container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1200px];
+  }
+
+  .section-spacing {
+    @apply py-8 md:py-12;
+  }
+
+  .form-container {
+    @apply max-w-3xl mx-auto;
+  }
+
+  .auth-container {
+    @apply min-h-screen grid place-items-center p-4 sm:p-8 md:p-12;
+  }
+}

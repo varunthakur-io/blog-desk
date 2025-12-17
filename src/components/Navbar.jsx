@@ -76,7 +76,7 @@ const Navbar = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="page-wrapper flex h-16 items-center justify-between">
         {/* Logo + Desktop Nav */}
         <div className="flex items-center gap-8">
           <NavLink
