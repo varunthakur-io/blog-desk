@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Toaster } from 'react-hot-toast';
 
+// Main application entry point and router configuration
 // Layout & Routing
 import MainLayout from './layout/MainLayout';
 import PrivateRoute from './components/PrivateRoute';
