@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { Eye, EyeOff } from 'lucide-react';
 
 // Shadcn UI components
 import { Button } from '@/components/ui/button';
@@ -37,6 +38,7 @@ const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   // Redirect if already logged in
   useEffect(() => {
@@ -153,18 +155,36 @@ const Login = () => {
                 <Label htmlFor="password" className="text-sm font-medium">
                   Password
                 </Label>
-                <Input
-                  id="password"
-                  type="password"
-                  name="password"
-                  placeholder="Enter your password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                  autoComplete="current-password"
-                  className="h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50"
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    name="password"
+                    placeholder="Enter your password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                    disabled={loading}
+                    autoComplete="current-password"
+                    className="h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50 pr-10"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    )}
+                    <span className="sr-only">
+                      {showPassword ? 'Hide password' : 'Show password'}
+                    </span>
+                  </Button>
+                </div>
               </div>
 
               {/* Submit */}
