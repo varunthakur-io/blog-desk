@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import toast from 'react-hot-toast';
+import { debounce } from '@/lib/utils';
+import { useCallback } from 'react';
 
 // auth service and Redux actions
 import { authService } from '../services/authService';
@@ -26,6 +28,7 @@ const Signup = () => {
     name: '',
     email: '',
     password: '',
+    username: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -54,6 +57,29 @@ const Signup = () => {
       setError(err.message || 'Signup failed. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const handleUsernameCheckDebounce = useCallback(
+    debounce((username) => {
+      checkUsername(username);
+    }, 500),
+    [],
+  );
+
+  const checkUsername = async (username) => {
+    if (!username || username.length < 3) return;
+
+    try {
+      const isAvailable = await authService.isUsernameAvailable(username);
+      if (!isAvailable) {
+        setError('Username is already taken.');
+      } else {
+        setError('');
+      }
+    } catch (err) {
+      console.error('Username check failed:', err);
     }
   };
 
@@ -104,6 +130,27 @@ const Signup = () => {
                   placeholder="John Doe"
                   value={formData.name}
                   onChange={handleChange}
+                  required
+                  disabled={loading}
+                  className="h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50"
+                />
+              </div>
+
+              {/* Username */}
+              <div className="space-y-2">
+                <Label htmlFor="username" className="text-sm font-medium">
+                  Username
+                </Label>
+                <Input
+                  id="username"
+                  type="text"
+                  name="username"
+                  placeholder="johndoe"
+                  value={formData.username}
+                  onChange={(e) => {
+                    handleChange(e);
+                    handleUsernameCheckDebounce(e.target.value);
+                  }}
                   required
                   disabled={loading}
                   className="h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50"

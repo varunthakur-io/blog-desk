@@ -1,5 +1,5 @@
 import { account, storage, databases } from '@/api/client';
-import { ID } from 'appwrite';
+import { ID, Query } from 'appwrite';
 import { appwriteConfig as appwrite } from '../config/appwrite';
 
 class AuthService {
@@ -41,9 +41,10 @@ class AuthService {
    * @param {string} params.email
    * @param {string} params.password
    * @param {string} params.name
+   * @param {string} params.username
    * @returns {Promise<Object>} Logged in user object
    */
-  async createUser({ email, password, name }) {
+  async createUser({ email, password, name, username }) {
     try {
       // 1) Create account in Appwrite Auth
       const createdUser = await account.create(
@@ -59,7 +60,7 @@ class AuthService {
 
       for (let attempt = 0; attempt <= maxRetries; attempt++) {
         try {
-          await this.createProfile(createdUser);
+          await this.createProfile(createdUser, username);
           profileCreated = true;
           break;
         } catch (err) {
@@ -265,9 +266,10 @@ class AuthService {
   /**
    * Create the public profile document
    * @param {Object} user
+   * @param {string} username
    * @returns {Promise<void>}
    */
-  async createProfile(user) {
+  async createProfile(user, username) {
     if (!user || !user.$id) {
       throw new Error('AuthService :: createProfile() Invalid user');
     }
@@ -280,6 +282,7 @@ class AuthService {
         {
           name: user.name || null,
           email: user.email || null,
+          username: username || null,
         },
       );
     } catch (error) {
@@ -378,6 +381,18 @@ class AuthService {
       console.error('AuthService :: updateAvatar()', error);
       throw error;
     }
+  }
+
+  /**
+   * Check if username is available
+   * @param {string} username
+   * @returns {Promise<boolean>} True if username is available
+   */
+  async isUsernameAvailable(username) {
+    const res = await databases.listDocuments(appwrite.databaseId, 'profiles', [
+      Query.equal('username', username),
+    ]);
+    return res.total === 0;
   }
 }
 
