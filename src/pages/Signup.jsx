@@ -32,6 +32,7 @@ const Signup = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [usernameMessage, setUsernameMessage] = useState({ type: '', text: '' });
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -69,14 +70,26 @@ const Signup = () => {
   );
 
   const checkUsername = async (username) => {
-    if (!username || username.length < 3) return;
+    if (!username || username.length < 3) {
+      setUsernameMessage({
+        type: 'error',
+        text: 'Username must be at least 3 characters.',
+      });
+      return;
+    }
 
     try {
       const isAvailable = await authService.isUsernameAvailable(username);
       if (!isAvailable) {
-        setError('Username is already taken.');
+        setUsernameMessage({
+          type: 'error',
+          text: 'Username is already taken.',
+        });
       } else {
-        setError('');
+        setUsernameMessage({
+          type: 'success',
+          text: 'Username is available!',
+        });
       }
     } catch (err) {
       console.error('Username check failed:', err);
@@ -149,12 +162,24 @@ const Signup = () => {
                   value={formData.username}
                   onChange={(e) => {
                     handleChange(e);
+                    setUsernameMessage({ type: '', text: '' });
                     handleUsernameCheckDebounce(e.target.value);
                   }}
                   required
                   disabled={loading}
                   className="h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50"
                 />
+                {usernameMessage.text && (
+                  <p
+                    className={`text-sm ${
+                      usernameMessage.type === 'success'
+                        ? 'text-green-600'
+                        : 'text-destructive'
+                    }`}
+                  >
+                    {usernameMessage.text}
+                  </p>
+                )}
               </div>
 
               {/* Email */}
