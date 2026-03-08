@@ -54,7 +54,7 @@ function App() {
 
           {/* Public route for viewing articles */}
           <Route path="/posts/:id" element={<PostDetails />} />
-          <Route path="/profile/:id" element={<Profile />} />
+          <Route path="/profile/:username" element={<Profile />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
 

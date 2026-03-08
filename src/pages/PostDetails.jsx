@@ -557,10 +557,15 @@ const PostDetails = () => {
                         asChild
                         variant="outline"
                         className="w-full rounded-full mt-4"
+                        disabled={!authorProfile?.username}
                       >
-                        <Link to={`/profile/${currentPost.authorId}`}>
-                          View Profile
-                        </Link>
+                        {authorProfile?.username ? (
+                          <Link to={`/profile/${authorProfile.username}`}>
+                            View Profile
+                          </Link>
+                        ) : (
+                          <span>Loading Profile...</span>
+                        )}
                       </Button>
                     )}
                   </div>

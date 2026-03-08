@@ -246,7 +246,7 @@ class AuthService {
   // ==========================================
 
   /**
-   * Get user profile document
+   * Get user profile document by user ID
    * @param {string} userId
    * @returns {Promise<Object>} Profile document
    */
@@ -259,6 +259,28 @@ class AuthService {
       );
     } catch (error) {
       console.error('AuthService :: getProfile()', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get user profile document by username
+   * @param {string} username
+   * @returns {Promise<Object|null>} Profile document or null if not found
+   */
+  async getProfileByUsername(username) {
+    try {
+      const res = await databases.listDocuments(
+        appwrite.databaseId,
+        'profiles',
+        [Query.equal('username', username)]
+      );
+      if (res.total > 0) {
+        return res.documents[0];
+      }
+      return null;
+    } catch (error) {
+      console.error('AuthService :: getProfileByUsername()', error);
       throw error;
     }
   }

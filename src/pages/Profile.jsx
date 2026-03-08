@@ -61,23 +61,66 @@ const isValidEmail = (email) =>
 
 export default function Profile() {
   const dispatch = useDispatch();
-  const { id } = useParams();
+  const { username } = useParams();
 
   // Auth selectors
   const authUserId = useSelector(selectAuthUserId);
   const authLoading = useSelector(selectAuthLoading);
 
-  const profileId = id || authUserId;
+  // Local state for fetched profile if routing by username
+  const [localProfile, setLocalProfile] = useState(null);
+  const [isFetchingUsername, setIsFetchingUsername] = useState(!!username);
+  const [usernameFetchError, setUsernameFetchError] = useState(null);
+
+  // Effect: Fetch profile by username if :username param is present
+  useEffect(() => {
+    if (!username) {
+      setIsFetchingUsername(false);
+      return;
+    }
+
+    let cancelled = false;
+    const fetchByUsername = async () => {
+      setIsFetchingUsername(true);
+      try {
+        const fetchedProfile = await authService.getProfileByUsername(username);
+        if (cancelled) return;
+        if (fetchedProfile) {
+          setLocalProfile(fetchedProfile);
+          // Optional: cache in Redux too
+          dispatch(upsertProfile(fetchedProfile));
+        } else {
+          setUsernameFetchError('Profile not found.');
+        }
+      } catch (err) {
+        if (!cancelled) setUsernameFetchError('Failed to load profile.');
+      } finally {
+        if (!cancelled) setIsFetchingUsername(false);
+      }
+    };
+
+    fetchByUsername();
+    return () => { cancelled = true; };
+  }, [username, dispatch]);
+
+
+  // Determine the effective profile ID to use
+  // 1. If username param exists, use the ID we just fetched (if successful)
+  // 2. Otherwise (e.g. /profile route for current user), use authUserId
+  const profileId = username ? localProfile?.$id : authUserId;
   const isOwner = !!authUserId && authUserId === profileId;
 
-  // Profile selectors
-  const profile = useSelector((state) => selectProfileById(state, profileId));
+  // Profile selectors (pull from Redux cache if available)
+  const reduxProfile = useSelector((state) => selectProfileById(state, profileId));
   const profileLoading = useSelector((state) =>
     selectProfileLoading(state, profileId),
   );
   const profileError = useSelector((state) =>
     selectProfileError(state, profileId),
   );
+
+  // The final profile object to use for display
+  const profile = reduxProfile || localProfile;
 
   // Posts selectors
   const initialPostsLoaded = useSelector(selectInitialLoaded);
@@ -370,6 +413,8 @@ export default function Profile() {
   };
 
   // --- Render Guards ---
+  if (isFetchingUsername) return <ProfileSkeleton />;
+  if (usernameFetchError) return <div className="p-8 text-center text-red-500">{usernameFetchError}</div>;
   if (!profileId)
     return <div className="p-8 text-center">Profile not found.</div>;
   if (authLoading || profileLoading) return <ProfileSkeleton />;
