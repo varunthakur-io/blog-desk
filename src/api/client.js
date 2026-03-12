@@ -1,9 +1,10 @@
 import { Client, Databases, Account, Storage } from 'appwrite';
+import { appwriteConfig } from '@/config/appwrite';
 
 // Initialize the Appwrite client
 const client = new Client()
-  .setEndpoint(import.meta.env.VITE_APPWRITE_ENDPOINT)
-  .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID);
+  .setEndpoint(appwriteConfig.url)
+  .setProject(appwriteConfig.projectId);
 
 export const databases = new Databases(client);
 export const account = new Account(client);
