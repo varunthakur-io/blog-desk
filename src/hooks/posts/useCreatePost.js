@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -10,46 +10,48 @@ export const useCreatePost = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const authUserId = useSelector(selectAuthUserId);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [status, setStatus] = useState('idle'); // 'idle' | 'submitting' | 'error'
 
-  const handleCreatePost = async (formData) => {
+  const handleCreatePost = useCallback(async (formData) => {
     if (!authUserId) {
       toast.error('You must be logged in to create a post.');
       return;
     }
 
-    if (!formData.title.trim() || !formData.content.trim()) {
+    if (!formData.title?.trim() || !formData.content?.trim()) {
       toast.error('Title and content are required.');
       return;
     }
 
-    setIsSubmitting(true);
+    if (status === 'submitting') return;
+
+    setStatus('submitting');
 
     try {
       const newPost = await postService.createPost({
-        title: formData.title,
-        content: formData.content,
-        category: formData.category,
-        published: formData.published,
-        postImageURL: formData.postImageURL,
+        title: formData.title.trim(),
+        content: formData.content.trim(),
+        category: formData.category || 'Uncategorized',
+        published: formData.published ?? true,
+        postImageURL: formData.postImageURL || null,
       });
 
       if (newPost) {
         dispatch(upsertPost(newPost));
       }
 
+      setStatus('idle');
       toast.success('Post published successfully!');
       navigate('/dashboard');
     } catch (error) {
       console.error('Create post error:', error);
-      toast.error(error.message || 'Failed to create post. Please try again.');
-    } finally {
-      setIsSubmitting(false);
+      setStatus('error');
+      toast.error(error?.message || 'Failed to create post. Please try again.');
     }
-  };
+  }, [authUserId, dispatch, navigate, status]);
 
   return {
     handleCreatePost,
-    isSubmitting,
+    isSubmitting: status === 'submitting',
   };
 };

@@ -28,13 +28,13 @@ export const useHome = (categories) => {
   const hasMore = useSelector(selectHasMore);
   const page = useSelector(selectPage);
 
-
   // Local state for UI filters
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
 
   const loadPage = useCallback(
     async (pageNum, categoryFilter = null) => {
+      if (loading) return; // Prevent concurrent requests
       dispatch(setPostsLoading(true));
       dispatch(setPostsError(null));
 
@@ -61,21 +61,24 @@ export const useHome = (categories) => {
         dispatch(setPostsLoading(false));
       }
     },
-    [dispatch],
+    [dispatch, loading],
   );
 
   // Handle Initial Load or Category Changes
   useEffect(() => {
     dispatch(setPage(1));
     loadPage(1, selectedCategory);
-  }, [selectedCategory, loadPage, dispatch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCategory, dispatch]); // Intentional exclusion of loadPage to avoid infinite loops
 
   // Infinite Scroll Listener
   useEffect(() => {
     const handleScroll = () => {
+      const { innerHeight } = window;
+      const { scrollTop, offsetHeight } = document.documentElement;
+      
       if (
-        window.innerHeight + document.documentElement.scrollTop >=
-          document.documentElement.offsetHeight - 150 &&
+        innerHeight + scrollTop >= offsetHeight - 150 &&
         !loading &&
         hasMore &&
         !searchTerm
@@ -90,28 +93,28 @@ export const useHome = (categories) => {
 
   // Filtered display list
   const filteredPosts = useMemo(() => {
-    if (searchTerm) {
-      const q = searchTerm.toLowerCase();
-      return posts.filter((post) => {
-        const title = post.title?.toLowerCase() ?? '';
-        const content = post.content?.toLowerCase() ?? '';
-        return title.includes(q) || content.includes(q);
-      });
-    }
-    return posts;
+    if (!searchTerm.trim()) return posts;
+    
+    const q = searchTerm.toLowerCase().trim();
+    return posts.filter((post) => {
+      const title = post.title?.toLowerCase() ?? '';
+      const content = post.content?.toLowerCase() ?? '';
+      return title.includes(q) || content.includes(q);
+    });
   }, [posts, searchTerm]);
 
-  const handleCategoryChange = (category) => {
+  const handleCategoryChange = useCallback((category) => {
+    if (category === selectedCategory) return;
     setSelectedCategory(category);
     setSearchTerm('');
     dispatch(setInitialLoaded(false));
-  };
+  }, [selectedCategory, dispatch]);
 
-  const handleSearchChange = (e) => {
+  const handleSearchChange = useCallback((e) => {
     setSearchTerm(e.target.value);
     setSelectedCategory('All');
     dispatch(setInitialLoaded(false));
-  };
+  }, [dispatch]);
 
   return {
     posts: filteredPosts,

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
@@ -6,11 +6,9 @@ import { postService } from '@/services/posts';
 import { likeService } from '@/services/likes';
 import { commentService } from '@/services/comments';
 import { profileService } from '@/services/profile';
-import { selectPostById } from '@/store/posts';
-import { appendPosts } from '@/store/posts';
+import { selectPostById, appendPosts } from '@/store/posts';
 import { selectAuthUserId } from '@/store/auth';
-import { selectProfileById } from '@/store/profile';
-import { upsertProfile } from '@/store/profile';
+import { selectProfileById, upsertProfile } from '@/store/profile';
 
 export const usePostDetails = () => {
   const { id } = useParams();
@@ -25,12 +23,14 @@ export const usePostDetails = () => {
   const currentUserProfile = useSelector((state) => selectProfileById(state, authUserId));
 
   // Local UI States
-  const [isLoading, setIsLoading] = useState(!currentPost);
+  const [status, setStatus] = useState(currentPost ? 'success' : 'loading'); // 'loading' | 'success' | 'error'
   const [error, setError] = useState('');
+  
   const [likesCount, setLikesCount] = useState(currentPost?.likesCount || 0);
   const [isLiked, setIsLiked] = useState(false);
   const [isLikedLoading, setIsLikedLoading] = useState(true);
   const [isLiking, setIsLiking] = useState(false);
+  
   const [comments, setComments] = useState([]);
 
   // Read time calc
@@ -42,11 +42,12 @@ export const usePostDetails = () => {
   useEffect(() => {
     if (!id) {
       setError('No post ID provided.');
+      setStatus('error');
       return;
     }
 
     if (currentPost) {
-      setIsLoading(false);
+      setStatus('success');
       if (currentPost.authorId && !authorProfile) {
         profileService.getProfile(currentPost.authorId)
           .then((p) => dispatch(upsertProfile(p)))
@@ -56,13 +57,15 @@ export const usePostDetails = () => {
     }
 
     let mounted = true;
+    setStatus('loading');
+    
     const fetchPost = async () => {
-      setIsLoading(true);
       try {
         const fetched = await postService.getPostById(id);
         if (!mounted) return;
         if (fetched) {
           dispatch(appendPosts([fetched]));
+          setStatus('success');
           if (fetched.authorId) {
             profileService.getProfile(fetched.authorId)
               .then((p) => mounted && dispatch(upsertProfile(p)))
@@ -70,11 +73,13 @@ export const usePostDetails = () => {
           }
         } else {
           setError('Post not found.');
+          setStatus('error');
         }
       } catch (err) {
-        if (mounted) setError(err.message || 'Failed to load post.');
-      } finally {
-        if (mounted) setIsLoading(false);
+        if (mounted) {
+          setError(err?.message || 'Failed to load post.');
+          setStatus('error');
+        }
       }
     };
     fetchPost();
@@ -127,39 +132,43 @@ export const usePostDetails = () => {
   }, [comments, profiles, dispatch]);
 
   // Handlers
-  const handleLike = async () => {
+  const handleLike = useCallback(async () => {
     if (!authUserId) return toast.error('Login to like!');
-    if (isLiking || isLikedLoading) return;
+    if (isLiking || isLikedLoading || !currentPost?.$id) return;
 
     setIsLiking(true);
     const wasLiked = isLiked;
     setIsLiked(!wasLiked);
-    setLikesCount(p => p + (wasLiked ? -1 : 1));
+    setLikesCount(p => Math.max(0, p + (wasLiked ? -1 : 1)));
 
     try {
-      if (wasLiked) await likeService.unlikePost(currentPost.$id, authUserId);
-      else await likeService.likePost(currentPost.$id, authUserId);
+      if (wasLiked) {
+        await likeService.unlikePost(currentPost.$id, authUserId);
+      } else {
+        await likeService.likePost(currentPost.$id, authUserId);
+      }
     } catch {
+      // Revert optimistic update
       setIsLiked(wasLiked);
-      setLikesCount(p => p + (wasLiked ? 1 : -1));
+      setLikesCount(p => Math.max(0, p + (wasLiked ? 1 : -1)));
       toast.error('Like failed.');
     } finally {
       setIsLiking(false);
     }
-  };
+  }, [authUserId, isLiking, isLikedLoading, currentPost?.$id, isLiked]);
 
-  const handleShare = async () => {
+  const handleShare = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
       toast.success('Link copied!');
     } catch {
       toast.error('Share failed.');
     }
-  };
+  }, []);
 
   return {
     id, currentPost, authUserId, profiles, authorProfile, currentUserProfile,
-    isLoading, error, likesCount, isLiked, isLikedLoading, isLiking, comments, readTime,
+    isLoading: status === 'loading', error, likesCount, isLiked, isLikedLoading, isLiking, comments, readTime,
     handleLike, handleShare, navigate
   };
 };

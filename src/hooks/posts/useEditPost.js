@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
@@ -13,8 +13,8 @@ export const useEditPost = () => {
   const post = useSelector((state) => selectPostById(state, id));
 
   const [formData, setFormData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
+  const [fetchStatus, setFetchStatus] = useState('loading'); // 'loading' | 'success' | 'error'
+  const [submitStatus, setSubmitStatus] = useState('idle'); // 'idle' | 'submitting' | 'error'
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -23,7 +23,7 @@ export const useEditPost = () => {
     const loadPost = async () => {
       if (!id) {
         setError('Invalid post ID.');
-        setIsLoading(false);
+        setFetchStatus('error');
         return;
       }
 
@@ -35,10 +35,11 @@ export const useEditPost = () => {
           published: post.published ?? true,
           postImageURL: post.postImageURL || null,
         });
-        setIsLoading(false);
+        setFetchStatus('success');
         return;
       }
 
+      setFetchStatus('loading');
       try {
         const data = await postService.getPostById(id);
         if (!mounted) return;
@@ -52,13 +53,16 @@ export const useEditPost = () => {
             postImageURL: data.postImageURL || null,
           });
           dispatch(upsertPost(data));
+          setFetchStatus('success');
         } else {
           setError('Post not found.');
+          setFetchStatus('error');
         }
       } catch (err) {
-        if (mounted) setError(err.message || 'Failed to load post.');
-      } finally {
-        if (mounted) setIsLoading(false);
+        if (mounted) {
+          setError(err?.message || 'Failed to load post.');
+          setFetchStatus('error');
+        }
       }
     };
 
@@ -66,38 +70,48 @@ export const useEditPost = () => {
     return () => { mounted = false; };
   }, [id, post, dispatch]);
 
-  const handleUpdate = async (data) => {
+  const handleUpdate = useCallback(async (data) => {
     if (!id) return;
-    if (!data.title.trim() || !data.content.trim()) {
+    if (!data.title?.trim() || !data.content?.trim()) {
       toast.error('Title and content are required.');
       return;
     }
 
-    setIsSaving(true);
+    if (submitStatus === 'submitting') return;
+
+    setSubmitStatus('submitting');
     setError('');
 
     try {
-      const updatedPost = await postService.updatePost(id, data);
+      const updatedPost = await postService.updatePost(id, {
+        title: data.title.trim(),
+        content: data.content.trim(),
+        category: data.category || 'Uncategorized',
+        published: data.published ?? true,
+        postImageURL: data.postImageURL || null,
+      });
+
       if (updatedPost && updatedPost.$id) {
         dispatch(upsertPost(updatedPost));
+        setSubmitStatus('success');
         toast.success('Post updated successfully!');
         navigate('/dashboard');
       } else {
-        toast.error('Failed to update post.');
+        throw new Error('Failed to update post.');
       }
     } catch (err) {
-      const msg = err.message || 'Failed to update post';
+      console.error('Update failed:', err);
+      setSubmitStatus('error');
+      const msg = err?.message || 'Failed to update post';
       toast.error(msg);
       setError(msg);
-    } finally {
-      setIsSaving(false);
     }
-  };
+  }, [id, dispatch, navigate, submitStatus]);
 
   return {
     formData,
-    isLoading,
-    isSaving,
+    isLoading: fetchStatus === 'loading',
+    isSaving: submitStatus === 'submitting',
     error,
     handleUpdate,
     navigate,

@@ -41,10 +41,10 @@ export const useDashboard = () => {
     [],
   );
 
-  const handleSearchChange = (e) => {
+  const handleSearchChange = useCallback((e) => {
     setSearchQuery(e.target.value);
     handleSearchDebounce(e.target.value);
-  };
+  }, [handleSearchDebounce]);
 
   const fetchUserPosts = useCallback(async () => {
     if (!authUserId) return;
@@ -76,12 +76,12 @@ export const useDashboard = () => {
     fetchUserPosts();
   }, [fetchUserPosts]);
 
-  const handleDeleteClick = (post) => {
+  const handleDeleteClick = useCallback((post) => {
     setPostToDelete(post);
     setIsDeleteDialogOpen(true);
-  };
+  }, []);
 
-  const confirmDelete = async () => {
+  const confirmDelete = useCallback(async () => {
     if (!postToDelete) return;
     setIsDeleting(true);
     try {
@@ -91,13 +91,13 @@ export const useDashboard = () => {
       setTotalPosts((prev) => Math.max(0, prev - 1));
       toast.success('Post deleted successfully!');
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err?.message || 'Failed to delete post');
     } finally {
       setIsDeleting(false);
       setIsDeleteDialogOpen(false);
       setPostToDelete(null);
     }
-  };
+  }, [postToDelete, dispatch]);
 
   return {
     posts,
