@@ -56,7 +56,7 @@ import {
 } from '@/components/ui/select';
 
 // Services & Store
-import { postService } from '@/services/postService';
+import { postService } from '@/services/posts/post.service';
 import {
   selectPostsLoading,
   selectPostsError,
@@ -64,8 +64,8 @@ import {
   setPostsError,
   appendPosts,
   removePost,
-} from '@/store/postSlice';
-import { selectAuthUserId } from '@/store/authSlice';
+} from '@/store/posts/posts.slice';
+import { selectAuthUserId } from '@/store/auth/auth.slice';
 
 // Empty state component
 const EmptyState = ({ onCreate, hasQuery }) => (

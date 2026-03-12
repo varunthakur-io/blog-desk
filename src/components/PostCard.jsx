@@ -11,7 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useSelector } from 'react-redux';
-import { selectProfileById } from '@/store/profileSlice';
+import { selectProfileById } from '@/store/profile/profile.slice';
 
 const PostCard = ({ post }) => {
   const authorName = useSelector((state) =>

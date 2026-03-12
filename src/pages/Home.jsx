@@ -12,7 +12,7 @@ import PostCard from '@/components/PostCard';
 import FeaturedPost from '@/components/FeaturedPost';
 
 // Services & Store
-import { postService } from '@/services/postService';
+import { postService } from '@/services/posts/post.service';
 import {
   appendPosts,
   selectAllPosts,
@@ -27,7 +27,7 @@ import {
   selectPage,
   setPage,
   setHasMore,
-} from '@/store/postSlice';
+} from '@/store/posts/posts.slice';
 import PostCardSkeleton from '@/components/skeletons/PostCardSkeleton';
 
 const LIMIT = 6;

@@ -7,9 +7,10 @@ import {
   setAuthLoading,
   selectAuthStatus,
   selectAuthUserId,
-} from '../store/authSlice';
-import { upsertProfile, selectProfileById } from '../store/profileSlice';
-import { authService } from '../services/authService';
+} from '../store/auth/auth.slice';
+import { upsertProfile, selectProfileById } from '../store/profile/profile.slice';
+import { authService } from '../services/auth/auth.service';
+import { profileService } from '../services/profile/profile.service';
 
 /**
  * Custom hook to verify user authentication and profile status.
@@ -69,7 +70,7 @@ const useAuthCheck = () => {
 
         // 2. If we have a User ID but no Profile in store, fetch the profile
         if (currentUserId && !hasProfile) {
-          const profileDoc = await authService.getProfile(currentUserId);
+          const profileDoc = await profileService.getProfile(currentUserId);
           if (mountedRef.current && profileDoc) {
             dispatch(upsertProfile(profileDoc));
           }

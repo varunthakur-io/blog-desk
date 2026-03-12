@@ -31,9 +31,9 @@ import {
   selectAuthUserId,
   selectAuthStatus,
   clearAuthUserId,
-} from '@/store/authSlice';
-import { selectProfileById } from '@/store/profileSlice';
-import { authService } from '@/services/authService';
+} from '@/store/auth/auth.slice';
+import { selectProfileById } from '@/store/profile/profile.slice';
+import { authService } from '@/services/auth/auth.service';
 import useDarkMode from '@/hooks/useDarkMode';
 
 const Navbar = () => {

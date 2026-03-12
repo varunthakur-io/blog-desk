@@ -1,4 +1,4 @@
-// src/store/postSlice.js
+// src/store/posts/posts.slice.js
 import { createSlice, createSelector } from '@reduxjs/toolkit';
 
 const initialState = {

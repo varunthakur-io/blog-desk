@@ -24,11 +24,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
 
 // Store & Services
-import { postService } from '@/services/postService';
-import { authService } from '@/services/authService';
-import { appendPosts, selectPostById } from '@/store/postSlice';
-import { selectAuthUserId } from '@/store/authSlice';
-import { selectProfileById, upsertProfile } from '@/store/profileSlice';
+import { postService } from '@/services/posts/post.service';
+import { likeService } from '@/services/likes/like.service';
+import { commentService } from '@/services/comments/comment.service';
+import { profileService } from '@/services/profile/profile.service';
+import { appendPosts, selectPostById } from '@/store/posts/posts.slice';
+import { selectAuthUserId } from '@/store/auth/auth.slice';
+import { selectProfileById, upsertProfile } from '@/store/profile/profile.slice';
 
 const PostDetails = () => {
   const { id } = useParams();
@@ -85,7 +87,7 @@ const PostDetails = () => {
 
       // If we have the post but NOT the author profile, fetch the profile
       if (currentPost.authorId && !authorProfile) {
-        authService
+        profileService
           .getProfile(currentPost.authorId)
           .then((profile) => dispatch(upsertProfile(profile)))
           .catch((err) => console.warn('Could not fetch author profile:', err));
@@ -107,7 +109,7 @@ const PostDetails = () => {
 
           // Fetch author profile immediately after fetching post
           if (fetchedPost.authorId) {
-            authService
+            profileService
               .getProfile(fetchedPost.authorId)
               .then((profile) => {
                 if (mounted) dispatch(upsertProfile(profile));
@@ -154,7 +156,7 @@ const PostDetails = () => {
 
       setIsLikedLoading(true);
       try {
-        const liked = await postService.hasUserLiked(
+        const liked = await likeService.hasUserLiked(
           currentPost.$id,
           authUserId,
         );
@@ -180,7 +182,7 @@ const PostDetails = () => {
 
     const fetchComments = async () => {
       try {
-        const fetchedComments = await postService.getCommentsByPost(
+        const fetchedComments = await commentService.getCommentsByPost(
           currentPost.$id,
         );
         setComments(fetchedComments);
@@ -198,7 +200,7 @@ const PostDetails = () => {
 
     comments.forEach((comment) => {
       if (comment.userId && !profiles[comment.userId]) {
-        authService
+        profileService
           .getProfile(comment.userId)
           .then((profile) => {
             dispatch(upsertProfile(profile));
@@ -227,10 +229,10 @@ const PostDetails = () => {
 
     try {
       if (wasLiked) {
-        await postService.unlikePost(currentPost.$id, authUserId);
+        await likeService.unlikePost(currentPost.$id, authUserId);
         toast.success('Post unliked!');
       } else {
-        await postService.likePost(currentPost.$id, authUserId);
+        await likeService.likePost(currentPost.$id, authUserId);
         toast.success('Post liked!');
       }
     } catch {
@@ -266,7 +268,7 @@ const PostDetails = () => {
     setNewComment('');
 
     try {
-      const createdComment = await postService.addComment({
+      const createdComment = await commentService.addComment({
         postId: currentPost.$id,
         userId: authUserId,
         content,

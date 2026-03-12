@@ -24,9 +24,9 @@ import {
   setAuthLoading,
   selectAuthStatus,
   setAuthUserId,
-} from '@/store/authSlice';
-import { upsertProfile } from '@/store/profileSlice';
-import { authService } from '@/services/authService';
+} from '@/store/auth/auth.slice';
+import { upsertProfile } from '@/store/profile/profile.slice';
+import { authService } from '@/services/auth/auth.service';
 
 const Login = () => {
   const dispatch = useDispatch();

@@ -6,9 +6,9 @@ import toast from 'react-hot-toast';
 import PostForm from '@/components/PostForm';
 
 // Services and Store
-import { postService } from '@/services/postService';
-import { upsertPost } from '@/store/postSlice';
-import { selectAuthUserId } from '@/store/authSlice';
+import { postService } from '@/services/posts/post.service';
+import { upsertPost } from '@/store/posts/posts.slice';
+import { selectAuthUserId } from '@/store/auth/auth.slice';
 
 const CreatePost = () => {
   const navigate = useNavigate();

@@ -4,7 +4,7 @@ import { ArrowRight, Calendar, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useSelector } from 'react-redux';
-import { selectProfileById } from '@/store/profileSlice';
+import { selectProfileById } from '@/store/profile/profile.slice';
 
 const FeaturedPost = ({ post }) => {
   const authorName = useSelector((state) =>

@@ -6,8 +6,9 @@ import { debounce } from '@/lib/utils';
 import { useCallback } from 'react';
 
 // auth service and Redux actions
-import { authService } from '../services/authService';
-import { setAuthUserId } from '../store/authSlice';
+import { authService } from '../services/auth/auth.service';
+import { profileService } from '../services/profile/profile.service';
+import { setAuthUserId } from '../store/auth/auth.slice';
 
 // Shadcn UI components
 import { Button } from '@/components/ui/button';
@@ -21,7 +22,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { upsertProfile } from '@/store/profileSlice';
+import { upsertProfile } from '@/store/profile/profile.slice';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -79,7 +80,7 @@ const Signup = () => {
     }
 
     try {
-      const isAvailable = await authService.isUsernameAvailable(username);
+      const isAvailable = await profileService.isUsernameAvailable(username);
       if (!isAvailable) {
         setUsernameMessage({
           type: 'error',

@@ -43,8 +43,8 @@ import {
 
 // Custom Hooks and Services
 import useDarkMode from '../hooks/useDarkMode';
-import { authService } from '../services/authService';
-import { clearAuthUserId } from '../store/authSlice';
+import { authService } from '../services/auth/auth.service';
+import { clearAuthUserId } from '../store/auth/auth.slice';
 
 const Settings = () => {
   const [isDarkMode, setDarkMode] = useDarkMode();

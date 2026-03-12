@@ -28,11 +28,13 @@ import {
 } from '@/components/ui/dialog';
 
 // Services
-import { authService } from '@/services/authService';
-import { postService } from '@/services/postService';
+import { authService } from '@/services/auth/auth.service';
+import { profileService } from '@/services/profile/profile.service';
+import { postService } from '@/services/posts/post.service';
+import { likeService } from '@/services/likes/like.service';
 
 // Auth slice
-import { selectAuthUserId, selectAuthLoading } from '@/store/authSlice';
+import { selectAuthUserId, selectAuthLoading } from '@/store/auth/auth.slice';
 
 // Profile slice
 import {
@@ -42,7 +44,7 @@ import {
   selectProfileById,
   selectProfileLoading,
   selectProfileError,
-} from '@/store/profileSlice';
+} from '@/store/profile/profile.slice';
 
 // Posts slice
 import {
@@ -53,7 +55,7 @@ import {
   setPostsError,
   setPosts,
   setInitialLoaded,
-} from '@/store/postSlice';
+} from '@/store/posts/posts.slice';
 
 // --- Utilities ---
 const isValidEmail = (email) =>
@@ -83,7 +85,7 @@ export default function Profile() {
     const fetchByUsername = async () => {
       setIsFetchingUsername(true);
       try {
-        const fetchedProfile = await authService.getProfileByUsername(username);
+        const fetchedProfile = await profileService.getProfileByUsername(username);
         if (cancelled) return;
         if (fetchedProfile) {
           setLocalProfile(fetchedProfile);
@@ -195,7 +197,7 @@ export default function Profile() {
       dispatch(setProfileError({ userId: profileId, error: null }));
 
       try {
-        const profileObj = await authService.getProfile(profileId);
+        const profileObj = await profileService.getProfile(profileId);
         if (cancelled) return;
         dispatch(upsertProfile(profileObj));
       } catch (err) {
@@ -265,7 +267,7 @@ export default function Profile() {
       try {
         setIsLoadingLikes(true);
         setLikesError('');
-        const res = await postService.getLikedPostsByUserId(profileId);
+        const res = await likeService.getLikedPostsByUserId(profileId);
         if (cancelled) return;
         const likedPostsArray = res.documents;
         setLikedPosts(Array.isArray(likedPostsArray) ? likedPostsArray : []);
@@ -385,7 +387,7 @@ export default function Profile() {
 
       // 3. Update Bio
       if (editForm.bio !== displayBio) {
-        await authService.updateBio(profileId, editForm.bio);
+        await profileService.updateBio(profileId, editForm.bio);
         dispatch(upsertProfile({ ...profile, bio: editForm.bio }));
       }
 
@@ -393,7 +395,7 @@ export default function Profile() {
       if (avatarFileToUpload) {
         setIsUploadingAvatar(true);
         const updatedProfile =
-          await authService.updateAvatar(avatarFileToUpload);
+          await profileService.updateAvatar(profileId, profile?.avatarId, avatarFileToUpload);
         if (updatedProfile) {
           dispatch(upsertProfile(updatedProfile));
         }

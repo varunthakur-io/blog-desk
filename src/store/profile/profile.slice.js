@@ -1,4 +1,4 @@
-// src/store/profileSlice.js
+// src/store/profile/profile.slice.js
 import { createSlice, createSelector } from '@reduxjs/toolkit';
 
 const initialState = {

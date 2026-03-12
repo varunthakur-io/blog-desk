@@ -12,8 +12,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import PostForm from '@/components/PostForm';
 
 // Services & Store
-import { postService } from '../services/postService';
-import { selectPostById, upsertPost } from '../store/postSlice';
+import { postService } from '../services/posts/post.service';
+import { selectPostById, upsertPost } from '../store/posts/posts.slice';
 
 export default function EditPost() {
   const { id } = useParams();
