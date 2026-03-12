@@ -21,8 +21,8 @@ import { useLogin } from '@/hooks/auth';
 const Login = () => {
   const {
     formData,
-    loading,
-    error,
+    isLoading,
+    formErrors,
     showPassword,
     handleChange,
     handleSubmit,
@@ -52,14 +52,7 @@ const Login = () => {
 
           <CardContent className="px-10 pb-8">
             <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-              {error && (
-                <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/30">
-                  <p className="text-destructive text-sm text-center font-medium">
-                    {error}
-                  </p>
-                </div>
-              )}
-
+              {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium">
                   Email Address
@@ -72,12 +65,18 @@ const Login = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  disabled={loading}
+                  disabled={isLoading}
                   autoComplete="email"
-                  className="h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50"
+                  className={`h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50 ${formErrors.email ? 'border-destructive focus-visible:ring-destructive/50' : ''}`}
                 />
+                {formErrors.email && (
+                  <p className="text-xs text-destructive font-medium ml-1">
+                    {formErrors.email}
+                  </p>
+                )}
               </div>
 
+              {/* Password */}
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-sm font-medium">
                   Password
@@ -91,9 +90,9 @@ const Login = () => {
                     value={formData.password}
                     onChange={handleChange}
                     required
-                    disabled={loading}
+                    disabled={isLoading}
                     autoComplete="current-password"
-                    className="h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50 pr-10"
+                    className={`h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50 pr-10 ${formErrors.password ? 'border-destructive focus-visible:ring-destructive/50' : ''}`}
                   />
                   <Button
                     type="button"
@@ -112,14 +111,19 @@ const Login = () => {
                     </span>
                   </Button>
                 </div>
+                {formErrors.password && (
+                  <p className="text-xs text-destructive font-medium ml-1">
+                    {formErrors.password}
+                  </p>
+                )}
               </div>
 
               <Button
                 type="submit"
-                disabled={loading}
+                disabled={isLoading}
                 className="w-full h-12 text-base font-medium rounded-lg transition-[transform,shadow] hover:shadow-lg hover:-translate-y-[1px] active:translate-y-0"
               >
-                {loading ? 'Signing you in…' : 'Sign In'}
+                {isLoading ? 'Signing you in…' : 'Sign In'}
               </Button>
             </form>
           </CardContent>

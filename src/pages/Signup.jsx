@@ -20,12 +20,22 @@ import { useSignup } from '@/hooks/auth';
 const Signup = () => {
   const {
     formData,
-    loading,
-    error,
-    usernameMessage,
+    isLoading,
+    formErrors,
+    usernameStatus,
     handleChange,
     handleSubmit,
   } = useSignup();
+
+  const getUsernameMessage = () => {
+    if (usernameStatus === 'checking') return { type: 'info', text: 'Checking availability...' };
+    if (usernameStatus === 'available') return { type: 'success', text: 'Username is available!' };
+    if (usernameStatus === 'taken') return { type: 'error', text: 'Username is already taken.' };
+    if (formErrors.username) return { type: 'error', text: formErrors.username };
+    return null;
+  };
+
+  const usernameMessage = getUsernameMessage();
 
   return (
     <div
@@ -33,6 +43,7 @@ const Signup = () => {
                bg-[radial-gradient(1200px_800px_at_80%_-10%,rgba(99,102,241,.25),transparent),radial-gradient(1000px_700px_at_-10%_110%,rgba(34,197,94,.2),transparent)]"
     >
       <div className="w-full max-w-lg">
+        {/* Header */}
         <div className="text-center mb-10">
           <h1 className="text-4xl font-bold tracking-tight">
             Welcome to Blog Desk
@@ -52,14 +63,7 @@ const Signup = () => {
 
           <CardContent className="px-10 pb-8">
             <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-              {error && (
-                <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/30">
-                  <p className="text-destructive text-sm text-center font-medium">
-                    {error}
-                  </p>
-                </div>
-              )}
-
+              {/* Full Name */}
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-sm font-medium">
                   Full Name
@@ -72,11 +76,17 @@ const Signup = () => {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  disabled={loading}
-                  className="h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50"
+                  disabled={isLoading}
+                  className={`h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50 ${formErrors.name ? 'border-destructive focus-visible:ring-destructive/50' : ''}`}
                 />
+                {formErrors.name && (
+                  <p className="text-xs text-destructive font-medium ml-1">
+                    {formErrors.name}
+                  </p>
+                )}
               </div>
 
+              {/* Username */}
               <div className="space-y-2">
                 <Label htmlFor="username" className="text-sm font-medium">
                   Username
@@ -89,14 +99,16 @@ const Signup = () => {
                   value={formData.username}
                   onChange={handleChange}
                   required
-                  disabled={loading}
-                  className="h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50"
+                  disabled={isLoading}
+                  className={`h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50 ${formErrors.username || usernameStatus === 'taken' ? 'border-destructive focus-visible:ring-destructive/50' : ''}`}
                 />
-                {usernameMessage.text && (
+                {usernameMessage && (
                   <p
-                    className={`text-sm ${
+                    className={`text-xs font-medium ml-1 ${
                       usernameMessage.type === 'success'
                         ? 'text-green-600'
+                        : usernameMessage.type === 'info'
+                        ? 'text-blue-600'
                         : 'text-destructive'
                     }`}
                   >
@@ -105,6 +117,7 @@ const Signup = () => {
                 )}
               </div>
 
+              {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium">
                   Email Address
@@ -117,12 +130,18 @@ const Signup = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  disabled={loading}
+                  disabled={isLoading}
                   autoComplete="email"
-                  className="h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50"
+                  className={`h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50 ${formErrors.email ? 'border-destructive focus-visible:ring-destructive/50' : ''}`}
                 />
+                {formErrors.email && (
+                  <p className="text-xs text-destructive font-medium ml-1">
+                    {formErrors.email}
+                  </p>
+                )}
               </div>
 
+              {/* Password */}
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-sm font-medium">
                   Password
@@ -135,18 +154,24 @@ const Signup = () => {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  disabled={loading}
+                  disabled={isLoading}
                   autoComplete="new-password"
-                  className="h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50"
+                  className={`h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50 ${formErrors.password ? 'border-destructive focus-visible:ring-destructive/50' : ''}`}
                 />
+                {formErrors.password && (
+                  <p className="text-xs text-destructive font-medium ml-1">
+                    {formErrors.password}
+                  </p>
+                )}
               </div>
 
+              {/* Submit */}
               <Button
                 type="submit"
                 className="w-full h-12 text-base font-medium rounded-lg transition-[transform,shadow] hover:shadow-lg hover:-translate-y-[1px] active:translate-y-0"
-                disabled={loading}
+                disabled={isLoading}
               >
-                {loading ? 'Creating your account…' : 'Create Account'}
+                {isLoading ? 'Creating your account…' : 'Create Account'}
               </Button>
             </form>
           </CardContent>
