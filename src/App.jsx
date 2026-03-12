@@ -6,9 +6,8 @@ import { Toaster } from 'react-hot-toast';
 // Main application entry point and router configuration
 // Layout & Routing
 import MainLayout from './layout/MainLayout';
-import PrivateRoute from './components/common/PrivateRoute';
+import { PrivateRoute, AppSkeleton } from './components/common';
 import useAuthCheck from './hooks/auth/useAuthCheck';
-import AppSkeleton from '@/components/common/AppSkeleton';
 
 // Pages (Lazy Loaded)
 const CreatePost = lazy(() => import('./pages/CreatePost'));

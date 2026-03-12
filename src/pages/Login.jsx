@@ -1,8 +1,5 @@
 // src/pages/Login.jsx
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
+import { Link } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 
 // Shadcn UI components
@@ -18,84 +15,19 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-// Store & Services
-import {
-  selectAuthUserId,
-  setAuthLoading,
-  selectAuthStatus,
-  setAuthUserId,
-} from '@/store/auth/auth.slice';
-import { upsertProfile } from '@/store/profile/profile.slice';
-import { authService } from '@/services/auth/auth.service';
+// Hooks
+import { useLogin } from '@/hooks/auth';
 
 const Login = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  const authUserId = useSelector(selectAuthUserId);
-  const authStatus = useSelector(selectAuthStatus);
-
-  const [formData, setFormData] = useState({ email: '', password: '' });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-
-  // Redirect if already logged in
-  useEffect(() => {
-    if (authStatus === 'authenticated' && authUserId) {
-      navigate('/', { replace: true });
-    }
-  }, [authStatus, authUserId, navigate]);
-
-  // Controlled inputs change handler
-  const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  // Submit handler
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // Guard against double-submit while a request is active.
-    if (loading) return;
-
-    setLoading(true);
-    setError('');
-
-    try {
-      dispatch(setAuthLoading(true));
-
-      // 1. Login via Appwrite
-      const { user, profile } = await authService.loginUser(formData);
-
-      // 2. Get current account (includes $id, name, email)
-      const account = user;
-
-      // 3. Fetch full profile document (bio, avatarUrl, etc.)
-      // const profile = profileObj; // already destructured above
-
-      // 4. Update auth state
-      dispatch(setAuthUserId(account.$id));
-
-      // 5. Cache full profile in profileSlice
-      dispatch(upsertProfile(profile));
-
-      toast.success(`Welcome back, ${account.name || 'friend'}!`);
-
-      // 6. Redirect
-      navigate('/', { replace: true });
-    } catch (err) {
-      const message = err?.message || 'Invalid email or password';
-      setError(message);
-      toast.error(message);
-    } finally {
-      setLoading(false);
-      dispatch(setAuthLoading(false));
-    }
-  };
+  const {
+    formData,
+    loading,
+    error,
+    showPassword,
+    handleChange,
+    handleSubmit,
+    togglePasswordVisibility,
+  } = useLogin();
 
   return (
     <div
@@ -103,7 +35,6 @@ const Login = () => {
                  bg-[radial-gradient(1200px_800px_at_80%_-10%,rgba(99,102,241,.25),transparent),radial-gradient(1000px_700px_at_-10%_110%,rgba(34,197,94,.2),transparent)]"
     >
       <div className="w-full max-w-lg">
-        {/* Header */}
         <div className="text-center mb-10">
           <h1 className="text-4xl font-bold tracking-tight">Welcome Back</h1>
           <p className="text-muted-foreground mt-2 text-base">
@@ -111,7 +42,6 @@ const Login = () => {
           </p>
         </div>
 
-        {/* Card */}
         <Card className="backdrop-blur supports-[backdrop-filter]:bg-background/70 border border-border/60 shadow-xl">
           <CardHeader className="text-center pb-4">
             <CardTitle className="text-2xl font-semibold">Sign In</CardTitle>
@@ -122,7 +52,6 @@ const Login = () => {
 
           <CardContent className="px-10 pb-8">
             <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-              {/* Error */}
               {error && (
                 <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/30">
                   <p className="text-destructive text-sm text-center font-medium">
@@ -131,7 +60,6 @@ const Login = () => {
                 </div>
               )}
 
-              {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium">
                   Email Address
@@ -150,7 +78,6 @@ const Login = () => {
                 />
               </div>
 
-              {/* Password */}
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-sm font-medium">
                   Password
@@ -173,7 +100,7 @@ const Login = () => {
                     variant="ghost"
                     size="sm"
                     className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={() => setShowPassword((prev) => !prev)}
+                    onClick={togglePasswordVisibility}
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4 text-muted-foreground" />
@@ -187,7 +114,6 @@ const Login = () => {
                 </div>
               </div>
 
-              {/* Submit */}
               <Button
                 type="submit"
                 disabled={loading}

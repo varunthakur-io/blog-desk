@@ -1,6 +1,4 @@
-import { useEffect, useMemo, useCallback, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
 import { BookOpen, Search } from 'lucide-react';
 
 // UI Components
@@ -8,31 +6,13 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import PostCard from '@/components/posts/PostCard';
-import FeaturedPost from '@/components/posts/FeaturedPost';
+import { PostCard, FeaturedPost, PostCardSkeleton } from '@/components/posts';
 
-// Services & Store
-import { postService } from '@/services/posts/post.service';
-import {
-  appendPosts,
-  selectAllPosts,
-  selectInitialLoaded,
-  setInitialLoaded,
-  setPostsLoading,
-  setPosts,
-  setPostsError,
-  selectPostsLoading,
-  selectPostsError,
-  selectHasMore,
-  selectPage,
-  setPage,
-  setHasMore,
-} from '@/store/posts/posts.slice';
-import PostCardSkeleton from '@/components/posts/PostCardSkeleton';
+// Hooks
+import { useHome } from '@/hooks/posts';
 
-const LIMIT = 6;
 const CATEGORIES = [
-  'All', // Special category to show all posts
+  'All',
   'Technology',
   'Lifestyle',
   'Travel',
@@ -44,115 +24,22 @@ const CATEGORIES = [
 ];
 
 const Home = () => {
-  const dispatch = useDispatch();
-
-  // Selectors
-  const posts = useSelector(selectAllPosts);
-  const loading = useSelector(selectPostsLoading);
-  const error = useSelector(selectPostsError);
-  const hasMore = useSelector(selectHasMore);
-  const page = useSelector(selectPage);
-  const initialLoaded = useSelector(selectInitialLoaded);
-
-  // Local search state (Home-only search)
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
-
-  // Load a page of posts (page 1 = fresh load, >1 = append)
-  const loadPage = useCallback(
-    async (pageNum, categoryFilter = null) => {
-      dispatch(setPostsLoading(true));
-      dispatch(setPostsError(null));
-
-      try {
-        const data = await postService.getAllPosts(
-          pageNum,
-          LIMIT,
-          categoryFilter === 'All' ? null : categoryFilter,
-        );
-        const docs = data.documents ?? [];
-        const totalFetched = (pageNum - 1) * LIMIT + docs.length;
-
-        dispatch(pageNum === 1 ? setPosts(docs) : appendPosts(docs));
-        dispatch(setPage(pageNum));
-        dispatch(setHasMore(totalFetched < data.total));
-      } catch (err) {
-        dispatch(setPostsError(err?.message ?? 'Failed to fetch posts'));
-      } finally {
-        dispatch(setPostsLoading(false));
-      }
-    },
-    [dispatch],
-  );
-
-  // Effect for initial load or category change
-  useEffect(() => {
-    // If category changes, reset pagination and load first page
-    dispatch(setPage(1));
-    loadPage(1, selectedCategory);
-  }, [selectedCategory, loadPage, dispatch]);
-
-  // Infinite scroll listener
-  useEffect(() => {
-    const handleScroll = () => {
-      if (
-        window.innerHeight + document.documentElement.scrollTop >=
-          document.documentElement.offsetHeight - 150 &&
-        !loading &&
-        hasMore &&
-        !searchTerm // Disable infinite scroll if search is active
-      ) {
-        loadPage(page + 1, selectedCategory);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [loading, hasMore, page, loadPage, searchTerm, selectedCategory]);
-
-  // Initial load (run only once if no category selected)
-  useEffect(() => {
-    if (!initialLoaded && selectedCategory === 'All') {
-      loadPage(1, selectedCategory);
-      dispatch(setInitialLoaded(true));
-    }
-  }, [initialLoaded, loadPage, dispatch, selectedCategory]);
-
-  // Client-side search filter
-  const filteredPosts = useMemo(() => {
-    // If a category is selected, filtering is done on the server-side
-    // This client-side filter only applies if no category is selected OR if searchTerm is present
-    if (searchTerm) {
-      const q = searchTerm.toLowerCase();
-      return posts.filter((post) => {
-        const title = post.title?.toLowerCase() ?? '';
-        const content = post.content?.toLowerCase() ?? '';
-        return title.includes(q) || content.includes(q);
-      });
-    }
-    return posts;
-  }, [posts, searchTerm]);
-
-  // Handle category change
-  const handleCategoryChange = (category) => {
-    setSelectedCategory(category);
-    setSearchTerm(''); // Clear search when category changes
-    dispatch(setInitialLoaded(false)); // Force reload with new category
-  };
-
-  // Handle search term change
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    setSelectedCategory('All'); // Clear category when search changes
-    dispatch(setInitialLoaded(false)); // Force reload with new search
-  };
+  const {
+    posts,
+    loading,
+    error,
+    hasMore,
+    searchTerm,
+    selectedCategory,
+    handleCategoryChange,
+    handleSearchChange,
+    LIMIT,
+  } = useHome(CATEGORIES);
 
   const renderContent = () => {
-    // First load – show full-screen skeletons
     if (loading && posts.length === 0) {
       return (
         <div className="space-y-10">
-          {/* Simulate featured skeleton */}
           <div className="w-full h-96 rounded-3xl bg-muted animate-pulse" />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -163,7 +50,6 @@ const Home = () => {
       );
     }
 
-    // Error state
     if (error) {
       return (
         <div className="flex justify-center py-20">
@@ -175,8 +61,7 @@ const Home = () => {
       );
     }
 
-    // Empty state (no posts or no search results)
-    if (filteredPosts.length === 0) {
+    if (posts.length === 0) {
       return (
         <div className="text-center py-32">
           <div className="flex flex-col items-center space-y-6">
@@ -203,43 +88,30 @@ const Home = () => {
       );
     }
 
-    // Determine if we should show the Featured Post layout
-    const showFeatured = !searchTerm && filteredPosts.length > 0;
-
-    const featuredPostNo = showFeatured
-      ? Math.floor(Math.random() * filteredPosts.length)
-      : null;
-
-    const featuredPost = showFeatured ? filteredPosts[featuredPostNo] : null;
-
-    const gridPosts = showFeatured
-      ? filteredPosts.filter((_, index) => index !== featuredPostNo)
-      : filteredPosts;
+    const showFeatured = !searchTerm && posts.length > 0;
+    const featuredPost = showFeatured ? posts[0] : null;
+    const gridPosts = showFeatured ? posts.slice(1) : posts;
 
     return (
       <div className="space-y-12">
         {searchTerm && (
           <p className="text-center text-muted-foreground">
-            Found {filteredPosts.length}{' '}
-            {filteredPosts.length === 1 ? 'post' : 'posts'} for "{searchTerm}"
+            Found {posts.length} {posts.length === 1 ? 'post' : 'posts'} for "{searchTerm}"
           </p>
         )}
 
-        {/* Featured Section */}
         {featuredPost && (
           <section className="animate-in fade-in slide-in-from-bottom-4 duration-700">
             <FeaturedPost post={featuredPost} />
           </section>
         )}
 
-        {/* Grid Section */}
         {gridPosts.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
             {gridPosts.map((post) => (
               <PostCard key={post.$id} post={post} />
             ))}
 
-            {/* Skeletons while loading next page */}
             {loading && hasMore && (
               <>
                 {[...Array(LIMIT)].map((_, i) => (
@@ -255,7 +127,6 @@ const Home = () => {
 
   return (
     <div className="relative h-full">
-      {/* Hero Section */}
       <section className="mx-auto flex flex-col items-center gap-4 pb-8 md:pb-12 text-center">
         <h1 className="text-3xl font-bold leading-tight tracking-tighter md:text-6xl lg:leading-[1.1]">
           Build your digital presence.
@@ -265,7 +136,6 @@ const Home = () => {
           ideas, code, and stories with the world.
         </p>
 
-        {/* Search Bar */}
         <div className="w-full max-w-md md:max-w-sm items-center space-x-2 pt-4">
           <div className="rounded-xl border border-border/60 bg-card/60 shadow-sm px-3 py-2 flex items-center gap-2">
             <Search className="h-4 w-4 text-muted-foreground" />
@@ -280,7 +150,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Category Pills */}
       <div className="flex flex-wrap justify-center gap-3 mb-12">
         {CATEGORIES.map((category) => (
           <Badge
@@ -294,7 +163,6 @@ const Home = () => {
         ))}
       </div>
 
-      {/* Content Section */}
       <div className="py-6">{renderContent()}</div>
     </div>
   );

@@ -1,128 +1,25 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+// src/pages/EditPost.jsx
 import { ArrowLeft } from 'lucide-react';
-import toast from 'react-hot-toast';
 
 // UI Components
-import FormSkeleton from '@/components/posts/FormSkeleton';
+import { FormSkeleton, PostForm } from '@/components/posts';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import PostForm from '@/components/posts/PostForm';
 
-// Services & Store
-import { postService } from '../services/posts/post.service';
-import { selectPostById, upsertPost } from '../store/posts/posts.slice';
+// Hooks
+import { useEditPost } from '@/hooks/posts';
 
 export default function EditPost() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const {
+    formData,
+    isLoading,
+    isSaving,
+    error,
+    handleUpdate,
+    navigate,
+  } = useEditPost();
 
-  // Selectors
-  const post = useSelector((state) => selectPostById(state, id));
-
-  // Local States
-  const [formData, setFormData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState('');
-
-  // Effect: Load Post Data
-  useEffect(() => {
-    let mounted = true;
-
-    const loadPost = async () => {
-      if (!id) {
-        setError('Invalid post ID.');
-        setIsLoading(false);
-        return;
-      }
-
-      // If post already in Redux, use it
-      if (post) {
-        setFormData({
-          title: post.title || '',
-          content: post.content || '',
-          category: post.category || '',
-          published: post.published ?? true,
-          postImageURL: post.postImageURL || null,
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      // Fallback: fetch from API
-      try {
-        const data = await postService.getPostById(id);
-
-        if (!mounted) return;
-
-        if (data && data.$id) {
-          setFormData({
-            title: data.title || '',
-            content: data.content || '',
-            category: data.category || '',
-            published: data.published ?? true,
-            postImageURL: data.postImageURL || null,
-          });
-
-          // keep Redux posts cache in sync
-          dispatch(upsertPost(data));
-        } else {
-          setError('Post not found.');
-        }
-      } catch (err) {
-        if (mounted) {
-          setError(err.message || 'Failed to load post.');
-        }
-      } finally {
-        if (mounted) setIsLoading(false);
-      }
-    };
-
-    loadPost();
-
-    return () => {
-      mounted = false;
-    };
-  }, [id, post, dispatch]);
-
-  // Event Handlers
-  const handleUpdate = async (data) => {
-    if (!id) return;
-
-    if (!data.title.trim() || !data.content.trim()) {
-      toast.error('Title and content are required.');
-      return;
-    }
-
-    setIsSaving(true);
-    setError('');
-
-    try {
-      const updatedPost = await postService.updatePost(id, data);
-
-      if (updatedPost && updatedPost.$id) {
-        // Update global posts state
-        dispatch(upsertPost(updatedPost));
-        toast.success('Post updated successfully!');
-        navigate('/dashboard');
-      } else {
-        toast.error('Failed to update post.');
-      }
-    } catch (err) {
-      console.error('Update failed:', err);
-      const msg = err.message || 'Failed to update post';
-      toast.error(msg);
-      setError(msg);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  // Render States
   if (isLoading) {
     return <FormSkeleton />;
   }

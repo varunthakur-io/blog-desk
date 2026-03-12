@@ -1,14 +1,5 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import toast from 'react-hot-toast';
-import { debounce } from '@/lib/utils';
-import { useCallback } from 'react';
-
-// auth service and Redux actions
-import { authService } from '../services/auth/auth.service';
-import { profileService } from '../services/profile/profile.service';
-import { setAuthUserId } from '../store/auth/auth.slice';
+// src/pages/Signup.jsx
+import { Link } from 'react-router-dom';
 
 // Shadcn UI components
 import { Button } from '@/components/ui/button';
@@ -22,80 +13,19 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { upsertProfile } from '@/store/profile/profile.slice';
+
+// Hooks
+import { useSignup } from '@/hooks/auth';
 
 const Signup = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    username: '',
-  });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [usernameMessage, setUsernameMessage] = useState({ type: '', text: '' });
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    try {
-      const { user, profile } = await authService.createUser(formData);
-      dispatch(setAuthUserId(user.$id));
-      dispatch(upsertProfile(profile));
-      toast.success('Account created and logged in!');
-      navigate('/');
-    } catch (err) {
-      setError(err.message || 'Signup failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const handleUsernameCheckDebounce = useCallback(
-    debounce((username) => {
-      checkUsername(username);
-    }, 500),
-    [],
-  );
-
-  const checkUsername = async (username) => {
-    if (!username || username.length < 3) {
-      setUsernameMessage({
-        type: 'error',
-        text: 'Username must be at least 3 characters.',
-      });
-      return;
-    }
-
-    try {
-      const isAvailable = await profileService.isUsernameAvailable(username);
-      if (!isAvailable) {
-        setUsernameMessage({
-          type: 'error',
-          text: 'Username is already taken.',
-        });
-      } else {
-        setUsernameMessage({
-          type: 'success',
-          text: 'Username is available!',
-        });
-      }
-    } catch (err) {
-      console.error('Username check failed:', err);
-    }
-  };
+  const {
+    formData,
+    loading,
+    error,
+    usernameMessage,
+    handleChange,
+    handleSubmit,
+  } = useSignup();
 
   return (
     <div
@@ -103,7 +33,6 @@ const Signup = () => {
                bg-[radial-gradient(1200px_800px_at_80%_-10%,rgba(99,102,241,.25),transparent),radial-gradient(1000px_700px_at_-10%_110%,rgba(34,197,94,.2),transparent)]"
     >
       <div className="w-full max-w-lg">
-        {/* Header */}
         <div className="text-center mb-10">
           <h1 className="text-4xl font-bold tracking-tight">
             Welcome to Blog Desk
@@ -123,7 +52,6 @@ const Signup = () => {
 
           <CardContent className="px-10 pb-8">
             <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-              {/* Error */}
               {error && (
                 <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/30">
                   <p className="text-destructive text-sm text-center font-medium">
@@ -132,7 +60,6 @@ const Signup = () => {
                 </div>
               )}
 
-              {/* Full Name */}
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-sm font-medium">
                   Full Name
@@ -150,7 +77,6 @@ const Signup = () => {
                 />
               </div>
 
-              {/* Username */}
               <div className="space-y-2">
                 <Label htmlFor="username" className="text-sm font-medium">
                   Username
@@ -161,11 +87,7 @@ const Signup = () => {
                   name="username"
                   placeholder="johndoe"
                   value={formData.username}
-                  onChange={(e) => {
-                    handleChange(e);
-                    setUsernameMessage({ type: '', text: '' });
-                    handleUsernameCheckDebounce(e.target.value);
-                  }}
+                  onChange={handleChange}
                   required
                   disabled={loading}
                   className="h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50"
@@ -183,7 +105,6 @@ const Signup = () => {
                 )}
               </div>
 
-              {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium">
                   Email Address
@@ -202,7 +123,6 @@ const Signup = () => {
                 />
               </div>
 
-              {/* Password */}
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-sm font-medium">
                   Password
@@ -221,7 +141,6 @@ const Signup = () => {
                 />
               </div>
 
-              {/* Submit */}
               <Button
                 type="submit"
                 className="w-full h-12 text-base font-medium rounded-lg transition-[transform,shadow] hover:shadow-lg hover:-translate-y-[1px] active:translate-y-0"

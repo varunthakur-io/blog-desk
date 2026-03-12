@@ -1,0 +1,55 @@
+import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { postService } from '@/services/posts';
+import { upsertPost } from '@/store/posts';
+import { selectAuthUserId } from '@/store/auth';
+
+export const useCreatePost = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const authUserId = useSelector(selectAuthUserId);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleCreatePost = async (formData) => {
+    if (!authUserId) {
+      toast.error('You must be logged in to create a post.');
+      return;
+    }
+
+    if (!formData.title.trim() || !formData.content.trim()) {
+      toast.error('Title and content are required.');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const newPost = await postService.createPost({
+        title: formData.title,
+        content: formData.content,
+        category: formData.category,
+        published: formData.published,
+        postImageURL: formData.postImageURL,
+      });
+
+      if (newPost) {
+        dispatch(upsertPost(newPost));
+      }
+
+      toast.success('Post published successfully!');
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Create post error:', error);
+      toast.error(error.message || 'Failed to create post. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return {
+    handleCreatePost,
+    isSubmitting,
+  };
+};

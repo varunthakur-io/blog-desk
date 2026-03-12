@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { postService } from '@/services/posts/post.service';
+import { postService } from '@/services/posts';
 import toast from 'react-hot-toast';
 import {
   Loader2,
