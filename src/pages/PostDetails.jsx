@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 
 // UI Components
-import PostDetailsSkeleton from '@/components/skeletons/PostDetailsSkeleton';
+import PostDetailsSkeleton from '@/components/posts/PostDetailsSkeleton';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';

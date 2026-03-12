@@ -5,11 +5,11 @@ import { ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 // UI Components
-import FormSkeleton from '@/components/skeletons/FormSkeleton';
+import FormSkeleton from '@/components/posts/FormSkeleton';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import PostForm from '@/components/PostForm';
+import PostForm from '@/components/posts/PostForm';
 
 // Services & Store
 import { postService } from '../services/posts/post.service';

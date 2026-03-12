@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
-import PostForm from '@/components/PostForm';
+import PostForm from '@/components/posts/PostForm';
 
 // Services and Store
 import { postService } from '@/services/posts/post.service';

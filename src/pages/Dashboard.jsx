@@ -16,7 +16,7 @@ import toast from 'react-hot-toast';
 import { debounce } from '@/lib/utils';
 
 // UI Components
-import DashboardSkeleton from '@/components/skeletons/DashboardSkeleton';
+import DashboardSkeleton from '@/components/posts/DashboardSkeleton';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';

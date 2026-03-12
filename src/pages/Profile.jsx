@@ -6,9 +6,9 @@ import toast from 'react-hot-toast';
 import { User, Edit, Save, Loader2, CalendarDays, Mail } from 'lucide-react';
 
 // UI Components
-import PostCard from '@/components/PostCard';
-import ProfileSkeleton from '@/components/skeletons/ProfileSkeleton';
-import PostCardSkeleton from '@/components/skeletons/PostCardSkeleton';
+import PostCard from '@/components/posts/PostCard';
+import ProfileSkeleton from '@/components/profile/ProfileSkeleton';
+import PostCardSkeleton from '@/components/posts/PostCardSkeleton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

@@ -8,8 +8,8 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import PostCard from '@/components/PostCard';
-import FeaturedPost from '@/components/FeaturedPost';
+import PostCard from '@/components/posts/PostCard';
+import FeaturedPost from '@/components/posts/FeaturedPost';
 
 // Services & Store
 import { postService } from '@/services/posts/post.service';
@@ -28,7 +28,7 @@ import {
   setPage,
   setHasMore,
 } from '@/store/posts/posts.slice';
-import PostCardSkeleton from '@/components/skeletons/PostCardSkeleton';
+import PostCardSkeleton from '@/components/posts/PostCardSkeleton';
 
 const LIMIT = 6;
 const CATEGORIES = [
