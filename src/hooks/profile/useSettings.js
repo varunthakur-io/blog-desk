@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -52,12 +52,12 @@ export const useSettings = () => {
     return () => { mounted = false; };
   }, []);
 
-  const handleToggleDarkMode = (checked) => {
+  const handleToggleDarkMode = useCallback((checked) => {
     setDarkMode(checked);
     toast.success(`Theme switched to ${checked ? 'Dark' : 'Light'}`);
-  };
+  }, [setDarkMode]);
 
-  const handlePrefChange = async (key, value) => {
+  const handlePrefChange = useCallback(async (key, value) => {
     const oldPrefs = { ...prefs };
     setPrefs((prev) => ({ ...prev, [key]: value }));
     try {
@@ -67,9 +67,10 @@ export const useSettings = () => {
       setPrefs(oldPrefs);
       toast.error('Failed to save preference.');
     }
-  };
+  }, [prefs]);
 
-  const handleDeleteSessions = async () => {
+  const handleDeleteSessions = useCallback(async () => {
+    if (isLoading) return;
     setIsLoading(true);
     try {
       await authService.deleteAllSessions();
@@ -81,9 +82,10 @@ export const useSettings = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [dispatch, navigate, isLoading]);
 
-  const handleDeleteAccount = async () => {
+  const handleDeleteAccount = useCallback(async () => {
+    if (isLoading) return;
     setIsLoading(true);
     try {
       await authService.deleteAccount();
@@ -95,7 +97,7 @@ export const useSettings = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [dispatch, navigate, isLoading]);
 
   return {
     isDarkMode,

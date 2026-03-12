@@ -18,31 +18,43 @@ export const useProfile = () => {
   const authLoading = useSelector(selectAuthLoading);
 
   const [localProfile, setLocalProfile] = useState(null);
-  const [isFetchingUsername, setIsFetchingUsername] = useState(!!username);
+  
+  // Status states
+  const [usernameFetchStatus, setUsernameFetchStatus] = useState(username ? 'loading' : 'idle');
+  const [likesFetchStatus, setLikesFetchStatus] = useState('idle');
+  
   const [usernameFetchError, setUsernameFetchError] = useState(null);
+  const [likesError, setLikesError] = useState('');
+
+  // Tabs state
+  const [activeTab, setActiveTab] = useState('posts');
+  const [likedPosts, setLikedPosts] = useState([]);
 
   // 1. Fetch by username if needed
   useEffect(() => {
     if (!username) {
-      setIsFetchingUsername(false);
+      setUsernameFetchStatus('idle');
       return;
     }
     let cancelled = false;
     const fetchByUsername = async () => {
-      setIsFetchingUsername(true);
+      setUsernameFetchStatus('loading');
       try {
         const fetchedProfile = await profileService.getProfileByUsername(username);
         if (cancelled) return;
         if (fetchedProfile) {
           setLocalProfile(fetchedProfile);
           dispatch(upsertProfile(fetchedProfile));
+          setUsernameFetchStatus('success');
         } else {
           setUsernameFetchError('Profile not found.');
+          setUsernameFetchStatus('error');
         }
       } catch {
-        if (!cancelled) setUsernameFetchError('Failed to load profile.');
-      } finally {
-        if (!cancelled) setIsFetchingUsername(false);
+        if (!cancelled) {
+          setUsernameFetchError('Failed to load profile.');
+          setUsernameFetchStatus('error');
+        }
       }
     };
     fetchByUsername();
@@ -60,12 +72,6 @@ export const useProfile = () => {
   const initialPostsLoaded = useSelector(selectInitialLoaded);
   const postsLoading = useSelector(selectPostsLoading);
   const userPosts = useSelector((state) => selectPostsByAuthor(state, profileId));
-
-  // Tabs state
-  const [activeTab, setActiveTab] = useState('posts');
-  const [likedPosts, setLikedPosts] = useState([]);
-  const [isLoadingLikes, setIsLoadingLikes] = useState(false);
-  const [likesError, setLikesError] = useState('');
 
   // Derived Values
   const displayName = profile?.name || 'Unnamed User';
@@ -120,14 +126,18 @@ export const useProfile = () => {
     if (!isOwner || activeTab !== 'likes' || !profileId) return;
     let cancelled = false;
     const fetchLikedPosts = async () => {
+      setLikesFetchStatus('loading');
       try {
-        setIsLoadingLikes(true);
         const res = await likeService.getLikedPostsByUserId(profileId);
-        if (!cancelled) setLikedPosts(res.documents || []);
+        if (!cancelled) {
+          setLikedPosts(res.documents || []);
+          setLikesFetchStatus('success');
+        }
       } catch (err) {
-        if (!cancelled) setLikesError(err?.message || 'Failed to load liked posts.');
-      } finally {
-        if (!cancelled) setIsLoadingLikes(false);
+        if (!cancelled) {
+          setLikesError(err?.message || 'Failed to load liked posts.');
+          setLikesFetchStatus('error');
+        }
       }
     };
     fetchLikedPosts();
@@ -136,9 +146,13 @@ export const useProfile = () => {
 
   return {
     profileId, isOwner, profile, profileLoading, profileError, 
-    isFetchingUsername, usernameFetchError, authLoading,
+    isFetchingUsername: usernameFetchStatus === 'loading', 
+    usernameFetchError, 
+    authLoading,
     userPosts, postsLoading, initialPostsLoaded,
-    activeTab, setActiveTab, likedPosts, isLoadingLikes, likesError,
+    activeTab, setActiveTab, likedPosts, 
+    isLoadingLikes: likesFetchStatus === 'loading', 
+    likesError,
     displayName, displayEmail, displayBio, avatarUrl, joinedDate
   };
 };
