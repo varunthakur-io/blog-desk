@@ -63,7 +63,7 @@ export const useSettings = () => {
     try {
       await authService.updatePrefs({ ...oldPrefs, [key]: value });
       toast.success('Preference saved.');
-    } catch (err) {
+    } catch {
       setPrefs(oldPrefs);
       toast.error('Failed to save preference.');
     }
@@ -76,7 +76,7 @@ export const useSettings = () => {
       dispatch(clearAuthUserId());
       navigate('/login');
       toast.success('Logged out from all devices!');
-    } catch (err) {
+    } catch {
       toast.error('Failed to delete sessions.');
     } finally {
       setIsLoading(false);
@@ -90,7 +90,7 @@ export const useSettings = () => {
       dispatch(clearAuthUserId());
       navigate('/login');
       toast.success('Account deleted successfully!');
-    } catch (err) {
+    } catch {
       toast.error('Failed to delete account.');
     } finally {
       setIsLoading(false);

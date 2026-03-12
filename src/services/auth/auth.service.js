@@ -27,8 +27,8 @@ class AuthService {
           await profileService.createProfile(createdUser, username);
           profileCreated = true;
           break;
-        } catch (err) {
-          console.warn(`AuthService :: createUser() profile attempt ${attempt + 1} failed:`, err);
+        } catch {
+          console.warn(`AuthService :: createUser() profile attempt ${attempt + 1} failed`);
           if (attempt < maxRetries) {
             await new Promise((r) => setTimeout(r, 300));
           }
@@ -54,8 +54,8 @@ class AuthService {
       let profile = null;
       try {
         profile = await profileService.getProfile(user.$id);
-      } catch (err) {
-        console.warn('AuthService :: loginUser() Could not load profile:', err);
+      } catch {
+        console.warn('AuthService :: loginUser() Could not load profile');
       }
 
       this.cacheUser({ ...user, profile });
@@ -93,7 +93,7 @@ class AuthService {
       let profile = null;
       try {
         profile = await profileService.getProfile(user.$id);
-      } catch (err) {
+      } catch {
         // ignore
       }
       

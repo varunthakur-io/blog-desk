@@ -39,7 +39,7 @@ export const useProfile = () => {
         } else {
           setUsernameFetchError('Profile not found.');
         }
-      } catch (err) {
+      } catch {
         if (!cancelled) setUsernameFetchError('Failed to load profile.');
       } finally {
         if (!cancelled) setIsFetchingUsername(false);
