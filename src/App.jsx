@@ -7,7 +7,7 @@ import { Toaster } from 'react-hot-toast';
 // Layout & Routing
 import MainLayout from './layout/MainLayout';
 import PrivateRoute from './components/common/PrivateRoute';
-import useAuthCheck from './hooks/useAuthCheck';
+import useAuthCheck from './hooks/auth/useAuthCheck';
 import AppSkeleton from '@/components/common/AppSkeleton';
 
 // Pages (Lazy Loaded)

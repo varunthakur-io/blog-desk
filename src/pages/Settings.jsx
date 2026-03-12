@@ -42,7 +42,7 @@ import {
 } from '@/components/ui/alert-dialog';
 
 // Custom Hooks and Services
-import useDarkMode from '../hooks/useDarkMode';
+import useDarkMode from '../hooks/common/useDarkMode';
 import { authService } from '../services/auth/auth.service';
 import { clearAuthUserId } from '../store/auth/auth.slice';
 

@@ -34,7 +34,7 @@ import {
 } from '@/store/auth/auth.slice';
 import { selectProfileById } from '@/store/profile/profile.slice';
 import { authService } from '@/services/auth/auth.service';
-import useDarkMode from '@/hooks/useDarkMode';
+import useDarkMode from '@/hooks/common/useDarkMode';
 
 const Navbar = () => {
   const dispatch = useDispatch();
