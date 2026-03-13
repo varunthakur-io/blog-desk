@@ -2,10 +2,9 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  byId: {}, // postId -> post object
-  allIds: [], // list of postIds in feed order
-
-  loading: false,
+  byId: {},    // postId -> post object
+  allIds: [],  // list of postIds in feed order
+  status: 'idle', // 'idle' | 'loading' | 'error' | 'success'
   error: null,
   page: 1,
   hasMore: true,
@@ -17,26 +16,14 @@ const postsSlice = createSlice({
   initialState,
   reducers: {
     setPostsLoading(state, action) {
-      state.loading = action.payload;
+      state.status = action.payload ? 'loading' : state.status;
+      state.error = null;
     },
-
     setPostsError(state, action) {
-      state.error = action.payload || null;
+      state.status = 'error';
+      state.error = action.payload || 'Failed to load posts';
     },
-
-    setPage(state, action) {
-      state.page = action.payload;
-    },
-
-    setHasMore(state, action) {
-      state.hasMore = action.payload;
-    },
-
-    setInitialLoaded(state, action) {
-      state.initialLoaded = action.payload;
-    },
-
-    // Replace all posts (e.g. first load or refresh)
+    // Replace current list with fresh data
     setPosts(state, action) {
       const posts = action.payload || [];
       state.byId = {};
@@ -48,9 +35,10 @@ const postsSlice = createSlice({
         state.byId[id] = post;
         state.allIds.push(id);
       }
+      state.status = 'success';
+      state.initialLoaded = true;
     },
-
-    // Append / upsert a page of posts
+    // Add page to existing list
     appendPosts(state, action) {
       const posts = action.payload || [];
 
@@ -59,18 +47,15 @@ const postsSlice = createSlice({
         const id = String(post.$id);
         const exists = !!state.byId[id];
 
-        // upsert into byId
         state.byId[id] = post;
-
-        // only push into allIds if not already present
         if (!exists) {
           state.allIds.push(id);
         }
       }
+      state.status = 'success';
     },
-
-    // Create/update a single post (e.g. after create/edit/detail fetch)
-    upsertPost(state, action) {
+    // Update or create single post
+    setPost(state, action) {
       const post = action.payload;
       if (!post?.$id) return;
 
@@ -78,40 +63,40 @@ const postsSlice = createSlice({
       const exists = !!state.byId[id];
 
       state.byId[id] = post;
-
       if (!exists) {
-        // prepend new post to feed
         state.allIds.unshift(id);
       }
+      state.status = 'success';
     },
-
-    // Remove a post
-    removePost(state, action) {
+    // Remove post from list
+    clearPost(state, action) {
       const id = String(action.payload);
       if (!state.byId[id]) return;
 
       delete state.byId[id];
       state.allIds = state.allIds.filter((pid) => pid !== id);
     },
-
-    // Optional: global search term (if you ever use it in navbar again)
-    setSearchTerm(state, action) {
-      state.searchTerm = action.payload || '';
+    // Control pagination and flags
+    setPagination(state, action) {
+      const { page, hasMore } = action.payload;
+      if (page !== undefined) state.page = page;
+      if (hasMore !== undefined) state.hasMore = hasMore;
     },
+    setInitialLoaded(state, action) {
+      state.initialLoaded = !!action.payload;
+    }
   },
 });
 
 export const {
   setPostsLoading,
   setPostsError,
-  setPage,
-  setHasMore,
-  setInitialLoaded,
   setPosts,
   appendPosts,
-  upsertPost,
-  removePost,
-  setSearchTerm,
+  setPost,
+  clearPost,
+  setPagination,
+  setInitialLoaded,
 } = postsSlice.actions;
 
 export default postsSlice.reducer;

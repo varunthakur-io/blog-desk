@@ -28,12 +28,19 @@ export const selectPostsByAuthor = createSelector(
   },
 );
 
-// Simple scalar selectors (no referential problems)
-export const selectPostsLoading = (state) => selectPostsState(state).loading;
-export const selectPostsError = (state) => selectPostsState(state).error;
+// Semantic Status Selectors
+export const selectIsPostsLoading = createSelector(
+  [selectPostsState],
+  (postsState) => postsState.status === 'loading',
+);
+
+export const selectPostsError = createSelector(
+  [selectPostsState],
+  (postsState) => postsState.error,
+);
+
+// Simple scalar selectors
 export const selectPage = (state) => selectPostsState(state).page;
 export const selectHasMore = (state) => selectPostsState(state).hasMore;
 export const selectInitialLoaded = (state) =>
   selectPostsState(state).initialLoaded;
-export const selectPostsSearchTerm = (state) =>
-  selectPostsState(state).searchTerm;
