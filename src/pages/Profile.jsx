@@ -31,7 +31,7 @@ export default function Profile() {
           avatarUrl={avatarUrl}
           joinedDate={joinedDate}
           isOwner={isOwner}
-          postsCount={userPosts.length}
+          postsCount={profile?.postsCount ?? userPosts.length}
           followersCount={profile?.followersCount || 0}
           followingCount={profile?.followingCount || 0}
         />
