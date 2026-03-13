@@ -1,6 +1,5 @@
-import { databases } from '@/api/client';
+import { databases, appwriteConfig as appwrite } from '@/lib/appwrite';
 import { Query } from 'appwrite';
-import { appwriteConfig as appwrite } from '@/config/appwrite';
 
 class ProfileApi {
   async getProfile(userId) {

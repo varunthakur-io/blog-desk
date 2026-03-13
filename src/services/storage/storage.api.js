@@ -1,6 +1,5 @@
-import { storage } from '@/api/client';
+import { storage, appwriteConfig as appwrite } from '@/lib/appwrite';
 import { ID } from 'appwrite';
-import { appwriteConfig as appwrite } from '@/config/appwrite';
 
 class StorageApi {
   async createFile(file) {

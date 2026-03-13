@@ -1,5 +1,4 @@
-import { databases } from '@/api/client';
-import { appwriteConfig as appwrite } from '@/config/appwrite';
+import { databases, appwriteConfig as appwrite } from '@/lib/appwrite';
 
 class PostApi {
   async createPost(postData) {

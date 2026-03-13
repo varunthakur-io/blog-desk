@@ -1,4 +1,4 @@
-import { account } from '@/api/client';
+import { account } from '@/lib/appwrite';
 import { ID } from 'appwrite';
 
 class AuthApi {

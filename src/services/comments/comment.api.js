@@ -1,6 +1,5 @@
-import { databases } from '@/api/client';
+import { databases, appwriteConfig as appwrite } from '@/lib/appwrite';
 import { Query, ID } from 'appwrite';
-import { appwriteConfig as appwrite } from '@/config/appwrite';
 
 class CommentApi {
   async createComment(postId, userId, content) {
