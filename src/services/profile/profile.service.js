@@ -24,16 +24,13 @@ class ProfileService {
     if (!user || !user.$id) {
       throw new Error('ProfileService :: createProfile() Invalid user');
     }
-    try {
-      return await profileApi.createProfile(user.$id, {
-        name: user.name || null,
-        email: user.email || null,
-        username: username || null,
-      });
-    } catch (error) {
-      console.error('ProfileService :: createProfile()', error);
-      throw error;
-    }
+    return await profileApi.createProfile(user.$id, {
+      name: user.name || 'Anonymous',
+      username: username,
+      followersCount: 0,
+      followingCount: 0,
+      postsCount: 0,
+    });
   }
 
   async updateProfile(userId, profileData) {
