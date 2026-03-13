@@ -1,5 +1,5 @@
 // src/components/Navbar.jsx
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -28,9 +28,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 // Store & Services
 import {
+  selectAuthUser,
   selectAuthUserId,
   selectAuthStatus,
-  clearAuthUserId,
+  clearAuthUser,
 } from '@/store/auth';
 import { selectProfileById } from '@/store/profile';
 import { authService } from '@/services/auth';
@@ -41,6 +42,7 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   // Auth state
+  const authUser = useSelector(selectAuthUser);
   const authUserId = useSelector(selectAuthUserId);
   const authStatus = useSelector(selectAuthStatus);
 
@@ -48,23 +50,22 @@ const Navbar = () => {
   const profile = useSelector((state) => selectProfileById(state, authUserId));
 
   const isLoggedIn = authStatus === 'authenticated' && !!authUserId;
-  console.log('Navbar render - isLoggedIn:', isLoggedIn);
   const [isDarkMode, setDarkMode] = useDarkMode();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Logout handler
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     try {
       await authService.logout();
-      dispatch(clearAuthUserId());
+      dispatch(clearAuthUser());
       toast.success('Logged out successfully!');
       navigate('/login');
     } catch (err) {
       toast.error(err.message || 'Logout failed. Please try again.');
     }
-  };
+  }, [dispatch, navigate]);
 
-  const closeMobileMenu = () => setIsMobileMenuOpen(false);
+  const closeMobileMenu = useCallback(() => setIsMobileMenuOpen(false), []);
 
   // Navigation items
   const navItems = [
@@ -155,7 +156,7 @@ const Navbar = () => {
                       {profile?.name || 'User'}
                     </p>
                     <p className="text-xs leading-none text-muted-foreground truncate">
-                      {profile?.email}
+                      {authUser?.email}
                     </p>
                   </div>
                 </DropdownMenuLabel>

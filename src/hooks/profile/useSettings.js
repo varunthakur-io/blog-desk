@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import useDarkMode from '../common/useDarkMode';
 import { authService } from '@/services/auth';
-import { clearAuthUserId } from '@/store/auth';
+import { clearAuthUser } from '@/store/auth';
 
 export const useSettings = () => {
   const [isDarkMode, setDarkMode] = useDarkMode();
@@ -74,7 +74,7 @@ export const useSettings = () => {
     setIsLoading(true);
     try {
       await authService.deleteAllSessions();
-      dispatch(clearAuthUserId());
+      dispatch(clearAuthUser());
       navigate('/login');
       toast.success('Logged out from all devices!');
     } catch {
@@ -89,7 +89,7 @@ export const useSettings = () => {
     setIsLoading(true);
     try {
       await authService.deleteAccount();
-      dispatch(clearAuthUserId());
+      dispatch(clearAuthUser());
       navigate('/login');
       toast.success('Account deleted successfully!');
     } catch {
