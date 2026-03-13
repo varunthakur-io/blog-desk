@@ -11,7 +11,7 @@ import {
   setAuthUser,
   setAuthError,
 } from '@/store/auth';
-import { upsertProfile } from '@/store/profile';
+import { setUserProfile } from '@/store/profile';
 
 // Pure validation logic for credentials
 const validate = (data) => {
@@ -89,7 +89,7 @@ export const useLogin = () => {
 
       // Populate global store with full identity and domain data
       dispatch(setAuthUser(user));
-      dispatch(upsertProfile(profile));
+      dispatch(setUserProfile(profile));
 
       toast.success(`Welcome back, ${user.name || 'friend'}!`);
       navigate('/', { replace: true });

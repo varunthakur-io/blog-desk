@@ -6,9 +6,9 @@ import { postService } from '@/services/posts';
 import { likeService } from '@/services/likes';
 import { commentService } from '@/services/comments';
 import { profileService } from '@/services/profile';
-import { selectPostById, appendPosts } from '@/store/posts';
+import { selectPostById, setPost } from '@/store/posts';
 import { selectAuthUserId } from '@/store/auth';
-import { selectProfileById, upsertProfile } from '@/store/profile';
+import { selectProfileById, setUserProfile } from '@/store/profile';
 
 export const usePostDetails = () => {
   const { id } = useParams();
@@ -23,7 +23,7 @@ export const usePostDetails = () => {
   const currentUserProfile = useSelector((state) => selectProfileById(state, authUserId));
 
   // Local UI States
-  const [status, setStatus] = useState(currentPost ? 'success' : 'loading'); // 'loading' | 'success' | 'error'
+  const [status, setStatus] = useState(currentPost ? 'success' : 'loading'); 
   const [error, setError] = useState('');
   
   const [likesCount, setLikesCount] = useState(currentPost?.likesCount || 0);
@@ -50,7 +50,7 @@ export const usePostDetails = () => {
       setStatus('success');
       if (currentPost.authorId && !authorProfile) {
         profileService.getProfile(currentPost.authorId)
-          .then((p) => dispatch(upsertProfile(p)))
+          .then((p) => dispatch(setUserProfile(p)))
           .catch(console.warn);
       }
       return;
@@ -64,11 +64,11 @@ export const usePostDetails = () => {
         const fetched = await postService.getPostById(id);
         if (!mounted) return;
         if (fetched) {
-          dispatch(appendPosts([fetched]));
+          dispatch(setPost(fetched));
           setStatus('success');
           if (fetched.authorId) {
             profileService.getProfile(fetched.authorId)
-              .then((p) => mounted && dispatch(upsertProfile(p)))
+              .then((p) => mounted && dispatch(setUserProfile(p)))
               .catch(console.warn);
           }
         } else {
@@ -125,7 +125,7 @@ export const usePostDetails = () => {
     comments.forEach(c => {
       if (c.userId && !profiles[c.userId]) {
         profileService.getProfile(c.userId)
-          .then(p => dispatch(upsertProfile(p)))
+          .then(p => dispatch(setUserProfile(p)))
           .catch(console.warn);
       }
     });

@@ -5,18 +5,18 @@ import { debounce } from '@/lib/utils';
 import { postService } from '@/services/posts';
 import { selectAuthUserId } from '@/store/auth';
 import { 
-  selectPostsLoading, 
+  selectIsPostsLoading, 
   selectPostsError, 
   setPostsLoading, 
   setPostsError, 
-  removePost
+  clearPost
 } from '@/store/posts';
 import { DASHBOARD_POSTS_PER_PAGE } from '@/constants';
 
 export const useDashboard = () => {
   const dispatch = useDispatch();
   const authUserId = useSelector(selectAuthUserId);
-  const postsLoading = useSelector(selectPostsLoading);
+  const postsLoading = useSelector(selectIsPostsLoading);
   const postsError = useSelector(selectPostsError);
 
   const [posts, setLocalPosts] = useState([]);
@@ -51,7 +51,6 @@ export const useDashboard = () => {
     if (!authUserId) return;
     try {
       dispatch(setPostsLoading(true));
-      dispatch(setPostsError(null));
 
       const data = await postService.getPostsByUserId(
         authUserId,
@@ -87,7 +86,7 @@ export const useDashboard = () => {
     setIsDeleting(true);
     try {
       await postService.deletePostById(postToDelete.$id);
-      dispatch(removePost(postToDelete.$id));
+      dispatch(clearPost(postToDelete.$id));
       setLocalPosts((prev) => prev.filter((p) => p.$id !== postToDelete.$id));
       setTotalPosts((prev) => Math.max(0, prev - 1));
       toast.success('Post deleted successfully!');

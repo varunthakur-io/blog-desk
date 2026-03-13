@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { postService } from '@/services/posts';
 import {
   selectAllPosts,
-  selectPostsLoading,
+  selectIsPostsLoading,
   selectPostsError,
   selectHasMore,
   selectPage,
@@ -11,8 +11,7 @@ import {
   setPostsError,
   setPosts,
   appendPosts,
-  setPage,
-  setHasMore,
+  setPagination,
   setInitialLoaded,
 } from '@/store/posts';
 import { POSTS_PER_PAGE } from '@/constants';
@@ -24,7 +23,7 @@ export const useHome = (categories) => {
 
   // Selectors from Redux
   const posts = useSelector(selectAllPosts);
-  const loading = useSelector(selectPostsLoading);
+  const loading = useSelector(selectIsPostsLoading);
   const error = useSelector(selectPostsError);
   const hasMore = useSelector(selectHasMore);
   const page = useSelector(selectPage);
@@ -35,9 +34,8 @@ export const useHome = (categories) => {
 
   const loadPage = useCallback(
     async (pageNum, categoryFilter = null) => {
-      if (loading) return; // Prevent concurrent requests
+      if (loading) return; 
       dispatch(setPostsLoading(true));
-      dispatch(setPostsError(null));
 
       try {
         const data = await postService.getAllPosts(
@@ -54,12 +52,9 @@ export const useHome = (categories) => {
           dispatch(appendPosts(docs));
         }
 
-        dispatch(setPage(pageNum));
-        dispatch(setHasMore(totalFetched < data.total));
+        dispatch(setPagination({ page: pageNum, hasMore: totalFetched < data.total }));
       } catch (err) {
         dispatch(setPostsError(err?.message ?? 'Failed to fetch posts'));
-      } finally {
-        dispatch(setPostsLoading(false));
       }
     },
     [dispatch, loading],
@@ -67,10 +62,10 @@ export const useHome = (categories) => {
 
   // Handle Initial Load or Category Changes
   useEffect(() => {
-    dispatch(setPage(1));
+    dispatch(setPagination({ page: 1 }));
     loadPage(1, selectedCategory);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCategory, dispatch]); // Intentional exclusion of loadPage to avoid infinite loops
+  }, [selectedCategory, dispatch]);
 
   // Infinite Scroll Listener
   useEffect(() => {

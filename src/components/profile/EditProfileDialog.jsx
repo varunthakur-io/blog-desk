@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/dialog';
 import { authService } from '@/services/auth';
 import { profileService } from '@/services/profile';
-import { upsertProfile } from '@/store/profile';
+import { setUserProfile } from '@/store/profile';
 
 const EditProfileDialog = ({ profile, profileId, isOwner }) => {
   const dispatch = useDispatch();
@@ -117,19 +117,19 @@ const EditProfileDialog = ({ profile, profileId, isOwner }) => {
     try {
       if (editForm.name !== displayName) {
         await authService.updateName(editForm.name);
-        dispatch(upsertProfile({ ...profile, name: editForm.name }));
+        dispatch(setUserProfile({ ...profile, name: editForm.name }));
       }
 
       if (editForm.bio !== displayBio) {
         await profileService.updateBio(profileId, editForm.bio);
-        dispatch(upsertProfile({ ...profile, bio: editForm.bio }));
+        dispatch(setUserProfile({ ...profile, bio: editForm.bio }));
       }
 
       if (avatarFileToUpload) {
         setStatus('uploading');
         const updatedProfile = await profileService.updateAvatar(profileId, profile?.avatarId, avatarFileToUpload);
         if (updatedProfile) {
-          dispatch(upsertProfile(updatedProfile));
+          dispatch(setUserProfile(updatedProfile));
         }
       }
 

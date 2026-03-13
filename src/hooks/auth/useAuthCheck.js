@@ -9,7 +9,7 @@ import {
   selectAuthStatus,
   selectAuthUserId,
 } from '../../store/auth';
-import { upsertProfile, selectProfileById } from '../../store/profile';
+import { setUserProfile, selectProfileById } from '../../store/profile';
 import { authService } from '../../services/auth';
 import { profileService } from '../../services/profile';
 
@@ -58,7 +58,7 @@ const useAuthCheck = () => {
         if (currentUserData && !hasProfile) {
           const profileDoc = await profileService.getProfile(currentUserData.$id);
           if (mountedRef.current && profileDoc) {
-            dispatch(upsertProfile(profileDoc));
+            dispatch(setUserProfile(profileDoc));
           }
         }
       } catch (err) {

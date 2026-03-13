@@ -6,7 +6,7 @@ import { debounce } from '@/lib/utils';
 import { authService } from '@/services/auth';
 import { profileService } from '@/services/profile';
 import { setAuthStatus, setAuthUser, setAuthError } from '@/store/auth';
-import { upsertProfile } from '@/store/profile';
+import { setUserProfile } from '@/store/profile';
 
 // Strict validation logic for user registration
 const validate = (data) => {
@@ -127,7 +127,7 @@ export const useSignup = () => {
 
       // Identity and Profile persistence
       dispatch(setAuthUser(user));
-      dispatch(upsertProfile(profile));
+      dispatch(setUserProfile(profile));
 
       toast.success('Account created successfully!');
       navigate('/');
