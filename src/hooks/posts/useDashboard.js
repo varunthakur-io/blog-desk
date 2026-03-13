@@ -71,7 +71,7 @@ export const useDashboard = () => {
     } finally {
       dispatch(setPostsLoading(false));
     }
-  }, [dispatch, authUserId, page, debouncedQuery, statusFilter, sortBy]);
+  }, [dispatch, authUserId, page, debouncedQuery, statusFilter, sortBy, LIMIT]);
 
   useEffect(() => {
     fetchUserPosts();
