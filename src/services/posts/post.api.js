@@ -35,7 +35,7 @@ class PostApi {
     );
   }
 
-  async deletePost(postId) {
+  async clearPost(postId) {
     return await databases.deleteDocument(
       appwrite.databaseId,
       appwrite.postsCollectionId,
