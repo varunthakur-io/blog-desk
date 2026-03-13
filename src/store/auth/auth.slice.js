@@ -2,7 +2,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  userId: null,
+  userId: null, // Derived for quick access
+  userData: null, // Full Appwrite user object { $id, email, name, etc. }
   loading: false,
   status: 'guest', // 'guest' | 'authenticated'
   error: null,
@@ -21,14 +22,16 @@ const authSlice = createSlice({
 
     // Called after login
     setAuthUserId(state, action) {
-      const userId = action.payload ?? null;
+      const user = action.payload ?? null;
 
-      state.userId = userId;
-      state.status = userId ? 'authenticated' : 'guest';
+      state.userData = user;
+      state.userId = user?.$id ?? null;
+      state.status = user ? 'authenticated' : 'guest';
       state.error = null;
     },
 
     clearAuthUserId(state) {
+      state.userData = null;
       state.userId = null;
       state.status = 'guest';
       state.error = null;
