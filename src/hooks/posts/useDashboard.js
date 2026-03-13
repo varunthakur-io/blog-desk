@@ -85,7 +85,7 @@ export const useDashboard = () => {
     if (!postToDelete) return;
     setIsDeleting(true);
     try {
-      await postService.deletePostById(postToDelete.$id);
+      await postService.clearPostById(postToDelete.$id);
       dispatch(clearPost(postToDelete.$id));
       setLocalPosts((prev) => prev.filter((p) => p.$id !== postToDelete.$id));
       setTotalPosts((prev) => Math.max(0, prev - 1));

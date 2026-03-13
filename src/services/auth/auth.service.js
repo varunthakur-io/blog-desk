@@ -16,74 +16,53 @@ class AuthService {
   }
 
   async createUser({ email, password, name, username }) {
-    try {
-      const createdUser = await authApi.createAccount(email, password, name);
+    const createdUser = await authApi.createAccount(email, password, name);
 
-      const maxRetries = 2;
-      let profileCreated = false;
+    const maxRetries = 2;
+    let profileCreated = false;
 
-      for (let attempt = 0; attempt <= maxRetries; attempt++) {
-        try {
-          await profileService.createProfile(createdUser, username);
-          profileCreated = true;
-          break;
-        } catch {
-          console.warn(`AuthService :: createUser() profile attempt ${attempt + 1} failed`);
-          if (attempt < maxRetries) {
-            await new Promise((r) => setTimeout(r, 300));
-          }
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        await profileService.createProfile(createdUser, username);
+        profileCreated = true;
+        break;
+      } catch {
+        if (attempt < maxRetries) {
+          await new Promise((r) => setTimeout(r, 300));
         }
       }
-
-      if (!profileCreated) {
-        throw new Error('Signup failed: could not create profile. Please try again.');
-      }
-
-      return await this.loginUser({ email, password });
-    } catch (error) {
-      console.error('AuthService :: createUser()', error);
-      throw error;
     }
+
+    if (!profileCreated) {
+      throw new Error('Signup failed: could not create profile. Please try again.');
+    }
+
+    return await this.loginUser({ email, password });
   }
 
   async loginUser({ email, password }) {
+    await authApi.createEmailPasswordSession(email, password);
+    const user = await authApi.getAccount();
+    
+    let profile = null;
     try {
-      await authApi.createEmailPasswordSession(email, password);
-      const user = await authApi.getAccount();
-      
-      let profile = null;
-      try {
-        profile = await profileService.getProfile(user.$id);
-      } catch {
-        console.warn('AuthService :: loginUser() Could not load profile');
-      }
-
-      this.cacheUser({ ...user, profile });
-      return { user, profile };
-    } catch (error) {
-      console.error('AuthService :: loginUser()', error);
-      throw error;
+      profile = await profileService.getProfile(user.$id);
+    } catch {
+      // Silently fail if profile can't be loaded, user session is still valid.
     }
+
+    this.cacheUser({ ...user, profile });
+    return { user, profile };
   }
 
   async logout() {
-    try {
-      await authApi.deleteSession('current');
-      this.clearCachedUser();
-    } catch (error) {
-      console.error('AuthService :: logout()', error);
-      throw new Error(error.message);
-    }
+    await authApi.deleteSession('current');
+    this.clearCachedUser();
   }
 
   async deleteAllSessions() {
-    try {
-      await authApi.deleteSessions();
-      this.clearCachedUser();
-    } catch (error) {
-      console.error('AuthService :: deleteAllSessions()', error);
-      throw new Error(error.message);
-    }
+    await authApi.deleteSessions();
+    this.clearCachedUser();
   }
 
   async getAccount() {
@@ -108,56 +87,36 @@ class AuthService {
   }
 
   async updateName(name) {
-    try {
-      const user = await authApi.updateName(name);
-      await profileService.updateProfile(user.$id, { name });
-      const cached = this.getCachedUser() || {};
-      this.cacheUser({ ...cached, ...user, name });
-      return user;
-    } catch (error) {
-      console.error('AuthService :: updateName()', error);
-      throw error;
-    }
+    const user = await authApi.updateName(name);
+    await profileService.updateProfile(user.$id, { name });
+    const cached = this.getCachedUser() || {};
+    this.cacheUser({ ...cached, ...user, name });
+    return user;
   }
 
   async updateEmail(email, password) {
-    try {
-      const user = await authApi.updateEmail(email, password);
-      const cached = this.getCachedUser() || {};
-      this.cacheUser({ ...cached, ...user });
-      return user.email;
-    } catch (error) {
-      console.error('AuthService :: updateEmail()', error);
-      throw error;
-    }
+    const user = await authApi.updateEmail(email, password);
+    const cached = this.getCachedUser() || {};
+    this.cacheUser({ ...cached, ...user });
+    return user.email;
   }
 
   async updatePrefs(prefs) {
-    try {
-      const updatedUser = await authApi.updatePrefs(prefs);
-      const cached = this.getCachedUser() || {};
-      this.cacheUser({ ...cached, ...updatedUser });
-      return updatedUser;
-    } catch (error) {
-      console.error('AuthService :: updatePrefs()', error);
-      throw error;
-    }
+    const updatedUser = await authApi.updatePrefs(prefs);
+    const cached = this.getCachedUser() || {};
+    this.cacheUser({ ...cached, ...updatedUser });
+    return updatedUser;
   }
 
   async deleteAccount() {
+    await authApi.updateStatus();
     try {
-      await authApi.updateStatus();
-      try {
-        const currentUser = await authApi.getAccount();
-        await profileService.deleteProfile(currentUser.$id);
-      } catch (error) {
-        console.warn('AuthService :: deleteAccount() Error deleting profile:', error);
-      }
-      this.clearCachedUser();
-    } catch (error) {
-      console.error('AuthService :: deleteAccount()', error);
-      throw new Error(error.message || 'Failed to delete account.');
+      const currentUser = await authApi.getAccount();
+      await profileService.clearProfileById(currentUser.$id);
+    } catch {
+      // Continue even if profile deletion fails
     }
+    this.clearCachedUser();
   }
 }
 
