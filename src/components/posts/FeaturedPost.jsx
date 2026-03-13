@@ -23,75 +23,75 @@ const FeaturedPost = ({ post }) => {
   });
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border bg-background/50 backdrop-blur-sm transition-all hover:shadow-md">
-      <div
-        className={`grid gap-8 ${post.postImageURL ? 'lg:grid-cols-2' : 'grid-cols-1'} lg:gap-0`}
-      >
-        {/* Content Side */}
-        <div className="flex flex-col justify-center p-8 sm:p-10 lg:p-12">
-          <div className="flex items-center gap-3 mb-6">
-            <Badge
-              variant="secondary"
-              className="px-3 py-1 text-sm font-medium capitalize"
-            >
-              {post.category || 'Featured'}
-            </Badge>
-            <div className="flex items-center text-sm text-muted-foreground">
-              <Clock className="mr-1.5 h-4 w-4" />
-              {readTime} min read
-            </div>
-          </div>
+    <div className="relative overflow-hidden rounded-3xl border h-[420px] group">
+      {/* Background Layer */}
+      {post.postImageURL ? (
+        <img
+          src={post.postImageURL}
+          alt={post.title}
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+        />
+      ) : (
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-slate-900 to-slate-900" />
+      )}
 
-          <Link to={`/posts/${post.$id}`} className="group block mb-4">
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight leading-tight group-hover:text-primary transition-colors">
-              {post.title}
-            </h2>
-          </Link>
+      {/* Modern Gradient Overlay for Readability */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
 
-          <p className="text-muted-foreground text-lg leading-relaxed mb-8 line-clamp-3">
-            {plainContent}
-          </p>
+      {/* Content */}
+      <div className="relative h-full flex flex-col justify-end p-8 sm:p-10 text-white">
+        <div className="flex items-center gap-3 mb-4">
+          <Badge className="bg-white/90 text-black capitalize">
+            {post.category || 'Featured'}
+          </Badge>
 
-          <div className="mt-auto flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                {authorName?.charAt(0).toUpperCase() || 'A'}
-              </div>
-              <div className="flex flex-col text-sm">
-                <span className="font-semibold text-foreground">
-                  {authorName || 'Anonymous'}
-                </span>
-                <div className="flex items-center text-muted-foreground">
-                  <Calendar className="mr-1.5 h-3.5 w-3.5" />
-                  <time dateTime={post.$createdAt}>
-                    {new Date(post.$createdAt).toLocaleDateString('en-US', {
-                      month: 'long',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}
-                  </time>
-                </div>
-              </div>
-            </div>
-
-            <Button asChild className="rounded-full px-6">
-              <Link to={`/posts/${post.$id}`}>
-                Read Story <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
+          <div className="flex items-center text-sm text-white/80">
+            <Clock className="mr-1.5 h-4 w-4" />
+            {readTime} min read
           </div>
         </div>
 
-        {/* Visual Side */}
-        {post.postImageURL && (
-          <div className="relative min-h-80 bg-muted/30 lg:min-h-full">
-            <img
-              src={post.postImageURL}
-              alt={post.title}
-              className="absolute inset-0 w-full h-full object-cover"
-            />
+        <Link to={`/posts/${post.$id}`} className="group block">
+          <h2 className="text-3xl sm:text-4xl font-bold leading-tight mb-3 group-hover:underline">
+            {post.title}
+          </h2>
+        </Link>
+
+        <p className="text-white/80 line-clamp-2 mb-6 max-w-2xl">
+          {plainContent}
+        </p>
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center font-bold">
+              {authorName?.charAt(0).toUpperCase() || 'A'}
+            </div>
+
+            <div className="flex flex-col text-sm">
+              <span className="font-semibold">{authorName || 'Anonymous'}</span>
+
+              <div className="flex items-center text-white/70">
+                <Calendar className="mr-1.5 h-3.5 w-3.5" />
+                <time dateTime={post.$createdAt}>
+                  {new Date(post.$createdAt).toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })}
+                </time>
+              </div>
+            </div>
           </div>
-        )}
+
+          <Button
+            asChild
+            className="rounded-full bg-white text-black hover:bg-white/90"
+          >
+            <Link to={`/posts/${post.$id}`}>
+              Read Story <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
       </div>
     </div>
   );
