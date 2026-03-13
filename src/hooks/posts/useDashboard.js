@@ -11,6 +11,7 @@ import {
   setPostsError, 
   removePost
 } from '@/store/posts';
+import { DASHBOARD_POSTS_PER_PAGE } from '@/constants';
 
 export const useDashboard = () => {
   const dispatch = useDispatch();
@@ -30,7 +31,7 @@ export const useDashboard = () => {
   const [sortBy, setSortBy] = useState('newest');
   const [totalPages, setTotalPages] = useState(1);
   const [totalPosts, setTotalPosts] = useState(0);
-  const LIMIT = 5;
+  const LIMIT = DASHBOARD_POSTS_PER_PAGE;
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleSearchDebounce = useCallback(

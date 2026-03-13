@@ -15,8 +15,9 @@ import {
   setHasMore,
   setInitialLoaded,
 } from '@/store/posts';
+import { POSTS_PER_PAGE } from '@/constants';
 
-const LIMIT = 6;
+const LIMIT = POSTS_PER_PAGE;
 
 export const useHome = (categories) => {
   const dispatch = useDispatch();
