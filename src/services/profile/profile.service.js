@@ -3,21 +3,11 @@ import { storageService } from '../storage';
 
 class ProfileService {
   async getProfile(userId) {
-    try {
-      return await profileApi.getProfile(userId);
-    } catch (error) {
-      console.error('ProfileService :: getProfile()', error);
-      throw error;
-    }
+    return await profileApi.getProfile(userId);
   }
 
   async getProfileByUsername(username) {
-    try {
-      return await profileApi.getProfileByUsername(username);
-    } catch (error) {
-      console.error('ProfileService :: getProfileByUsername()', error);
-      throw error;
-    }
+    return await profileApi.getProfileByUsername(username);
   }
 
   async createProfile(user, username) {
@@ -34,53 +24,35 @@ class ProfileService {
   }
 
   async updateProfile(userId, profileData) {
-    try {
-      return await profileApi.updateProfile(userId, profileData);
-    } catch (error) {
-      console.error('ProfileService :: updateProfile()', error);
-      throw error;
-    }
+    return await profileApi.updateProfile(userId, profileData);
   }
 
   async updateBio(userId, bio) {
-    try {
-      await profileApi.updateProfile(userId, { bio });
-      return true;
-    } catch (error) {
-      console.error('ProfileService :: updateBio()', error);
-      throw error;
-    }
+    await profileApi.updateProfile(userId, { bio });
+    return true;
   }
 
   async updateAvatar(userId, currentAvatarFileId, file) {
-    try {
-      const { fileId, fileUrl } = await storageService.uploadFileWithReplacement(file, currentAvatarFileId);
+    const { fileId, fileUrl } = await storageService.uploadFileWithReplacement(file, currentAvatarFileId);
 
-      const updatedProfile = await this.updateProfile(userId, {
-        avatarId: fileId,
-        avatarUrl: fileUrl,
-      });
-      return updatedProfile;
-    } catch (error) {
-      console.error('ProfileService :: updateAvatar()', error);
-      throw error;
-    }
+    return await this.updateProfile(userId, {
+      avatarId: fileId,
+      avatarUrl: fileUrl,
+    });
   }
 
   async isUsernameAvailable(username) {
     try {
       return await profileApi.checkUsernameAvailable(username);
-    } catch (error) {
-      console.error('ProfileService :: isUsernameAvailable()', error);
+    } catch {
       return false;
     }
   }
 
-  async deleteProfile(userId) {
+  async clearProfileById(userId) {
     try {
-      return await profileApi.deleteProfile(userId);
-    } catch (error) {
-      console.warn('ProfileService :: deleteProfile()', error);
+      return await profileApi.clearProfile(userId);
+    } catch {
       return false;
     }
   }

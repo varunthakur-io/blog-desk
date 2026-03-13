@@ -31,7 +31,7 @@ class ProfileApi {
     );
   }
 
-  async deleteProfile(userId) {
+  async clearProfile(userId) {
     return await databases.deleteDocument(
       appwrite.databaseId,
       'profiles',
