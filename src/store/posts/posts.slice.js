@@ -6,25 +6,29 @@ const initialState = {
   allIds: [],  // list of postIds in feed order
   status: 'idle', // 'idle' | 'loading' | 'error' | 'success'
   error: null,
-  page: 1,
-  hasMore: true,
-  initialLoaded: false,
+  
+  // Grouped Metadata
+  pagination: {
+    page: 1,
+    hasMore: true,
+    initialLoaded: false,
+  },
 };
 
 const postsSlice = createSlice({
   name: 'posts',
   initialState,
   reducers: {
-    setPostsLoading(state, action) {
-      state.status = action.payload ? 'loading' : state.status;
+    setPostsStatus(state, action) {
+      state.status = action.payload || 'idle';
       state.error = null;
     },
     setPostsError(state, action) {
       state.status = 'error';
       state.error = action.payload || 'Failed to load posts';
     },
-    // Replace current list with fresh data
-    setPosts(state, action) {
+    // Syncs a full list (replaces current cache)
+    setPostList(state, action) {
       const posts = action.payload || [];
       state.byId = {};
       state.allIds = [];
@@ -36,10 +40,10 @@ const postsSlice = createSlice({
         state.allIds.push(id);
       }
       state.status = 'success';
-      state.initialLoaded = true;
+      state.pagination.initialLoaded = true;
     },
-    // Add page to existing list
-    appendPosts(state, action) {
+    // Adds a new page of posts to the end
+    appendPostPage(state, action) {
       const posts = action.payload || [];
 
       for (const post of posts) {
@@ -54,8 +58,8 @@ const postsSlice = createSlice({
       }
       state.status = 'success';
     },
-    // Update or create single post
-    setPost(state, action) {
+    // Syncs a single post object (create/update/detail)
+    setPostDetail(state, action) {
       const post = action.payload;
       if (!post?.$id) return;
 
@@ -64,39 +68,36 @@ const postsSlice = createSlice({
 
       state.byId[id] = post;
       if (!exists) {
-        state.allIds.unshift(id);
+        state.allIds.unshift(id); // New post to top
       }
       state.status = 'success';
     },
-    // Remove post from list
-    clearPost(state, action) {
+    // Deletes a specific post record
+    clearPostRecord(state, action) {
       const id = String(action.payload);
       if (!state.byId[id]) return;
 
       delete state.byId[id];
       state.allIds = state.allIds.filter((pid) => pid !== id);
     },
-    // Control pagination and flags
-    setPagination(state, action) {
-      const { page, hasMore } = action.payload;
-      if (page !== undefined) state.page = page;
-      if (hasMore !== undefined) state.hasMore = hasMore;
+    // Updates pagination metadata
+    setPostPagination(state, action) {
+      state.pagination = {
+        ...state.pagination,
+        ...action.payload,
+      };
     },
-    setInitialLoaded(state, action) {
-      state.initialLoaded = !!action.payload;
-    }
   },
 });
 
 export const {
-  setPostsLoading,
+  setPostsStatus,
   setPostsError,
-  setPosts,
-  appendPosts,
-  setPost,
-  clearPost,
-  setPagination,
-  setInitialLoaded,
+  setPostList,
+  appendPostPage,
+  setPostDetail,
+  clearPostRecord,
+  setPostPagination,
 } = postsSlice.actions;
 
 export default postsSlice.reducer;

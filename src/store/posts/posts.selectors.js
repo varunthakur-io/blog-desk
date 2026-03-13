@@ -39,8 +39,23 @@ export const selectPostsError = createSelector(
   (postsState) => postsState.error,
 );
 
-// Simple scalar selectors
-export const selectPage = (state) => selectPostsState(state).page;
-export const selectHasMore = (state) => selectPostsState(state).hasMore;
-export const selectInitialLoaded = (state) =>
-  selectPostsState(state).initialLoaded;
+// Pagination Selectors (Drilling into nested object)
+const selectPagination = createSelector(
+  [selectPostsState],
+  (postsState) => postsState.pagination
+);
+
+export const selectPage = createSelector(
+  [selectPagination],
+  (pagination) => pagination.page
+);
+
+export const selectHasMore = createSelector(
+  [selectPagination],
+  (pagination) => pagination.hasMore
+);
+
+export const selectInitialLoaded = createSelector(
+  [selectPagination],
+  (pagination) => pagination.initialLoaded
+);
