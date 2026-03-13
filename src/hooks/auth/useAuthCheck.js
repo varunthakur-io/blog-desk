@@ -60,7 +60,7 @@ const useAuthCheck = () => {
 
           if (currentUser) {
             currentUserId = currentUser.$id;
-            dispatch(setAuthUserId(currentUserId));
+            dispatch(setAuthUserId(currentUser));
           } else {
             // No session found -> User is Guest
             dispatch(clearAuthUserId());

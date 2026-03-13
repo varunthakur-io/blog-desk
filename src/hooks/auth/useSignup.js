@@ -132,7 +132,7 @@ export const useSignup = () => {
     try {
       const { user, profile } = await authService.createUser(formData);
 
-      dispatch(setAuthUserId(user.$id));
+      dispatch(setAuthUserId(user));
       dispatch(upsertProfile(profile));
 
       toast.success('Account created successfully!');

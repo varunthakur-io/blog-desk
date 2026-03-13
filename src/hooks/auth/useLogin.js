@@ -89,7 +89,7 @@ export const useLogin = () => {
       const { user, profile } = await authService.loginUser(formData);
 
       // Update Global State
-      dispatch(setAuthUserId(user.$id));
+      dispatch(setAuthUserId(user));
       dispatch(upsertProfile(profile));
 
       toast.success(`Welcome back, ${user.name || 'friend'}!`);
