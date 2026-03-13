@@ -1,12 +1,10 @@
 import { createSelector } from '@reduxjs/toolkit';
 
-/* ========= Base slice selector ========= */
 const selectAuthState = (state) => state.auth;
 
-/* ========= Memoized selectors ========= */
-export const selectAuthUserId = createSelector(
+export const selectAuthUser = createSelector(
   [selectAuthState],
-  (authState) => authState.userId,
+  (authState) => authState.user,
 );
 
 export const selectAuthStatus = createSelector(
@@ -14,12 +12,28 @@ export const selectAuthStatus = createSelector(
   (authState) => authState.status,
 );
 
-export const selectAuthLoading = createSelector(
+export const selectIsAuthInitialized = createSelector(
   [selectAuthState],
-  (authState) => authState.loading,
+  (authState) => authState.initialized,
+);
+
+export const selectAuthUserId = createSelector(
+  [selectAuthUser],
+  (user) => user?.$id || null,
 );
 
 export const selectAuthError = createSelector(
   [selectAuthState],
   (authState) => authState.error,
+);
+
+// Boolean Helpers
+export const selectIsAuthLoading = createSelector(
+  [selectAuthStatus],
+  (status) => status === 'loading',
+);
+
+export const selectIsAuthenticated = createSelector(
+  [selectAuthStatus],
+  (status) => status === 'authenticated',
 );

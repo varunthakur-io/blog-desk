@@ -2,10 +2,9 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  userId: null, // Derived for quick access
-  userData: null, // Full Appwrite user object { $id, email, name, etc. }
-  loading: false,
-  status: 'guest', // 'guest' | 'authenticated'
+  user: null,
+  status: 'idle',
+  initialized: false,
   error: null,
 };
 
@@ -13,33 +12,34 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setAuthLoading(state, action) {
-      state.loading = action.payload;
+    // Sets the specific auth phase ('idle' | 'loading' | etc.)
+    setAuthStatus(state, action) {
+      state.status = action.payload || 'idle';
+      state.error = null;
+    },
+    setAuthUser(state, action) {
+      const user = action.payload ?? null;
+      state.user = user;
+      state.status = user ? 'authenticated' : 'guest';
+      state.initialized = true;
+      state.error = null;
     },
     setAuthError(state, action) {
+      state.user = null;
+      state.status = 'guest';
       state.error = action.payload || null;
+      state.initialized = true;
     },
-
-    // Called after login
-    setAuthUserId(state, action) {
-      const user = action.payload ?? null;
-
-      state.userData = user;
-      state.userId = user?.$id ?? null;
-      state.status = user ? 'authenticated' : 'guest';
-      state.error = null;
-    },
-
-    clearAuthUserId(state) {
-      state.userData = null;
-      state.userId = null;
+    clearAuthUser(state) {
+      state.user = null;
       state.status = 'guest';
       state.error = null;
+      state.initialized = true;
     },
   },
 });
 
-export const { setAuthLoading, setAuthError, setAuthUserId, clearAuthUserId } =
+export const { setAuthStatus, setAuthUser, setAuthError, clearAuthUser } =
   authSlice.actions;
 
 export default authSlice.reducer;
