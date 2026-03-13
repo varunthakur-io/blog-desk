@@ -4,6 +4,7 @@ import { createSelector } from '@reduxjs/toolkit';
 const selectProfileState = (state) => state.profile;
 
 /* ========= Memoized selectors ========= */
+
 export const selectProfileById = createSelector(
   [selectProfileState, (_, userId) => userId],
   (profileState, userId) => {
@@ -12,11 +13,11 @@ export const selectProfileById = createSelector(
   },
 );
 
-export const selectProfileLoading = createSelector(
+export const selectProfileStatus = createSelector(
   [selectProfileState, (_, userId) => userId],
   (profileState, userId) => {
-    if (!userId) return false;
-    return !!profileState.loadingById[String(userId)];
+    if (!userId) return 'idle';
+    return profileState.statusById[String(userId)] || 'idle';
   },
 );
 
@@ -26,4 +27,10 @@ export const selectProfileError = createSelector(
     if (!userId) return null;
     return profileState.errorById[String(userId)] || null;
   },
+);
+
+// Boolean Helpers
+export const selectIsProfileLoading = createSelector(
+  [selectProfileStatus],
+  (status) => status === 'loading',
 );

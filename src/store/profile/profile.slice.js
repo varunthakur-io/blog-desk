@@ -2,49 +2,54 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  byId: {
-    // [userId]: { $id, name, bio, avatarUrl, followersCount, ... }
-  },
-  loadingById: {
-    // [userId]: boolean
-  },
-  errorById: {
-    // [userId]: string | null
-  },
+  byId: {},        // userId -> profile object
+  statusById: {},  // userId -> 'idle' | 'loading' | 'error' | 'success'
+  errorById: {},   // userId -> string | null
 };
 
 const profileSlice = createSlice({
   name: 'profile',
   initialState,
   reducers: {
-    upsertProfile(state, action) {
+    setProfileLoading(state, action) {
+      const userId = String(action.payload);
+      state.statusById[userId] = 'loading';
+      state.errorById[userId] = null;
+    },
+    // Sets the User Profile object
+    setUserProfile(state, action) {
       const profile = action.payload;
       if (!profile?.$id) return;
 
       const id = String(profile.$id);
-
-      // Merge with existing (so we can add custom fields like likedPosts, posts, etc.)
       state.byId[id] = {
         ...(state.byId[id] || {}),
         ...profile,
       };
+      state.statusById[id] = 'success';
+      state.errorById[id] = null;
     },
-
-    setProfileLoading(state, action) {
-      const { userId, loading } = action.payload;
-      if (!userId) return;
-      state.loadingById[String(userId)] = !!loading;
-    },
-
     setProfileError(state, action) {
       const { userId, error } = action.payload;
-      if (!userId) return;
-      state.errorById[String(userId)] = error || null;
+      const id = String(userId);
+      state.statusById[id] = 'error';
+      state.errorById[id] = error || null;
+    },
+    // Removes the User Profile from cache
+    clearUserProfile(state, action) {
+      const id = String(action.payload);
+      delete state.byId[id];
+      delete state.statusById[id];
+      delete state.errorById[id];
     },
   },
 });
 
-export const { upsertProfile, setProfileLoading, setProfileError } =
-  profileSlice.actions;
+export const {
+  setProfileLoading,
+  setUserProfile,
+  setProfileError,
+  clearUserProfile,
+} = profileSlice.actions;
 
 export default profileSlice.reducer;
