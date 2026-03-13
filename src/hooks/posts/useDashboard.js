@@ -7,9 +7,9 @@ import { selectAuthUserId } from '@/store/auth';
 import { 
   selectIsPostsLoading, 
   selectPostsError, 
-  setPostsLoading, 
+  setPostsStatus, 
   setPostsError, 
-  clearPost
+  clearPostRecord
 } from '@/store/posts';
 import { DASHBOARD_POSTS_PER_PAGE } from '@/constants';
 
@@ -33,6 +33,7 @@ export const useDashboard = () => {
   const [totalPosts, setTotalPosts] = useState(0);
   const LIMIT = DASHBOARD_POSTS_PER_PAGE;
 
+  // Search logic
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleSearchDebounce = useCallback(
     debounce((query) => {
@@ -50,7 +51,7 @@ export const useDashboard = () => {
   const fetchUserPosts = useCallback(async () => {
     if (!authUserId) return;
     try {
-      dispatch(setPostsLoading(true));
+      dispatch(setPostsStatus('loading'));
 
       const data = await postService.getPostsByUserId(
         authUserId,
@@ -65,10 +66,9 @@ export const useDashboard = () => {
       setLocalPosts(docs);
       setTotalPosts(data.total);
       setTotalPages(Math.ceil(data.total / LIMIT));
+      dispatch(setPostsStatus('success'));
     } catch (err) {
       dispatch(setPostsError(err?.message || 'Failed to fetch posts'));
-    } finally {
-      dispatch(setPostsLoading(false));
     }
   }, [dispatch, authUserId, page, debouncedQuery, statusFilter, sortBy, LIMIT]);
 
@@ -76,6 +76,7 @@ export const useDashboard = () => {
     fetchUserPosts();
   }, [fetchUserPosts]);
 
+  // Delete logic
   const handleDeleteClick = useCallback((post) => {
     setPostToDelete(post);
     setIsDeleteDialogOpen(true);
@@ -86,7 +87,7 @@ export const useDashboard = () => {
     setIsDeleting(true);
     try {
       await postService.clearPostById(postToDelete.$id);
-      dispatch(clearPost(postToDelete.$id));
+      dispatch(clearPostRecord(postToDelete.$id));
       setLocalPosts((prev) => prev.filter((p) => p.$id !== postToDelete.$id));
       setTotalPosts((prev) => Math.max(0, prev - 1));
       toast.success('Post deleted successfully!');

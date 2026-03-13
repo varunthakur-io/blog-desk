@@ -7,12 +7,11 @@ import {
   selectPostsError,
   selectHasMore,
   selectPage,
-  setPostsLoading,
+  setPostsStatus,
   setPostsError,
-  setPosts,
-  appendPosts,
-  setPagination,
-  setInitialLoaded,
+  setPostList,
+  appendPostPage,
+  setPostPagination,
 } from '@/store/posts';
 import { POSTS_PER_PAGE } from '@/constants';
 
@@ -21,21 +20,21 @@ const LIMIT = POSTS_PER_PAGE;
 export const useHome = (categories) => {
   const dispatch = useDispatch();
 
-  // Selectors from Redux
+  // Redux Selectors
   const posts = useSelector(selectAllPosts);
   const loading = useSelector(selectIsPostsLoading);
   const error = useSelector(selectPostsError);
   const hasMore = useSelector(selectHasMore);
   const page = useSelector(selectPage);
 
-  // Local state for UI filters
+  // Local UI State
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
 
   const loadPage = useCallback(
     async (pageNum, categoryFilter = null) => {
       if (loading) return; 
-      dispatch(setPostsLoading(true));
+      dispatch(setPostsStatus('loading'));
 
       try {
         const data = await postService.getAllPosts(
@@ -47,12 +46,12 @@ export const useHome = (categories) => {
         const totalFetched = (pageNum - 1) * LIMIT + docs.length;
 
         if (pageNum === 1) {
-          dispatch(setPosts(docs));
+          dispatch(setPostList(docs));
         } else {
-          dispatch(appendPosts(docs));
+          dispatch(appendPostPage(docs));
         }
 
-        dispatch(setPagination({ page: pageNum, hasMore: totalFetched < data.total }));
+        dispatch(setPostPagination({ page: pageNum, hasMore: totalFetched < data.total }));
       } catch (err) {
         dispatch(setPostsError(err?.message ?? 'Failed to fetch posts'));
       }
@@ -60,14 +59,14 @@ export const useHome = (categories) => {
     [dispatch, loading],
   );
 
-  // Handle Initial Load or Category Changes
+  // Initial Load / Filter Change
   useEffect(() => {
-    dispatch(setPagination({ page: 1 }));
+    dispatch(setPostPagination({ page: 1 }));
     loadPage(1, selectedCategory);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCategory, dispatch]);
 
-  // Infinite Scroll Listener
+  // Infinite Scroll Observer
   useEffect(() => {
     const handleScroll = () => {
       const { innerHeight } = window;
@@ -87,7 +86,7 @@ export const useHome = (categories) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [loading, hasMore, page, loadPage, searchTerm, selectedCategory]);
 
-  // Filtered display list
+  // Client-side search filtering
   const filteredPosts = useMemo(() => {
     if (!searchTerm.trim()) return posts;
     
@@ -103,13 +102,13 @@ export const useHome = (categories) => {
     if (category === selectedCategory) return;
     setSelectedCategory(category);
     setSearchTerm('');
-    dispatch(setInitialLoaded(false));
+    dispatch(setPostPagination({ initialLoaded: false }));
   }, [selectedCategory, dispatch]);
 
   const handleSearchChange = useCallback((e) => {
     setSearchTerm(e.target.value);
     setSelectedCategory('All');
-    dispatch(setInitialLoaded(false));
+    dispatch(setPostPagination({ initialLoaded: false }));
   }, [dispatch]);
 
   return {

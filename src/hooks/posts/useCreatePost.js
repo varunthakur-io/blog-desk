@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { postService } from '@/services/posts';
-import { setPost } from '@/store/posts';
+import { setPostDetail } from '@/store/posts';
 import { selectAuthUserId } from '@/store/auth';
 
 export const useCreatePost = () => {
@@ -37,7 +37,7 @@ export const useCreatePost = () => {
       });
 
       if (newPost) {
-        dispatch(setPost(newPost));
+        dispatch(setPostDetail(newPost));
       }
 
       setStatus('idle');

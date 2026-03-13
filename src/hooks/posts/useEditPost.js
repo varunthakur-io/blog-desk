@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import { postService } from '@/services/posts';
-import { selectPostById, setPost } from '@/store/posts';
+import { selectPostById, setPostDetail } from '@/store/posts';
 
 export const useEditPost = () => {
   const { id } = useParams();
@@ -52,7 +52,7 @@ export const useEditPost = () => {
             published: data.published ?? true,
             postImageURL: data.postImageURL || null,
           });
-          dispatch(setPost(data));
+          dispatch(setPostDetail(data));
           setFetchStatus('success');
         } else {
           setError('Post not found.');
@@ -92,7 +92,7 @@ export const useEditPost = () => {
       });
 
       if (updatedPost && updatedPost.$id) {
-        dispatch(setPost(updatedPost));
+        dispatch(setPostDetail(updatedPost));
         setSubmitStatus('success');
         toast.success('Post updated successfully!');
         navigate('/dashboard');

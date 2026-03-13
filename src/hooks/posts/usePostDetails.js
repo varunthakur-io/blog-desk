@@ -6,7 +6,7 @@ import { postService } from '@/services/posts';
 import { likeService } from '@/services/likes';
 import { commentService } from '@/services/comments';
 import { profileService } from '@/services/profile';
-import { selectPostById, setPost } from '@/store/posts';
+import { selectPostById, setPostDetail } from '@/store/posts';
 import { selectAuthUserId } from '@/store/auth';
 import { selectProfileById, setUserProfile } from '@/store/profile';
 
@@ -64,7 +64,7 @@ export const usePostDetails = () => {
         const fetched = await postService.getPostById(id);
         if (!mounted) return;
         if (fetched) {
-          dispatch(setPost(fetched));
+          dispatch(setPostDetail(fetched));
           setStatus('success');
           if (fetched.authorId) {
             profileService.getProfile(fetched.authorId)
