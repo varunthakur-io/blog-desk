@@ -4,27 +4,46 @@ import { useParams } from 'react-router-dom';
 import { profileService } from '@/services/profile';
 import { postService } from '@/services/posts';
 import { likeService } from '@/services/likes';
-import { selectAuthUserId, selectAuthLoading } from '@/store/auth';
-import { selectProfileById, selectProfileLoading, selectProfileError } from '@/store/profile';
-import { upsertProfile, setProfileLoading, setProfileError } from '@/store/profile';
-import { selectPostsByAuthor, selectPostsLoading, selectInitialLoaded } from '@/store/posts';
-import { setPostsLoading, setPostsError, setPosts, setInitialLoaded } from '@/store/posts';
+import { selectAuthUserId, selectIsAuthLoading } from '@/store/auth';
+import {
+  selectProfileById,
+  selectProfileLoading,
+  selectProfileError,
+} from '@/store/profile';
+import {
+  upsertProfile,
+  setProfileLoading,
+  setProfileError,
+} from '@/store/profile';
+import {
+  selectPostsByAuthor,
+  selectPostsLoading,
+  selectInitialLoaded,
+} from '@/store/posts';
+import {
+  setPostsLoading,
+  setPostsError,
+  setPosts,
+  setInitialLoaded,
+} from '@/store/posts';
 
 export const useProfile = () => {
   const dispatch = useDispatch();
   const { username } = useParams();
 
   const authUserId = useSelector(selectAuthUserId);
-  const authLoading = useSelector(selectAuthLoading);
-  // Get the current user's email from auth state (userData holds the full object)
-  const authUserEmail = useSelector((state) => state.auth.userData?.email);
+  const authLoading = useSelector(selectIsAuthLoading);
+  // Get the current user's email from auth state (user holds the full object)
+  const authUserEmail = useSelector((state) => state.auth.user?.email);
 
   const [localProfile, setLocalProfile] = useState(null);
-  
+
   // Status states
-  const [usernameFetchStatus, setUsernameFetchStatus] = useState(username ? 'loading' : 'idle');
+  const [usernameFetchStatus, setUsernameFetchStatus] = useState(
+    username ? 'loading' : 'idle',
+  );
   const [likesFetchStatus, setLikesFetchStatus] = useState('idle');
-  
+
   const [usernameFetchError, setUsernameFetchError] = useState(null);
   const [likesError, setLikesError] = useState('');
 
@@ -42,7 +61,8 @@ export const useProfile = () => {
     const fetchByUsername = async () => {
       setUsernameFetchStatus('loading');
       try {
-        const fetchedProfile = await profileService.getProfileByUsername(username);
+        const fetchedProfile =
+          await profileService.getProfileByUsername(username);
         if (cancelled) return;
         if (fetchedProfile) {
           setLocalProfile(fetchedProfile);
@@ -60,31 +80,47 @@ export const useProfile = () => {
       }
     };
     fetchByUsername();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [username, dispatch]);
 
   const profileId = username ? localProfile?.$id : authUserId;
   const isOwner = !!authUserId && authUserId === profileId;
 
-  const reduxProfile = useSelector((state) => selectProfileById(state, profileId));
-  const profileLoading = useSelector((state) => selectProfileLoading(state, profileId));
-  const profileError = useSelector((state) => selectProfileError(state, profileId));
+  const reduxProfile = useSelector((state) =>
+    selectProfileById(state, profileId),
+  );
+  const profileLoading = useSelector((state) =>
+    selectProfileLoading(state, profileId),
+  );
+  const profileError = useSelector((state) =>
+    selectProfileError(state, profileId),
+  );
   const profile = reduxProfile || localProfile;
 
   const initialPostsLoaded = useSelector(selectInitialLoaded);
   const postsLoading = useSelector(selectPostsLoading);
-  const userPosts = useSelector((state) => selectPostsByAuthor(state, profileId));
+  const userPosts = useSelector((state) =>
+    selectPostsByAuthor(state, profileId),
+  );
 
   // Derived Values
   const displayName = profile?.name || 'Unnamed User';
   const displayEmail = isOwner ? authUserEmail : '';
   const displayBio = profile?.bio || '';
   const avatarUrl = profile?.avatarUrl || null;
-  const joinedDate = profile?.$createdAt ? new Date(profile.$createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : '—';
+  const joinedDate = profile?.$createdAt
+    ? new Date(profile.$createdAt).toLocaleDateString('en-US', {
+        month: 'long',
+        year: 'numeric',
+      })
+    : '—';
 
   // 2. Load profile data
   useEffect(() => {
-    if (!profileId || (isOwner && authLoading) || (profile && !profileError)) return;
+    if (!profileId || (isOwner && authLoading) || (profile && !profileError))
+      return;
     let cancelled = false;
     const loadProfile = async () => {
       dispatch(setProfileLoading({ userId: profileId, loading: true }));
@@ -92,13 +128,22 @@ export const useProfile = () => {
         const profileObj = await profileService.getProfile(profileId);
         if (!cancelled) dispatch(upsertProfile(profileObj));
       } catch (err) {
-        if (!cancelled) dispatch(setProfileError({ userId: profileId, error: err?.message || 'Failed to load profile.' }));
+        if (!cancelled)
+          dispatch(
+            setProfileError({
+              userId: profileId,
+              error: err?.message || 'Failed to load profile.',
+            }),
+          );
       } finally {
-        if (!cancelled) dispatch(setProfileLoading({ userId: profileId, loading: false }));
+        if (!cancelled)
+          dispatch(setProfileLoading({ userId: profileId, loading: false }));
       }
     };
     loadProfile();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [dispatch, profileId, profile, profileError, isOwner, authLoading]);
 
   // 3. Load posts effect
@@ -114,13 +159,16 @@ export const useProfile = () => {
         dispatch(setPosts(posts));
         dispatch(setInitialLoaded(true));
       } catch (err) {
-        if (!cancelled) dispatch(setPostsError(err?.message || 'Failed to fetch posts.'));
+        if (!cancelled)
+          dispatch(setPostsError(err?.message || 'Failed to fetch posts.'));
       } finally {
         if (!cancelled) dispatch(setPostsLoading(false));
       }
     };
     fetchPostsOnce();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [dispatch, initialPostsLoaded]);
 
   // 4. Load likes effect
@@ -143,18 +191,32 @@ export const useProfile = () => {
       }
     };
     fetchLikedPosts();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [activeTab, isOwner, profileId]);
 
   return {
-    profileId, isOwner, profile, profileLoading, profileError, 
-    isFetchingUsername: usernameFetchStatus === 'loading', 
-    usernameFetchError, 
+    profileId,
+    isOwner,
+    profile,
+    profileLoading,
+    profileError,
+    isFetchingUsername: usernameFetchStatus === 'loading',
+    usernameFetchError,
     authLoading,
-    userPosts, postsLoading, initialPostsLoaded,
-    activeTab, setActiveTab, likedPosts, 
-    isLoadingLikes: likesFetchStatus === 'loading', 
+    userPosts,
+    postsLoading,
+    initialPostsLoaded,
+    activeTab,
+    setActiveTab,
+    likedPosts,
+    isLoadingLikes: likesFetchStatus === 'loading',
     likesError,
-    displayName, displayEmail, displayBio, avatarUrl, joinedDate
+    displayName,
+    displayEmail,
+    displayBio,
+    avatarUrl,
+    joinedDate,
   };
 };
