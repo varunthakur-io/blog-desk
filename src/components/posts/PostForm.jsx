@@ -45,17 +45,7 @@ import {
 } from '@/components/ui/dialog';
 import { getRandomPostData } from '@/utils/fakePostData';
 import DOMPurify from 'dompurify'; // For sanitizing preview
-
-const CATEGORIES = [
-  'Technology',
-  'Lifestyle',
-  'Travel',
-  'Programming',
-  'Thoughts',
-  'Science',
-  'Art',
-  'Health',
-];
+import { CATEGORIES } from '@/constants';
 
 const PostForm = ({
   initialData,
