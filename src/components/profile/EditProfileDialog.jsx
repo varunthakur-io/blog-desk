@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import toast from 'react-hot-toast';
 import { User, Edit, Save, Loader2 } from 'lucide-react';
@@ -21,9 +21,6 @@ import { authService } from '@/services/auth';
 import { profileService } from '@/services/profile';
 import { upsertProfile } from '@/store/profile';
 
-const isValidEmail = (email) =>
-  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email?.trim() ?? '');
-
 const EditProfileDialog = ({ profile, profileId, isOwner }) => {
   const dispatch = useDispatch();
   const fileInputRef = useRef(null);
@@ -32,18 +29,14 @@ const EditProfileDialog = ({ profile, profileId, isOwner }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editForm, setEditForm] = useState({
     name: '',
-    email: '',
-    password: '',
     bio: '',
   });
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [avatarFileToUpload, setAvatarFileToUpload] = useState(null);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [status, setStatus] = useState('idle'); // 'idle' | 'saving' | 'uploading'
   const [errorMessage, setErrorMessage] = useState('');
 
   const displayName = profile?.name || 'Unnamed User';
-  const displayEmail = profile?.email || '';
   const displayBio = profile?.bio || '';
   const avatarUrl = profile?.avatarUrl || null;
 
@@ -61,19 +54,17 @@ const EditProfileDialog = ({ profile, profileId, isOwner }) => {
     };
   }, []);
 
-  const handleOpenDialog = () => {
+  const handleOpenDialog = useCallback(() => {
     setEditForm({
       name: displayName || '',
-      email: displayEmail || '',
-      password: '',
       bio: displayBio || '',
     });
     setAvatarPreview(avatarUrl || null);
     setErrorMessage('');
     setIsDialogOpen(true);
-  };
+  }, [displayName, displayBio, avatarUrl]);
 
-  const handleCloseDialog = (open) => {
+  const handleCloseDialog = useCallback((open) => {
     if (!open) {
       setIsDialogOpen(false);
       setAvatarFileToUpload(null);
@@ -83,11 +74,12 @@ const EditProfileDialog = ({ profile, profileId, isOwner }) => {
         previewUrlRef.current = null;
       }
     }
-  };
+  }, []);
 
-  const handleInputChange = (e) => {
-    setEditForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
+  const handleInputChange = useCallback((e) => {
+    const { name, value } = e.target;
+    setEditForm((prev) => ({ ...prev, [name]: value }));
+  }, []);
 
   const handleAvatarSelect = (e) => {
     const file = e.target.files?.[0];
@@ -117,26 +109,15 @@ const EditProfileDialog = ({ profile, profileId, isOwner }) => {
       setErrorMessage('Name must be at least 2 characters.');
       return;
     }
-    if (!isValidEmail(editForm.email)) {
-      setErrorMessage('Please enter a valid email address.');
-      return;
-    }
-    if (editForm.email !== profile?.email && !editForm.password) {
-      setErrorMessage('Current password is required to change email.');
-      return;
-    }
 
-    setIsSaving(true);
+    if (status !== 'idle') return;
+
+    setStatus('saving');
 
     try {
       if (editForm.name !== displayName) {
         await authService.updateName(editForm.name);
         dispatch(upsertProfile({ ...profile, name: editForm.name }));
-      }
-
-      if (editForm.email !== displayEmail) {
-        await authService.updateEmail(editForm.email, editForm.password);
-        dispatch(upsertProfile({ ...profile, email: editForm.email }));
       }
 
       if (editForm.bio !== displayBio) {
@@ -145,12 +126,11 @@ const EditProfileDialog = ({ profile, profileId, isOwner }) => {
       }
 
       if (avatarFileToUpload) {
-        setIsUploadingAvatar(true);
+        setStatus('uploading');
         const updatedProfile = await profileService.updateAvatar(profileId, profile?.avatarId, avatarFileToUpload);
         if (updatedProfile) {
           dispatch(upsertProfile(updatedProfile));
         }
-        setIsUploadingAvatar(false);
       }
 
       toast.success('Profile updated!');
@@ -160,12 +140,11 @@ const EditProfileDialog = ({ profile, profileId, isOwner }) => {
       setErrorMessage(msg);
       toast.error(msg);
     } finally {
-      setIsSaving(false);
-      setIsUploadingAvatar(false);
+      setStatus('idle');
     }
   };
 
-  if (!isOwner) return <Button>Follow</Button>;
+  if (!isOwner) return null;
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={handleCloseDialog}>
@@ -215,24 +194,12 @@ const EditProfileDialog = ({ profile, profileId, isOwner }) => {
               <Label htmlFor="bio">Bio</Label>
               <Textarea id="bio" name="bio" placeholder="Tell us a little bit about yourself" className="resize-none" value={editForm.bio} onChange={handleInputChange} />
             </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" type="email" value={editForm.email} onChange={handleInputChange} />
-            </div>
-
-            {editForm.email !== displayEmail && (
-              <div className="grid gap-2">
-                <Label htmlFor="password">Current Password (Required to change email)</Label>
-                <Input id="password" name="password" type="password" value={editForm.password} onChange={handleInputChange} />
-              </div>
-            )}
           </div>
 
           <DialogFooter>
-            <Button type="submit" disabled={isSaving || isUploadingAvatar}>
-              {isSaving || isUploadingAvatar ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-              Save Changes
+            <Button type="submit" disabled={status !== 'idle'}>
+              {status !== 'idle' ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+              {status === 'uploading' ? 'Uploading Avatar...' : 'Save Changes'}
             </Button>
           </DialogFooter>
         </form>

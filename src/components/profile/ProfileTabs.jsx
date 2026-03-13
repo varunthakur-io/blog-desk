@@ -99,15 +99,17 @@ const ProfileTabs = ({
           </div>
           <Separator />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div>
-              <h4 className="text-sm font-medium text-muted-foreground mb-1">
-                Contact
-              </h4>
-              <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4" />
-                <span>{displayEmail}</span>
+            {isOwner && (
+              <div>
+                <h4 className="text-sm font-medium text-muted-foreground mb-1">
+                  Contact
+                </h4>
+                <div className="flex items-center gap-2">
+                  <Mail className="w-4 h-4" />
+                  <span>{displayEmail}</span>
+                </div>
               </div>
-            </div>
+            )}
             <div>
               <h4 className="text-sm font-medium text-muted-foreground mb-1">
                 Joined

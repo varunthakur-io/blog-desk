@@ -22,7 +22,7 @@ const ProfileInfo = ({ displayName, displayEmail, displayBio, avatarUrl, joinedD
               {displayName}
             </h1>
             <div className="flex items-center text-muted-foreground mt-1 text-sm gap-4">
-              {isOwner && <span>{displayEmail}</span>}
+              {isOwner && displayEmail && <span>{displayEmail}</span>}
               <span className="flex items-center gap-1">
                 <CalendarDays className="w-3 h-3" /> Joined {joinedDate}
               </span>

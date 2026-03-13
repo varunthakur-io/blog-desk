@@ -16,6 +16,8 @@ export const useProfile = () => {
 
   const authUserId = useSelector(selectAuthUserId);
   const authLoading = useSelector(selectAuthLoading);
+  // Get the current user's email from auth state (userData holds the full object)
+  const authUserEmail = useSelector((state) => state.auth.userData?.email);
 
   const [localProfile, setLocalProfile] = useState(null);
   
@@ -75,7 +77,7 @@ export const useProfile = () => {
 
   // Derived Values
   const displayName = profile?.name || 'Unnamed User';
-  const displayEmail = profile?.email || '';
+  const displayEmail = isOwner ? authUserEmail : '';
   const displayBio = profile?.bio || '';
   const avatarUrl = profile?.avatarUrl || null;
   const joinedDate = profile?.$createdAt ? new Date(profile.$createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : '—';
