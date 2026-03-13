@@ -6,14 +6,14 @@ import { authService } from '@/services/auth';
 import {
   selectAuthUserId,
   selectAuthStatus,
-  setAuthLoading,
-  setAuthUserId,
+  selectIsAuthLoading,
+  setAuthStatus,
+  setAuthUser,
+  setAuthError,
 } from '@/store/auth';
 import { upsertProfile } from '@/store/profile';
 
-/**
- * Pure validation logic
- */
+// Pure validation logic for credentials
 const validate = (data) => {
   const errors = {};
   if (!data.email) {
@@ -35,30 +35,30 @@ export const useLogin = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Global State
+  // Redux Selectors
   const authUserId = useSelector(selectAuthUserId);
   const authStatus = useSelector(selectAuthStatus);
+  const isAuthLoading = useSelector(selectIsAuthLoading);
 
   // Local State
   const [formData, setFormData] = useState({ email: '', password: '' });
-  const [status, setStatus] = useState('idle'); // 'idle' | 'loading' | 'error'
+  const [status, setStatus] = useState('idle');
   const [formErrors, setFormErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
 
-  // Redirect if already logged in
+  // Redirect if already authenticated
   useEffect(() => {
     if (authStatus === 'authenticated' && authUserId) {
       navigate('/', { replace: true });
     }
   }, [authStatus, authUserId, navigate]);
 
-  // Handlers
   const handleChange = useCallback(
     (e) => {
       const { name, value } = e.target;
       setFormData((prev) => ({ ...prev, [name]: value }));
 
-      // Clear field-specific error as user types
+      // Clear error immediately when user starts fixing the field
       if (formErrors[name]) {
         setFormErrors((prev) => {
           const newErrors = { ...prev };
@@ -73,23 +73,22 @@ export const useLogin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 1. Client-side validation
     const validationErrors = validate(formData);
     if (Object.keys(validationErrors).length > 0) {
       setFormErrors(validationErrors);
       return;
     }
 
-    if (status === 'loading') return;
+    if (status === 'loading' || isAuthLoading) return;
 
     setStatus('loading');
-    dispatch(setAuthLoading(true));
+    dispatch(setAuthStatus('loading'));
 
     try {
       const { user, profile } = await authService.loginUser(formData);
 
-      // Update Global State
-      dispatch(setAuthUserId(user));
+      // Populate global store with full identity and domain data
+      dispatch(setAuthUser(user));
       dispatch(upsertProfile(profile));
 
       toast.success(`Welcome back, ${user.name || 'friend'}!`);
@@ -97,10 +96,9 @@ export const useLogin = () => {
     } catch (err) {
       setStatus('error');
       const message = err?.message || 'Invalid email or password';
+      dispatch(setAuthError(message));
       toast.error(message);
     } finally {
-      dispatch(setAuthLoading(false));
-      // Reset status to idle only if we didn't redirect
       setStatus((current) => (current === 'loading' ? 'idle' : current));
     }
   };
@@ -112,12 +110,12 @@ export const useLogin = () => {
   return {
     formData,
     formErrors,
-    isLoading: status === 'loading',
+    isLoading: status === 'loading' || isAuthLoading,
     showPassword,
     handleChange,
     handleSubmit,
     togglePasswordVisibility,
     isSubmitDisabled:
-      status === 'loading' || !formData.email || !formData.password,
+      status === 'loading' || isAuthLoading || !formData.email || !formData.password,
   };
 };

@@ -5,12 +5,10 @@ import toast from 'react-hot-toast';
 import { debounce } from '@/lib/utils';
 import { authService } from '@/services/auth';
 import { profileService } from '@/services/profile';
-import { setAuthUserId } from '@/store/auth';
+import { setAuthStatus, setAuthUser, setAuthError } from '@/store/auth';
 import { upsertProfile } from '@/store/profile';
 
-/**
- * Pure validation logic for Signup
- */
+// Strict validation logic for user registration
 const validate = (data) => {
   const errors = {};
   if (!data.name?.trim()) errors.name = 'Full name is required';
@@ -51,13 +49,10 @@ export const useSignup = () => {
     username: '',
   });
 
-  const [status, setStatus] = useState('idle'); // 'idle' | 'loading' | 'error'
+  const [status, setStatus] = useState('idle'); // State machine for submission
   const [formErrors, setFormErrors] = useState({});
   const [usernameStatus, setUsernameStatus] = useState('idle'); // 'idle' | 'checking' | 'available' | 'taken'
 
-  /**
-   * Async username availability check
-   */
   const checkUsernameAvailability = async (username) => {
     if (!username || username.length < 3) return;
 
@@ -78,6 +73,7 @@ export const useSignup = () => {
     }
   };
 
+  // Prevent spamming the API while typing
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedCheck = useCallback(
     debounce((username) => checkUsernameAvailability(username), 500),
@@ -89,7 +85,6 @@ export const useSignup = () => {
       const { name, value } = e.target;
       setFormData((prev) => ({ ...prev, [name]: value }));
 
-      // Clear validation errors
       if (formErrors[name]) {
         setFormErrors((prev) => {
           const next = { ...prev };
@@ -98,7 +93,6 @@ export const useSignup = () => {
         });
       }
 
-      // Special handling for username
       if (name === 'username') {
         setUsernameStatus('idle');
         if (value.length >= 3) {
@@ -112,10 +106,8 @@ export const useSignup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 1. Client-side validation
     const validationErrors = validate(formData);
 
-    // 2. Check if username was already marked as taken
     if (usernameStatus === 'taken') {
       validationErrors.username = 'Username is already taken';
     }
@@ -128,11 +120,13 @@ export const useSignup = () => {
     if (status === 'loading') return;
 
     setStatus('loading');
+    dispatch(setAuthStatus('loading'));
 
     try {
       const { user, profile } = await authService.createUser(formData);
 
-      dispatch(setAuthUserId(user));
+      // Identity and Profile persistence
+      dispatch(setAuthUser(user));
       dispatch(upsertProfile(profile));
 
       toast.success('Account created successfully!');
@@ -140,6 +134,7 @@ export const useSignup = () => {
     } catch (err) {
       setStatus('error');
       const message = err?.message || 'Signup failed. Please try again.';
+      dispatch(setAuthError(message));
       toast.error(message);
     } finally {
       setStatus((current) => (current === 'loading' ? 'idle' : current));
