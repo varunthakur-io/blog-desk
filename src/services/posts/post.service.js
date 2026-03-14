@@ -35,17 +35,12 @@ class PostService {
     return await postApi.createPost(postData);
   }
 
-  async updatePost(postId, { title, content, status, coverImageId, coverImageUrl }) {
-    const postData = {
-      title,
-      content,
-      status: status || 'draft',
-      coverImageId: coverImageId || null,
-      coverImageUrl: coverImageUrl || null,
-    };
+  // FIX: Allowing the method to update any field provided in the object
+  async updatePost(postId, data) {
+    const postData = { ...data };
     
-    if (title) {
-      postData.slug = generateSlug(title);
+    if (postData.title) {
+      postData.slug = generateSlug(postData.title);
     }
 
     return await postApi.updatePost(postId, postData);
