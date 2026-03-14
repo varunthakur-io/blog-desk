@@ -1,16 +1,15 @@
 import { createSelector } from '@reduxjs/toolkit';
 
-/* ========= Base slice selector ========= */
 const selectPostsState = (state) => state.posts;
 
-/* ========= Memoized selectors ========= */
+/* ========= Primary Data Selectors ========= */
 
-// All posts in feed order
+// Returns all posts in sorted order
 export const selectAllPosts = createSelector([selectPostsState], (postsState) =>
   postsState.allIds.map((id) => postsState.byId[id]).filter(Boolean),
 );
 
-// Single post by id
+// Returns a single post by its document ID
 export const selectPostById = createSelector(
   [selectPostsState, (_, postId) => postId],
   (postsState, postId) => {
@@ -19,7 +18,7 @@ export const selectPostById = createSelector(
   },
 );
 
-// Posts by author
+// Filters posts by author ID
 export const selectPostsByAuthor = createSelector(
   [selectAllPosts, (_, authorId) => authorId],
   (allPosts, authorId) => {
@@ -28,7 +27,8 @@ export const selectPostsByAuthor = createSelector(
   },
 );
 
-// Semantic Status Selectors
+/* ========= Semantic Helpers (Boolean) ========= */
+
 export const selectIsPostsLoading = createSelector(
   [selectPostsState],
   (postsState) => postsState.status === 'loading',
@@ -39,7 +39,8 @@ export const selectPostsError = createSelector(
   (postsState) => postsState.error,
 );
 
-// Pagination Selectors (Drilling into nested object)
+/* ========= Pagination Selectors ========= */
+
 const selectPagination = createSelector(
   [selectPostsState],
   (postsState) => postsState.pagination

@@ -2,12 +2,12 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  byId: {},    // postId -> post object
-  allIds: [],  // list of postIds in feed order
-  status: 'idle', // 'idle' | 'loading' | 'error' | 'success'
+  byId: {},        // postId -> post object
+  allIds: [],      // array of postIds in order
+  status: 'idle',  // idle | loading | error | success
   error: null,
   
-  // Grouped Metadata
+  // Grouped Metadata for feed control
   pagination: {
     page: 1,
     hasMore: true,
@@ -27,7 +27,7 @@ const postsSlice = createSlice({
       state.status = 'error';
       state.error = action.payload || 'Failed to load posts';
     },
-    // Syncs a full list (replaces current cache)
+    // Syncs a full list (replaces current feed)
     setPostList(state, action) {
       const posts = action.payload || [];
       state.byId = {};
@@ -42,7 +42,7 @@ const postsSlice = createSlice({
       state.status = 'success';
       state.pagination.initialLoaded = true;
     },
-    // Adds a new page of posts to the end
+    // Adds a new page of results
     appendPostPage(state, action) {
       const posts = action.payload || [];
 
@@ -68,11 +68,11 @@ const postsSlice = createSlice({
 
       state.byId[id] = post;
       if (!exists) {
-        state.allIds.unshift(id); // New post to top
+        state.allIds.unshift(id); // Prepend new content
       }
       state.status = 'success';
     },
-    // Deletes a specific post record
+    // Removes a post from local cache
     clearPostRecord(state, action) {
       const id = String(action.payload);
       if (!state.byId[id]) return;
@@ -80,7 +80,7 @@ const postsSlice = createSlice({
       delete state.byId[id];
       state.allIds = state.allIds.filter((pid) => pid !== id);
     },
-    // Updates pagination metadata
+    // Updates pagination state
     setPostPagination(state, action) {
       state.pagination = {
         ...state.pagination,
