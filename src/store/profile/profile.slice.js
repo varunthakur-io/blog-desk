@@ -2,9 +2,9 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  byId: {},        // userId -> profile object
-  statusById: {},  // userId -> 'idle' | 'loading' | 'error' | 'success'
-  errorById: {},   // userId -> string | null
+  byId: {}, // userId -> profile object
+  statusById: {}, // userId -> 'idle' | 'loading' | 'error' | 'success'
+  errorById: {}, // userId -> string | null
 };
 
 const profileSlice = createSlice({
