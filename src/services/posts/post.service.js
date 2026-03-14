@@ -5,30 +5,49 @@ import { likeService } from '../likes';
 import { authService } from '../auth';
 import { Query } from 'appwrite';
 
+/**
+ * Utility to generate a URL-friendly slug from a title.
+ */
+const generateSlug = (title) => {
+  return title
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+};
+
 class PostService {
-  async createPost({ title, content, category, published, postImageURL }) {
+  async createPost({ title, content, status, coverImageId, coverImageUrl }) {
     const user = await authService.getAccount();
     const postData = {
       authorId: user.$id,
       title,
       content,
-      category: category || 'Uncategorized',
+      slug: generateSlug(title),
+      status: status || 'draft',
+      coverImageId: coverImageId || null,
+      coverImageUrl: coverImageUrl || null,
       likesCount: 0,
-      published: published ?? true,
-      postImageURL,
+      commentsCount: 0,
     };
 
     return await postApi.createPost(postData);
   }
 
-  async updatePost(postId, { title, content, category, published, postImageURL }) {
+  async updatePost(postId, { title, content, status, coverImageId, coverImageUrl }) {
     const postData = {
       title,
       content,
-      category: category || 'Uncategorized',
-      published: published ?? true,
-      postImageURL,
+      status: status || 'draft',
+      coverImageId: coverImageId || null,
+      coverImageUrl: coverImageUrl || null,
     };
+    
+    if (title) {
+      postData.slug = generateSlug(title);
+    }
+
     return await postApi.updatePost(postId, postData);
   }
 
@@ -36,14 +55,14 @@ class PostService {
     return await postApi.getPostById(postId);
   }
 
-  async getAllPosts(page = 1, skip = 6, category = null) {
+  async getAllPosts(page = 1, skip = 6) {
     const offset = (page - 1) * skip;
     const limit = skip;
-    const queries = [Query.limit(limit), Query.offset(offset), Query.equal('published', true)];
-
-    if (category) {
-      queries.push(Query.equal('category', category));
-    }
+    const queries = [
+      Query.limit(limit), 
+      Query.offset(offset), 
+      Query.equal('status', 'published')
+    ];
 
     return await postApi.listPosts(queries);
   }
@@ -54,8 +73,8 @@ class PostService {
     const offset = (page - 1) * limit;
     const queries = [Query.equal('authorId', userId), Query.limit(limit), Query.offset(offset)];
 
-    if (status === 'published') queries.push(Query.equal('published', true));
-    else if (status === 'draft') queries.push(Query.equal('published', false));
+    if (status === 'published') queries.push(Query.equal('status', 'published'));
+    else if (status === 'draft') queries.push(Query.equal('status', 'draft'));
 
     if (sortBy === 'likes') queries.push(Query.orderDesc('likesCount'));
     else if (sortBy === 'oldest') queries.push(Query.orderAsc('$createdAt'));
