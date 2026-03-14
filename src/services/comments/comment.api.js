@@ -2,12 +2,17 @@ import { databases, appwriteConfig as appwrite } from '@/lib/appwrite';
 import { Query, ID } from 'appwrite';
 
 class CommentApi {
-  async createComment(postId, userId, content) {
+  async createComment(postId, userId, content, authorName) {
     return await databases.createDocument(
       appwrite.databaseId,
       appwrite.commentsCollectionId,
       ID.unique(),
-      { postId, userId, content },
+      { 
+        postId, 
+        userId, 
+        content,
+        authorName: authorName || 'Anonymous' // Saving the name in the doc
+      },
     );
   }
 
@@ -15,7 +20,7 @@ class CommentApi {
     return await databases.listDocuments(
       appwrite.databaseId,
       appwrite.commentsCollectionId,
-      [Query.equal('postId', postId), Query.orderDesc('$createdAt'), Query.limit(10)],
+      [Query.equal('postId', postId), Query.orderDesc('$createdAt'), Query.limit(50)],
     );
   }
 
