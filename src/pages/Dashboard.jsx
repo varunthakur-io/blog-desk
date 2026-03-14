@@ -177,8 +177,8 @@ export default function Dashboard() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={post.published ? 'default' : 'outline'} className="font-normal">
-                          {post.published ? 'Published' : 'Draft'}
+                        <Badge variant={post.status === 'published' ? 'default' : 'outline'} className="font-normal capitalize">
+                          {post.status || 'Draft'}
                         </Badge>
                       </TableCell>
                       <TableCell>

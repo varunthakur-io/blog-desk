@@ -5,23 +5,10 @@ import { BookOpen, Search } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { PostCard, FeaturedPost, PostCardSkeleton } from '@/components/posts';
 
 // Hooks
 import { useHome } from '@/hooks/posts';
-
-const CATEGORIES = [
-  'All',
-  'Technology',
-  'Lifestyle',
-  'Travel',
-  'Programming',
-  'Thoughts',
-  'Science',
-  'Art',
-  'Health',
-];
 
 const Home = () => {
   const {
@@ -30,11 +17,9 @@ const Home = () => {
     error,
     hasMore,
     searchTerm,
-    selectedCategory,
-    handleCategoryChange,
     handleSearchChange,
     LIMIT,
-  } = useHome(CATEGORIES);
+  } = useHome();
 
   const renderContent = () => {
     if (loading && posts.length === 0) {
@@ -149,19 +134,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
-      <div className="flex flex-wrap justify-center gap-3 mb-12">
-        {CATEGORIES.map((category) => (
-          <Badge
-            key={category}
-            variant={selectedCategory === category ? 'default' : 'secondary'}
-            className="cursor-pointer px-4 py-1.5 text-sm transition-all hover:bg-primary hover:text-primary-foreground"
-            onClick={() => handleCategoryChange(category)}
-          >
-            {category}
-          </Badge>
-        ))}
-      </div>
 
       <div className="py-6">{renderContent()}</div>
     </div>

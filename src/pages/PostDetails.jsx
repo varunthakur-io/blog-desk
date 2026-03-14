@@ -10,14 +10,13 @@ import { Card, CardContent } from '@/components/ui/card';
 // Custom Post Components
 import {
   PostDetailsSkeleton,
-  PostHeader,
   PostContent,
   CommentSection,
   AuthorSidebar,
 } from '@/components/posts';
 
 // Hooks
-import { usePostDetails } from '@/hooks/posts';
+import { usePostDetails } from '@/hooks/posts/usePostDetails';
 
 const PostDetails = () => {
   const {
@@ -28,7 +27,7 @@ const PostDetails = () => {
 
   if (isLoading) return <PostDetailsSkeleton />;
 
-  const isAuthorized = currentPost?.published === true || currentPost?.authorId === authUserId;
+  const isAuthorized = currentPost?.status === 'published' || currentPost?.authorId === authUserId;
 
   if (error || !currentPost || !isAuthorized) {
     return (
@@ -55,11 +54,10 @@ const PostDetails = () => {
     <div className="bg-background">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         <div className="lg:col-span-8 space-y-8">
-          <PostHeader category={currentPost.category} />
           <PostContent 
             title={currentPost.title} 
             content={currentPost.content} 
-            postImageURL={currentPost.postImageURL} 
+            coverImageUrl={currentPost.coverImageUrl} 
           />
           <Separator />
           <CommentSection 
