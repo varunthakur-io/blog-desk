@@ -10,7 +10,7 @@ export const useCreatePost = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const authUserId = useSelector(selectAuthUserId);
-  const [status, setStatus] = useState('idle'); // 'idle' | 'submitting' | 'error'
+  const [status, setStatus] = useState('idle');
 
   const handleCreatePost = useCallback(async (formData) => {
     if (!authUserId) {
@@ -31,9 +31,9 @@ export const useCreatePost = () => {
       const newPost = await postService.createPost({
         title: formData.title.trim(),
         content: formData.content.trim(),
-        category: formData.category || 'Uncategorized',
-        published: formData.published ?? true,
-        postImageURL: formData.postImageURL || null,
+        status: formData.status || 'draft',
+        coverImageId: formData.coverImageId || null,
+        coverImageUrl: formData.coverImageUrl || null,
       });
 
       if (newPost) {

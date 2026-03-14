@@ -17,7 +17,7 @@ import { POSTS_PER_PAGE } from '@/constants';
 
 const LIMIT = POSTS_PER_PAGE;
 
-export const useHome = (categories) => {
+export const useHome = () => {
   const dispatch = useDispatch();
 
   // Redux Selectors
@@ -29,19 +29,14 @@ export const useHome = (categories) => {
 
   // Local UI State
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
 
   const loadPage = useCallback(
-    async (pageNum, categoryFilter = null) => {
+    async (pageNum) => {
       if (loading) return; 
       dispatch(setPostsStatus('loading'));
 
       try {
-        const data = await postService.getAllPosts(
-          pageNum,
-          LIMIT,
-          categoryFilter === 'All' ? null : categoryFilter,
-        );
+        const data = await postService.getAllPosts(pageNum, LIMIT);
         const docs = data.documents ?? [];
         const totalFetched = (pageNum - 1) * LIMIT + docs.length;
 
@@ -59,12 +54,12 @@ export const useHome = (categories) => {
     [dispatch, loading],
   );
 
-  // Initial Load / Filter Change
+  // Initial Load
   useEffect(() => {
     dispatch(setPostPagination({ page: 1 }));
-    loadPage(1, selectedCategory);
+    loadPage(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCategory, dispatch]);
+  }, [dispatch]);
 
   // Infinite Scroll Observer
   useEffect(() => {
@@ -78,13 +73,13 @@ export const useHome = (categories) => {
         hasMore &&
         !searchTerm
       ) {
-        loadPage(page + 1, selectedCategory);
+        loadPage(page + 1);
       }
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [loading, hasMore, page, loadPage, searchTerm, selectedCategory]);
+  }, [loading, hasMore, page, loadPage, searchTerm]);
 
   // Client-side search filtering
   const filteredPosts = useMemo(() => {
@@ -98,16 +93,8 @@ export const useHome = (categories) => {
     });
   }, [posts, searchTerm]);
 
-  const handleCategoryChange = useCallback((category) => {
-    if (category === selectedCategory) return;
-    setSelectedCategory(category);
-    setSearchTerm('');
-    dispatch(setPostPagination({ initialLoaded: false }));
-  }, [selectedCategory, dispatch]);
-
   const handleSearchChange = useCallback((e) => {
     setSearchTerm(e.target.value);
-    setSelectedCategory('All');
     dispatch(setPostPagination({ initialLoaded: false }));
   }, [dispatch]);
 
@@ -117,8 +104,6 @@ export const useHome = (categories) => {
     error,
     hasMore,
     searchTerm,
-    selectedCategory,
-    handleCategoryChange,
     handleSearchChange,
     LIMIT,
   };

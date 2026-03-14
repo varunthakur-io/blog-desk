@@ -13,8 +13,8 @@ export const useEditPost = () => {
   const post = useSelector((state) => selectPostById(state, id));
 
   const [formData, setFormData] = useState(null);
-  const [fetchStatus, setFetchStatus] = useState('loading'); // 'loading' | 'success' | 'error'
-  const [submitStatus, setSubmitStatus] = useState('idle'); // 'idle' | 'submitting' | 'error'
+  const [fetchStatus, setFetchStatus] = useState('loading'); 
+  const [submitStatus, setSubmitStatus] = useState('idle');
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -31,9 +31,9 @@ export const useEditPost = () => {
         setFormData({
           title: post.title || '',
           content: post.content || '',
-          category: post.category || '',
-          published: post.published ?? true,
-          postImageURL: post.postImageURL || null,
+          status: post.status || 'draft',
+          coverImageUrl: post.coverImageUrl || null,
+          coverImageId: post.coverImageId || null,
         });
         setFetchStatus('success');
         return;
@@ -48,9 +48,9 @@ export const useEditPost = () => {
           setFormData({
             title: data.title || '',
             content: data.content || '',
-            category: data.category || '',
-            published: data.published ?? true,
-            postImageURL: data.postImageURL || null,
+            status: data.status || 'draft',
+            coverImageUrl: data.coverImageUrl || null,
+            coverImageId: data.coverImageId || null,
           });
           dispatch(setPostDetail(data));
           setFetchStatus('success');
@@ -86,9 +86,9 @@ export const useEditPost = () => {
       const updatedPost = await postService.updatePost(id, {
         title: data.title.trim(),
         content: data.content.trim(),
-        category: data.category || 'Uncategorized',
-        published: data.published ?? true,
-        postImageURL: data.postImageURL || null,
+        status: data.status || 'draft',
+        coverImageId: data.coverImageId || null,
+        coverImageUrl: data.coverImageUrl || null,
       });
 
       if (updatedPost && updatedPost.$id) {

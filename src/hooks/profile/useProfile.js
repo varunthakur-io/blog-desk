@@ -14,7 +14,7 @@ import {
   setProfileError
 } from '@/store/profile';
 import { selectPostsByAuthor, selectIsPostsLoading, selectInitialLoaded } from '@/store/posts';
-import { setPostsLoading, setPostsError, setPosts } from '@/store/posts';
+import { setPostsStatus, setPostsError, setPostList, setPostPagination } from '@/store/posts';
 
 export const useProfile = () => {
   const dispatch = useDispatch();
@@ -22,23 +22,19 @@ export const useProfile = () => {
 
   const authUserId = useSelector(selectAuthUserId);
   const authLoading = useSelector(selectIsAuthLoading);
-  // Get the current user's email from auth state (user holds the full object)
   const authUserEmail = useSelector((state) => state.auth.user?.email);
 
   const [localProfile, setLocalProfile] = useState(null);
   
-  // Local status states
   const [usernameFetchStatus, setUsernameFetchStatus] = useState(username ? 'loading' : 'idle');
   const [likesFetchStatus, setLikesFetchStatus] = useState('idle');
   
   const [usernameFetchError, setUsernameFetchError] = useState(null);
   const [likesError, setLikesError] = useState('');
 
-  // Tabs state
   const [activeTab, setActiveTab] = useState('posts');
   const [likedPosts, setLikedPosts] = useState([]);
 
-  // 1. Fetch by username if needed
   useEffect(() => {
     if (!username) {
       setUsernameFetchStatus('idle');
@@ -81,14 +77,12 @@ export const useProfile = () => {
   const postsLoading = useSelector(selectIsPostsLoading);
   const userPosts = useSelector((state) => selectPostsByAuthor(state, profileId));
 
-  // Derived Values
   const displayName = profile?.name || 'Unnamed User';
   const displayEmail = isOwner ? authUserEmail : '';
   const displayBio = profile?.bio || '';
   const avatarUrl = profile?.avatarUrl || null;
   const joinedDate = profile?.$createdAt ? new Date(profile.$createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : '—';
 
-  // 2. Load profile data
   useEffect(() => {
     if (!profileId || (isOwner && authLoading) || (profile && !profileError)) return;
     let cancelled = false;
@@ -105,17 +99,17 @@ export const useProfile = () => {
     return () => { cancelled = true; };
   }, [dispatch, profileId, profile, profileError, isOwner, authLoading]);
 
-  // 3. Load posts effect
   useEffect(() => {
     if (initialPostsLoaded) return;
     let cancelled = false;
     const fetchPostsOnce = async () => {
-      dispatch(setPostsLoading());
+      dispatch(setPostsStatus('loading'));
       try {
         const data = await postService.getAllPosts();
         if (cancelled) return;
         const posts = Array.isArray(data) ? data : (data?.documents ?? []);
-        dispatch(setPosts(posts));
+        dispatch(setPostList(posts));
+        dispatch(setPostPagination({ initialLoaded: true }));
       } catch (err) {
         if (!cancelled) dispatch(setPostsError(err?.message || 'Failed to fetch posts.'));
       }
@@ -124,7 +118,6 @@ export const useProfile = () => {
     return () => { cancelled = true; };
   }, [dispatch, initialPostsLoaded]);
 
-  // 4. Load likes effect
   useEffect(() => {
     if (!isOwner || activeTab !== 'likes' || !profileId) return;
     let cancelled = false;
