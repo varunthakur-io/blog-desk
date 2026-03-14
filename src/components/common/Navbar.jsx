@@ -1,4 +1,3 @@
-// src/components/Navbar.jsx
 import { useState, useCallback } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -28,8 +27,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 // Store & Services
 import {
-  selectAuthUser,
   selectAuthUserId,
+  selectAuthName,
   selectAuthEmail,
   selectIsAuthenticated,
   clearAuthUser,
@@ -43,12 +42,12 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   // Auth Selectors
-  const user = useSelector(selectAuthUser);
   const userId = useSelector(selectAuthUserId);
+  const userName = useSelector(selectAuthName);
   const userEmail = useSelector(selectAuthEmail);
   const isAuthenticated = useSelector(selectIsAuthenticated);
 
-  // Profile Selector (Used only for domain-specific data like avatar)
+  // Profile Selector (Used for avatar and other domain data)
   const profile = useSelector((state) => selectProfileById(state, userId));
 
   // Theme and UI State
@@ -146,11 +145,11 @@ const Navbar = () => {
                   <Avatar className="h-9 w-9">
                     <AvatarImage
                       src={profile?.avatarUrl}
-                      alt={user?.name || 'User Avatar'}
+                      alt={userName}
                       className="object-cover"
                     />
                     <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                      {(user?.name || 'U').charAt(0).toUpperCase()}
+                      {userName.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
@@ -159,7 +158,7 @@ const Navbar = () => {
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">
-                      {user?.name || 'User'}
+                      {userName}
                     </p>
                     <p className="text-xs leading-none text-muted-foreground truncate">
                       {userEmail}
