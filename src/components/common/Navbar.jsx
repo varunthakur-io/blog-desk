@@ -30,7 +30,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   selectAuthUser,
   selectAuthUserId,
-  selectAuthStatus,
+  selectAuthEmail,
+  selectIsAuthenticated,
   clearAuthUser,
 } from '@/store/auth';
 import { selectProfileById } from '@/store/profile';
@@ -41,15 +42,16 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Auth state
-  const authUser = useSelector(selectAuthUser);
-  const authUserId = useSelector(selectAuthUserId);
-  const authStatus = useSelector(selectAuthStatus);
+  // Auth Selectors
+  const user = useSelector(selectAuthUser);
+  const userId = useSelector(selectAuthUserId);
+  const userEmail = useSelector(selectAuthEmail);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
 
-  // Profile data
-  const profile = useSelector((state) => selectProfileById(state, authUserId));
+  // Profile Selector (Used only for domain-specific data like avatar)
+  const profile = useSelector((state) => selectProfileById(state, userId));
 
-  const isLoggedIn = authStatus === 'authenticated' && !!authUserId;
+  // Theme and UI State
   const [isDarkMode, setDarkMode] = useDarkMode();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -58,10 +60,14 @@ const Navbar = () => {
     try {
       await authService.logout();
       dispatch(clearAuthUser());
+
       toast.success('Logged out successfully!');
       navigate('/login');
     } catch (err) {
-      toast.error(err.message || 'Logout failed. Please try again.');
+      // If server call fails, we clear local state anyway
+      // to prevent the user from being "stuck" in a broken UI.
+      dispatch(clearAuthUser());
+      toast.error(err.message || 'Session ended with errors.');
     }
   }, [dispatch, navigate]);
 
@@ -96,7 +102,7 @@ const Navbar = () => {
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
             {navItems.map(
               (item) =>
-                (!item.requiresAuth || isLoggedIn) && (
+                (!item.requiresAuth || isAuthenticated) && (
                   <NavLink
                     key={item.name}
                     to={item.slug}
@@ -130,7 +136,7 @@ const Navbar = () => {
           </Button>
 
           {/* User Menu */}
-          {isLoggedIn ? (
+          {isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -140,11 +146,11 @@ const Navbar = () => {
                   <Avatar className="h-9 w-9">
                     <AvatarImage
                       src={profile?.avatarUrl}
-                      alt={profile?.name || 'User Avatar'}
+                      alt={user?.name || 'User Avatar'}
                       className="object-cover"
                     />
                     <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                      {profile?.name?.charAt(0).toUpperCase() || 'U'}
+                      {(user?.name || 'U').charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
@@ -153,10 +159,10 @@ const Navbar = () => {
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">
-                      {profile?.name || 'User'}
+                      {user?.name || 'User'}
                     </p>
                     <p className="text-xs leading-none text-muted-foreground truncate">
-                      {authUser?.email}
+                      {userEmail}
                     </p>
                   </div>
                 </DropdownMenuLabel>
@@ -200,7 +206,6 @@ const Navbar = () => {
             </div>
           )}
 
-          {/* Mobile Menu Toggle */}
           <div className="md:hidden">
             <Button
               variant="ghost"
@@ -224,7 +229,7 @@ const Navbar = () => {
           <nav className="grid gap-2 p-4">
             {navItems.map(
               (item) =>
-                (!item.requiresAuth || isLoggedIn) && (
+                (!item.requiresAuth || isAuthenticated) && (
                   <NavLink
                     key={item.name}
                     to={item.slug}
@@ -242,7 +247,7 @@ const Navbar = () => {
                 ),
             )}
 
-            {!isLoggedIn && (
+            {!isAuthenticated && (
               <div className="grid grid-cols-2 gap-2 mt-2">
                 <Button variant="outline" asChild onClick={closeMobileMenu}>
                   <NavLink to="/login">Log in</NavLink>
