@@ -19,7 +19,7 @@ export const selectAuthError = createSelector(
   (authState) => authState.error,
 );
 
-/* ========= Derived Semantic Helpers (Boolean) ========= */
+/* ========= Semantic Helpers ========= */
 
 // 1. App Boot Flag
 export const selectIsAuthInitialized = createSelector(
@@ -52,7 +52,12 @@ export const selectAuthUserId = createSelector(
   (user) => user?.$id || null,
 );
 
+export const selectAuthName = createSelector(
+  [selectAuthUser],
+  (user) => user?.name || 'User',
+);
+
 export const selectAuthEmail = createSelector(
   [selectAuthUser],
-  (user) => user?.email || null,
+  (user) => user?.email || '',
 );
