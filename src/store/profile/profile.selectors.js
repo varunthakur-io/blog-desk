@@ -3,7 +3,7 @@ import { createSelector } from '@reduxjs/toolkit';
 /* ========= Base slice selector ========= */
 const selectProfileState = (state) => state.profile;
 
-/* ========= Memoized selectors ========= */
+/* ========= Primary Data Selectors ========= */
 
 export const selectProfileById = createSelector(
   [selectProfileState, (_, userId) => userId],
@@ -29,8 +29,21 @@ export const selectProfileError = createSelector(
   },
 );
 
-// Boolean Helpers
+/* ========= Semantic Helpers ========= */
+
 export const selectIsProfileLoading = createSelector(
   [selectProfileStatus],
   (status) => status === 'loading',
+);
+
+/* ========= Computed Attributes ========= */
+
+// Groups all count-based metrics into a single object for UI convenience
+export const selectProfileStats = createSelector(
+  [selectProfileById],
+  (profile) => ({
+    followers: profile?.followersCount || 0,
+    following: profile?.followingCount || 0,
+    posts: profile?.postsCount || 0,
+  }),
 );
