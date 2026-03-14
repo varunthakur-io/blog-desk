@@ -25,9 +25,9 @@ const FeaturedPost = ({ post }) => {
   return (
     <div className="relative overflow-hidden rounded-3xl border h-[420px] group">
       {/* Background Layer */}
-      {post.postImageURL ? (
+      {post.coverImageUrl ? (
         <img
-          src={post.postImageURL}
+          src={post.coverImageUrl}
           alt={post.title}
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />

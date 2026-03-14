@@ -1,6 +1,6 @@
 import DOMPurify from 'dompurify';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Calendar, User, Clock } from 'lucide-react';
+import { ArrowRight, Calendar, User, Clock, MessageSquare } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -27,15 +27,14 @@ const PostCard = ({ post }) => {
     USE_PROFILES: { html: false },
   });
 
-  // Get post image URL if available
-  const postImageURL = post.postImageURL ? post.postImageURL : null;
+  const coverImageUrl = post.coverImageUrl || null;
 
   return (
     <Card className="group h-auto flex flex-col overflow-hidden border-border/50 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:border-primary/50 hover:-translate-y-1">
-      {postImageURL && (
+      {coverImageUrl && (
         <div className="aspect-video w-full overflow-hidden bg-muted">
           <img
-            src={postImageURL}
+            src={coverImageUrl}
             alt={post.title}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
@@ -51,9 +50,15 @@ const PostCard = ({ post }) => {
           >
             {post.category || 'Article'}
           </Badge>
-          <div className="flex items-center text-xs text-muted-foreground/80">
-            <Clock className="mr-1.5 h-3 w-3" />
-            {readTime} min read
+          <div className="flex items-center gap-3">
+            <div className="flex items-center text-xs text-muted-foreground/80">
+              <MessageSquare className="mr-1.5 h-3 w-3" />
+              {post.commentsCount || 0}
+            </div>
+            <div className="flex items-center text-xs text-muted-foreground/80">
+              <Clock className="mr-1.5 h-3 w-3" />
+              {readTime} min
+            </div>
           </div>
         </div>
 
