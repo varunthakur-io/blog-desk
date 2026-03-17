@@ -12,43 +12,46 @@ export const useCreatePost = () => {
   const authUserId = useSelector(selectAuthUserId);
   const [status, setStatus] = useState('idle');
 
-  const handleCreatePost = useCallback(async (formData) => {
-    if (!authUserId) {
-      toast.error('You must be logged in to create a post.');
-      return;
-    }
-
-    if (!formData.title?.trim() || !formData.content?.trim()) {
-      toast.error('Title and content are required.');
-      return;
-    }
-
-    if (status === 'submitting') return;
-
-    setStatus('submitting');
-
-    try {
-      const newPost = await postService.createPost({
-        title: formData.title.trim(),
-        content: formData.content.trim(),
-        status: formData.status || 'draft',
-        coverImageId: formData.coverImageId || null,
-        coverImageUrl: formData.coverImageUrl || null,
-      });
-
-      if (newPost) {
-        dispatch(setPostDetail(newPost));
+  const handleCreatePost = useCallback(
+    async (formData) => {
+      if (!authUserId) {
+        toast.error('You must be logged in to create a post.');
+        return;
       }
 
-      setStatus('idle');
-      toast.success('Post published successfully!');
-      navigate('/dashboard');
-    } catch (error) {
-      console.error('Create post error:', error);
-      setStatus('error');
-      toast.error(error?.message || 'Failed to create post. Please try again.');
-    }
-  }, [authUserId, dispatch, navigate, status]);
+      if (!formData.title?.trim() || !formData.content?.trim()) {
+        toast.error('Title and content are required.');
+        return;
+      }
+
+      if (status === 'submitting') return;
+
+      setStatus('submitting');
+
+      try {
+        const newPost = await postService.createPost({
+          title: formData.title.trim(),
+          content: formData.content.trim(),
+          status: formData.status || 'draft',
+          coverImageId: formData.coverImageId || null,
+          coverImageUrl: formData.coverImageUrl || null,
+        });
+
+        if (newPost) {
+          dispatch(setPostDetail(newPost));
+        }
+
+        setStatus('idle');
+        toast.success('Post published successfully!');
+        navigate('/dashboard');
+      } catch (error) {
+        console.error('Create post error:', error);
+        setStatus('error');
+        toast.error(error?.message || 'Failed to create post. Please try again.');
+      }
+    },
+    [authUserId, dispatch, navigate, status],
+  );
 
   return {
     handleCreatePost,

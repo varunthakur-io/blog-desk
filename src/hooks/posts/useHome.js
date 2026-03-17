@@ -32,7 +32,7 @@ export const useHome = () => {
 
   const loadPage = useCallback(
     async (pageNum) => {
-      if (loading) return; 
+      if (loading) return;
       dispatch(setPostsStatus('loading'));
 
       try {
@@ -66,13 +66,8 @@ export const useHome = () => {
     const handleScroll = () => {
       const { innerHeight } = window;
       const { scrollTop, offsetHeight } = document.documentElement;
-      
-      if (
-        innerHeight + scrollTop >= offsetHeight - 150 &&
-        !loading &&
-        hasMore &&
-        !searchTerm
-      ) {
+
+      if (innerHeight + scrollTop >= offsetHeight - 150 && !loading && hasMore && !searchTerm) {
         loadPage(page + 1);
       }
     };
@@ -84,7 +79,7 @@ export const useHome = () => {
   // Client-side search filtering
   const filteredPosts = useMemo(() => {
     if (!searchTerm.trim()) return posts;
-    
+
     const q = searchTerm.toLowerCase().trim();
     return posts.filter((post) => {
       const title = post.title?.toLowerCase() ?? '';
@@ -93,10 +88,13 @@ export const useHome = () => {
     });
   }, [posts, searchTerm]);
 
-  const handleSearchChange = useCallback((e) => {
-    setSearchTerm(e.target.value);
-    dispatch(setPostPagination({ initialLoaded: false }));
-  }, [dispatch]);
+  const handleSearchChange = useCallback(
+    (e) => {
+      setSearchTerm(e.target.value);
+      dispatch(setPostPagination({ initialLoaded: false }));
+    },
+    [dispatch],
+  );
 
   return {
     posts: filteredPosts,

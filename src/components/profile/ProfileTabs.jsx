@@ -93,17 +93,13 @@ const ProfileTabs = ({
         <div className="border rounded-lg p-6 space-y-6">
           <div>
             <h3 className="font-semibold text-lg mb-2">Bio</h3>
-            <p className="text-muted-foreground">
-              {displayBio || 'No bio available.'}
-            </p>
+            <p className="text-muted-foreground">{displayBio || 'No bio available.'}</p>
           </div>
           <Separator />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {isOwner && (
               <div>
-                <h4 className="text-sm font-medium text-muted-foreground mb-1">
-                  Contact
-                </h4>
+                <h4 className="text-sm font-medium text-muted-foreground mb-1">Contact</h4>
                 <div className="flex items-center gap-2">
                   <Mail className="w-4 h-4" />
                   <span>{displayEmail}</span>
@@ -111,9 +107,7 @@ const ProfileTabs = ({
               </div>
             )}
             <div>
-              <h4 className="text-sm font-medium text-muted-foreground mb-1">
-                Joined
-              </h4>
+              <h4 className="text-sm font-medium text-muted-foreground mb-1">Joined</h4>
               <div className="flex items-center gap-2">
                 <CalendarDays className="w-4 h-4" />
                 <span>{joinedDate}</span>

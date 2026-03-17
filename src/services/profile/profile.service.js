@@ -33,7 +33,10 @@ class ProfileService {
   }
 
   async updateAvatar(userId, currentAvatarFileId, file) {
-    const { fileId, fileUrl } = await storageService.uploadFileWithReplacement(file, currentAvatarFileId);
+    const { fileId, fileUrl } = await storageService.uploadFileWithReplacement(
+      file,
+      currentAvatarFileId,
+    );
 
     return await this.updateProfile(userId, {
       avatarId: fileId,

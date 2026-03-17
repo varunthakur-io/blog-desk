@@ -14,29 +14,15 @@ class ProfileApi {
   }
 
   async createProfile(userId, profileData) {
-    return await databases.createDocument(
-      appwrite.databaseId,
-      'profiles',
-      userId,
-      profileData,
-    );
+    return await databases.createDocument(appwrite.databaseId, 'profiles', userId, profileData);
   }
 
   async updateProfile(userId, profileData) {
-    return await databases.updateDocument(
-      appwrite.databaseId,
-      'profiles',
-      userId,
-      profileData,
-    );
+    return await databases.updateDocument(appwrite.databaseId, 'profiles', userId, profileData);
   }
 
   async clearProfile(userId) {
-    return await databases.deleteDocument(
-      appwrite.databaseId,
-      'profiles',
-      userId,
-    );
+    return await databases.deleteDocument(appwrite.databaseId, 'profiles', userId);
   }
 
   async checkUsernameAvailable(username) {

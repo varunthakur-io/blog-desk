@@ -45,10 +45,7 @@ const ProfileSkeleton = () => {
           {/* Posts Grid */}
           <div className="grid grid-cols-1 gap-6">
             {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="rounded-lg border border-border/50 bg-card/50 p-4"
-              >
+              <div key={i} className="rounded-lg border border-border/50 bg-card/50 p-4">
                 <div className="space-y-3 mb-4">
                   <Skeleton className="h-6 w-3/4" />
                   <Skeleton className="h-4 w-full" />

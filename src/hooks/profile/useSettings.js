@@ -49,25 +49,33 @@ export const useSettings = () => {
       }
     };
     fetchPrefs();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  const handleToggleDarkMode = useCallback((checked) => {
-    setDarkMode(checked);
-    toast.success(`Theme switched to ${checked ? 'Dark' : 'Light'}`);
-  }, [setDarkMode]);
+  const handleToggleDarkMode = useCallback(
+    (checked) => {
+      setDarkMode(checked);
+      toast.success(`Theme switched to ${checked ? 'Dark' : 'Light'}`);
+    },
+    [setDarkMode],
+  );
 
-  const handlePrefChange = useCallback(async (key, value) => {
-    const oldPrefs = { ...prefs };
-    setPrefs((prev) => ({ ...prev, [key]: value }));
-    try {
-      await authService.updatePrefs({ ...oldPrefs, [key]: value });
-      toast.success('Preference saved.');
-    } catch {
-      setPrefs(oldPrefs);
-      toast.error('Failed to save preference.');
-    }
-  }, [prefs]);
+  const handlePrefChange = useCallback(
+    async (key, value) => {
+      const oldPrefs = { ...prefs };
+      setPrefs((prev) => ({ ...prev, [key]: value }));
+      try {
+        await authService.updatePrefs({ ...oldPrefs, [key]: value });
+        toast.success('Preference saved.');
+      } catch {
+        setPrefs(oldPrefs);
+        toast.error('Failed to save preference.');
+      }
+    },
+    [prefs],
+  );
 
   const handleDeleteSessions = useCallback(async () => {
     if (isLoading) return;

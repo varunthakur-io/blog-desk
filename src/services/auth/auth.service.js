@@ -43,7 +43,7 @@ class AuthService {
   async loginUser({ email, password }) {
     await authApi.createEmailPasswordSession(email, password);
     const user = await authApi.getAccount();
-    
+
     let profile = null;
     try {
       profile = await profileService.getProfile(user.$id);
@@ -68,14 +68,14 @@ class AuthService {
   async getAccount() {
     try {
       const user = await authApi.getAccount();
-      
+
       let profile = null;
       try {
         profile = await profileService.getProfile(user.$id);
       } catch {
         // ignore
       }
-      
+
       const cached = this.getCachedUser() || {};
       const updatedUser = { ...cached, ...user, profile };
       this.cacheUser(updatedUser);

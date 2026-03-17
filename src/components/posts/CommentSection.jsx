@@ -50,9 +50,7 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
       });
 
       // Replace temp with real data from server
-      setComments((prev) =>
-        prev.map((c) => (c.$id === tempId ? createdComment : c)),
-      );
+      setComments((prev) => prev.map((c) => (c.$id === tempId ? createdComment : c)));
       toast.success('Comment posted!');
     } catch (err) {
       // Revert on error
@@ -78,7 +76,9 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
           <CardContent className="p-6">
             <div className="flex gap-4">
               <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
-                {currentUserProfile?.avatarUrl && <AvatarImage src={currentUserProfile.avatarUrl} />}
+                {currentUserProfile?.avatarUrl && (
+                  <AvatarImage src={currentUserProfile.avatarUrl} />
+                )}
                 <AvatarFallback className="bg-primary/10 text-primary font-semibold">
                   {currentUserName.charAt(0).toUpperCase()}
                 </AvatarFallback>
@@ -126,7 +126,7 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
             // FIX: If it's the current user, use currentUserProfile directly
             const isMe = comment.userId === authUserId;
             const commenterProfile = isMe ? currentUserProfile : profiles[comment.userId];
-            
+
             const name = commenterProfile?.name || (isMe ? currentUserName : 'Anonymous User');
             const avatarUrl = commenterProfile?.avatarUrl;
             const commentorInitial = name.charAt(0).toUpperCase();

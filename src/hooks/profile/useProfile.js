@@ -5,13 +5,13 @@ import { profileService } from '@/services/profile';
 import { postService } from '@/services/posts';
 import { likeService } from '@/services/likes';
 import { selectAuthUserId, selectIsAuthLoading } from '@/store/auth';
-import { 
-  selectProfileById, 
-  selectIsProfileLoading, 
+import {
+  selectProfileById,
+  selectIsProfileLoading,
   selectProfileError,
   setProfileLoading,
   setUserProfile,
-  setProfileError
+  setProfileError,
 } from '@/store/profile';
 import { selectPostsByAuthor, selectIsPostsLoading, selectInitialLoaded } from '@/store/posts';
 import { setPostsStatus, setPostsError, setPostList, setPostPagination } from '@/store/posts';
@@ -25,10 +25,10 @@ export const useProfile = () => {
   const authUserEmail = useSelector((state) => state.auth.user?.email);
 
   const [localProfile, setLocalProfile] = useState(null);
-  
+
   const [usernameFetchStatus, setUsernameFetchStatus] = useState(username ? 'loading' : 'idle');
   const [likesFetchStatus, setLikesFetchStatus] = useState('idle');
-  
+
   const [usernameFetchError, setUsernameFetchError] = useState(null);
   const [likesError, setLikesError] = useState('');
 
@@ -62,7 +62,9 @@ export const useProfile = () => {
       }
     };
     fetchByUsername();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [username, dispatch]);
 
   const profileId = username ? localProfile?.$id : authUserId;
@@ -81,7 +83,9 @@ export const useProfile = () => {
   const displayEmail = isOwner ? authUserEmail : '';
   const displayBio = profile?.bio || '';
   const avatarUrl = profile?.avatarUrl || null;
-  const joinedDate = profile?.$createdAt ? new Date(profile.$createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : '—';
+  const joinedDate = profile?.$createdAt
+    ? new Date(profile.$createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    : '—';
 
   useEffect(() => {
     if (!profileId || (isOwner && authLoading) || (profile && !profileError)) return;
@@ -92,11 +96,19 @@ export const useProfile = () => {
         const profileObj = await profileService.getProfile(profileId);
         if (!cancelled) dispatch(setUserProfile(profileObj));
       } catch (err) {
-        if (!cancelled) dispatch(setProfileError({ userId: profileId, error: err?.message || 'Failed to load profile.' }));
+        if (!cancelled)
+          dispatch(
+            setProfileError({
+              userId: profileId,
+              error: err?.message || 'Failed to load profile.',
+            }),
+          );
       }
     };
     loadProfile();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [dispatch, profileId, profile, profileError, isOwner, authLoading]);
 
   useEffect(() => {
@@ -115,7 +127,9 @@ export const useProfile = () => {
       }
     };
     fetchPostsOnce();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [dispatch, initialPostsLoaded]);
 
   useEffect(() => {
@@ -137,18 +151,32 @@ export const useProfile = () => {
       }
     };
     fetchLikedPosts();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [activeTab, isOwner, profileId]);
 
   return {
-    profileId, isOwner, profile, profileLoading, profileError, 
-    isFetchingUsername: usernameFetchStatus === 'loading', 
-    usernameFetchError, 
+    profileId,
+    isOwner,
+    profile,
+    profileLoading,
+    profileError,
+    isFetchingUsername: usernameFetchStatus === 'loading',
+    usernameFetchError,
     authLoading,
-    userPosts, postsLoading, initialPostsLoaded,
-    activeTab, setActiveTab, likedPosts, 
-    isLoadingLikes: likesFetchStatus === 'loading', 
+    userPosts,
+    postsLoading,
+    initialPostsLoaded,
+    activeTab,
+    setActiveTab,
+    likedPosts,
+    isLoadingLikes: likesFetchStatus === 'loading',
     likesError,
-    displayName, displayEmail, displayBio, avatarUrl, joinedDate
+    displayName,
+    displayEmail,
+    displayBio,
+    avatarUrl,
+    joinedDate,
   };
 };

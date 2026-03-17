@@ -127,7 +127,11 @@ const EditProfileDialog = ({ profile, profileId, isOwner }) => {
 
       if (avatarFileToUpload) {
         setStatus('uploading');
-        const updatedProfile = await profileService.updateAvatar(profileId, profile?.avatarId, avatarFileToUpload);
+        const updatedProfile = await profileService.updateAvatar(
+          profileId,
+          profile?.avatarId,
+          avatarFileToUpload,
+        );
         if (updatedProfile) {
           dispatch(setUserProfile(updatedProfile));
         }
@@ -170,7 +174,10 @@ const EditProfileDialog = ({ profile, profileId, isOwner }) => {
           )}
 
           <div className="flex justify-center">
-            <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+            <div
+              className="relative group cursor-pointer"
+              onClick={() => fileInputRef.current?.click()}
+            >
               <Avatar className="w-24 h-24 border-2 border-border">
                 <AvatarImage src={avatarPreview} />
                 <AvatarFallback>
@@ -180,7 +187,13 @@ const EditProfileDialog = ({ profile, profileId, isOwner }) => {
               <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                 <Edit className="w-6 h-6 text-white" />
               </div>
-              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarSelect} />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarSelect}
+              />
             </div>
           </div>
 
@@ -192,13 +205,24 @@ const EditProfileDialog = ({ profile, profileId, isOwner }) => {
 
             <div className="grid gap-2">
               <Label htmlFor="bio">Bio</Label>
-              <Textarea id="bio" name="bio" placeholder="Tell us a little bit about yourself" className="resize-none" value={editForm.bio} onChange={handleInputChange} />
+              <Textarea
+                id="bio"
+                name="bio"
+                placeholder="Tell us a little bit about yourself"
+                className="resize-none"
+                value={editForm.bio}
+                onChange={handleInputChange}
+              />
             </div>
           </div>
 
           <DialogFooter>
             <Button type="submit" disabled={status !== 'idle'}>
-              {status !== 'idle' ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+              {status !== 'idle' ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4 mr-2" />
+              )}
               {status === 'uploading' ? 'Uploading Avatar...' : 'Save Changes'}
             </Button>
           </DialogFooter>

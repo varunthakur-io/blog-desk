@@ -47,7 +47,7 @@ class LikeService {
       throw error;
     }
   }
-  
+
   async unlikePost(postId, userId) {
     const key = `${userId}:${postId}`;
     try {
@@ -72,10 +72,7 @@ class LikeService {
 
       if (postIds.length === 0) return [];
 
-      return await postApi.listPosts([
-        Query.equal('$id', postIds),
-        Query.orderDesc('$createdAt')
-      ]);
+      return await postApi.listPosts([Query.equal('$id', postIds), Query.orderDesc('$createdAt')]);
     } catch (error) {
       console.error('LikeService :: getLikedPostsByUserId()', error);
       throw error;
@@ -86,9 +83,7 @@ class LikeService {
     if (!postId) throw new Error('deleteLikesByPostId: "postId" is required');
     try {
       const likesList = await likeApi.listLikesByPost(postId);
-      const deletePromises = likesList.documents.map((like) =>
-        likeApi.deleteLike(like.$id),
-      );
+      const deletePromises = likesList.documents.map((like) => likeApi.deleteLike(like.$id));
       await Promise.all(deletePromises);
     } catch (error) {
       console.error('LikeService :: deleteLikesByPostId()', error);

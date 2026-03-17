@@ -16,9 +16,7 @@ export const appwriteConfig = {
 /**
  * Global Appwrite Client instance.
  */
-const client = new Client()
-  .setEndpoint(appwriteConfig.url)
-  .setProject(appwriteConfig.projectId);
+const client = new Client().setEndpoint(appwriteConfig.url).setProject(appwriteConfig.projectId);
 
 export const databases = new Databases(client);
 export const account = new Account(client);

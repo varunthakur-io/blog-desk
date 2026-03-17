@@ -39,11 +39,8 @@ export const selectIsProfileLoading = createSelector(
 /* ========= Computed Attributes ========= */
 
 // Groups all count-based metrics into a single object for UI convenience
-export const selectProfileStats = createSelector(
-  [selectProfileById],
-  (profile) => ({
-    followers: profile?.followersCount || 0,
-    following: profile?.followingCount || 0,
-    posts: profile?.postsCount || 0,
-  }),
-);
+export const selectProfileStats = createSelector([selectProfileById], (profile) => ({
+  followers: profile?.followersCount || 0,
+  following: profile?.followingCount || 0,
+  posts: profile?.postsCount || 0,
+}));

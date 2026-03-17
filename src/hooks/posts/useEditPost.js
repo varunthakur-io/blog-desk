@@ -13,7 +13,7 @@ export const useEditPost = () => {
   const post = useSelector((state) => selectPostById(state, id));
 
   const [formData, setFormData] = useState(null);
-  const [fetchStatus, setFetchStatus] = useState('loading'); 
+  const [fetchStatus, setFetchStatus] = useState('loading');
   const [submitStatus, setSubmitStatus] = useState('idle');
   const [error, setError] = useState('');
 
@@ -67,46 +67,51 @@ export const useEditPost = () => {
     };
 
     loadPost();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [id, post, dispatch]);
 
-  const handleUpdate = useCallback(async (data) => {
-    if (!id) return;
-    if (!data.title?.trim() || !data.content?.trim()) {
-      toast.error('Title and content are required.');
-      return;
-    }
-
-    if (submitStatus === 'submitting') return;
-
-    setSubmitStatus('submitting');
-    setError('');
-
-    try {
-      const updatedPost = await postService.updatePost(id, {
-        title: data.title.trim(),
-        content: data.content.trim(),
-        status: data.status || 'draft',
-        coverImageId: data.coverImageId || null,
-        coverImageUrl: data.coverImageUrl || null,
-      });
-
-      if (updatedPost && updatedPost.$id) {
-        dispatch(setPostDetail(updatedPost));
-        setSubmitStatus('success');
-        toast.success('Post updated successfully!');
-        navigate('/dashboard');
-      } else {
-        throw new Error('Failed to update post.');
+  const handleUpdate = useCallback(
+    async (data) => {
+      if (!id) return;
+      if (!data.title?.trim() || !data.content?.trim()) {
+        toast.error('Title and content are required.');
+        return;
       }
-    } catch (err) {
-      console.error('Update failed:', err);
-      setSubmitStatus('error');
-      const msg = err?.message || 'Failed to update post';
-      toast.error(msg);
-      setError(msg);
-    }
-  }, [id, dispatch, navigate, submitStatus]);
+
+      if (submitStatus === 'submitting') return;
+
+      setSubmitStatus('submitting');
+      setError('');
+
+      try {
+        const updatedPost = await postService.updatePost(id, {
+          title: data.title.trim(),
+          content: data.content.trim(),
+          status: data.status || 'draft',
+          coverImageId: data.coverImageId || null,
+          coverImageUrl: data.coverImageUrl || null,
+        });
+
+        if (updatedPost && updatedPost.$id) {
+          dispatch(setPostDetail(updatedPost));
+          setSubmitStatus('success');
+          toast.success('Post updated successfully!');
+          navigate('/dashboard');
+        } else {
+          throw new Error('Failed to update post.');
+        }
+      } catch (err) {
+        console.error('Update failed:', err);
+        setSubmitStatus('error');
+        const msg = err?.message || 'Failed to update post';
+        toast.error(msg);
+        setError(msg);
+      }
+    },
+    [id, dispatch, navigate, submitStatus],
+  );
 
   return {
     formData,

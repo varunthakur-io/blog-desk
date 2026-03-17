@@ -23,14 +23,14 @@ export const usePostDetails = () => {
   const currentUserProfile = useSelector((state) => selectProfileById(state, authUserId));
 
   // Local UI States
-  const [status, setStatus] = useState(currentPost ? 'success' : 'loading'); 
+  const [status, setStatus] = useState(currentPost ? 'success' : 'loading');
   const [error, setError] = useState('');
-  
+
   const [likesCount, setLikesCount] = useState(currentPost?.likesCount || 0);
   const [isLiked, setIsLiked] = useState(false);
   const [isLikedLoading, setIsLikedLoading] = useState(true);
   const [isLiking, setIsLiking] = useState(false);
-  
+
   const [comments, setComments] = useState([]);
 
   // Read time calc
@@ -49,7 +49,8 @@ export const usePostDetails = () => {
     if (currentPost) {
       setStatus('success');
       if (currentPost.authorId && !authorProfile) {
-        profileService.getProfile(currentPost.authorId)
+        profileService
+          .getProfile(currentPost.authorId)
           .then((p) => dispatch(setUserProfile(p)))
           .catch(console.warn);
       }
@@ -58,7 +59,7 @@ export const usePostDetails = () => {
 
     let mounted = true;
     setStatus('loading');
-    
+
     const fetchPost = async () => {
       try {
         const fetched = await postService.getPostById(id);
@@ -67,7 +68,8 @@ export const usePostDetails = () => {
           dispatch(setPostDetail(fetched));
           setStatus('success');
           if (fetched.authorId) {
-            profileService.getProfile(fetched.authorId)
+            profileService
+              .getProfile(fetched.authorId)
               .then((p) => mounted && dispatch(setUserProfile(p)))
               .catch(console.warn);
           }
@@ -83,7 +85,9 @@ export const usePostDetails = () => {
       }
     };
     fetchPost();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [id, currentPost, authorProfile, dispatch]);
 
   // 2. Like Status Sync
@@ -109,23 +113,24 @@ export const usePostDetails = () => {
       }
     };
     checkLike();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [currentPost, authUserId]);
 
   // 3. Comments & Commenters
   useEffect(() => {
     if (!currentPost?.$id) return;
-    commentService.getCommentsByPost(currentPost.$id)
-      .then(setComments)
-      .catch(console.error);
+    commentService.getCommentsByPost(currentPost.$id).then(setComments).catch(console.error);
   }, [currentPost?.$id]);
 
   useEffect(() => {
     if (comments.length === 0) return;
-    comments.forEach(c => {
+    comments.forEach((c) => {
       if (c.userId && !profiles[c.userId]) {
-        profileService.getProfile(c.userId)
-          .then(p => dispatch(setUserProfile(p)))
+        profileService
+          .getProfile(c.userId)
+          .then((p) => dispatch(setUserProfile(p)))
           .catch(console.warn);
       }
     });
@@ -139,7 +144,7 @@ export const usePostDetails = () => {
     setIsLiking(true);
     const wasLiked = isLiked;
     setIsLiked(!wasLiked);
-    setLikesCount(p => Math.max(0, p + (wasLiked ? -1 : 1)));
+    setLikesCount((p) => Math.max(0, p + (wasLiked ? -1 : 1)));
 
     try {
       if (wasLiked) {
@@ -150,7 +155,7 @@ export const usePostDetails = () => {
     } catch {
       // Revert optimistic update
       setIsLiked(wasLiked);
-      setLikesCount(p => Math.max(0, p + (wasLiked ? 1 : -1)));
+      setLikesCount((p) => Math.max(0, p + (wasLiked ? 1 : -1)));
       toast.error('Like failed.');
     } finally {
       setIsLiking(false);
@@ -167,8 +172,22 @@ export const usePostDetails = () => {
   }, []);
 
   return {
-    id, currentPost, authUserId, profiles, authorProfile, currentUserProfile,
-    isLoading: status === 'loading', error, likesCount, isLiked, isLikedLoading, isLiking, comments, readTime,
-    handleLike, handleShare, navigate
+    id,
+    currentPost,
+    authUserId,
+    profiles,
+    authorProfile,
+    currentUserProfile,
+    isLoading: status === 'loading',
+    error,
+    likesCount,
+    isLiked,
+    isLikedLoading,
+    isLiking,
+    comments,
+    readTime,
+    handleLike,
+    handleShare,
+    navigate,
   };
 };

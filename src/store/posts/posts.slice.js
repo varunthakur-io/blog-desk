@@ -2,11 +2,11 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  byId: {},        // postId -> post object
-  allIds: [],      // array of postIds in order
-  status: 'idle',  // idle | loading | error | success
+  byId: {}, // postId -> post object
+  allIds: [], // array of postIds in order
+  status: 'idle', // idle | loading | error | success
   error: null,
-  
+
   // Grouped Metadata for feed control
   pagination: {
     page: 1,

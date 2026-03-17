@@ -7,11 +7,7 @@ const CreatePost = () => {
 
   return (
     <div>
-      <PostForm
-        mode="create"
-        onSubmit={handleCreatePost}
-        isSubmitting={isSubmitting}
-      />
+      <PostForm mode="create" onSubmit={handleCreatePost} isSubmitting={isSubmitting} />
     </div>
   );
 };

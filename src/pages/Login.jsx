@@ -70,9 +70,7 @@ const Login = () => {
                   className={`h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50 ${formErrors.email ? 'border-destructive focus-visible:ring-destructive/50' : ''}`}
                 />
                 {formErrors.email && (
-                  <p className="text-xs text-destructive font-medium ml-1">
-                    {formErrors.email}
-                  </p>
+                  <p className="text-xs text-destructive font-medium ml-1">{formErrors.email}</p>
                 )}
               </div>
 
@@ -112,9 +110,7 @@ const Login = () => {
                   </Button>
                 </div>
                 {formErrors.password && (
-                  <p className="text-xs text-destructive font-medium ml-1">
-                    {formErrors.password}
-                  </p>
+                  <p className="text-xs text-destructive font-medium ml-1">{formErrors.password}</p>
                 )}
               </div>
 

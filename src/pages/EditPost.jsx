@@ -11,14 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useEditPost } from '@/hooks/posts';
 
 export default function EditPost() {
-  const {
-    formData,
-    isLoading,
-    isSaving,
-    error,
-    handleUpdate,
-    navigate,
-  } = useEditPost();
+  const { formData, isLoading, isSaving, error, handleUpdate, navigate } = useEditPost();
 
   if (isLoading) {
     return <FormSkeleton />;
@@ -30,9 +23,7 @@ export default function EditPost() {
         <Card className="w-full max-w-lg border-destructive/50">
           <CardContent className="pt-6">
             <Alert variant="destructive" className="border-none">
-              <AlertDescription className="text-center font-medium">
-                {error}
-              </AlertDescription>
+              <AlertDescription className="text-center font-medium">{error}</AlertDescription>
             </Alert>
             <Button
               variant="outline"

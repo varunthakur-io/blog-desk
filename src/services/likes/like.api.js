@@ -3,11 +3,11 @@ import { Query, ID } from 'appwrite';
 
 class LikeApi {
   async getLike(postId, userId) {
-    const res = await databases.listDocuments(
-      appwrite.databaseId,
-      appwrite.likesCollectionId,
-      [Query.equal('postId', postId), Query.equal('userId', userId), Query.limit(1)],
-    );
+    const res = await databases.listDocuments(appwrite.databaseId, appwrite.likesCollectionId, [
+      Query.equal('postId', postId),
+      Query.equal('userId', userId),
+      Query.limit(1),
+    ]);
     return res.total > 0 ? res.documents[0] : null;
   }
 
@@ -21,27 +21,19 @@ class LikeApi {
   }
 
   async deleteLike(likeId) {
-    return await databases.deleteDocument(
-      appwrite.databaseId,
-      appwrite.likesCollectionId,
-      likeId,
-    );
+    return await databases.deleteDocument(appwrite.databaseId, appwrite.likesCollectionId, likeId);
   }
 
   async listLikesByUser(userId) {
-    return await databases.listDocuments(
-      appwrite.databaseId,
-      appwrite.likesCollectionId,
-      [Query.equal('userId', userId)],
-    );
+    return await databases.listDocuments(appwrite.databaseId, appwrite.likesCollectionId, [
+      Query.equal('userId', userId),
+    ]);
   }
 
   async listLikesByPost(postId) {
-    return await databases.listDocuments(
-      appwrite.databaseId,
-      appwrite.likesCollectionId,
-      [Query.equal('postId', postId)],
-    );
+    return await databases.listDocuments(appwrite.databaseId, appwrite.likesCollectionId, [
+      Query.equal('postId', postId),
+    ]);
   }
 }
 

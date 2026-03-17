@@ -11,15 +11,7 @@ import { PostCard, FeaturedPost, PostCardSkeleton } from '@/components/posts';
 import { useHome } from '@/hooks/posts';
 
 const Home = () => {
-  const {
-    posts,
-    loading,
-    error,
-    hasMore,
-    searchTerm,
-    handleSearchChange,
-    LIMIT,
-  } = useHome();
+  const { posts, loading, error, hasMore, searchTerm, handleSearchChange, LIMIT } = useHome();
 
   const renderContent = () => {
     if (loading && posts.length === 0) {
@@ -117,8 +109,8 @@ const Home = () => {
           Build your digital presence.
         </h1>
         <p className="max-w-[750px] text-lg text-muted-foreground sm:text-xl">
-          A minimal blog platform built for developers and creators. Share your
-          ideas, code, and stories with the world.
+          A minimal blog platform built for developers and creators. Share your ideas, code, and
+          stories with the world.
         </p>
 
         <div className="w-full max-w-md md:max-w-sm items-center space-x-2 pt-4">

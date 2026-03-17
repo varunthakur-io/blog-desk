@@ -1,27 +1,16 @@
 import DOMPurify from 'dompurify';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Calendar, User, Clock, MessageSquare } from 'lucide-react';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useSelector } from 'react-redux';
 import { selectProfileById } from '@/store/profile';
 
 const PostCard = ({ post }) => {
-  const authorName = useSelector((state) =>
-    selectProfileById(state, post.authorId),
-  )?.name;
+  const authorName = useSelector((state) => selectProfileById(state, post.authorId))?.name;
   // Calculate read time (rough estimate: 200 words per minute)
-  const readTime = Math.max(
-    1,
-    Math.ceil((post.content || '').split(' ').length / 200),
-  );
+  const readTime = Math.max(1, Math.ceil((post.content || '').split(' ').length / 200));
 
   const plainContent = DOMPurify.sanitize(post.content || '', {
     USE_PROFILES: { html: false },
@@ -73,9 +62,7 @@ const PostCard = ({ post }) => {
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
           <div className="flex items-center gap-1.5">
             <User className="h-3.5 w-3.5" />
-            <span className="font-medium text-foreground/80">
-              {authorName || 'Anonymous'}
-            </span>
+            <span className="font-medium text-foreground/80">{authorName || 'Anonymous'}</span>
           </div>
           <span className="h-1 w-1 rounded-full bg-border" />
           <div className="flex items-center gap-1.5">
@@ -95,9 +82,7 @@ const PostCard = ({ post }) => {
 
       {/* Content Excerpt */}
       <CardContent className="flex-grow px-6 pb-2">
-        <p className="text-muted-foreground text-sm line-clamp-3 leading-relaxed">
-          {plainContent}
-        </p>
+        <p className="text-muted-foreground text-sm line-clamp-3 leading-relaxed">{plainContent}</p>
       </CardContent>
 
       {/* Footer Action */}

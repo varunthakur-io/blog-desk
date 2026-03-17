@@ -38,7 +38,7 @@ class PostService {
   // FIX: Allowing the method to update any field provided in the object
   async updatePost(postId, data) {
     const postData = { ...data };
-    
+
     if (postData.title) {
       postData.slug = generateSlug(postData.title);
     }
@@ -53,16 +53,19 @@ class PostService {
   async getAllPosts(page = 1, skip = 6) {
     const offset = (page - 1) * skip;
     const limit = skip;
-    const queries = [
-      Query.limit(limit), 
-      Query.offset(offset), 
-      Query.equal('status', 'published')
-    ];
+    const queries = [Query.limit(limit), Query.offset(offset), Query.equal('status', 'published')];
 
     return await postApi.listPosts(queries);
   }
 
-  async getPostsByUserId(userId, page = 1, limit = 10, searchQuery = '', status = 'all', sortBy = 'newest') {
+  async getPostsByUserId(
+    userId,
+    page = 1,
+    limit = 10,
+    searchQuery = '',
+    status = 'all',
+    sortBy = 'newest',
+  ) {
     if (!userId) throw new Error('getPostsByUserId: "userId" is required');
 
     const offset = (page - 1) * limit;

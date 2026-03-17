@@ -83,10 +83,25 @@ const EmptyState = ({ onCreate, hasQuery }) => (
 export default function Dashboard() {
   const navigate = useNavigate();
   const {
-    posts, postsLoading, postsError, page, setPage, searchQuery, handleSearchChange,
-    statusFilter, setStatusFilter, sortBy, setSortBy, totalPages, totalPosts,
-    isDeleting, postToDelete, isDeleteDialogOpen, setIsDeleteDialogOpen,
-    handleDeleteClick, confirmDelete
+    posts,
+    postsLoading,
+    postsError,
+    page,
+    setPage,
+    searchQuery,
+    handleSearchChange,
+    statusFilter,
+    setStatusFilter,
+    sortBy,
+    setSortBy,
+    totalPages,
+    totalPosts,
+    isDeleting,
+    postToDelete,
+    isDeleteDialogOpen,
+    setIsDeleteDialogOpen,
+    handleDeleteClick,
+    confirmDelete,
   } = useDashboard();
 
   return (
@@ -96,13 +111,17 @@ export default function Dashboard() {
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-            <p className="text-muted-foreground mt-1">
-              Manage your posts and track performance.
-            </p>
+            <p className="text-muted-foreground mt-1">Manage your posts and track performance.</p>
           </div>
 
           <div className="flex flex-col md:flex-row w-full md:w-auto items-center gap-2">
-            <Select value={statusFilter} onValueChange={(val) => { setStatusFilter(val); setPage(1); }}>
+            <Select
+              value={statusFilter}
+              onValueChange={(val) => {
+                setStatusFilter(val);
+                setPage(1);
+              }}
+            >
               <SelectTrigger className="w-full md:w-[130px]">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
@@ -113,7 +132,13 @@ export default function Dashboard() {
               </SelectContent>
             </Select>
 
-            <Select value={sortBy} onValueChange={(val) => { setSortBy(val); setPage(1); }}>
+            <Select
+              value={sortBy}
+              onValueChange={(val) => {
+                setSortBy(val);
+                setPage(1);
+              }}
+            >
               <SelectTrigger className="w-full md:w-[130px]">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
@@ -150,12 +175,11 @@ export default function Dashboard() {
         {postsLoading && posts.length === 0 ? (
           <DashboardSkeleton />
         ) : posts.length === 0 ? (
-          <EmptyState
-            onCreate={() => navigate('/create')}
-            hasQuery={!!searchQuery}
-          />
+          <EmptyState onCreate={() => navigate('/create')} hasQuery={!!searchQuery} />
         ) : (
-          <div className={`flex flex-col gap-4 transition-opacity duration-200 ${postsLoading ? 'opacity-50 pointer-events-none' : ''}`}>
+          <div
+            className={`flex flex-col gap-4 transition-opacity duration-200 ${postsLoading ? 'opacity-50 pointer-events-none' : ''}`}
+          >
             <div className="border rounded-md">
               <Table>
                 <TableHeader>
@@ -177,13 +201,20 @@ export default function Dashboard() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={post.status === 'published' ? 'default' : 'outline'} className="font-normal capitalize">
+                        <Badge
+                          variant={post.status === 'published' ? 'default' : 'outline'}
+                          className="font-normal capitalize"
+                        >
                           {post.status || 'Draft'}
                         </Badge>
                       </TableCell>
                       <TableCell>
                         <span className="text-muted-foreground">
-                          {new Date(post.$createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          {new Date(post.$createdAt).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                          })}
                         </span>
                       </TableCell>
                       <TableCell className="text-right">
@@ -199,7 +230,10 @@ export default function Dashboard() {
                               <Edit2 className="mr-2 h-4 w-4" /> Edit
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => handleDeleteClick(post)} className="text-destructive focus:text-destructive">
+                            <DropdownMenuItem
+                              onClick={() => handleDeleteClick(post)}
+                              className="text-destructive focus:text-destructive"
+                            >
                               <Trash2 className="mr-2 h-4 w-4" /> Delete
                             </DropdownMenuItem>
                           </DropdownMenuContent>
@@ -212,13 +246,27 @@ export default function Dashboard() {
             </div>
 
             <div className="flex items-center justify-between">
-              <div className="text-sm text-muted-foreground">Showing {posts.length} of {totalPosts} posts</div>
+              <div className="text-sm text-muted-foreground">
+                Showing {posts.length} of {totalPosts} posts
+              </div>
               <div className="flex items-center space-x-2">
-                <Button variant="outline" size="sm" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                >
                   <ChevronLeft className="h-4 w-4" /> Previous
                 </Button>
-                <div className="text-sm font-medium">Page {page} of {totalPages || 1}</div>
-                <Button variant="outline" size="sm" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}>
+                <div className="text-sm font-medium">
+                  Page {page} of {totalPages || 1}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page >= totalPages}
+                >
                   Next <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
@@ -227,17 +275,29 @@ export default function Dashboard() {
         )}
       </div>
 
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={(open) => !isDeleting && setIsDeleteDialogOpen(open)}>
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={(open) => !isDeleting && setIsDeleteDialogOpen(open)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete "<span className="font-medium text-foreground">{postToDelete?.title}</span>" and remove it from our servers.
+              This action cannot be undone. This will permanently delete "
+              <span className="font-medium text-foreground">{postToDelete?.title}</span>" and remove
+              it from our servers.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={(e) => { e.preventDefault(); confirmDelete(); }} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                confirmDelete();
+              }}
+              disabled={isDeleting}
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+            >
               {isDeleting ? 'Deleting...' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>

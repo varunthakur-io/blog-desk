@@ -18,8 +18,7 @@ const validate = (data) => {
   } else if (data.username.length < 3) {
     errors.username = 'Username must be at least 3 characters';
   } else if (!/^[a-zA-Z0-9_]+$/.test(data.username)) {
-    errors.username =
-      'Username can only contain letters, numbers, and underscores';
+    errors.username = 'Username can only contain letters, numbers, and underscores';
   }
 
   if (!data.email) {
@@ -149,8 +148,6 @@ export const useSignup = () => {
     handleChange,
     handleSubmit,
     isSubmitDisabled:
-      status === 'loading' ||
-      usernameStatus === 'checking' ||
-      usernameStatus === 'taken',
+      status === 'loading' || usernameStatus === 'checking' || usernameStatus === 'taken',
   };
 };

@@ -18,14 +18,8 @@ import { Label } from '@/components/ui/label';
 import { useSignup } from '@/hooks/auth';
 
 const Signup = () => {
-  const {
-    formData,
-    isLoading,
-    formErrors,
-    usernameStatus,
-    handleChange,
-    handleSubmit,
-  } = useSignup();
+  const { formData, isLoading, formErrors, usernameStatus, handleChange, handleSubmit } =
+    useSignup();
 
   const getUsernameMessage = () => {
     if (usernameStatus === 'checking') return { type: 'info', text: 'Checking availability...' };
@@ -45,9 +39,7 @@ const Signup = () => {
       <div className="w-full max-w-lg">
         {/* Header */}
         <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold tracking-tight">
-            Welcome to Blog Desk
-          </h1>
+          <h1 className="text-4xl font-bold tracking-tight">Welcome to Blog Desk</h1>
           <p className="text-muted-foreground mt-2 text-base">
             Join us and start your blogging journey today
           </p>
@@ -80,9 +72,7 @@ const Signup = () => {
                   className={`h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50 ${formErrors.name ? 'border-destructive focus-visible:ring-destructive/50' : ''}`}
                 />
                 {formErrors.name && (
-                  <p className="text-xs text-destructive font-medium ml-1">
-                    {formErrors.name}
-                  </p>
+                  <p className="text-xs text-destructive font-medium ml-1">{formErrors.name}</p>
                 )}
               </div>
 
@@ -108,8 +98,8 @@ const Signup = () => {
                       usernameMessage.type === 'success'
                         ? 'text-green-600'
                         : usernameMessage.type === 'info'
-                        ? 'text-blue-600'
-                        : 'text-destructive'
+                          ? 'text-blue-600'
+                          : 'text-destructive'
                     }`}
                   >
                     {usernameMessage.text}
@@ -135,9 +125,7 @@ const Signup = () => {
                   className={`h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50 ${formErrors.email ? 'border-destructive focus-visible:ring-destructive/50' : ''}`}
                 />
                 {formErrors.email && (
-                  <p className="text-xs text-destructive font-medium ml-1">
-                    {formErrors.email}
-                  </p>
+                  <p className="text-xs text-destructive font-medium ml-1">{formErrors.email}</p>
                 )}
               </div>
 
@@ -159,9 +147,7 @@ const Signup = () => {
                   className={`h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50 ${formErrors.password ? 'border-destructive focus-visible:ring-destructive/50' : ''}`}
                 />
                 {formErrors.password && (
-                  <p className="text-xs text-destructive font-medium ml-1">
-                    {formErrors.password}
-                  </p>
+                  <p className="text-xs text-destructive font-medium ml-1">{formErrors.password}</p>
                 )}
               </div>
 

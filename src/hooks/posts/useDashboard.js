@@ -4,12 +4,12 @@ import toast from 'react-hot-toast';
 import { debounce } from '@/lib/utils';
 import { postService } from '@/services/posts';
 import { selectAuthUserId } from '@/store/auth';
-import { 
-  selectIsPostsLoading, 
-  selectPostsError, 
-  setPostsStatus, 
-  setPostsError, 
-  clearPostRecord
+import {
+  selectIsPostsLoading,
+  selectPostsError,
+  setPostsStatus,
+  setPostsError,
+  clearPostRecord,
 } from '@/store/posts';
 import { DASHBOARD_POSTS_PER_PAGE } from '@/constants';
 
@@ -43,10 +43,13 @@ export const useDashboard = () => {
     [],
   );
 
-  const handleSearchChange = useCallback((e) => {
-    setSearchQuery(e.target.value);
-    handleSearchDebounce(e.target.value);
-  }, [handleSearchDebounce]);
+  const handleSearchChange = useCallback(
+    (e) => {
+      setSearchQuery(e.target.value);
+      handleSearchDebounce(e.target.value);
+    },
+    [handleSearchDebounce],
+  );
 
   const fetchUserPosts = useCallback(async () => {
     if (!authUserId) return;

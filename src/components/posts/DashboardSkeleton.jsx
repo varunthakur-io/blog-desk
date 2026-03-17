@@ -30,10 +30,7 @@ const DashboardSkeleton = () => {
 
             {/* Table Rows */}
             {[1, 2, 3, 4, 5].map((i) => (
-              <div
-                key={i}
-                className="flex items-center justify-between py-4 px-4 border-t"
-              >
+              <div key={i} className="flex items-center justify-between py-4 px-4 border-t">
                 <div className="flex flex-col gap-2 w-1/3">
                   <Skeleton className="h-5 w-3/4" />
                   <Skeleton className="h-4 w-1/2" />
