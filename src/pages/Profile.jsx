@@ -1,4 +1,3 @@
-// src/pages/Profile.jsx
 // UI Components
 import { ProfileSkeleton, ProfileInfo, EditProfileDialog, ProfileTabs } from '@/components/profile';
 import { Separator } from '@/components/ui/separator';
@@ -8,27 +7,36 @@ import { useProfile } from '@/hooks/profile';
 
 export default function Profile() {
   const {
-    profileId,
-    isOwner,
-    profile,
-    profileLoading,
-    profileError,
-    isFetchingUsername,
-    usernameFetchError,
+    // loading states
     authLoading,
-    userPosts,
+    profileLoading,
     postsLoading,
-    initialPostsLoaded,
-    activeTab,
-    setActiveTab,
-    likedPosts,
+    isFetchingUsername,
     isLoadingLikes,
+
+    // errors
+    profileError,
+    postsError,
     likesError,
+    usernameFetchError,
+
+    // profile data
+    profileId,
+    profile,
     displayName,
     displayEmail,
     displayBio,
     avatarUrl,
     joinedDate,
+    isOwner,
+
+    // posts data
+    userPosts,
+    likedPosts,
+
+    // UI state
+    activeTab,
+    setActiveTab,
   } = useProfile();
 
   if (isFetchingUsername) return <ProfileSkeleton />;
@@ -49,7 +57,7 @@ export default function Profile() {
           avatarUrl={avatarUrl}
           joinedDate={joinedDate}
           isOwner={isOwner}
-          postsCount={profile?.postsCount ?? userPosts.length}
+          postsCount={postsLoading ? profile?.postsCount || 0 : userPosts.length}
           followersCount={profile?.followersCount || 0}
           followingCount={profile?.followingCount || 0}
         />
@@ -66,7 +74,7 @@ export default function Profile() {
         setActiveTab={setActiveTab}
         isOwner={isOwner}
         postsLoading={postsLoading}
-        initialPostsLoaded={initialPostsLoaded}
+        postsError={postsError}
         userPosts={userPosts}
         likedPosts={likedPosts}
         isLoadingLikes={isLoadingLikes}
