@@ -100,8 +100,8 @@ export const useSettings = () => {
       dispatch(clearAuthUser());
       navigate('/login');
       toast.success('Account deleted successfully!');
-    } catch {
-      toast.error('Failed to delete account.');
+    } catch (err) {
+      toast.error(err?.message || 'Failed to delete account.');
     } finally {
       setIsLoading(false);
     }

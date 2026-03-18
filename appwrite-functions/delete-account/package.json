@@ -1,0 +1,10 @@
+{
+  "name": "delete-account-function",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "main": "src/main.js",
+  "dependencies": {
+    "node-appwrite": "^17.0.0"
+  }
+}

@@ -109,14 +109,20 @@ class AuthService {
   }
 
   async deleteAccount() {
-    await authApi.updateStatus();
-    try {
-      const currentUser = await authApi.getAccount();
-      await profileService.clearProfileById(currentUser.$id);
-    } catch {
-      // Continue even if profile deletion fails
+    const execution = await authApi.executeDeleteAccount();
+    if (execution.responseStatusCode >= 400) {
+      let message = 'Failed to delete account.';
+      try {
+        const parsed = JSON.parse(execution.responseBody || '{}');
+        message = parsed?.message || message;
+      } catch {
+        // ignore parse errors and keep generic message
+      }
+      throw new Error(message);
     }
+
     this.clearCachedUser();
+    return true;
   }
 }
 

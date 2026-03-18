@@ -1,4 +1,4 @@
-import { Client, Databases, Account, Storage } from 'appwrite';
+import { Client, Databases, Account, Storage, Functions } from 'appwrite';
 
 /**
  * Appwrite configuration object.
@@ -11,6 +11,7 @@ export const appwriteConfig = {
   likesCollectionId: String(import.meta.env.VITE_APPWRITE_LIKES_COLLECTION_ID),
   commentsCollectionId: String(import.meta.env.VITE_APPWRITE_COMMENTS_COLLECTION_ID),
   bucketId: String(import.meta.env.VITE_APPWRITE_BUCKET_ID),
+  deleteAccountFunctionId: String(import.meta.env.VITE_APPWRITE_DELETE_ACCOUNT_FUNCTION_ID),
 };
 
 /**
@@ -21,5 +22,6 @@ const client = new Client().setEndpoint(appwriteConfig.url).setProject(appwriteC
 export const databases = new Databases(client);
 export const account = new Account(client);
 export const storage = new Storage(client);
+export const functions = new Functions(client);
 
 export default client;
