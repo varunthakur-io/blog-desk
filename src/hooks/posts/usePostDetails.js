@@ -126,14 +126,32 @@ export const usePostDetails = () => {
 
   useEffect(() => {
     if (comments.length === 0) return;
-    comments.forEach((c) => {
-      if (c.userId && !profileCache[c.userId]) {
-        profileService
-          .getProfile(c.userId)
-          .then((p) => dispatch(setUserProfile(p)))
-          .catch(console.warn);
+
+    // Collect unique IDs of commenters who aren't in Redux cache yet.
+    const missingUserIds = [
+      ...new Set(comments.map((c) => c.userId).filter((uid) => uid && !profileCache[uid])),
+    ];
+
+    if (missingUserIds.length === 0) return;
+
+    let cancelled = false;
+
+    const fetchCommenterProfiles = async () => {
+      try {
+        const fetchedProfiles = await profileService.getProfilesByIds(missingUserIds);
+        if (!cancelled && fetchedProfiles.length > 0) {
+          fetchedProfiles.forEach((p) => dispatch(setUserProfile(p)));
+        }
+      } catch (error) {
+        console.warn('Batch profile fetch failed:', error);
       }
-    });
+    };
+
+    fetchCommenterProfiles();
+
+    return () => {
+      cancelled = true;
+    };
   }, [comments, profileCache, dispatch]);
 
   // Handlers

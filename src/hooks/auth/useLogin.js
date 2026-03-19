@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { authService } from '@/services/auth';
+import { parseApiError } from '@/lib/error-handler';
 import {
   selectAuthUserId,
   selectAuthStatus,
@@ -95,7 +96,7 @@ export const useLogin = () => {
       navigate('/', { replace: true });
     } catch (error) {
       setLoginStatus('error');
-      const message = error?.message || 'Invalid email or password';
+      const message = parseApiError(error, 'Invalid email or password');
       dispatch(setAuthError(message));
       toast.error(message);
     } finally {
