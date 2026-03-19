@@ -6,6 +6,7 @@ import { postService } from '@/services/posts';
 import { likeService } from '@/services/likes';
 import { commentService } from '@/services/comments';
 import { profileService } from '@/services/profile';
+import { calculateReadTime } from '@/utils/formatters';
 import { selectPostById, setPostDetail } from '@/store/posts';
 import { selectAuthUserId } from '@/store/auth';
 import { selectProfileById, setUserProfile } from '@/store/profile';
@@ -34,9 +35,7 @@ export const usePostDetails = () => {
   const [comments, setComments] = useState([]);
 
   // Read time calc
-  const estimatedReadTime = post?.content
-    ? Math.max(1, Math.ceil(post.content.split(' ').length / 200))
-    : 1;
+  const estimatedReadTime = calculateReadTime(post?.content);
 
   // 1. Fetch Post & Author
   useEffect(() => {

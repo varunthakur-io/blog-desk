@@ -12,20 +12,11 @@ import {
 
 // UI Components
 import { DashboardSkeleton } from '@/components/posts';
+import { ConfirmationDialog } from '@/components/common';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import {
   Table,
   TableBody,
@@ -52,6 +43,7 @@ import {
 
 // Hooks
 import { useDashboard } from '@/hooks/posts';
+import { formatDate } from '@/utils/formatters';
 
 // Empty state component
 const EmptyState = ({ onCreate, hasQuery }) => (
@@ -214,11 +206,7 @@ export default function Dashboard() {
                       </TableCell>
                       <TableCell>
                         <span className="text-muted-foreground">
-                          {new Date(post.$createdAt).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric',
-                          })}
+                          {formatDate(post.$createdAt, { month: 'short' })}
                         </span>
                       </TableCell>
                       <TableCell className="text-right">
@@ -279,34 +267,22 @@ export default function Dashboard() {
         )}
       </div>
 
-      <AlertDialog
+      <ConfirmationDialog
         open={isDeleteDialogOpen}
         onOpenChange={(open) => !isDeleting && setIsDeleteDialogOpen(open)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete "
-              <span className="font-medium text-foreground">{postToDelete?.title}</span>" and remove
-              it from our servers.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={(e) => {
-                e.preventDefault();
-                confirmDelete();
-              }}
-              disabled={isDeleting}
-              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-            >
-              {isDeleting ? 'Deleting...' : 'Delete'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        onConfirm={confirmDelete}
+        title="Are you sure?"
+        description={
+          <span>
+            This action cannot be undone. This will permanently delete "
+            <span className="font-medium text-foreground">{postToDelete?.title}</span>" and remove
+            it from our servers.
+          </span>
+        }
+        confirmText={isDeleting ? 'Deleting...' : 'Delete'}
+        variant="destructive"
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Moon,
@@ -14,22 +15,12 @@ import {
 
 // UI Components
 import { Button } from '@/components/ui/button';
+import { ConfirmationDialog } from '@/components/common';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 
 // Hooks
 import { useSettings } from '@/hooks/profile';
@@ -50,6 +41,9 @@ const Settings = () => {
     handleDeleteSessions,
     handleDeleteAccount,
   } = useSettings();
+
+  const [isSessionsDialogOpen, setIsSessionsDialogOpen] = useState(false);
+  const [isAccountDialogOpen, setIsAccountDialogOpen] = useState(false);
 
   return (
     <div className="py-2 max-w-6xl animate-in fade-in duration-500 mx-auto">
@@ -199,27 +193,14 @@ const Settings = () => {
                     </p>
                   </div>
                 </div>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="outline" size="sm" disabled={isSettingsUpdating}>
-                      <LogOut className="mr-2 h-4 w-4" /> Log Out All
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Sign out everywhere?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        You will need to log in again.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDeleteSessions}>
-                        Confirm Log Out
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={isSettingsUpdating}
+                  onClick={() => setIsSessionsDialogOpen(true)}
+                >
+                  <LogOut className="mr-2 h-4 w-4" /> Log Out All
+                </Button>
               </div>
 
               <Alert variant="destructive" className="border-destructive/20 bg-destructive/5">
@@ -227,36 +208,41 @@ const Settings = () => {
                 <AlertTitle>Delete Account</AlertTitle>
                 <AlertDescription className="mt-2 flex flex-col gap-4">
                   <p className="text-sm text-muted-foreground">Permanently remove your account.</p>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="sm" disabled={isSettingsUpdating}>
-                        Delete Account
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={handleDeleteAccount}
-                          className="bg-destructive hover:bg-destructive/90"
-                        >
-                          Delete My Account
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    disabled={isSettingsUpdating}
+                    onClick={() => setIsAccountDialogOpen(true)}
+                  >
+                    Delete Account
+                  </Button>
                 </AlertDescription>
               </Alert>
             </CardContent>
           </Card>
         </div>
       </div>
+
+      <ConfirmationDialog
+        open={isSessionsDialogOpen}
+        onOpenChange={setIsSessionsDialogOpen}
+        onConfirm={handleDeleteSessions}
+        title="Sign out everywhere?"
+        description="You will need to log in again on all other devices."
+        confirmText="Confirm Log Out"
+        isLoading={isSettingsUpdating}
+      />
+
+      <ConfirmationDialog
+        open={isAccountDialogOpen}
+        onOpenChange={setIsAccountDialogOpen}
+        onConfirm={handleDeleteAccount}
+        title="Are you absolutely sure?"
+        description="This action cannot be undone. All your posts and profile data will be permanently removed."
+        confirmText="Delete My Account"
+        variant="destructive"
+        isLoading={isSettingsUpdating}
+      />
     </div>
   );
 };
