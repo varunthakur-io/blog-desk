@@ -37,7 +37,7 @@ import { useSettings } from '@/hooks/profile';
 const Settings = () => {
   const {
     // loading states
-    isLoading,
+    isSettingsUpdating,
     isPrefsLoading,
 
     // settings values
@@ -201,7 +201,7 @@ const Settings = () => {
                 </div>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="outline" size="sm" disabled={isLoading}>
+                    <Button variant="outline" size="sm" disabled={isSettingsUpdating}>
                       <LogOut className="mr-2 h-4 w-4" /> Log Out All
                     </Button>
                   </AlertDialogTrigger>
@@ -229,7 +229,7 @@ const Settings = () => {
                   <p className="text-sm text-muted-foreground">Permanently remove your account.</p>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="sm" disabled={isLoading}>
+                      <Button variant="destructive" size="sm" disabled={isSettingsUpdating}>
                         Delete Account
                       </Button>
                     </AlertDialogTrigger>

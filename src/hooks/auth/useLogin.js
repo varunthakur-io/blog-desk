@@ -41,9 +41,9 @@ export const useLogin = () => {
   const isAuthLoading = useSelector(selectIsAuthLoading);
 
   // Local State
-  const [formData, setFormData] = useState({ email: '', password: '' });
-  const [submitStatus, setSubmitStatus] = useState('idle');
-  const [formErrors, setFormErrors] = useState({});
+  const [credentials, setCredentials] = useState({ email: '', password: '' });
+  const [loginStatus, setLoginStatus] = useState('idle');
+  const [loginErrors, setLoginErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
 
   // Redirect if already authenticated
@@ -56,36 +56,36 @@ export const useLogin = () => {
   const handleChange = useCallback(
     (e) => {
       const { name, value } = e.target;
-      setFormData((prev) => ({ ...prev, [name]: value }));
+      setCredentials((prev) => ({ ...prev, [name]: value }));
 
       // Clear error immediately when user starts fixing the field
-      if (formErrors[name]) {
-        setFormErrors((prev) => {
+      if (loginErrors[name]) {
+        setLoginErrors((prev) => {
           const newErrors = { ...prev };
           delete newErrors[name];
           return newErrors;
         });
       }
     },
-    [formErrors],
+    [loginErrors],
   );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const validationErrors = validate(formData);
+    const validationErrors = validate(credentials);
     if (Object.keys(validationErrors).length > 0) {
-      setFormErrors(validationErrors);
+      setLoginErrors(validationErrors);
       return;
     }
 
-    if (submitStatus === 'loading' || isAuthLoading) return;
+    if (loginStatus === 'loading' || isAuthLoading) return;
 
-    setSubmitStatus('loading');
+    setLoginStatus('loading');
     dispatch(setAuthStatus('loading'));
 
     try {
-      const { user, profile } = await authService.loginUser(formData);
+      const { user, profile } = await authService.loginUser(credentials);
 
       // Populate global store with full identity and domain data
       dispatch(setAuthUser(user));
@@ -94,12 +94,12 @@ export const useLogin = () => {
       toast.success(`Welcome back, ${user.name || 'friend'}!`);
       navigate('/', { replace: true });
     } catch (error) {
-      setSubmitStatus('error');
+      setLoginStatus('error');
       const message = error?.message || 'Invalid email or password';
       dispatch(setAuthError(message));
       toast.error(message);
     } finally {
-      setSubmitStatus((current) => (current === 'loading' ? 'idle' : current));
+      setLoginStatus((current) => (current === 'loading' ? 'idle' : current));
     }
   };
 
@@ -109,12 +109,12 @@ export const useLogin = () => {
 
   return {
     // form state
-    formData,
-    formErrors,
+    credentials,
+    loginErrors,
     showPassword,
 
     // loading states
-    isLoading: submitStatus === 'loading' || isAuthLoading,
+    isLoginLoading: loginStatus === 'loading' || isAuthLoading,
 
     // form actions
     handleChange,
@@ -123,6 +123,6 @@ export const useLogin = () => {
 
     // derived UI state
     isSubmitDisabled:
-      submitStatus === 'loading' || isAuthLoading || !formData.email || !formData.password,
+      loginStatus === 'loading' || isAuthLoading || !credentials.email || !credentials.password,
   };
 };

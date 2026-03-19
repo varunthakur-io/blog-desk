@@ -14,17 +14,17 @@ export const useEditPost = () => {
   const post = useSelector((state) => selectPostById(state, id));
 
   const [formData, setFormData] = useState(null);
-  const [fetchStatus, setFetchStatus] = useState('loading');
-  const [submitStatus, setSubmitStatus] = useState('idle');
-  const [fetchError, setFetchError] = useState('');
+  const [postFetchStatus, setPostFetchStatus] = useState('loading');
+  const [updateStatus, setUpdateStatus] = useState('idle');
+  const [postFetchError, setPostFetchError] = useState('');
 
   useEffect(() => {
-    let mounted = true;
+    let cancelled = false;
 
     const loadPost = async () => {
       if (!id) {
-        setFetchError('Invalid post ID.');
-        setFetchStatus('error');
+        setPostFetchError('Invalid post ID.');
+        setPostFetchStatus('error');
         return;
       }
 
@@ -36,14 +36,14 @@ export const useEditPost = () => {
           coverImageUrl: post.coverImageUrl || null,
           coverImageId: post.coverImageId || null,
         });
-        setFetchStatus('success');
+        setPostFetchStatus('success');
         return;
       }
 
-      setFetchStatus('loading');
+      setPostFetchStatus('loading');
       try {
         const fetchedPost = await postService.getPostById(id);
-        if (!mounted) return;
+        if (cancelled) return;
 
         if (fetchedPost && fetchedPost.$id) {
           // Mirror server data into Redux so later detail/dashboard views reuse the fresh copy.
@@ -55,22 +55,22 @@ export const useEditPost = () => {
             coverImageId: fetchedPost.coverImageId || null,
           });
           dispatch(setPostDetail(fetchedPost));
-          setFetchStatus('success');
+          setPostFetchStatus('success');
         } else {
-          setFetchError('Post not found.');
-          setFetchStatus('error');
+          setPostFetchError('Post not found.');
+          setPostFetchStatus('error');
         }
       } catch (error) {
-        if (mounted) {
-          setFetchError(error?.message || 'Failed to load post.');
-          setFetchStatus('error');
+        if (!cancelled) {
+          setPostFetchError(error?.message || 'Failed to load post.');
+          setPostFetchStatus('error');
         }
       }
     };
 
     loadPost();
     return () => {
-      mounted = false;
+      cancelled = true;
     };
   }, [id, post, dispatch]);
 
@@ -82,10 +82,10 @@ export const useEditPost = () => {
         return;
       }
 
-      if (submitStatus === 'submitting') return;
+      if (updateStatus === 'loading') return;
 
-      setSubmitStatus('submitting');
-      setFetchError('');
+      setUpdateStatus('loading');
+      setPostFetchError('');
 
       try {
         // Send only the editable fields; postService handles slug regeneration when title changes.
@@ -99,7 +99,7 @@ export const useEditPost = () => {
 
         if (updatedPost && updatedPost.$id) {
           dispatch(setPostDetail(updatedPost));
-          setSubmitStatus('success');
+          setUpdateStatus('success');
           toast.success('Post updated successfully!');
           navigate('/dashboard');
         } else {
@@ -107,13 +107,13 @@ export const useEditPost = () => {
         }
       } catch (error) {
         console.error('Update failed:', error);
-        setSubmitStatus('error');
+        setUpdateStatus('error');
         const msg = error?.message || 'Failed to update post';
         toast.error(msg);
-        setFetchError(msg);
+        setPostFetchError(msg);
       }
     },
-    [id, dispatch, navigate, submitStatus],
+    [id, dispatch, navigate, updateStatus],
   );
 
   return {
@@ -121,11 +121,11 @@ export const useEditPost = () => {
     formData,
 
     // loading states
-    isLoading: fetchStatus === 'loading',
-    isSaving: submitStatus === 'submitting',
+    isPostLoading: postFetchStatus === 'loading',
+    isPostUpdating: updateStatus === 'loading',
 
     // error state
-    error: fetchError,
+    postFetchError,
 
     // actions
     handleUpdate,

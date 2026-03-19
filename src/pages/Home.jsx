@@ -16,8 +16,8 @@ const Home = () => {
     posts,
 
     // loading state
-    loading,
-    error,
+    postsLoading,
+    postsError,
     hasMore,
 
     // search state
@@ -29,7 +29,7 @@ const Home = () => {
   } = useHome();
 
   const renderContent = () => {
-    if (loading && posts.length === 0) {
+    if (postsLoading && posts.length === 0) {
       return (
         <div className="space-y-10">
           <div className="w-full h-96 rounded-3xl bg-muted animate-pulse" />
@@ -42,12 +42,12 @@ const Home = () => {
       );
     }
 
-    if (error) {
+    if (postsError) {
       return (
         <div className="flex justify-center py-20">
           <Alert variant="destructive" className="max-w-md">
             <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
+            <AlertDescription>{postsError}</AlertDescription>
           </Alert>
         </div>
       );
@@ -104,7 +104,7 @@ const Home = () => {
               <PostCard key={post.$id} post={post} />
             ))}
 
-            {loading && hasMore && (
+            {postsLoading && hasMore && (
               <>
                 {[...Array(LIMIT)].map((_, i) => (
                   <PostCardSkeleton key={`skeleton-${i}`} />

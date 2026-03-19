@@ -8,10 +8,10 @@ import {
   clearAuthUser,
   selectAuthStatus,
   selectAuthUserId,
-} from '../../store/auth';
-import { setUserProfile, selectProfileById } from '../../store/profile';
-import { authService } from '../../services/auth';
-import { profileService } from '../../services/profile';
+} from '@/store/auth';
+import { setUserProfile, selectProfileById } from '@/store/profile';
+import { authService } from '@/services/auth';
+import { profileService } from '@/services/profile';
 
 const useAuthCheck = () => {
   const dispatch = useDispatch();

@@ -16,17 +16,17 @@ export const usePostDetails = () => {
   const dispatch = useDispatch();
 
   // Redux Selectors
-  const currentPost = useSelector((state) => selectPostById(state, id));
+  const post = useSelector((state) => selectPostById(state, id));
   const authUserId = useSelector(selectAuthUserId);
-  const profiles = useSelector((state) => state.profile.byId);
-  const authorProfile = useSelector((state) => selectProfileById(state, currentPost?.authorId));
+  const profileCache = useSelector((state) => state.profile.byId);
+  const authorProfile = useSelector((state) => selectProfileById(state, post?.authorId));
   const currentUserProfile = useSelector((state) => selectProfileById(state, authUserId));
 
   // Local UI States
-  const [fetchStatus, setFetchStatus] = useState(currentPost ? 'success' : 'loading');
-  const [fetchError, setFetchError] = useState('');
+  const [postFetchStatus, setPostFetchStatus] = useState(post ? 'success' : 'loading');
+  const [postFetchError, setPostFetchError] = useState('');
 
-  const [likesCount, setLikesCount] = useState(currentPost?.likesCount || 0);
+  const [likesCount, setLikesCount] = useState(post?.likesCount || 0);
   const [isLiked, setIsLiked] = useState(false);
   const [isLikedLoading, setIsLikedLoading] = useState(true);
   const [isLiking, setIsLiking] = useState(false);
@@ -34,68 +34,68 @@ export const usePostDetails = () => {
   const [comments, setComments] = useState([]);
 
   // Read time calc
-  const readTime = currentPost?.content
-    ? Math.max(1, Math.ceil(currentPost.content.split(' ').length / 200))
+  const estimatedReadTime = post?.content
+    ? Math.max(1, Math.ceil(post.content.split(' ').length / 200))
     : 1;
 
   // 1. Fetch Post & Author
   useEffect(() => {
     if (!id) {
-      setFetchError('No post ID provided.');
-      setFetchStatus('error');
+      setPostFetchError('No post ID provided.');
+      setPostFetchStatus('error');
       return;
     }
 
-    if (currentPost) {
-      setFetchStatus('success');
-      if (currentPost.authorId && !authorProfile) {
+    if (post) {
+      setPostFetchStatus('success');
+      if (post.authorId && !authorProfile) {
         profileService
-          .getProfile(currentPost.authorId)
+          .getProfile(post.authorId)
           .then((p) => dispatch(setUserProfile(p)))
           .catch(console.warn);
       }
       return;
     }
 
-    let mounted = true;
-    setFetchStatus('loading');
+    let cancelled = false;
+    setPostFetchStatus('loading');
 
     const fetchPost = async () => {
       try {
         const fetched = await postService.getPostById(id);
-        if (!mounted) return;
+        if (cancelled) return;
         if (fetched) {
           dispatch(setPostDetail(fetched));
-          setFetchStatus('success');
+          setPostFetchStatus('success');
           if (fetched.authorId) {
             profileService
               .getProfile(fetched.authorId)
-              .then((p) => mounted && dispatch(setUserProfile(p)))
+              .then((p) => !cancelled && dispatch(setUserProfile(p)))
               .catch(console.warn);
           }
         } else {
-          setFetchError('Post not found.');
-          setFetchStatus('error');
+          setPostFetchError('Post not found.');
+          setPostFetchStatus('error');
         }
       } catch (error) {
-        if (mounted) {
-          setFetchError(error?.message || 'Failed to load post.');
-          setFetchStatus('error');
+        if (!cancelled) {
+          setPostFetchError(error?.message || 'Failed to load post.');
+          setPostFetchStatus('error');
         }
       }
     };
     fetchPost();
     return () => {
-      mounted = false;
+      cancelled = true;
     };
-  }, [id, currentPost, authorProfile, dispatch]);
+  }, [id, post, authorProfile, dispatch]);
 
   // 2. Like Status Sync
   useEffect(() => {
-    if (!currentPost) return;
-    setLikesCount(currentPost.likesCount || 0);
+    if (!post) return;
+    setLikesCount(post.likesCount || 0);
 
-    let mounted = true;
+    let cancelled = false;
     const checkLike = async () => {
       if (!authUserId) {
         setIsLiked(false);
@@ -104,42 +104,42 @@ export const usePostDetails = () => {
       }
       setIsLikedLoading(true);
       try {
-        const liked = await likeService.hasUserLiked(currentPost.$id, authUserId);
-        if (mounted) setIsLiked(!!liked);
+        const liked = await likeService.hasUserLiked(post.$id, authUserId);
+        if (!cancelled) setIsLiked(!!liked);
       } catch {
-        if (mounted) setIsLiked(false);
+        if (!cancelled) setIsLiked(false);
       } finally {
-        if (mounted) setIsLikedLoading(false);
+        if (!cancelled) setIsLikedLoading(false);
       }
     };
     checkLike();
     return () => {
-      mounted = false;
+      cancelled = true;
     };
-  }, [currentPost, authUserId]);
+  }, [post, authUserId]);
 
   // 3. Comments & Commenters
   useEffect(() => {
-    if (!currentPost?.$id) return;
-    commentService.getCommentsByPost(currentPost.$id).then(setComments).catch(console.error);
-  }, [currentPost?.$id]);
+    if (!post?.$id) return;
+    commentService.getCommentsByPost(post.$id).then(setComments).catch(console.error);
+  }, [post?.$id]);
 
   useEffect(() => {
     if (comments.length === 0) return;
     comments.forEach((c) => {
-      if (c.userId && !profiles[c.userId]) {
+      if (c.userId && !profileCache[c.userId]) {
         profileService
           .getProfile(c.userId)
           .then((p) => dispatch(setUserProfile(p)))
           .catch(console.warn);
       }
     });
-  }, [comments, profiles, dispatch]);
+  }, [comments, profileCache, dispatch]);
 
   // Handlers
   const handleLike = useCallback(async () => {
     if (!authUserId) return toast.error('Login to like!');
-    if (isLiking || isLikedLoading || !currentPost?.$id) return;
+    if (isLiking || isLikedLoading || !post?.$id) return;
 
     setIsLiking(true);
     const wasLiked = isLiked;
@@ -148,9 +148,9 @@ export const usePostDetails = () => {
 
     try {
       if (wasLiked) {
-        await likeService.unlikePost(currentPost.$id, authUserId);
+        await likeService.unlikePost(post.$id, authUserId);
       } else {
-        await likeService.likePost(currentPost.$id, authUserId);
+        await likeService.likePost(post.$id, authUserId);
       }
     } catch {
       // Revert optimistic update
@@ -160,7 +160,7 @@ export const usePostDetails = () => {
     } finally {
       setIsLiking(false);
     }
-  }, [authUserId, isLiking, isLikedLoading, currentPost?.$id, isLiked]);
+  }, [authUserId, isLiking, isLikedLoading, post?.$id, isLiked]);
 
   const handleShare = useCallback(async () => {
     try {
@@ -177,14 +177,14 @@ export const usePostDetails = () => {
     authUserId,
 
     // cached entities
-    currentPost,
-    profiles,
+    post,
+    profileCache,
     authorProfile,
     currentUserProfile,
 
     // loading and errors
-    isLoading: fetchStatus === 'loading',
-    error: fetchError,
+    isPostLoading: postFetchStatus === 'loading',
+    postFetchError,
 
     // interaction state
     likesCount,
@@ -194,7 +194,7 @@ export const usePostDetails = () => {
 
     // post content
     comments,
-    readTime,
+    estimatedReadTime,
 
     // actions
     handleLike,

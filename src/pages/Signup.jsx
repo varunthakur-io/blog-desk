@@ -18,11 +18,11 @@ const Signup = () => {
   const {
     // form state
     formData,
-    formErrors,
-    usernameStatus,
+    signupErrors,
+    usernameCheckStatus,
 
     // loading states
-    isLoading,
+    isSignupLoading,
 
     // actions
     handleChange,
@@ -33,10 +33,11 @@ const Signup = () => {
   } = useSignup();
 
   const getUsernameMessage = () => {
-    if (usernameStatus === 'checking') return { type: 'info', text: 'Checking availability...' };
-    if (usernameStatus === 'available') return { type: 'success', text: 'Username is available!' };
-    if (usernameStatus === 'taken') return { type: 'error', text: 'Username is already taken.' };
-    if (formErrors.username) return { type: 'error', text: formErrors.username };
+    if (usernameCheckStatus === 'checking')
+      return { type: 'info', text: 'Checking availability...' };
+    if (usernameCheckStatus === 'available') return { type: 'success', text: 'Username is available!' };
+    if (usernameCheckStatus === 'taken') return { type: 'error', text: 'Username is already taken.' };
+    if (signupErrors.username) return { type: 'error', text: signupErrors.username };
     return null;
   };
 
@@ -79,11 +80,11 @@ const Signup = () => {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  disabled={isLoading}
-                  className={`h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50 ${formErrors.name ? 'border-destructive focus-visible:ring-destructive/50' : ''}`}
+                  disabled={isSignupLoading}
+                  className={`h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50 ${signupErrors.name ? 'border-destructive focus-visible:ring-destructive/50' : ''}`}
                 />
-                {formErrors.name && (
-                  <p className="text-xs text-destructive font-medium ml-1">{formErrors.name}</p>
+                {signupErrors.name && (
+                  <p className="text-xs text-destructive font-medium ml-1">{signupErrors.name}</p>
                 )}
               </div>
 
@@ -100,8 +101,8 @@ const Signup = () => {
                   value={formData.username}
                   onChange={handleChange}
                   required
-                  disabled={isLoading}
-                  className={`h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50 ${formErrors.username || usernameStatus === 'taken' ? 'border-destructive focus-visible:ring-destructive/50' : ''}`}
+                  disabled={isSignupLoading}
+                  className={`h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50 ${signupErrors.username || usernameCheckStatus === 'taken' ? 'border-destructive focus-visible:ring-destructive/50' : ''}`}
                 />
                 {usernameMessage && (
                   <p
@@ -131,12 +132,12 @@ const Signup = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  disabled={isLoading}
+                  disabled={isSignupLoading}
                   autoComplete="email"
-                  className={`h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50 ${formErrors.email ? 'border-destructive focus-visible:ring-destructive/50' : ''}`}
+                  className={`h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50 ${signupErrors.email ? 'border-destructive focus-visible:ring-destructive/50' : ''}`}
                 />
-                {formErrors.email && (
-                  <p className="text-xs text-destructive font-medium ml-1">{formErrors.email}</p>
+                {signupErrors.email && (
+                  <p className="text-xs text-destructive font-medium ml-1">{signupErrors.email}</p>
                 )}
               </div>
 
@@ -153,12 +154,12 @@ const Signup = () => {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  disabled={isLoading}
+                  disabled={isSignupLoading}
                   autoComplete="new-password"
-                  className={`h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50 ${formErrors.password ? 'border-destructive focus-visible:ring-destructive/50' : ''}`}
+                  className={`h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50 ${signupErrors.password ? 'border-destructive focus-visible:ring-destructive/50' : ''}`}
                 />
-                {formErrors.password && (
-                  <p className="text-xs text-destructive font-medium ml-1">{formErrors.password}</p>
+                {signupErrors.password && (
+                  <p className="text-xs text-destructive font-medium ml-1">{signupErrors.password}</p>
                 )}
               </div>
 
@@ -166,9 +167,9 @@ const Signup = () => {
               <Button
                 type="submit"
                 className="w-full h-12 text-base font-medium rounded-lg transition-[transform,shadow] hover:shadow-lg hover:-translate-y-[1px] active:translate-y-0"
-                disabled={isLoading || isSubmitDisabled}
+                disabled={isSignupLoading || isSubmitDisabled}
               >
-                {isLoading ? 'Creating your account…' : 'Create Account'}
+                {isSignupLoading ? 'Creating your account…' : 'Create Account'}
               </Button>
             </form>
           </CardContent>

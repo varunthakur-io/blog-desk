@@ -10,7 +10,7 @@ export const useCreatePost = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const authUserId = useSelector(selectAuthUserId);
-  const [submitStatus, setSubmitStatus] = useState('idle');
+  const [createStatus, setCreateStatus] = useState('idle');
 
   const handleCreatePost = useCallback(
     async (formData) => {
@@ -24,9 +24,9 @@ export const useCreatePost = () => {
         return;
       }
 
-      if (submitStatus === 'submitting') return;
+      if (createStatus === 'loading') return;
 
-      setSubmitStatus('submitting');
+      setCreateStatus('loading');
 
       try {
         const newPost = await postService.createPost({
@@ -42,16 +42,16 @@ export const useCreatePost = () => {
           dispatch(setPostDetail(newPost));
         }
 
-        setSubmitStatus('idle');
+        setCreateStatus('idle');
         toast.success('Post published successfully!');
         navigate('/dashboard');
       } catch (error) {
         console.error('Create post error:', error);
-        setSubmitStatus('error');
+        setCreateStatus('error');
         toast.error(error?.message || 'Failed to create post. Please try again.');
       }
     },
-    [authUserId, dispatch, navigate, submitStatus],
+    [authUserId, dispatch, navigate, createStatus],
   );
 
   return {
@@ -59,6 +59,6 @@ export const useCreatePost = () => {
     handleCreatePost,
 
     // loading state
-    isSubmitting: submitStatus === 'submitting',
+    isPostCreating: createStatus === 'loading',
   };
 };
