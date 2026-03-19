@@ -15,9 +15,7 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
 
   // CRITICAL FIX: Sync local state when parent fetches comments
   useEffect(() => {
-    if (initialComments && initialComments.length > 0) {
-      setComments(initialComments);
-    }
+    setComments(initialComments || []);
   }, [initialComments]);
 
   const currentUserName = currentUserProfile?.name || 'You';
@@ -66,9 +64,11 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
     <div className="space-y-8 pt-8">
       <div className="flex items-center justify-between">
         <h3 className="text-2xl font-bold tracking-tight">Discussion</h3>
-        <Badge variant="secondary" className="rounded-full px-3">
-          {comments.length} comments
-        </Badge>
+        <div className="flex items-center gap-3">
+          <Badge variant="secondary" className="rounded-full px-3">
+            {comments.length} comments
+          </Badge>
+        </div>
       </div>
 
       {authUserId ? (
