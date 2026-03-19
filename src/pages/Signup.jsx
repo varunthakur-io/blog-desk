@@ -18,8 +18,15 @@ import { Label } from '@/components/ui/label';
 import { useSignup } from '@/hooks/auth';
 
 const Signup = () => {
-  const { formData, isLoading, formErrors, usernameStatus, handleChange, handleSubmit } =
-    useSignup();
+  const {
+    formData,
+    isLoading,
+    isSubmitDisabled,
+    formErrors,
+    usernameStatus,
+    handleChange,
+    handleSubmit,
+  } = useSignup();
 
   const getUsernameMessage = () => {
     if (usernameStatus === 'checking') return { type: 'info', text: 'Checking availability...' };
@@ -155,7 +162,7 @@ const Signup = () => {
               <Button
                 type="submit"
                 className="w-full h-12 text-base font-medium rounded-lg transition-[transform,shadow] hover:shadow-lg hover:-translate-y-[1px] active:translate-y-0"
-                disabled={isLoading}
+                disabled={isLoading || isSubmitDisabled}
               >
                 {isLoading ? 'Creating your account…' : 'Create Account'}
               </Button>

@@ -54,8 +54,6 @@ export const useSignup = () => {
 
   const checkUsernameAvailability = async (username) => {
     if (!username || username.length < 3) return;
-
-    setUsernameStatus('checking');
     try {
       const isAvailable = await profileService.isUsernameAvailable(username);
       setUsernameStatus(isAvailable ? 'available' : 'taken');
@@ -93,9 +91,11 @@ export const useSignup = () => {
       }
 
       if (name === 'username') {
-        setUsernameStatus('idle');
         if (value.length >= 3) {
+          setUsernameStatus('checking');
           debouncedCheck(value);
+        } else {
+          setUsernameStatus('idle');
         }
       }
     },
@@ -106,6 +106,11 @@ export const useSignup = () => {
     e.preventDefault();
 
     const validationErrors = validate(formData);
+
+    if (usernameStatus === 'checking') {
+      toast.error('Please wait for the username check to finish.');
+      return;
+    }
 
     if (usernameStatus === 'taken') {
       validationErrors.username = 'Username is already taken';
