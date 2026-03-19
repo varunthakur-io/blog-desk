@@ -5,6 +5,7 @@ class PostApi {
     return await databases.createDocument(
       appwrite.databaseId,
       appwrite.postsCollectionId,
+      // Appwrite accepts the literal "unique()" helper string here.
       'unique()',
       postData,
     );

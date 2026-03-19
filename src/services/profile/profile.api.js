@@ -3,14 +3,15 @@ import { Query } from 'appwrite';
 
 class ProfileApi {
   async getProfile(userId) {
+    // Profiles deliberately reuse the auth user id as the document id.
     return await databases.getDocument(appwrite.databaseId, 'profiles', userId);
   }
 
   async getProfileByUsername(username) {
-    const res = await databases.listDocuments(appwrite.databaseId, 'profiles', [
+    const profileList = await databases.listDocuments(appwrite.databaseId, 'profiles', [
       Query.equal('username', username),
     ]);
-    return res.total > 0 ? res.documents[0] : null;
+    return profileList.total > 0 ? profileList.documents[0] : null;
   }
 
   async createProfile(userId, profileData) {
@@ -26,10 +27,10 @@ class ProfileApi {
   }
 
   async checkUsernameAvailable(username) {
-    const res = await databases.listDocuments(appwrite.databaseId, 'profiles', [
+    const profileList = await databases.listDocuments(appwrite.databaseId, 'profiles', [
       Query.equal('username', username),
     ]);
-    return res.total === 0;
+    return profileList.total === 0;
   }
 }
 

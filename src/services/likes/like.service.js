@@ -2,13 +2,14 @@ import { likeApi } from './like.api';
 import { postApi } from '../posts/post.api';
 import { Query } from 'appwrite';
 
+// Cache the current user's like lookups to avoid refetching the same relation on every render.
 const likedCache = new Map();
 
 class LikeService {
   async _updateLikesCount(postId, increment) {
     try {
-      const doc = await postApi.getPostById(postId);
-      const current = doc.likesCount ?? 0;
+      const postDocument = await postApi.getPostById(postId);
+      const current = postDocument.likesCount ?? 0;
       const next = Math.max(0, current + increment);
       await postApi.updatePost(postId, { likesCount: next });
     } catch (error) {
@@ -17,6 +18,7 @@ class LikeService {
     }
   }
 
+  // Cache the current user's like relation per post to avoid repeating the same lookup during list/detail renders.
   async hasUserLiked(postId, userId) {
     const key = `${userId}:${postId}`;
     if (likedCache.has(key)) {
@@ -33,9 +35,11 @@ class LikeService {
     }
   }
 
+  // Requery the backend before creating so duplicate like rows are not produced by repeated clicks.
   async likePost(postId, userId) {
     const key = `${userId}:${postId}`;
     try {
+      // Recheck against the backend/cache before creating to avoid duplicate like rows.
       const existing = await this.hasUserLiked(postId, userId);
       if (existing) return;
 
@@ -63,13 +67,15 @@ class LikeService {
     }
   }
 
+  // Skip the post query entirely when the user has no likes because Appwrite rejects an empty Query.equal array.
   async getLikedPostsByUserId(userId) {
     if (!userId) throw new Error('getLikedPostsByUserId: "userId" is required');
     try {
       const likesRes = await likeApi.listLikesByUser(userId);
       const likeDocs = likesRes.documents || [];
-      const postIds = likeDocs.map((doc) => doc.postId).filter(Boolean);
+      const postIds = likeDocs.map((likeDoc) => likeDoc.postId).filter(Boolean);
 
+      // Appwrite does not accept an empty Query.equal array.
       if (postIds.length === 0) return [];
 
       return await postApi.listPosts([Query.equal('$id', postIds), Query.orderDesc('$createdAt')]);

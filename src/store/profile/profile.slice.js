@@ -1,4 +1,3 @@
-// src/store/profile/profile.slice.js
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {

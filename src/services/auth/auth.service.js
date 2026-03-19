@@ -15,6 +15,7 @@ class AuthService {
     localStorage.removeItem('user');
   }
 
+  // Create auth first, then retry profile creation because those writes can become available slightly later.
   async createUser({ email, password, name, username }) {
     const createdUser = await authApi.createAccount(email, password, name);
 
@@ -23,6 +24,7 @@ class AuthService {
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
+        // Appwrite auth creation can succeed just before the profile collection becomes writable.
         await profileService.createProfile(createdUser, username);
         profileCreated = true;
         break;
@@ -65,6 +67,7 @@ class AuthService {
     this.clearCachedUser();
   }
 
+  // Merge the latest auth account with the cached profile snapshot so reloads keep profile data warm.
   async getAccount() {
     try {
       const user = await authApi.getAccount();
@@ -108,8 +111,10 @@ class AuthService {
     return updatedUser;
   }
 
+  // Treat the function execution body as the source of truth for privileged account deletion results.
   async deleteAccount() {
     const execution = await authApi.executeDeleteAccount();
+    // Function executions return their own status/body, so transport-level success alone is not enough.
     if (execution.responseStatusCode >= 400) {
       let message = 'Failed to delete account.';
       try {

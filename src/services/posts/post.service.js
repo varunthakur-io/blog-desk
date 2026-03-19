@@ -18,6 +18,7 @@ const generateSlug = (title) => {
 };
 
 class PostService {
+  // Seed author metadata and denormalized counters once so feeds/details can render without follow-up writes.
   async createPost({ title, content, status, coverImageId, coverImageUrl }) {
     const user = await authService.getAccount();
     const postData = {
@@ -32,12 +33,12 @@ class PostService {
       commentsCount: 0,
     };
 
+    // Seed denormalized counters once so list/detail screens can read them cheaply.
     return await postApi.createPost(postData);
   }
 
-  // FIX: Allowing the method to update any field provided in the object
-  async updatePost(postId, data) {
-    const postData = { ...data };
+  async updatePost(postId, updates) {
+    const postData = { ...updates };
 
     if (postData.title) {
       postData.slug = generateSlug(postData.title);
@@ -58,6 +59,7 @@ class PostService {
     return await postApi.listPosts(queries);
   }
 
+  // Build the profile/dashboard query from filters instead of maintaining separate list methods per view.
   async getPostsByUserId(
     userId,
     page = 1,
@@ -83,9 +85,11 @@ class PostService {
     return await postApi.listPosts(queries);
   }
 
+  // Remove dependent records first so the app never points at likes/comments for a missing post.
   async clearPostById(postId) {
     if (!postId) throw new Error('clearPostById: "postId" is required');
 
+    // Remove dependent relations first so dashboards/details never point at a missing post.
     await likeService.deleteLikesByPostId(postId);
     await commentService.deleteCommentsByPostId(postId);
     await postApi.clearPost(postId);

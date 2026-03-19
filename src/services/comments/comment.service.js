@@ -3,16 +3,18 @@ import { postService } from '../posts';
 import { profileService } from '../profile';
 
 class CommentService {
+  // Save the author's display name with each comment and update the denormalized comment counter best-effort.
   async addComment({ postId, userId, content }) {
     try {
-      // 1. Fetch user profile to get the display name
+      // Persist the display name with the comment so older comments still render if the
+      // profile cache is cold or the author later changes their name.
       const profile = await profileService.getProfile(userId);
       const authorName = profile?.name || 'Anonymous';
 
-      // 2. Create the comment document with the author name
       const createdComment = await commentApi.createComment(postId, userId, content, authorName);
 
-      // 3. Increment the comment count on the post document
+      // Count updates are best-effort so a comment can still be created even if the
+      // denormalized counter falls temporarily out of sync.
       try {
         const post = await postService.getPostById(postId);
         const currentCount = post?.commentsCount || 0;
@@ -32,17 +34,19 @@ class CommentService {
 
   async getCommentsByPost(postId) {
     try {
-      const res = await commentApi.listCommentsByPost(postId);
-      return res.documents;
+      const commentList = await commentApi.listCommentsByPost(postId);
+      return commentList.documents;
     } catch (error) {
       console.error('CommentService :: getCommentsByPost()', error);
       return [];
     }
   }
 
+  // Delete all comments in parallel so parent post cleanup stays fast.
   async deleteCommentsByPostId(postId) {
     try {
       const commentsList = await commentApi.listCommentsByPost(postId);
+      // Batch the cleanup so post deletion does not wait on sequential comment deletes.
       const deletePromises = commentsList.documents.map((comment) =>
         commentApi.deleteComment(comment.$id),
       );

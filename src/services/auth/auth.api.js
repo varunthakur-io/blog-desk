@@ -43,6 +43,7 @@ class AuthApi {
       throw new Error('Delete account function is not configured.');
     }
 
+    // The browser cannot delete Appwrite users directly, so we invoke a privileged function.
     return await functions.createExecution(
       appwrite.deleteAccountFunctionId,
       JSON.stringify({}),

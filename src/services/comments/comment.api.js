@@ -11,7 +11,7 @@ class CommentApi {
         postId,
         userId,
         content,
-        authorName: authorName || 'Anonymous', // Saving the name in the doc
+        authorName: authorName || 'Anonymous',
       },
     );
   }
@@ -19,6 +19,7 @@ class CommentApi {
   async listCommentsByPost(postId) {
     return await databases.listDocuments(appwrite.databaseId, appwrite.commentsCollectionId, [
       Query.equal('postId', postId),
+      // Keep newest comments first so the UI can render without a client-side sort pass.
       Query.orderDesc('$createdAt'),
       Query.limit(50),
     ]);

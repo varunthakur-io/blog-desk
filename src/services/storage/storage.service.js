@@ -23,8 +23,10 @@ class StorageService {
     }
   }
 
+  // Delete the previous asset first so profile/post image fields keep a single active file id.
   async uploadFileWithReplacement(file, oldFileId) {
     if (oldFileId) {
+      // Best-effort replacement keeps a single active asset id for profile/post images.
       await this.deleteFile(oldFileId);
     }
     return await this.uploadFile(file);
