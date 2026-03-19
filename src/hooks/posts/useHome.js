@@ -22,8 +22,8 @@ export const useHome = () => {
 
   // Redux Selectors
   const posts = useSelector(selectAllPosts);
-  const loading = useSelector(selectIsPostsLoading);
-  const error = useSelector(selectPostsError);
+  const isPostsLoading = useSelector(selectIsPostsLoading);
+  const postsError = useSelector(selectPostsError);
   const hasMore = useSelector(selectHasMore);
   const page = useSelector(selectPage);
 
@@ -32,26 +32,26 @@ export const useHome = () => {
 
   const loadPage = useCallback(
     async (pageNum) => {
-      if (loading) return;
+      if (isPostsLoading) return;
       dispatch(setPostsStatus('loading'));
 
       try {
-        const data = await postService.getAllPosts(pageNum, LIMIT);
-        const docs = data.documents ?? [];
-        const totalFetched = (pageNum - 1) * LIMIT + docs.length;
+        const postPage = await postService.getAllPosts(pageNum, LIMIT);
+        const pagePosts = postPage.documents ?? [];
+        const totalFetched = (pageNum - 1) * LIMIT + pagePosts.length;
 
         if (pageNum === 1) {
-          dispatch(setPostList(docs));
+          dispatch(setPostList(pagePosts));
         } else {
-          dispatch(appendPostPage(docs));
+          dispatch(appendPostPage(pagePosts));
         }
 
-        dispatch(setPostPagination({ page: pageNum, hasMore: totalFetched < data.total }));
-      } catch (err) {
-        dispatch(setPostsError(err?.message ?? 'Failed to fetch posts'));
+        dispatch(setPostPagination({ page: pageNum, hasMore: totalFetched < postPage.total }));
+      } catch (error) {
+        dispatch(setPostsError(error?.message ?? 'Failed to fetch posts'));
       }
     },
-    [dispatch, loading],
+    [dispatch, isPostsLoading],
   );
 
   // Initial Load
@@ -67,14 +67,19 @@ export const useHome = () => {
       const { innerHeight } = window;
       const { scrollTop, offsetHeight } = document.documentElement;
 
-      if (innerHeight + scrollTop >= offsetHeight - 150 && !loading && hasMore && !searchTerm) {
+      if (
+        innerHeight + scrollTop >= offsetHeight - 150 &&
+        !isPostsLoading &&
+        hasMore &&
+        !searchTerm
+      ) {
         loadPage(page + 1);
       }
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [loading, hasMore, page, loadPage, searchTerm]);
+  }, [isPostsLoading, hasMore, page, loadPage, searchTerm]);
 
   // Client-side search filtering
   const filteredPosts = useMemo(() => {
@@ -97,11 +102,18 @@ export const useHome = () => {
   );
 
   return {
+    // post feed
     posts: filteredPosts,
-    loading,
-    error,
+
+    // loading state
+    loading: isPostsLoading,
+    error: postsError,
     hasMore,
+
+    // search state
     searchTerm,
+
+    // actions
     handleSearchChange,
     LIMIT,
   };

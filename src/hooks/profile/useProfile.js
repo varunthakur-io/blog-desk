@@ -118,12 +118,12 @@ export const useProfile = () => {
         if (!cancelled) {
           dispatch(setUserProfile(profileObj));
         }
-      } catch (err) {
+      } catch (error) {
         if (!cancelled) {
           dispatch(
             setProfileError({
               userId: profileId,
-              error: err?.message || 'Failed to load profile.',
+              error: error?.message || 'Failed to load profile.',
             }),
           );
         }
@@ -148,7 +148,7 @@ export const useProfile = () => {
       setPostsError('');
 
       try {
-        const data = await postService.getPostsByUserId(
+        const postPage = await postService.getPostsByUserId(
           profileId,
           1,
           100,
@@ -159,11 +159,11 @@ export const useProfile = () => {
 
         if (cancelled) return;
 
-        setUserPosts(Array.isArray(data?.documents) ? data.documents : []);
+        setUserPosts(Array.isArray(postPage?.documents) ? postPage.documents : []);
         setPostsFetchStatus('success');
-      } catch (err) {
+      } catch (error) {
         if (!cancelled) {
-          setPostsError(err?.message || 'Failed to fetch posts.');
+          setPostsError(error?.message || 'Failed to fetch posts.');
           setPostsFetchStatus('error');
         }
       }
@@ -187,15 +187,15 @@ export const useProfile = () => {
       setLikesError('');
 
       try {
-        const res = await likeService.getLikedPostsByUserId(profileId);
+        const likedPostsPage = await likeService.getLikedPostsByUserId(profileId);
 
         if (!cancelled) {
-          setLikedPosts(res.documents || []);
+          setLikedPosts(likedPostsPage.documents || []);
           setLikesFetchStatus('success');
         }
-      } catch (err) {
+      } catch (error) {
         if (!cancelled) {
-          setLikesError(err?.message || 'Failed to load liked posts.');
+          setLikesError(error?.message || 'Failed to load liked posts.');
           setLikesFetchStatus('error');
         }
       }

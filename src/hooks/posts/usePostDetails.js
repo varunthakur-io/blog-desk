@@ -23,8 +23,8 @@ export const usePostDetails = () => {
   const currentUserProfile = useSelector((state) => selectProfileById(state, authUserId));
 
   // Local UI States
-  const [status, setStatus] = useState(currentPost ? 'success' : 'loading');
-  const [error, setError] = useState('');
+  const [fetchStatus, setFetchStatus] = useState(currentPost ? 'success' : 'loading');
+  const [fetchError, setFetchError] = useState('');
 
   const [likesCount, setLikesCount] = useState(currentPost?.likesCount || 0);
   const [isLiked, setIsLiked] = useState(false);
@@ -41,13 +41,13 @@ export const usePostDetails = () => {
   // 1. Fetch Post & Author
   useEffect(() => {
     if (!id) {
-      setError('No post ID provided.');
-      setStatus('error');
+      setFetchError('No post ID provided.');
+      setFetchStatus('error');
       return;
     }
 
     if (currentPost) {
-      setStatus('success');
+      setFetchStatus('success');
       if (currentPost.authorId && !authorProfile) {
         profileService
           .getProfile(currentPost.authorId)
@@ -58,7 +58,7 @@ export const usePostDetails = () => {
     }
 
     let mounted = true;
-    setStatus('loading');
+    setFetchStatus('loading');
 
     const fetchPost = async () => {
       try {
@@ -66,7 +66,7 @@ export const usePostDetails = () => {
         if (!mounted) return;
         if (fetched) {
           dispatch(setPostDetail(fetched));
-          setStatus('success');
+          setFetchStatus('success');
           if (fetched.authorId) {
             profileService
               .getProfile(fetched.authorId)
@@ -74,13 +74,13 @@ export const usePostDetails = () => {
               .catch(console.warn);
           }
         } else {
-          setError('Post not found.');
-          setStatus('error');
+          setFetchError('Post not found.');
+          setFetchStatus('error');
         }
-      } catch (err) {
+      } catch (error) {
         if (mounted) {
-          setError(err?.message || 'Failed to load post.');
-          setStatus('error');
+          setFetchError(error?.message || 'Failed to load post.');
+          setFetchStatus('error');
         }
       }
     };
@@ -172,20 +172,31 @@ export const usePostDetails = () => {
   }, []);
 
   return {
+    // routing / identity
     id,
-    currentPost,
     authUserId,
+
+    // cached entities
+    currentPost,
     profiles,
     authorProfile,
     currentUserProfile,
-    isLoading: status === 'loading',
-    error,
+
+    // loading and errors
+    isLoading: fetchStatus === 'loading',
+    error: fetchError,
+
+    // interaction state
     likesCount,
     isLiked,
     isLikedLoading,
     isLiking,
+
+    // post content
     comments,
     readTime,
+
+    // actions
     handleLike,
     handleShare,
     navigate,

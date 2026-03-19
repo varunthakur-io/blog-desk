@@ -19,16 +19,18 @@ export const useDashboard = () => {
   const postsLoading = useSelector(selectIsPostsLoading);
   const postsError = useSelector(selectPostsError);
 
-  const [posts, setLocalPosts] = useState([]);
+  const [dashboardPosts, setDashboardPosts] = useState([]);
   const [isDeleting, setIsDeleting] = useState(false);
   const [postToDelete, setPostToDelete] = useState(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  const [page, setPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [debouncedQuery, setDebouncedQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('newest');
+  const [filters, setFilters] = useState({
+    page: 1,
+    searchQuery: '',
+    debouncedQuery: '',
+    statusFilter: 'all',
+    sortBy: 'newest',
+  });
   const [totalPages, setTotalPages] = useState(1);
   const [totalPosts, setTotalPosts] = useState(0);
   const LIMIT = DASHBOARD_POSTS_PER_PAGE;
@@ -37,15 +39,15 @@ export const useDashboard = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleSearchDebounce = useCallback(
     debounce((query) => {
-      setDebouncedQuery(query);
-      setPage(1);
+      setFilters((prev) => ({ ...prev, debouncedQuery: query, page: 1 }));
     }, 500),
     [],
   );
 
   const handleSearchChange = useCallback(
     (e) => {
-      setSearchQuery(e.target.value);
+      const nextSearchQuery = e.target.value;
+      setFilters((prev) => ({ ...prev, searchQuery: nextSearchQuery }));
       handleSearchDebounce(e.target.value);
     },
     [handleSearchDebounce],
@@ -56,24 +58,26 @@ export const useDashboard = () => {
     try {
       dispatch(setPostsStatus('loading'));
 
-      const data = await postService.getPostsByUserId(
+      // Dashboard data is isolated from the shared home feed so filters and pagination
+      // do not overwrite the public posts cache.
+      const postPage = await postService.getPostsByUserId(
         authUserId,
-        page,
+        filters.page,
         LIMIT,
-        debouncedQuery,
-        statusFilter,
-        sortBy,
+        filters.debouncedQuery,
+        filters.statusFilter,
+        filters.sortBy,
       );
 
-      const docs = Array.isArray(data.documents) ? data.documents : [];
-      setLocalPosts(docs);
-      setTotalPosts(data.total);
-      setTotalPages(Math.ceil(data.total / LIMIT));
+      const pagePosts = Array.isArray(postPage.documents) ? postPage.documents : [];
+      setDashboardPosts(pagePosts);
+      setTotalPosts(postPage.total);
+      setTotalPages(Math.ceil(postPage.total / LIMIT));
       dispatch(setPostsStatus('success'));
-    } catch (err) {
-      dispatch(setPostsError(err?.message || 'Failed to fetch posts'));
+    } catch (error) {
+      dispatch(setPostsError(error?.message || 'Failed to fetch posts'));
     }
-  }, [dispatch, authUserId, page, debouncedQuery, statusFilter, sortBy, LIMIT]);
+  }, [dispatch, authUserId, filters, LIMIT]);
 
   useEffect(() => {
     fetchUserPosts();
@@ -91,11 +95,12 @@ export const useDashboard = () => {
     try {
       await postService.clearPostById(postToDelete.$id);
       dispatch(clearPostRecord(postToDelete.$id));
-      setLocalPosts((prev) => prev.filter((p) => p.$id !== postToDelete.$id));
+      // Update local list immediately so the dialog feels responsive without waiting for a refetch.
+      setDashboardPosts((prev) => prev.filter((post) => post.$id !== postToDelete.$id));
       setTotalPosts((prev) => Math.max(0, prev - 1));
       toast.success('Post deleted successfully!');
-    } catch (err) {
-      toast.error(err?.message || 'Failed to delete post');
+    } catch (error) {
+      toast.error(error?.message || 'Failed to delete post');
     } finally {
       setIsDeleting(false);
       setIsDeleteDialogOpen(false);
@@ -104,19 +109,28 @@ export const useDashboard = () => {
   }, [postToDelete, dispatch]);
 
   return {
-    posts,
+    // list state
+    posts: dashboardPosts,
     postsLoading,
     postsError,
-    page,
-    setPage,
-    searchQuery,
+
+    // filters and pagination
+    page: filters.page,
+    setPage: (valueOrUpdater) =>
+      setFilters((prev) => ({
+        ...prev,
+        page: typeof valueOrUpdater === 'function' ? valueOrUpdater(prev.page) : valueOrUpdater,
+      })),
+    searchQuery: filters.searchQuery,
     handleSearchChange,
-    statusFilter,
-    setStatusFilter,
-    sortBy,
-    setSortBy,
+    statusFilter: filters.statusFilter,
+    setStatusFilter: (statusFilter) => setFilters((prev) => ({ ...prev, statusFilter, page: 1 })),
+    sortBy: filters.sortBy,
+    setSortBy: (sortBy) => setFilters((prev) => ({ ...prev, sortBy, page: 1 })),
     totalPages,
     totalPosts,
+
+    // delete flow
     isDeleting,
     postToDelete,
     isDeleteDialogOpen,

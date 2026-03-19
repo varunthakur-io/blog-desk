@@ -11,14 +11,18 @@ export const useSettings = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [isPrefsLoading, setIsPrefsLoading] = useState(true);
+  // Local UI state
+  const [loadingState, setLoadingState] = useState({
+    isBusy: false,
+    isPrefsLoading: true,
+  });
   const [prefs, setPrefs] = useState({
     marketing: false,
     security: true,
   });
 
   useEffect(() => {
+    // Keep local theme state aligned with any external class changes on <html>.
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
@@ -33,6 +37,7 @@ export const useSettings = () => {
 
   useEffect(() => {
     let mounted = true;
+
     const fetchPrefs = async () => {
       try {
         const user = await authService.getAccount();
@@ -42,10 +47,12 @@ export const useSettings = () => {
             security: user.prefs?.security ?? true,
           });
         }
-      } catch (err) {
-        console.error('Failed to fetch settings:', err);
+      } catch (error) {
+        console.error('Failed to fetch settings:', error);
       } finally {
-        if (mounted) setIsPrefsLoading(false);
+        if (mounted) {
+          setLoadingState((prev) => ({ ...prev, isPrefsLoading: false }));
+        }
       }
     };
     fetchPrefs();
@@ -54,6 +61,7 @@ export const useSettings = () => {
     };
   }, []);
 
+  // Theme updates are local-only; no server round trip required.
   const handleToggleDarkMode = useCallback(
     (checked) => {
       setDarkMode(checked);
@@ -67,6 +75,7 @@ export const useSettings = () => {
       const oldPrefs = { ...prefs };
       setPrefs((prev) => ({ ...prev, [key]: value }));
       try {
+        // Optimistically update the toggle and roll back if Appwrite rejects the change.
         await authService.updatePrefs({ ...oldPrefs, [key]: value });
         toast.success('Preference saved.');
       } catch {
@@ -78,9 +87,10 @@ export const useSettings = () => {
   );
 
   const handleDeleteSessions = useCallback(async () => {
-    if (isLoading) return;
-    setIsLoading(true);
+    if (loadingState.isBusy) return;
+    setLoadingState((prev) => ({ ...prev, isBusy: true }));
     try {
+      // Force all sessions invalid, then clear local auth state to avoid stale UI.
       await authService.deleteAllSessions();
       dispatch(clearAuthUser());
       navigate('/login');
@@ -88,30 +98,36 @@ export const useSettings = () => {
     } catch {
       toast.error('Failed to delete sessions.');
     } finally {
-      setIsLoading(false);
+      setLoadingState((prev) => ({ ...prev, isBusy: false }));
     }
-  }, [dispatch, navigate, isLoading]);
+  }, [dispatch, navigate, loadingState.isBusy]);
 
   const handleDeleteAccount = useCallback(async () => {
-    if (isLoading) return;
-    setIsLoading(true);
+    if (loadingState.isBusy) return;
+    setLoadingState((prev) => ({ ...prev, isBusy: true }));
     try {
+      // The backend function performs the real deletion; frontend just clears local state after success.
       await authService.deleteAccount();
       dispatch(clearAuthUser());
       navigate('/login');
       toast.success('Account deleted successfully!');
-    } catch (err) {
-      toast.error(err?.message || 'Failed to delete account.');
+    } catch (error) {
+      toast.error(error?.message || 'Failed to delete account.');
     } finally {
-      setIsLoading(false);
+      setLoadingState((prev) => ({ ...prev, isBusy: false }));
     }
-  }, [dispatch, navigate, isLoading]);
+  }, [dispatch, navigate, loadingState.isBusy]);
 
   return {
+    // appearance and loading state
     isDarkMode,
-    isLoading,
-    isPrefsLoading,
+    isLoading: loadingState.isBusy,
+    isPrefsLoading: loadingState.isPrefsLoading,
+
+    // preference data
     prefs,
+
+    // actions
     handleToggleDarkMode,
     handlePrefChange,
     handleDeleteSessions,
