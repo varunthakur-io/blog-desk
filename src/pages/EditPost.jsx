@@ -1,4 +1,3 @@
-// src/pages/EditPost.jsx
 import { ArrowLeft } from 'lucide-react';
 
 // UI Components

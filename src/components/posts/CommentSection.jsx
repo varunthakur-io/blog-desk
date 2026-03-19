@@ -13,7 +13,6 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
   const [newComment, setNewComment] = useState('');
   const [isCommenting, setIsCommenting] = useState(false);
 
-  // CRITICAL FIX: Sync local state when parent fetches comments
   useEffect(() => {
     setComments(initialComments || []);
   }, [initialComments]);
@@ -50,7 +49,7 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
       // Replace temp with real data from server
       setComments((prev) => prev.map((c) => (c.$id === tempId ? createdComment : c)));
       toast.success('Comment posted!');
-    } catch (err) {
+    } catch {
       // Revert on error
       setComments((prev) => prev.filter((c) => c.$id !== tempId));
       setNewComment(content);
@@ -123,7 +122,6 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
           </div>
         ) : (
           comments.map((comment) => {
-            // FIX: If it's the current user, use currentUserProfile directly
             const isMe = comment.userId === authUserId;
             const commenterProfile = isMe ? currentUserProfile : profiles[comment.userId];
 

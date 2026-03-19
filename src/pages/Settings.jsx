@@ -1,4 +1,3 @@
-// src/pages/Settings.jsx
 import { Link } from 'react-router-dom';
 import {
   Moon,
@@ -37,10 +36,15 @@ import { useSettings } from '@/hooks/profile';
 
 const Settings = () => {
   const {
-    isDarkMode,
+    // loading states
     isLoading,
     isPrefsLoading,
+
+    // settings values
+    isDarkMode,
     prefs,
+
+    // actions
     handleToggleDarkMode,
     handlePrefChange,
     handleDeleteSessions,

@@ -1,4 +1,3 @@
-// PostDetails.jsx
 import { ArrowLeft } from 'lucide-react';
 
 // UI Components
@@ -7,7 +6,6 @@ import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
 
-// Custom Post Components
 import {
   PostDetailsSkeleton,
   PostContent,
@@ -20,19 +18,30 @@ import { usePostDetails } from '@/hooks/posts/usePostDetails';
 
 const PostDetails = () => {
   const {
-    currentPost,
+    // routing / identity
     authUserId,
+
+    // cached entities
+    currentPost,
     profiles,
     authorProfile,
     currentUserProfile,
+
+    // loading and errors
     isLoading,
     error,
+
+    // interaction state
     likesCount,
     isLiked,
     isLikedLoading,
     isLiking,
+
+    // post content
     comments,
     readTime,
+
+    // actions
     handleLike,
     handleShare,
     navigate,

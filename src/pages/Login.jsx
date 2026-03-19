@@ -1,8 +1,6 @@
-// src/pages/Login.jsx
 import { Link } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 
-// Shadcn UI components
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -20,10 +18,15 @@ import { useLogin } from '@/hooks/auth';
 
 const Login = () => {
   const {
+    // form state
     formData,
-    isLoading,
     formErrors,
     showPassword,
+
+    // loading state
+    isLoading,
+
+    // actions
     handleChange,
     handleSubmit,
     togglePasswordVisibility,

@@ -1,4 +1,3 @@
-// src/pages/CreatePost.jsx
 import { PostForm } from '@/components/posts';
 import { useCreatePost } from '@/hooks/posts';
 

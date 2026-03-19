@@ -38,7 +38,7 @@ const Navbar = () => {
   const userEmail = useSelector(selectAuthEmail);
   const isAuthenticated = useSelector(selectIsAuthenticated);
 
-  // Profile Selector (Used for avatar and other domain data)
+  // Profile data powers the avatar even when auth only contains account fields.
   const profile = useSelector((state) => selectProfileById(state, userId));
 
   // Theme and UI State
@@ -53,11 +53,11 @@ const Navbar = () => {
 
       toast.success('Logged out successfully!');
       navigate('/login');
-    } catch (err) {
+    } catch (error) {
       // If server call fails, we clear local state anyway
       // to prevent the user from being "stuck" in a broken UI.
       dispatch(clearAuthUser());
-      toast.error(err.message || 'Session ended with errors.');
+      toast.error(error.message || 'Session ended with errors.');
     }
   }, [dispatch, navigate]);
 

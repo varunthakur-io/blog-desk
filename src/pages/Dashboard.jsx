@@ -1,4 +1,3 @@
-// Dashboard.jsx
 import { Link, useNavigate } from 'react-router-dom';
 import {
   MoreHorizontal,
@@ -83,9 +82,12 @@ const EmptyState = ({ onCreate, hasQuery }) => (
 export default function Dashboard() {
   const navigate = useNavigate();
   const {
+    // list state
     posts,
     postsLoading,
     postsError,
+
+    // filters and pagination
     page,
     setPage,
     searchQuery,
@@ -96,6 +98,8 @@ export default function Dashboard() {
     setSortBy,
     totalPages,
     totalPosts,
+
+    // delete flow
     isDeleting,
     postToDelete,
     isDeleteDialogOpen,

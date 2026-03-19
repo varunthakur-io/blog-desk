@@ -33,7 +33,7 @@ const EditProfileDialog = ({ profile, profileId, isOwner }) => {
   });
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [avatarFileToUpload, setAvatarFileToUpload] = useState(null);
-  const [status, setStatus] = useState('idle'); // 'idle' | 'saving' | 'uploading'
+  const [submitStatus, setSubmitStatus] = useState('idle'); // 'idle' | 'saving' | 'uploading'
   const [errorMessage, setErrorMessage] = useState('');
 
   const displayName = profile?.name || 'Unnamed User';
@@ -95,6 +95,7 @@ const EditProfileDialog = ({ profile, profileId, isOwner }) => {
     }
 
     if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+    // Keep a local blob preview so the dialog updates immediately before upload completes.
     const objectUrl = URL.createObjectURL(file);
     previewUrlRef.current = objectUrl;
     setAvatarPreview(objectUrl);
@@ -110,9 +111,9 @@ const EditProfileDialog = ({ profile, profileId, isOwner }) => {
       return;
     }
 
-    if (status !== 'idle') return;
+    if (submitStatus !== 'idle') return;
 
-    setStatus('saving');
+    setSubmitStatus('saving');
 
     try {
       if (editForm.name !== displayName) {
@@ -126,25 +127,26 @@ const EditProfileDialog = ({ profile, profileId, isOwner }) => {
       }
 
       if (avatarFileToUpload) {
-        setStatus('uploading');
+        setSubmitStatus('uploading');
         const updatedProfile = await profileService.updateAvatar(
           profileId,
           profile?.avatarId,
           avatarFileToUpload,
         );
         if (updatedProfile) {
+          // Avatar updates return the full profile document, so replace the cached record.
           dispatch(setUserProfile(updatedProfile));
         }
       }
 
       toast.success('Profile updated!');
       setIsDialogOpen(false);
-    } catch (err) {
-      const msg = err?.message || 'Failed to update profile.';
+    } catch (error) {
+      const msg = error?.message || 'Failed to update profile.';
       setErrorMessage(msg);
       toast.error(msg);
     } finally {
-      setStatus('idle');
+      setSubmitStatus('idle');
     }
   };
 
@@ -217,13 +219,13 @@ const EditProfileDialog = ({ profile, profileId, isOwner }) => {
           </div>
 
           <DialogFooter>
-            <Button type="submit" disabled={status !== 'idle'}>
-              {status !== 'idle' ? (
+            <Button type="submit" disabled={submitStatus !== 'idle'}>
+              {submitStatus !== 'idle' ? (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               ) : (
                 <Save className="w-4 h-4 mr-2" />
               )}
-              {status === 'uploading' ? 'Uploading Avatar...' : 'Save Changes'}
+              {submitStatus === 'uploading' ? 'Uploading Avatar...' : 'Save Changes'}
             </Button>
           </DialogFooter>
         </form>

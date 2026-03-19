@@ -11,7 +11,22 @@ import { PostCard, FeaturedPost, PostCardSkeleton } from '@/components/posts';
 import { useHome } from '@/hooks/posts';
 
 const Home = () => {
-  const { posts, loading, error, hasMore, searchTerm, handleSearchChange, LIMIT } = useHome();
+  const {
+    // post feed
+    posts,
+
+    // loading state
+    loading,
+    error,
+    hasMore,
+
+    // search state
+    searchTerm,
+
+    // actions
+    handleSearchChange,
+    LIMIT,
+  } = useHome();
 
   const renderContent = () => {
     if (loading && posts.length === 0) {

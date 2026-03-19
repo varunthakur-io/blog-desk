@@ -1,7 +1,5 @@
-// src/pages/Signup.jsx
 import { Link } from 'react-router-dom';
 
-// Shadcn UI components
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -14,18 +12,24 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-// Hooks
 import { useSignup } from '@/hooks/auth';
 
 const Signup = () => {
   const {
+    // form state
     formData,
-    isLoading,
-    isSubmitDisabled,
     formErrors,
     usernameStatus,
+
+    // loading states
+    isLoading,
+
+    // actions
     handleChange,
     handleSubmit,
+
+    // derived UI state
+    isSubmitDisabled,
   } = useSignup();
 
   const getUsernameMessage = () => {

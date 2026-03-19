@@ -12,7 +12,6 @@ import {
   Italic,
   List,
   ListOrdered,
-  Link as LinkIcon,
   Code,
   Eye,
   Heading1,
@@ -55,7 +54,7 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
   // UI State
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [postImagePreview, setPostImagePreview] = useState(initialData?.coverImageUrl || null);
-  const [localStatus, setLocalStatus] = useState(mode === 'edit' ? 'Published' : 'Unsaved');
+  const [saveStateLabel, setSaveStateLabel] = useState(mode === 'edit' ? 'Published' : 'Unsaved');
 
   const isEdit = mode === 'edit';
   const [, forceUpdate] = useState();
@@ -68,6 +67,7 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
     try {
       const { fileId, imageUrl } = await postService.uploadPostImage(file, formData.coverImageId);
       setFormData((prev) => ({ ...prev, coverImageUrl: imageUrl, coverImageId: fileId }));
+      // Use a local blob URL so the preview updates instantly, even before CDN propagation.
       setPostImagePreview(URL.createObjectURL(file));
       toast.success('Image uploaded', { id: toastId });
     } catch (error) {
@@ -97,9 +97,9 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
     ],
     content: formData.content,
     onUpdate: ({ editor }) => {
-      const html = editor.getHTML();
-      setFormData((prev) => ({ ...prev, content: html }));
-      if (localStatus === 'Published' && isEdit) setLocalStatus('Unsaved Changes');
+      const contentHtml = editor.getHTML();
+      setFormData((prev) => ({ ...prev, content: contentHtml }));
+      if (saveStateLabel === 'Published' && isEdit) setSaveStateLabel('Unsaved Changes');
     },
     onSelectionUpdate: () => forceUpdate(Math.random()),
     onTransaction: () => forceUpdate(Math.random()),
@@ -130,9 +130,10 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
   };
 
   const handleRandomData = () => {
-    const data = getRandomPostData();
-    const randomContentHtml = `<p><strong>${data.title}</strong></p><p>${data.content}</p>`;
-    setFormData((prev) => ({ ...prev, title: data.title }));
+    const randomPost = getRandomPostData();
+    const randomContentHtml = `<p><strong>${randomPost.title}</strong></p><p>${randomPost.content}</p>`;
+    setFormData((prev) => ({ ...prev, title: randomPost.title }));
+    // Keep the editor as the source of truth for rich-text content.
     if (editor) editor.commands.setContent(randomContentHtml);
   };
 
@@ -251,10 +252,10 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
             <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
               {isEdit ? 'Edit Post' : 'New Entry'}
               <Badge
-                variant={localStatus.includes('Unsaved') ? 'outline' : 'secondary'}
+                variant={saveStateLabel.includes('Unsaved') ? 'outline' : 'secondary'}
                 className="font-normal text-xs"
               >
-                {localStatus}
+                {saveStateLabel}
               </Badge>
             </h1>
           </div>

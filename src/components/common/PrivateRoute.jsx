@@ -1,4 +1,3 @@
-// src/components/PrivateRoute.jsx
 import { useSelector } from 'react-redux';
 import { Navigate, Outlet } from 'react-router-dom';
 import { selectAuthStatus, selectAuthUserId } from '@/store/auth';

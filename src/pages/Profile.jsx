@@ -20,7 +20,7 @@ export default function Profile() {
     likesError,
     usernameFetchError,
 
-    // profile data
+    // profile details
     profileId,
     profile,
     displayName,
@@ -30,7 +30,7 @@ export default function Profile() {
     joinedDate,
     isOwner,
 
-    // posts data
+    // post collections
     userPosts,
     likedPosts,
 
