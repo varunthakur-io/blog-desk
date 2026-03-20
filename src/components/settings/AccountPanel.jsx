@@ -29,9 +29,9 @@ const AccountPanel = ({
   handleSavePassword,
   isSavingPassword,
 }) => {
-  const [showEmailPw,   setShowEmailPw]   = useState(false);
+  const [showEmailPw, setShowEmailPw] = useState(false);
   const [showCurrentPw, setShowCurrentPw] = useState(false);
-  const [showNewPw,     setShowNewPw]     = useState(false);
+  const [showNewPw, setShowNewPw] = useState(false);
   const [showConfirmPw, setShowConfirmPw] = useState(false);
 
   return (
@@ -48,13 +48,15 @@ const AccountPanel = ({
         <CardHeader>
           <CardTitle className="text-base">Email Address</CardTitle>
           <CardDescription>
-            Current email:{' '}
-            <span className="font-medium text-foreground">{authUser?.email}</span>
+            Current email: <span className="font-medium text-foreground">{authUser?.email}</span>
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form
-            onSubmit={(e) => { e.preventDefault(); handleSaveEmail(); }}
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSaveEmail();
+            }}
             autoComplete="on"
             className="space-y-4"
           >
@@ -93,7 +95,7 @@ const AccountPanel = ({
                   className="pr-10"
                   autoComplete="current-password"
                 />
-                <EyeToggle show={showEmailPw} onToggle={() => setShowEmailPw(v => !v)} />
+                <EyeToggle show={showEmailPw} onToggle={() => setShowEmailPw((v) => !v)} />
               </div>
               <p className="text-xs text-muted-foreground">Required to confirm the email change.</p>
             </div>
@@ -124,7 +126,10 @@ const AccountPanel = ({
         </CardHeader>
         <CardContent>
           <form
-            onSubmit={(e) => { e.preventDefault(); handleSavePassword(); }}
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSavePassword();
+            }}
             autoComplete="on"
             className="space-y-4"
           >
@@ -134,7 +139,7 @@ const AccountPanel = ({
               </Alert>
             )}
 
-            <input type="hidden" autoComplete="username" value={authUser?.email || ''} readOnly />
+            <input type="text" autoComplete="username" name="username" value={authUser?.email || ''} readOnly style={{ display: 'none' }} />
 
             <div className="space-y-2">
               <Label htmlFor="current-password">Current password</Label>
@@ -144,12 +149,14 @@ const AccountPanel = ({
                   name="current-password"
                   type={showCurrentPw ? 'text' : 'password'}
                   value={passwordForm.currentPassword}
-                  onChange={(e) => setPasswordForm((p) => ({ ...p, currentPassword: e.target.value }))}
+                  onChange={(e) =>
+                    setPasswordForm((p) => ({ ...p, currentPassword: e.target.value }))
+                  }
                   placeholder="Your current password"
                   className="pr-10"
                   autoComplete="current-password"
                 />
-                <EyeToggle show={showCurrentPw} onToggle={() => setShowCurrentPw(v => !v)} />
+                <EyeToggle show={showCurrentPw} onToggle={() => setShowCurrentPw((v) => !v)} />
               </div>
             </div>
 
@@ -166,7 +173,7 @@ const AccountPanel = ({
                   className="pr-10"
                   autoComplete="off"
                 />
-                <EyeToggle show={showNewPw} onToggle={() => setShowNewPw(v => !v)} />
+                <EyeToggle show={showNewPw} onToggle={() => setShowNewPw((v) => !v)} />
               </div>
             </div>
 
@@ -178,12 +185,14 @@ const AccountPanel = ({
                   name="confirm-password"
                   type={showConfirmPw ? 'text' : 'password'}
                   value={passwordForm.confirmPassword}
-                  onChange={(e) => setPasswordForm((p) => ({ ...p, confirmPassword: e.target.value }))}
+                  onChange={(e) =>
+                    setPasswordForm((p) => ({ ...p, confirmPassword: e.target.value }))
+                  }
                   placeholder="Repeat new password"
                   className="pr-10"
                   autoComplete="new-password"
                 />
-                <EyeToggle show={showConfirmPw} onToggle={() => setShowConfirmPw(v => !v)} />
+                <EyeToggle show={showConfirmPw} onToggle={() => setShowConfirmPw((v) => !v)} />
               </div>
             </div>
 
