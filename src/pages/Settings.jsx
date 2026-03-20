@@ -1,29 +1,29 @@
 import { useState } from 'react';
-import { User, KeyRound, Bell, Shield, Palette, ChevronRight } from 'lucide-react';
+import { User, KeyRound, Bell, Shield, Palette } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 import { useSettings } from '@/hooks/profile';
 
-import ProfilePanel      from '@/components/settings/ProfilePanel';
-import AccountPanel      from '@/components/settings/AccountPanel';
-import AppearancePanel   from '@/components/settings/AppearancePanel';
+import ProfilePanel       from '@/components/settings/ProfilePanel';
+import AccountPanel       from '@/components/settings/AccountPanel';
+import AppearancePanel    from '@/components/settings/AppearancePanel';
 import NotificationsPanel from '@/components/settings/NotificationsPanel';
-import PrivacyPanel      from '@/components/settings/PrivacyPanel';
+import PrivacyPanel       from '@/components/settings/PrivacyPanel';
 
 const NAV = [
-  { id: 'profile',       label: 'Profile',       icon: User,    desc: 'Name, bio & avatar'       },
-  { id: 'account',       label: 'Account',        icon: KeyRound, desc: 'Email & password'        },
-  { id: 'appearance',    label: 'Appearance',     icon: Palette, desc: 'Theme & display'          },
-  { id: 'notifications', label: 'Notifications',  icon: Bell,    desc: 'Email preferences'        },
-  { id: 'privacy',       label: 'Privacy',        icon: Shield,  desc: 'Sessions & data'          },
+  { id: 'profile',       label: 'Profile',       icon: User     },
+  { id: 'account',       label: 'Account',        icon: KeyRound },
+  { id: 'appearance',    label: 'Appearance',     icon: Palette  },
+  { id: 'notifications', label: 'Notifications',  icon: Bell     },
+  { id: 'privacy',       label: 'Privacy',        icon: Shield   },
 ];
 
 export default function Settings() {
-  const [activeSection, setActiveSection] = useState('profile');
+  const [active, setActive] = useState('profile');
   const s = useSettings();
 
   const renderPanel = () => {
-    switch (activeSection) {
+    switch (active) {
       case 'profile':
         return (
           <ProfilePanel
@@ -88,52 +88,42 @@ export default function Settings() {
 
   return (
     <div className="py-2 animate-in fade-in duration-500">
-      {/* Page header */}
+      {/* Header — matches Dashboard / Profile style */}
       <div className="mb-8">
         <h1 className="page-header-title">Settings</h1>
-        <p className="page-header-subtitle">Manage your account, preferences, and privacy.</p>
+        <p className="page-header-subtitle">
+          Manage your account, preferences, and privacy.
+        </p>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-6 lg:gap-10">
-        {/* ── Sidebar nav ── */}
-        <aside className="w-full md:w-56 lg:w-64 shrink-0">
-          {/* Mobile: horizontal scroll */}
-          <nav className="flex md:flex-col gap-1 overflow-x-auto md:overflow-x-visible pb-2 md:pb-0">
-            {NAV.map(({ id, label, icon: Icon, desc }) => {
-              const isActive = activeSection === id;
+      <div className="flex gap-8">
+        {/* Sidebar */}
+        <aside className="w-40 shrink-0">
+          <nav className="flex flex-col gap-0.5">
+            {NAV.map(({ id, label, icon: Icon }) => {
+              const isActive = active === id;
               return (
                 <button
                   key={id}
-                  onClick={() => setActiveSection(id)}
+                  onClick={() => setActive(id)}
                   className={cn(
-                    'flex items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors duration-150 w-full shrink-0 md:shrink',
+                    'flex items-center gap-2.5 rounded-md px-3 py-2 text-sm text-left transition-colors w-full',
                     isActive
-                      ? 'bg-foreground text-background'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted',
+                      ? 'bg-muted text-foreground font-medium'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50',
                   )}
                 >
                   <Icon className="h-4 w-4 shrink-0" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium leading-none">{label}</p>
-                    <p className={cn(
-                      'text-[11px] mt-0.5 truncate hidden md:block',
-                      isActive ? 'text-background/70' : 'text-muted-foreground',
-                    )}>
-                      {desc}
-                    </p>
-                  </div>
-                  {isActive && <ChevronRight className="h-3.5 w-3.5 shrink-0 hidden md:block" />}
+                  {label}
                 </button>
               );
             })}
           </nav>
         </aside>
 
-        {/* ── Content panel ── */}
-        <main className="flex-1 min-w-0">
-          <div className="rounded-xl border border-border bg-card p-6 md:p-8 shadow-sm min-h-[480px]">
-            {renderPanel()}
-          </div>
+        {/* Content — max-w-md matches the rest of the app's form widths */}
+        <main className="flex-1 min-w-0 max-w-md">
+          {renderPanel()}
         </main>
       </div>
     </div>

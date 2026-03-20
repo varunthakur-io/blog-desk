@@ -1,10 +1,20 @@
 import { useState } from 'react';
-import { Loader2, Eye, EyeOff, Mail, KeyRound } from 'lucide-react';
+import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
+
+const EyeToggle = ({ show, onToggle }) => (
+  <button
+    type="button"
+    onClick={onToggle}
+    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+  >
+    {show ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+  </button>
+);
 
 const AccountPanel = ({
   authUser,
@@ -19,44 +29,36 @@ const AccountPanel = ({
   handleSavePassword,
   isSavingPassword,
 }) => {
-  const [showEmailPassword, setShowEmailPassword] = useState(false);
+  const [showEmailPw,   setShowEmailPw]   = useState(false);
   const [showCurrentPw, setShowCurrentPw] = useState(false);
-  const [showNewPw, setShowNewPw] = useState(false);
+  const [showNewPw,     setShowNewPw]     = useState(false);
   const [showConfirmPw, setShowConfirmPw] = useState(false);
 
-  const EyeToggle = ({ show, onToggle }) => (
-    <button
-      type="button"
-      onClick={onToggle}
-      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-    >
-      {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-    </button>
-  );
-
   return (
-    <div className="space-y-10">
+    <div className="space-y-7">
       <div>
-        <h2 className="text-lg font-semibold tracking-tight">Account</h2>
-        <p className="text-sm text-muted-foreground mt-1">
+        <h2 className="text-sm font-medium">Account</h2>
+        <p className="text-sm text-muted-foreground mt-0.5">
           Manage your email address and password.
         </p>
       </div>
 
       {/* ── Email ── */}
-      <div className="space-y-5">
-        <div className="flex items-center gap-2">
-          <Mail className="h-4 w-4 text-muted-foreground" />
-          <h3 className="text-sm font-semibold">Email Address</h3>
+      <div className="space-y-4">
+        <div>
+          <p className="text-sm font-medium">Email Address</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Current: <span className="font-medium text-foreground">{authUser?.email}</span>
+          </p>
         </div>
 
         {emailError && (
-          <Alert variant="destructive" className="rounded-xl">
-            <AlertDescription>{emailError}</AlertDescription>
+          <Alert variant="destructive">
+            <AlertDescription className="text-sm">{emailError}</AlertDescription>
           </Alert>
         )}
 
-        <div className="space-y-4 max-w-lg">
+        <div className="space-y-3">
           <div className="space-y-1.5">
             <Label htmlFor="email" className="text-sm font-medium">New Email</Label>
             <Input
@@ -64,26 +66,24 @@ const AccountPanel = ({
               type="email"
               value={emailForm.email}
               onChange={(e) => setEmailForm((p) => ({ ...p, email: e.target.value }))}
-              placeholder={authUser?.email || 'you@example.com'}
-              className="h-10 rounded-lg"
+              placeholder="you@example.com"
+              className="h-9 text-sm"
             />
           </div>
-
           <div className="space-y-1.5">
             <Label htmlFor="email-password" className="text-sm font-medium">
-              Current Password
-              <span className="text-muted-foreground font-normal ml-1">(required to change email)</span>
+              Confirm with password
             </Label>
             <div className="relative">
               <Input
                 id="email-password"
-                type={showEmailPassword ? 'text' : 'password'}
+                type={showEmailPw ? 'text' : 'password'}
                 value={emailForm.password}
                 onChange={(e) => setEmailForm((p) => ({ ...p, password: e.target.value }))}
-                placeholder="Enter your current password"
-                className="h-10 rounded-lg pr-10"
+                placeholder="Your current password"
+                className="h-9 text-sm pr-10"
               />
-              <EyeToggle show={showEmailPassword} onToggle={() => setShowEmailPassword((v) => !v)} />
+              <EyeToggle show={showEmailPw} onToggle={() => setShowEmailPw(v => !v)} />
             </div>
           </div>
         </div>
@@ -92,31 +92,34 @@ const AccountPanel = ({
           onClick={handleSaveEmail}
           disabled={isSavingEmail}
           variant="outline"
-          className="gap-2 rounded-full px-5"
+          size="sm"
+          className="gap-2"
         >
-          {isSavingEmail && <Loader2 className="h-4 w-4 animate-spin" />}
-          Update Email
+          {isSavingEmail && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+          Update email
         </Button>
       </div>
 
       <Separator />
 
       {/* ── Password ── */}
-      <div className="space-y-5">
-        <div className="flex items-center gap-2">
-          <KeyRound className="h-4 w-4 text-muted-foreground" />
-          <h3 className="text-sm font-semibold">Change Password</h3>
+      <div className="space-y-4">
+        <div>
+          <p className="text-sm font-medium">Change Password</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Use a strong password you don't use elsewhere.
+          </p>
         </div>
 
         {passwordError && (
-          <Alert variant="destructive" className="rounded-xl">
-            <AlertDescription>{passwordError}</AlertDescription>
+          <Alert variant="destructive">
+            <AlertDescription className="text-sm">{passwordError}</AlertDescription>
           </Alert>
         )}
 
-        <div className="space-y-4 max-w-lg">
+        <div className="space-y-3">
           <div className="space-y-1.5">
-            <Label htmlFor="current-password" className="text-sm font-medium">Current Password</Label>
+            <Label htmlFor="current-password" className="text-sm font-medium">Current password</Label>
             <div className="relative">
               <Input
                 id="current-password"
@@ -124,14 +127,13 @@ const AccountPanel = ({
                 value={passwordForm.currentPassword}
                 onChange={(e) => setPasswordForm((p) => ({ ...p, currentPassword: e.target.value }))}
                 placeholder="Your current password"
-                className="h-10 rounded-lg pr-10"
+                className="h-9 text-sm pr-10"
               />
-              <EyeToggle show={showCurrentPw} onToggle={() => setShowCurrentPw((v) => !v)} />
+              <EyeToggle show={showCurrentPw} onToggle={() => setShowCurrentPw(v => !v)} />
             </div>
           </div>
-
           <div className="space-y-1.5">
-            <Label htmlFor="new-password" className="text-sm font-medium">New Password</Label>
+            <Label htmlFor="new-password" className="text-sm font-medium">New password</Label>
             <div className="relative">
               <Input
                 id="new-password"
@@ -139,14 +141,13 @@ const AccountPanel = ({
                 value={passwordForm.newPassword}
                 onChange={(e) => setPasswordForm((p) => ({ ...p, newPassword: e.target.value }))}
                 placeholder="Minimum 8 characters"
-                className="h-10 rounded-lg pr-10"
+                className="h-9 text-sm pr-10"
               />
-              <EyeToggle show={showNewPw} onToggle={() => setShowNewPw((v) => !v)} />
+              <EyeToggle show={showNewPw} onToggle={() => setShowNewPw(v => !v)} />
             </div>
           </div>
-
           <div className="space-y-1.5">
-            <Label htmlFor="confirm-password" className="text-sm font-medium">Confirm New Password</Label>
+            <Label htmlFor="confirm-password" className="text-sm font-medium">Confirm new password</Label>
             <div className="relative">
               <Input
                 id="confirm-password"
@@ -154,9 +155,9 @@ const AccountPanel = ({
                 value={passwordForm.confirmPassword}
                 onChange={(e) => setPasswordForm((p) => ({ ...p, confirmPassword: e.target.value }))}
                 placeholder="Repeat new password"
-                className="h-10 rounded-lg pr-10"
+                className="h-9 text-sm pr-10"
               />
-              <EyeToggle show={showConfirmPw} onToggle={() => setShowConfirmPw((v) => !v)} />
+              <EyeToggle show={showConfirmPw} onToggle={() => setShowConfirmPw(v => !v)} />
             </div>
           </div>
         </div>
@@ -165,10 +166,11 @@ const AccountPanel = ({
           onClick={handleSavePassword}
           disabled={isSavingPassword}
           variant="outline"
-          className="gap-2 rounded-full px-5"
+          size="sm"
+          className="gap-2"
         >
-          {isSavingPassword && <Loader2 className="h-4 w-4 animate-spin" />}
-          Update Password
+          {isSavingPassword && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+          Update password
         </Button>
       </div>
     </div>
