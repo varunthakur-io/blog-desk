@@ -1,39 +1,32 @@
 import { Sun, Moon } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Card, CardContent } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 
 const AppearancePanel = ({ isDarkMode, handleToggleDarkMode }) => {
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div>
-        <h2 className="text-base font-semibold">Appearance</h2>
-        <p className="text-sm text-muted-foreground mt-0.5">
-          Customize how Blog Desk looks on your device.
-        </p>
+        <h1 className="text-2xl font-semibold">Appearance</h1>
       </div>
 
-      {/* Theme box */}
-      <div className="rounded-lg border border-border p-4 flex items-center justify-between gap-6">
-        <div className="flex items-center gap-3">
-          {isDarkMode
-            ? <Moon className="h-4 w-4 text-muted-foreground shrink-0" />
-            : <Sun  className="h-4 w-4 text-muted-foreground shrink-0" />
-          }
-          <div>
-            <Label htmlFor="dark-mode" className="text-sm font-medium cursor-pointer">
-              Dark Mode
-            </Label>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Switch between light and dark themes.
-            </p>
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-medium">Dark Mode</h3>
+              <p className="text-muted-foreground text-sm mt-0.5">
+                Switch between light and dark themes.
+              </p>
+            </div>
+            <Switch
+              checked={isDarkMode}
+              onCheckedChange={handleToggleDarkMode}
+            />
           </div>
-        </div>
-        <Switch
-          id="dark-mode"
-          checked={isDarkMode}
-          onCheckedChange={handleToggleDarkMode}
-        />
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

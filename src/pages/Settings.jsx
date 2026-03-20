@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { User, KeyRound, Bell, Shield, Palette } from 'lucide-react';
+import { User, Shield, Bell, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 import { useSettings } from '@/hooks/profile';
 
@@ -11,15 +12,16 @@ import NotificationsPanel from '@/components/settings/NotificationsPanel';
 import PrivacyPanel       from '@/components/settings/PrivacyPanel';
 
 const NAV = [
-  { id: 'profile',       label: 'Profile',       icon: User     },
-  { id: 'account',       label: 'Account',        icon: KeyRound },
-  { id: 'appearance',    label: 'Appearance',     icon: Palette  },
-  { id: 'notifications', label: 'Notifications',  icon: Bell     },
-  { id: 'privacy',       label: 'Privacy',        icon: Shield   },
+  { id: 'profile',       label: 'Profile',       icon: User   },
+  { id: 'account',       label: 'Account',        icon: Shield },
+  { id: 'appearance',    label: 'Appearance',     icon: Menu   },
+  { id: 'notifications', label: 'Notifications',  icon: Bell   },
+  { id: 'privacy',       label: 'Privacy',        icon: Shield },
 ];
 
 export default function Settings() {
-  const [active, setActive] = useState('profile');
+  const [active, setActive]         = useState('profile');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const s = useSettings();
 
   const renderPanel = () => {
@@ -87,45 +89,67 @@ export default function Settings() {
   };
 
   return (
-    <div className="py-2 animate-in fade-in duration-500">
-      {/* Header — matches Dashboard / Profile style */}
-      <div className="mb-8">
-        <h1 className="page-header-title">Settings</h1>
-        <p className="page-header-subtitle">
-          Manage your account, preferences, and privacy.
-        </p>
+    <div className="bg-background -mx-4 sm:-mx-6 lg:-mx-8 min-h-[calc(100vh-4rem)]">
+
+      {/* Mobile menu button */}
+      <div className="fixed top-20 left-4 z-50 lg:hidden">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+        >
+          {sidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+        </Button>
       </div>
 
-      <div className="flex gap-8">
-        {/* Sidebar */}
-        <aside className="w-40 shrink-0">
-          <nav className="flex flex-col gap-0.5">
-            {NAV.map(({ id, label, icon: Icon }) => {
-              const isActive = active === id;
-              return (
-                <button
-                  key={id}
-                  onClick={() => setActive(id)}
-                  className={cn(
-                    'flex items-center gap-2.5 rounded-md px-3 py-2 text-sm text-left transition-colors w-full',
-                    isActive
-                      ? 'bg-muted text-foreground font-medium'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50',
-                  )}
-                >
-                  <Icon className="h-4 w-4 shrink-0" />
-                  {label}
-                </button>
-              );
-            })}
+      {/* Fixed sidebar */}
+      <div
+        className={cn(
+          'fixed inset-y-0 left-0 z-40 w-56 bg-card border-r transform transition-transform duration-200 ease-in-out lg:translate-x-0',
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full',
+        )}
+      >
+        <div className="p-5 pt-20">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-3">
+            Settings
+          </p>
+          <nav className="space-y-0.5">
+            {NAV.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => { setActive(id); setSidebarOpen(false); }}
+                className={cn(
+                  'flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors text-left',
+                  active === id
+                    ? 'bg-secondary text-secondary-foreground'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50',
+                )}
+              >
+                <Icon className="h-4 w-4 shrink-0" />
+                {label}
+              </button>
+            ))}
           </nav>
-        </aside>
-
-        {/* Content — max-w-md matches the rest of the app's form widths */}
-        <main className="flex-1 min-w-0 max-w-md">
-          {renderPanel()}
-        </main>
+        </div>
       </div>
+
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Main content */}
+      <div className="lg:ml-56">
+        <div className="p-6 lg:p-8">
+          <div className="mx-auto max-w-2xl animate-in fade-in duration-300">
+            {renderPanel()}
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { Loader2, LogOut, Trash2, ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/common';
 
 const PrivacyPanel = ({
@@ -12,67 +13,64 @@ const PrivacyPanel = ({
   handleDeleteAccount,
 }) => {
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div>
-        <h2 className="text-base font-semibold">Privacy & Security</h2>
-        <p className="text-sm text-muted-foreground mt-0.5">
-          Manage your sessions and account data.
-        </p>
+        <h1 className="text-2xl font-semibold">Privacy & Security</h1>
       </div>
 
-      {/* Sessions box */}
-      <div className="rounded-lg border border-border p-4 flex items-start justify-between gap-6">
-        <div>
-          <p className="text-sm font-medium">Active Sessions</p>
-          <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-            Log out from all other devices. You'll stay signed in here.
-          </p>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={isUpdatingSession}
-          onClick={() => setIsSessionsDialogOpen(true)}
-          className="shrink-0 gap-1.5"
-        >
-          {isUpdatingSession
-            ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            : <LogOut className="h-3.5 w-3.5" />
-          }
-          Log out all
-        </Button>
-      </div>
+      {/* Sessions card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Active Sessions</CardTitle>
+          <CardDescription>
+            Log out from all other devices and browsers. You'll stay signed in here.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={isUpdatingSession}
+            onClick={() => setIsSessionsDialogOpen(true)}
+            className="gap-2"
+          >
+            {isUpdatingSession
+              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              : <LogOut className="h-3.5 w-3.5" />
+            }
+            Log out all devices
+          </Button>
+        </CardContent>
+      </Card>
 
-      {/* Danger zone box */}
-      <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 space-y-3">
-        <div className="flex items-center gap-1.5">
-          <ShieldAlert className="h-3.5 w-3.5 text-destructive" />
-          <p className="text-sm font-semibold text-destructive">Danger Zone</p>
-        </div>
-
-        <div className="flex items-start justify-between gap-6">
-          <div>
-            <p className="text-sm font-medium">Delete Account</p>
-            <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-              Permanently delete your account and all data.{' '}
-              <span className="text-foreground font-medium">This cannot be undone.</span>
-            </p>
-          </div>
+      {/* Danger zone card */}
+      <Card className="border-destructive/30">
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2 text-destructive">
+            <ShieldAlert className="h-4 w-4" />
+            Danger Zone
+          </CardTitle>
+          <CardDescription>
+            Permanently delete your account, posts, and all associated data.{' '}
+            <span className="font-medium text-foreground">This cannot be undone.</span>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
           <Button
             variant="destructive"
             size="sm"
             disabled={isUpdatingSession}
             onClick={() => setIsDeleteDialogOpen(true)}
-            className="shrink-0 gap-1.5"
+            className="gap-2"
           >
             {isUpdatingSession
               ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
               : <Trash2 className="h-3.5 w-3.5" />
             }
-            Delete account
+            Delete my account
           </Button>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       <ConfirmationDialog
         open={isSessionsDialogOpen}
