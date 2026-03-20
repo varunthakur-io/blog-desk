@@ -68,7 +68,7 @@
     @apply container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1200px];
   }
   .section-spacing {
-    @apply py-8 md:py-12;
+    @apply py-6 md:py-8;
   }
   .form-container {
     @apply max-w-3xl mx-auto;
