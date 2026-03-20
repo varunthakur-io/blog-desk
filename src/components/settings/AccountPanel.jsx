@@ -66,6 +66,19 @@ const AccountPanel = ({
 
             <input type="hidden" autoComplete="username" value={authUser?.email || ''} readOnly />
 
+            <div className="space-y-2">
+              <Label htmlFor="new-email">New email</Label>
+              <Input
+                id="new-email"
+                name="email"
+                type="email"
+                value={emailForm.email}
+                onChange={(e) => setEmailForm((p) => ({ ...p, email: e.target.value }))}
+                placeholder="you@example.com"
+                autoComplete="email"
+              />
+            </div>
+
             {/* Current password FIRST — managers see password → new email = change flow */}
             <div className="space-y-2">
               <Label htmlFor="email-current-password">Current password</Label>
@@ -83,19 +96,6 @@ const AccountPanel = ({
                 <EyeToggle show={showEmailPw} onToggle={() => setShowEmailPw(v => !v)} />
               </div>
               <p className="text-xs text-muted-foreground">Required to confirm the email change.</p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="new-email">New email</Label>
-              <Input
-                id="new-email"
-                name="email"
-                type="email"
-                value={emailForm.email}
-                onChange={(e) => setEmailForm((p) => ({ ...p, email: e.target.value }))}
-                placeholder="you@example.com"
-                autoComplete="email"
-              />
             </div>
 
             <div className="flex justify-end">
