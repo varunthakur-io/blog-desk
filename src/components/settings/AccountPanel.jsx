@@ -164,7 +164,7 @@ const AccountPanel = ({
                   onChange={(e) => setPasswordForm((p) => ({ ...p, newPassword: e.target.value }))}
                   placeholder="Minimum 8 characters"
                   className="pr-10"
-                  autoComplete="new-password"
+                  autoComplete="off"
                 />
                 <EyeToggle show={showNewPw} onToggle={() => setShowNewPw(v => !v)} />
               </div>
