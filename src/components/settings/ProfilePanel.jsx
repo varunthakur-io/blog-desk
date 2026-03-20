@@ -19,8 +19,9 @@ const ProfilePanel = ({
 }) => {
   return (
     <div className="space-y-5">
+      {/* Heading */}
       <div>
-        <h2 className="text-sm font-medium">Profile</h2>
+        <h2 className="text-base font-semibold">Profile</h2>
         <p className="text-sm text-muted-foreground mt-0.5">
           This is how others will see you on Blog Desk.
         </p>
@@ -32,8 +33,8 @@ const ProfilePanel = ({
         </Alert>
       )}
 
-      {/* Avatar */}
-      <div className="flex items-center gap-4">
+      {/* Avatar box */}
+      <div className="rounded-lg border border-border p-4 flex items-center gap-4">
         <div className="relative group shrink-0">
           <Avatar className="w-14 h-14 border border-border">
             <AvatarImage src={avatarPreview} className="object-cover" />
@@ -57,7 +58,9 @@ const ProfilePanel = ({
           />
         </div>
         <div>
-          <p className="text-sm font-medium leading-none">{profileForm.name || authUser?.name}</p>
+          <p className="text-sm font-medium leading-none">
+            {profileForm.name || authUser?.name}
+          </p>
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
@@ -68,33 +71,34 @@ const ProfilePanel = ({
         </div>
       </div>
 
-      {/* Name */}
-      <div className="space-y-1.5">
-        <Label htmlFor="name" className="text-sm font-medium">Display Name</Label>
-        <Input
-          id="name"
-          value={profileForm.name}
-          onChange={(e) => setProfileForm((p) => ({ ...p, name: e.target.value }))}
-          placeholder="Your name"
-          className="h-9 text-sm"
-        />
-        <p className="text-xs text-muted-foreground">Your public display name.</p>
-      </div>
+      {/* Name + Bio box */}
+      <div className="rounded-lg border border-border p-4 space-y-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="name" className="text-sm font-medium">Display Name</Label>
+          <Input
+            id="name"
+            value={profileForm.name}
+            onChange={(e) => setProfileForm((p) => ({ ...p, name: e.target.value }))}
+            placeholder="Your name"
+            className="h-9 text-sm"
+          />
+          <p className="text-xs text-muted-foreground">Your public display name.</p>
+        </div>
 
-      {/* Bio */}
-      <div className="space-y-1.5">
-        <Label htmlFor="bio" className="text-sm font-medium">Bio</Label>
-        <Textarea
-          id="bio"
-          value={profileForm.bio}
-          onChange={(e) => setProfileForm((p) => ({ ...p, bio: e.target.value }))}
-          placeholder="A short bio about yourself…"
-          className="resize-none text-sm min-h-[80px]"
-          maxLength={200}
-        />
-        <p className="text-xs text-muted-foreground text-right">
-          {profileForm.bio?.length || 0} / 200
-        </p>
+        <div className="space-y-1.5">
+          <Label htmlFor="bio" className="text-sm font-medium">Bio</Label>
+          <Textarea
+            id="bio"
+            value={profileForm.bio}
+            onChange={(e) => setProfileForm((p) => ({ ...p, bio: e.target.value }))}
+            placeholder="A short bio about yourself…"
+            className="resize-none text-sm min-h-[80px]"
+            maxLength={200}
+          />
+          <p className="text-xs text-muted-foreground text-right">
+            {profileForm.bio?.length || 0} / 200
+          </p>
+        </div>
       </div>
 
       <Button

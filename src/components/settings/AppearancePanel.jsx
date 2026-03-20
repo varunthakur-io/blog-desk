@@ -6,13 +6,14 @@ const AppearancePanel = ({ isDarkMode, handleToggleDarkMode }) => {
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="text-sm font-medium">Appearance</h2>
+        <h2 className="text-base font-semibold">Appearance</h2>
         <p className="text-sm text-muted-foreground mt-0.5">
           Customize how Blog Desk looks on your device.
         </p>
       </div>
 
-      <div className="flex items-center justify-between gap-6">
+      {/* Theme box */}
+      <div className="rounded-lg border border-border p-4 flex items-center justify-between gap-6">
         <div className="flex items-center gap-3">
           {isDarkMode
             ? <Moon className="h-4 w-4 text-muted-foreground shrink-0" />

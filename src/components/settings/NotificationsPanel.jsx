@@ -7,7 +7,7 @@ const NotificationsPanel = ({ prefs, isPrefsLoading, handlePrefChange }) => {
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="text-sm font-medium">Notifications</h2>
+        <h2 className="text-base font-semibold">Notifications</h2>
         <p className="text-sm text-muted-foreground mt-0.5">
           Choose what you want to be notified about.
         </p>
@@ -19,8 +19,9 @@ const NotificationsPanel = ({ prefs, isPrefsLoading, handlePrefChange }) => {
           Loading preferences…
         </div>
       ) : (
-        <div className="space-y-5">
-          <div className="flex items-start justify-between gap-8">
+        /* Single box with both prefs and a separator between */
+        <div className="rounded-lg border border-border divide-y divide-border">
+          <div className="flex items-start justify-between gap-8 p-4">
             <div>
               <Label htmlFor="marketing" className="text-sm font-medium cursor-pointer">
                 Marketing Emails
@@ -36,9 +37,7 @@ const NotificationsPanel = ({ prefs, isPrefsLoading, handlePrefChange }) => {
             />
           </div>
 
-          <Separator />
-
-          <div className="flex items-start justify-between gap-8">
+          <div className="flex items-start justify-between gap-8 p-4">
             <div>
               <Label htmlFor="security" className="text-sm font-medium cursor-pointer">
                 Security Alerts

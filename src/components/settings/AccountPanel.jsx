@@ -35,16 +35,17 @@ const AccountPanel = ({
   const [showConfirmPw, setShowConfirmPw] = useState(false);
 
   return (
-    <div className="space-y-7">
+    <div className="space-y-5">
+      {/* Heading */}
       <div>
-        <h2 className="text-sm font-medium">Account</h2>
+        <h2 className="text-base font-semibold">Account</h2>
         <p className="text-sm text-muted-foreground mt-0.5">
           Manage your email address and password.
         </p>
       </div>
 
-      {/* ── Email ── */}
-      <div className="space-y-4">
+      {/* Email box */}
+      <div className="rounded-lg border border-border p-4 space-y-4">
         <div>
           <p className="text-sm font-medium">Email Address</p>
           <p className="text-xs text-muted-foreground mt-0.5">
@@ -100,10 +101,8 @@ const AccountPanel = ({
         </Button>
       </div>
 
-      <Separator />
-
-      {/* ── Password ── */}
-      <div className="space-y-4">
+      {/* Password box */}
+      <div className="rounded-lg border border-border p-4 space-y-4">
         <div>
           <p className="text-sm font-medium">Change Password</p>
           <p className="text-xs text-muted-foreground mt-0.5">
