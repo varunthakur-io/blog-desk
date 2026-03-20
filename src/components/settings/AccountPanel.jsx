@@ -79,6 +79,7 @@ const AccountPanel = ({
                 onChange={(e) => setEmailForm((p) => ({ ...p, password: e.target.value }))}
                 placeholder="Your current password"
                 className="pr-10"
+                autoComplete="current-password"
               />
               <EyeToggle show={showEmailPw} onToggle={() => setShowEmailPw(v => !v)} />
             </div>
@@ -118,6 +119,7 @@ const AccountPanel = ({
                 onChange={(e) => setPasswordForm((p) => ({ ...p, currentPassword: e.target.value }))}
                 placeholder="Your current password"
                 className="pr-10"
+                autoComplete="current-password"
               />
               <EyeToggle show={showCurrentPw} onToggle={() => setShowCurrentPw(v => !v)} />
             </div>
@@ -133,6 +135,7 @@ const AccountPanel = ({
                 onChange={(e) => setPasswordForm((p) => ({ ...p, newPassword: e.target.value }))}
                 placeholder="Minimum 8 characters"
                 className="pr-10"
+                autoComplete="new-password"
               />
               <EyeToggle show={showNewPw} onToggle={() => setShowNewPw(v => !v)} />
             </div>
@@ -148,6 +151,7 @@ const AccountPanel = ({
                 onChange={(e) => setPasswordForm((p) => ({ ...p, confirmPassword: e.target.value }))}
                 placeholder="Repeat new password"
                 className="pr-10"
+                autoComplete="new-password"
               />
               <EyeToggle show={showConfirmPw} onToggle={() => setShowConfirmPw(v => !v)} />
             </div>
