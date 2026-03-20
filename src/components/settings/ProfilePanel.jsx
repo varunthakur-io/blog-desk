@@ -1,10 +1,11 @@
 import { Camera, Loader2, Save, Upload, Trash2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const ProfilePanel = ({
@@ -38,14 +39,20 @@ const ProfilePanel = ({
         </Alert>
       )}
 
+      {/* Card 1 — Profile photo */}
       <Card>
-        <CardContent className="p-6 space-y-6">
-          {/* Avatar + actions row */}
-          <div className="flex items-center gap-5">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-base">Profile photo</CardTitle>
+          <CardDescription>
+            Displayed on your profile and across Blog Desk.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-4">
             <div className="relative group shrink-0">
-              <Avatar className="h-20 w-20 border-2 border-border shadow-sm">
+              <Avatar className="h-16 w-16 border border-border shadow-sm">
                 <AvatarImage src={avatarPreview} className="object-cover" />
-                <AvatarFallback className="text-2xl font-bold bg-muted">
+                <AvatarFallback className="text-xl font-bold bg-muted">
                   {initial}
                 </AvatarFallback>
               </Avatar>
@@ -54,7 +61,7 @@ const ProfilePanel = ({
                 onClick={() => fileInputRef.current?.click()}
                 className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
               >
-                <Camera className="h-5 w-5 text-white" />
+                <Camera className="h-4 w-4 text-white" />
               </button>
               <input
                 ref={fileInputRef}
@@ -66,10 +73,10 @@ const ProfilePanel = ({
             </div>
 
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium">
+              <p className="text-sm font-medium leading-none">
                 {profileForm.name || authUser?.name || 'Your name'}
               </p>
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <p className="text-xs text-muted-foreground mt-1">
                 JPG, PNG or WebP · Max 3 MB
               </p>
               <div className="flex gap-2 mt-3">
@@ -97,7 +104,18 @@ const ProfilePanel = ({
               </div>
             </div>
           </div>
+        </CardContent>
+      </Card>
 
+      {/* Card 2 — Profile details */}
+      <Card>
+        <CardHeader className="pb-4">
+          <CardTitle className="text-base">Profile details</CardTitle>
+          <CardDescription>
+            This information is visible to other users on Blog Desk.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-5">
           {/* Two-column: name + email */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -124,6 +142,8 @@ const ProfilePanel = ({
             </div>
           </div>
 
+          <Separator />
+
           {/* Bio */}
           <div className="space-y-2">
             <Label htmlFor="bio" className="text-sm font-medium">
@@ -143,7 +163,9 @@ const ProfilePanel = ({
             </div>
           </div>
 
-          <div className="flex justify-end pt-1">
+          <Separator />
+
+          <div className="flex justify-end">
             <Button onClick={handleSaveProfile} disabled={isSavingProfile} className="gap-2">
               {isSavingProfile
                 ? <Loader2 className="h-4 w-4 animate-spin" />
