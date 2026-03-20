@@ -75,7 +75,7 @@ const AccountPanel = ({
                 value={emailForm.email}
                 onChange={(e) => setEmailForm((p) => ({ ...p, email: e.target.value }))}
                 placeholder="you@example.com"
-                autoComplete="email"
+                autoComplete="off"
               />
             </div>
 
