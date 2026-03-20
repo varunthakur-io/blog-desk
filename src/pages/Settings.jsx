@@ -1,4 +1,4 @@
-// src/pages/Settings.jsx
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Moon,
@@ -13,39 +13,27 @@ import {
   Loader2,
 } from 'lucide-react';
 
-// UI Components
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { ConfirmationDialog } from '@/components/common';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 
-// Hooks
 import { useSettings } from '@/hooks/profile';
+
+const SectionIcon = ({ icon: Icon, variant = 'default' }) => (
+  <div className={`p-2 rounded-lg ${variant === 'destructive' ? 'bg-destructive/10' : 'bg-accent'}`}>
+    <Icon className={`h-4 w-4 ${variant === 'destructive' ? 'text-destructive' : 'text-primary'}`} />
+  </div>
+);
 
 const Settings = () => {
   const {
-    isDarkMode,
-    isLoading,
+    isSettingsUpdating,
     isPrefsLoading,
+    isDarkMode,
     prefs,
     handleToggleDarkMode,
     handlePrefChange,
@@ -53,76 +41,83 @@ const Settings = () => {
     handleDeleteAccount,
   } = useSettings();
 
+  const [isSessionsDialogOpen, setIsSessionsDialogOpen] = useState(false);
+  const [isAccountDialogOpen, setIsAccountDialogOpen] = useState(false);
+
   return (
-    <div className="py-2 max-w-6xl animate-in fade-in duration-500 mx-auto">
-      <div className="mb-8 space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground text-lg">
-          Manage your account preferences and security settings.
-        </p>
+    <div className="py-2 max-w-5xl mx-auto animate-in fade-in duration-500">
+      {/* Header */}
+      <div className="mb-8 flex items-center gap-3">
+        <SectionIcon icon={SettingsIcon} />
+        <div>
+          <h1 className="page-header-title">Settings</h1>
+          <p className="page-header-subtitle">Manage your account preferences and security.</p>
+        </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
-        <div className="space-y-6">
-          <Card className="hover:shadow-md transition-shadow">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <div className="p-2 bg-primary/10 rounded-md">
-                  <SettingsIcon className="h-5 w-5 text-primary" />
-                </div>
+      <div className="grid gap-5 lg:grid-cols-2 lg:gap-6">
+        {/* Left column */}
+        <div className="space-y-5">
+          {/* Appearance */}
+          <Card className="border-border/50 shadow-sm rounded-xl">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2.5 text-base">
+                <SectionIcon icon={isDarkMode ? Moon : Sun} />
                 Appearance
               </CardTitle>
-              <CardDescription>
-                Customize how the application looks on your device.
-              </CardDescription>
+              <CardDescription className="text-sm">Customize how the app looks.</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-between space-x-4">
-                <div className="flex items-center space-x-4">
-                  <div className="p-2 bg-muted rounded-full">
-                    {isDarkMode ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-                  </div>
-                  <div>
-                    <Label htmlFor="theme-mode" className="text-base font-medium">Dark Mode</Label>
-                    <p className="text-sm text-muted-foreground">Switch between light and dark themes.</p>
-                  </div>
+              <div className="flex items-center justify-between gap-4 py-1">
+                <div>
+                  <Label htmlFor="theme-mode" className="text-sm font-medium">
+                    Dark Mode
+                  </Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">Switch between light and dark themes.</p>
                 </div>
                 <Switch id="theme-mode" checked={isDarkMode} onCheckedChange={handleToggleDarkMode} />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-md transition-shadow">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <div className="p-2 bg-primary/10 rounded-md">
-                  <Bell className="h-5 w-5 text-primary" />
-                </div>
+          {/* Notifications */}
+          <Card className="border-border/50 shadow-sm rounded-xl">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2.5 text-base">
+                <SectionIcon icon={Bell} />
                 Notifications
               </CardTitle>
-              <CardDescription>Choose what you want to be notified about.</CardDescription>
+              <CardDescription className="text-sm">Choose what to be notified about.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-5">
               {isPrefsLoading ? (
                 <div className="py-4 flex justify-center">
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                 </div>
               ) : (
                 <>
-                  <div className="flex items-center justify-between space-x-4">
+                  <div className="flex items-center justify-between gap-4">
                     <div>
-                      <Label htmlFor="marketing" className="text-base font-medium">Marketing Emails</Label>
-                      <p className="text-sm text-muted-foreground">Receive emails about new features.</p>
+                      <Label htmlFor="marketing" className="text-sm font-medium">Marketing Emails</Label>
+                      <p className="text-xs text-muted-foreground mt-0.5">Receive emails about new features.</p>
                     </div>
-                    <Switch id="marketing" checked={prefs.marketing} onCheckedChange={(val) => handlePrefChange('marketing', val)} />
+                    <Switch
+                      id="marketing"
+                      checked={prefs.marketing}
+                      onCheckedChange={(val) => handlePrefChange('marketing', val)}
+                    />
                   </div>
                   <Separator />
-                  <div className="flex items-center justify-between space-x-4">
+                  <div className="flex items-center justify-between gap-4">
                     <div>
-                      <Label htmlFor="security" className="text-base font-medium">Security Alerts</Label>
-                      <p className="text-sm text-muted-foreground">Get notified about security events.</p>
+                      <Label htmlFor="security" className="text-sm font-medium">Security Alerts</Label>
+                      <p className="text-xs text-muted-foreground mt-0.5">Get notified about security events.</p>
                     </div>
-                    <Switch id="security" checked={prefs.security} onCheckedChange={(val) => handlePrefChange('security', val)} />
+                    <Switch
+                      id="security"
+                      checked={prefs.security}
+                      onCheckedChange={(val) => handlePrefChange('security', val)}
+                    />
                   </div>
                 </>
               )}
@@ -130,92 +125,105 @@ const Settings = () => {
           </Card>
         </div>
 
-        <div className="space-y-6">
-          <Card className="hover:shadow-md transition-shadow">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <div className="p-2 bg-primary/10 rounded-md">
-                  <UserCog className="h-5 w-5 text-primary" />
-                </div>
+        {/* Right column */}
+        <div className="space-y-5">
+          {/* Account */}
+          <Card className="border-border/50 shadow-sm rounded-xl">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2.5 text-base">
+                <SectionIcon icon={UserCog} />
                 Account
               </CardTitle>
-              <CardDescription>Update your profile details.</CardDescription>
+              <CardDescription className="text-sm">Update your profile details.</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <h4 className="text-base font-medium">Profile Information</h4>
-                  <p className="text-sm text-muted-foreground">Change your name, bio, and avatar.</p>
+              <div className="flex items-center justify-between gap-4 py-1">
+                <div>
+                  <p className="text-sm font-medium">Profile Information</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Change your name, bio, and avatar.</p>
                 </div>
-                <Button variant="outline" asChild>
+                <Button variant="outline" size="sm" asChild className="rounded-full shrink-0">
                   <Link to="/profile">Go to Profile</Link>
                 </Button>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-destructive/20 hover:border-destructive/40 transition-all shadow-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-destructive">
-                <div className="p-2 bg-destructive/10 rounded-md">
-                  <ShieldAlert className="h-5 w-5 text-destructive" />
-                </div>
+          {/* Danger Zone */}
+          <Card className="border-destructive/20 shadow-sm rounded-xl">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2.5 text-base text-destructive">
+                <SectionIcon icon={ShieldAlert} variant="destructive" />
                 Danger Zone
               </CardTitle>
-              <CardDescription>Manage sensitive actions.</CardDescription>
+              <CardDescription className="text-sm">Manage sensitive actions carefully.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center justify-between p-4 border rounded-lg bg-background/50 hover:bg-background transition-colors">
-                <div className="flex items-start gap-4">
-                  <div className="p-2 bg-muted rounded-full mt-1"><Laptop className="h-5 w-5" /></div>
+            <CardContent className="space-y-4">
+              {/* Sessions */}
+              <div className="flex items-center justify-between gap-4 p-4 rounded-xl border border-border/50 bg-muted/20">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-muted rounded-lg mt-0.5 shrink-0">
+                    <Laptop className="h-4 w-4 text-muted-foreground" />
+                  </div>
                   <div>
-                    <h4 className="text-base font-medium">Active Sessions</h4>
-                    <p className="text-sm text-muted-foreground max-w-xs">Log out from all other devices.</p>
+                    <p className="text-sm font-medium">Active Sessions</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Log out from all other devices.</p>
                   </div>
                 </div>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="outline" size="sm" disabled={isLoading}><LogOut className="mr-2 h-4 w-4" /> Log Out All</Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Sign out everywhere?</AlertDialogTitle>
-                      <AlertDialogDescription>You will need to log in again.</AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDeleteSessions}>Confirm Log Out</AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={isSettingsUpdating}
+                  onClick={() => setIsSessionsDialogOpen(true)}
+                  className="shrink-0 gap-1.5 rounded-full text-xs"
+                >
+                  <LogOut className="h-3.5 w-3.5" /> Log Out All
+                </Button>
               </div>
 
-              <Alert variant="destructive" className="border-destructive/20 bg-destructive/5">
+              {/* Delete Account */}
+              <Alert variant="destructive" className="border-destructive/20 bg-destructive/5 rounded-xl">
                 <Trash2 className="h-4 w-4" />
-                <AlertTitle>Delete Account</AlertTitle>
-                <AlertDescription className="mt-2 flex flex-col gap-4">
-                  <p className="text-sm text-muted-foreground">Permanently remove your account.</p>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="sm" disabled={isLoading}>Delete Account</Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                        <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive hover:bg-destructive/90">Delete My Account</AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                <AlertTitle className="text-sm font-semibold">Delete Account</AlertTitle>
+                <AlertDescription className="mt-2 flex flex-col gap-3">
+                  <p className="text-xs text-muted-foreground">
+                    Permanently remove your account and all associated data.
+                  </p>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    disabled={isSettingsUpdating}
+                    onClick={() => setIsAccountDialogOpen(true)}
+                    className="w-fit rounded-full text-xs"
+                  >
+                    Delete My Account
+                  </Button>
                 </AlertDescription>
               </Alert>
             </CardContent>
           </Card>
         </div>
       </div>
+
+      <ConfirmationDialog
+        open={isSessionsDialogOpen}
+        onOpenChange={setIsSessionsDialogOpen}
+        onConfirm={handleDeleteSessions}
+        title="Sign out everywhere?"
+        description="You will need to log in again on all other devices."
+        confirmText="Confirm Log Out"
+        isLoading={isSettingsUpdating}
+      />
+      <ConfirmationDialog
+        open={isAccountDialogOpen}
+        onOpenChange={setIsAccountDialogOpen}
+        onConfirm={handleDeleteAccount}
+        title="Are you absolutely sure?"
+        description="This action cannot be undone. All your posts, comments, and profile data will be permanently removed."
+        confirmText="Delete My Account"
+        variant="destructive"
+        isLoading={isSettingsUpdating}
+      />
     </div>
   );
 };

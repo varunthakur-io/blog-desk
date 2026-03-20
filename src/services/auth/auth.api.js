@@ -1,4 +1,4 @@
-import { account } from '@/lib/appwrite';
+import { account, functions, appwriteConfig as appwrite } from '@/lib/appwrite';
 import { ID } from 'appwrite';
 
 class AuthApi {
@@ -36,6 +36,24 @@ class AuthApi {
 
   async updateStatus() {
     return await account.updateStatus();
+  }
+
+  async executeDeleteAccount() {
+    if (!appwrite.deleteAccountFunctionId) {
+      throw new Error('Delete account function is not configured.');
+    }
+
+    // The browser cannot delete Appwrite users directly, so we invoke a privileged function.
+    return await functions.createExecution(
+      appwrite.deleteAccountFunctionId,
+      JSON.stringify({}),
+      false,
+      '/',
+      'POST',
+      {
+        'content-type': 'application/json',
+      },
+    );
   }
 }
 

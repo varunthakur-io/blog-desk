@@ -1,4 +1,3 @@
-// src/pages/EditPost.jsx
 import { ArrowLeft } from 'lucide-react';
 
 // UI Components
@@ -11,27 +10,21 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useEditPost } from '@/hooks/posts';
 
 export default function EditPost() {
-  const {
-    formData,
-    isLoading,
-    isSaving,
-    error,
-    handleUpdate,
-    navigate,
-  } = useEditPost();
+  const { formData, isPostLoading, isPostUpdating, postFetchError, handleUpdate, navigate } =
+    useEditPost();
 
-  if (isLoading) {
+  if (isPostLoading) {
     return <FormSkeleton />;
   }
 
-  if (error) {
+  if (postFetchError) {
     return (
       <div className="flex justify-center items-center min-h-[60vh] p-4">
         <Card className="w-full max-w-lg border-destructive/50">
           <CardContent className="pt-6">
             <Alert variant="destructive" className="border-none">
               <AlertDescription className="text-center font-medium">
-                {error}
+                {postFetchError}
               </AlertDescription>
             </Alert>
             <Button
@@ -53,7 +46,7 @@ export default function EditPost() {
         mode="edit"
         initialData={formData}
         onSubmit={handleUpdate}
-        isSubmitting={isSaving}
+        isSubmitting={isPostUpdating}
         onBackClick={() => navigate('/dashboard')}
       />
     </div>

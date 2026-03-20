@@ -11,6 +11,7 @@ class StorageApi {
   }
 
   getFileViewUrl(fileId) {
+    // Build a stable public view URL once so callers do not repeat Appwrite URL assembly.
     return `${appwrite.url}/storage/buckets/${appwrite.bucketId}/files/${fileId}/view?project=${appwrite.projectId}`;
   }
 }

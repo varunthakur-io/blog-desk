@@ -15,6 +15,7 @@ class AuthService {
     localStorage.removeItem('user');
   }
 
+  // Create auth first, then retry profile creation because those writes can become available slightly later.
   async createUser({ email, password, name, username }) {
     const createdUser = await authApi.createAccount(email, password, name);
 
@@ -23,6 +24,7 @@ class AuthService {
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
+        // Appwrite auth creation can succeed just before the profile collection becomes writable.
         await profileService.createProfile(createdUser, username);
         profileCreated = true;
         break;
@@ -43,7 +45,7 @@ class AuthService {
   async loginUser({ email, password }) {
     await authApi.createEmailPasswordSession(email, password);
     const user = await authApi.getAccount();
-    
+
     let profile = null;
     try {
       profile = await profileService.getProfile(user.$id);
@@ -65,17 +67,18 @@ class AuthService {
     this.clearCachedUser();
   }
 
+  // Merge the latest auth account with the cached profile snapshot so reloads keep profile data warm.
   async getAccount() {
     try {
       const user = await authApi.getAccount();
-      
+
       let profile = null;
       try {
         profile = await profileService.getProfile(user.$id);
       } catch {
         // ignore
       }
-      
+
       const cached = this.getCachedUser() || {};
       const updatedUser = { ...cached, ...user, profile };
       this.cacheUser(updatedUser);
@@ -108,15 +111,23 @@ class AuthService {
     return updatedUser;
   }
 
+  // Treat the function execution body as the source of truth for privileged account deletion results.
   async deleteAccount() {
-    await authApi.updateStatus();
-    try {
-      const currentUser = await authApi.getAccount();
-      await profileService.clearProfileById(currentUser.$id);
-    } catch {
-      // Continue even if profile deletion fails
+    const execution = await authApi.executeDeleteAccount();
+    // Function executions return their own status/body, so transport-level success alone is not enough.
+    if (execution.responseStatusCode >= 400) {
+      let message = 'Failed to delete account.';
+      try {
+        const parsed = JSON.parse(execution.responseBody || '{}');
+        message = parsed?.message || message;
+      } catch {
+        // ignore parse errors and keep generic message
+      }
+      throw new Error(message);
     }
+
     this.clearCachedUser();
+    return true;
   }
 }
 

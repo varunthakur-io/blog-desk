@@ -10,48 +10,46 @@ export const useCreatePost = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const authUserId = useSelector(selectAuthUserId);
-  const [status, setStatus] = useState('idle');
+  const [createStatus, setCreateStatus] = useState('idle');
 
-  const handleCreatePost = useCallback(async (formData) => {
-    if (!authUserId) {
-      toast.error('You must be logged in to create a post.');
-      return;
-    }
-
-    if (!formData.title?.trim() || !formData.content?.trim()) {
-      toast.error('Title and content are required.');
-      return;
-    }
-
-    if (status === 'submitting') return;
-
-    setStatus('submitting');
-
-    try {
-      const newPost = await postService.createPost({
-        title: formData.title.trim(),
-        content: formData.content.trim(),
-        status: formData.status || 'draft',
-        coverImageId: formData.coverImageId || null,
-        coverImageUrl: formData.coverImageUrl || null,
-      });
-
-      if (newPost) {
-        dispatch(setPostDetail(newPost));
+  const handleCreatePost = useCallback(
+    async (formData) => {
+      if (!authUserId) {
+        toast.error('You must be logged in to create a post.');
+        return;
       }
+      if (!formData.title?.trim() || !formData.content?.trim()) {
+        toast.error('Title and content are required.');
+        return;
+      }
+      if (createStatus === 'loading') return;
 
-      setStatus('idle');
-      toast.success('Post published successfully!');
-      navigate('/dashboard');
-    } catch (error) {
-      console.error('Create post error:', error);
-      setStatus('error');
-      toast.error(error?.message || 'Failed to create post. Please try again.');
-    }
-  }, [authUserId, dispatch, navigate, status]);
+      setCreateStatus('loading');
+      try {
+        const newPost = await postService.createPost({
+          title: formData.title.trim(),
+          content: formData.content.trim(),
+          status: formData.status || 'draft',
+          coverImageId: formData.coverImageId || null,
+          coverImageUrl: formData.coverImageUrl || null,
+          category: formData.category || null,
+        });
+
+        if (newPost) dispatch(setPostDetail(newPost));
+        setCreateStatus('idle');
+        toast.success('Post published successfully!');
+        navigate('/dashboard');
+      } catch (error) {
+        console.error('Create post error:', error);
+        setCreateStatus('error');
+        toast.error(error?.message || 'Failed to create post. Please try again.');
+      }
+    },
+    [authUserId, dispatch, navigate, createStatus],
+  );
 
   return {
     handleCreatePost,
-    isSubmitting: status === 'submitting',
+    isPostCreating: createStatus === 'loading',
   };
 };

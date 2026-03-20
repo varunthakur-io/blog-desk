@@ -5,7 +5,6 @@ const FormSkeleton = () => {
   return (
     <div className="py-2">
       <Skeleton className="h-10 w-32 mb-4" /> {/* Back button */}
-
       <Card className="border-none shadow-none">
         <CardHeader className="px-0 space-y-2">
           <Skeleton className="h-8 w-40" />
@@ -14,18 +13,18 @@ const FormSkeleton = () => {
 
         <CardContent className="px-0 space-y-6">
           <div className="space-y-2">
-             <Skeleton className="h-5 w-16" /> {/* Label */}
-             <Skeleton className="h-12 w-full" /> {/* Input */}
+            <Skeleton className="h-5 w-16" /> {/* Label */}
+            <Skeleton className="h-12 w-full" /> {/* Input */}
           </div>
 
           <div className="space-y-2">
-             <Skeleton className="h-5 w-20" /> {/* Label */}
-             <Skeleton className="h-[400px] w-full" /> {/* Textarea */}
+            <Skeleton className="h-5 w-20" /> {/* Label */}
+            <Skeleton className="h-[400px] w-full" /> {/* Textarea */}
           </div>
 
           <div className="flex items-center justify-end gap-4 pt-2">
-             <Skeleton className="h-10 w-24" />
-             <Skeleton className="h-10 w-32" />
+            <Skeleton className="h-10 w-24" />
+            <Skeleton className="h-10 w-32" />
           </div>
         </CardContent>
       </Card>

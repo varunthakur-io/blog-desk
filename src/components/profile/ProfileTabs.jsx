@@ -2,16 +2,43 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
-import { Edit, Mail, CalendarDays } from 'lucide-react';
+import { Edit, Mail, CalendarDays, Heart } from 'lucide-react';
 import PostCard from '@/components/posts/PostCard';
 import PostCardSkeleton from '@/components/posts/PostCardSkeleton';
+
+const EmptyPosts = ({ isOwner, isLikes }) => (
+  <div className="flex flex-col items-center justify-center py-16 text-center rounded-xl border border-dashed border-border bg-muted/10">
+    <div className="bg-muted/50 p-4 rounded-full mb-4">
+      {isLikes ? (
+        <Heart className="w-7 h-7 text-muted-foreground/50" />
+      ) : (
+        <Edit className="w-7 h-7 text-muted-foreground/50" />
+      )}
+    </div>
+    <h3 className="text-base font-semibold">
+      {isLikes ? 'No liked posts' : 'No posts yet'}
+    </h3>
+    <p className="text-sm text-muted-foreground max-w-xs mt-1.5 mb-5 leading-relaxed">
+      {isLikes
+        ? 'Posts you like will appear here.'
+        : isOwner
+        ? 'Share your thoughts with the world. Write your first post.'
+        : "This user hasn't posted anything yet."}
+    </p>
+    {isOwner && !isLikes && (
+      <Button asChild size="sm" className="rounded-full px-5">
+        <a href="/create">Write a Post</a>
+      </Button>
+    )}
+  </div>
+);
 
 const ProfileTabs = ({
   activeTab,
   setActiveTab,
   isOwner,
   postsLoading,
-  initialPostsLoaded,
+  postsError,
   userPosts,
   likedPosts,
   isLoadingLikes,
@@ -21,101 +48,79 @@ const ProfileTabs = ({
   joinedDate,
 }) => {
   return (
-    <Tabs defaultValue="posts" className="w-full" onValueChange={setActiveTab}>
-      <TabsList className="grid w-full grid-cols-3 max-w-[400px] mx-auto sm:mx-0 mb-8">
-        <TabsTrigger value="posts">Posts</TabsTrigger>
-        <TabsTrigger value="likes">Liked</TabsTrigger>
-        <TabsTrigger value="about">About</TabsTrigger>
+    <Tabs value={activeTab} className="w-full" onValueChange={setActiveTab}>
+      <TabsList className="h-9 rounded-full bg-muted/60 p-1 mb-8 w-fit">
+        <TabsTrigger value="posts" className="rounded-full text-xs px-4 font-medium">Posts</TabsTrigger>
+        <TabsTrigger value="likes" className="rounded-full text-xs px-4 font-medium">Liked</TabsTrigger>
+        <TabsTrigger value="about" className="rounded-full text-xs px-4 font-medium">About</TabsTrigger>
       </TabsList>
 
-      <TabsContent value="posts" className="space-y-6">
-        {postsLoading && !initialPostsLoaded ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <PostCardSkeleton key={i} />
-            ))}
+      {/* Posts Tab */}
+      <TabsContent value="posts" className="space-y-6 mt-0">
+        {postsLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[...Array(6)].map((_, i) => <PostCardSkeleton key={i} />)}
           </div>
+        ) : postsError ? (
+          <Alert variant="destructive" className="rounded-xl">
+            <AlertDescription>{postsError}</AlertDescription>
+          </Alert>
         ) : userPosts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
-            {userPosts.map((post) => (
-              <PostCard key={post.$id} post={post} />
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 items-start">
+            {userPosts.map((post) => <PostCard key={post.$id} post={post} />)}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-16 text-center border rounded-lg border-dashed">
-            <div className="bg-muted/50 p-4 rounded-full mb-4">
-              <Edit className="w-8 h-8 text-muted-foreground" />
-            </div>
-            <h3 className="text-lg font-semibold">No posts yet</h3>
-            <p className="text-muted-foreground max-w-sm mt-2 mb-6">
-              {isOwner
-                ? 'Share your thoughts with the world. Create your first post now.'
-                : "This user hasn't posted anything yet."}
-            </p>
-            {isOwner && (
-              <Button asChild>
-                <a href="/create">Create Post</a>
-              </Button>
-            )}
-          </div>
+          <EmptyPosts isOwner={isOwner} isLikes={false} />
         )}
       </TabsContent>
 
-      <TabsContent value="likes">
+      {/* Likes Tab */}
+      <TabsContent value="likes" className="mt-0">
         {!isOwner ? (
-          <div className="py-12 text-center text-muted-foreground">
-            <p>Liked posts are private.</p>
+          <div className="py-12 text-center text-sm text-muted-foreground">
+            Liked posts are private.
           </div>
         ) : isLoadingLikes ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(3)].map((_, i) => (
-              <PostCardSkeleton key={i} />
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[...Array(3)].map((_, i) => <PostCardSkeleton key={i} />)}
           </div>
         ) : likesError ? (
-          <Alert variant="destructive">
+          <Alert variant="destructive" className="rounded-xl">
             <AlertDescription>{likesError}</AlertDescription>
           </Alert>
         ) : likedPosts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
-            {likedPosts.map((post) => (
-              <PostCard key={post.$id} post={post} />
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 items-start">
+            {likedPosts.map((post) => <PostCard key={post.$id} post={post} />)}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-16 text-center border rounded-lg border-dashed">
-            <p className="text-muted-foreground">No liked posts yet.</p>
-          </div>
+          <EmptyPosts isOwner={isOwner} isLikes={true} />
         )}
       </TabsContent>
 
-      <TabsContent value="about">
-        <div className="border rounded-lg p-6 space-y-6">
+      {/* About Tab */}
+      <TabsContent value="about" className="mt-0">
+        <div className="rounded-xl border border-border/50 bg-card p-6 space-y-5 shadow-sm max-w-xl">
           <div>
-            <h3 className="font-semibold text-lg mb-2">Bio</h3>
-            <p className="text-muted-foreground">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Bio</p>
+            <p className="text-sm text-foreground/80 leading-relaxed">
               {displayBio || 'No bio available.'}
             </p>
           </div>
           <Separator />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {isOwner && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {isOwner && displayEmail && (
               <div>
-                <h4 className="text-sm font-medium text-muted-foreground mb-1">
-                  Contact
-                </h4>
-                <div className="flex items-center gap-2">
-                  <Mail className="w-4 h-4" />
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Contact</p>
+                <div className="flex items-center gap-2 text-sm">
+                  <Mail className="w-3.5 h-3.5 text-muted-foreground" />
                   <span>{displayEmail}</span>
                 </div>
               </div>
             )}
             <div>
-              <h4 className="text-sm font-medium text-muted-foreground mb-1">
-                Joined
-              </h4>
-              <div className="flex items-center gap-2">
-                <CalendarDays className="w-4 h-4" />
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Joined</p>
+              <div className="flex items-center gap-2 text-sm">
+                <CalendarDays className="w-3.5 h-3.5 text-muted-foreground" />
                 <span>{joinedDate}</span>
               </div>
             </div>

@@ -1,13 +1,9 @@
-// PostDetails.jsx
 import { ArrowLeft } from 'lucide-react';
 
-// UI Components
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Card, CardContent } from '@/components/ui/card';
 
-// Custom Post Components
 import {
   PostDetailsSkeleton,
   PostContent,
@@ -15,65 +11,75 @@ import {
   AuthorSidebar,
 } from '@/components/posts';
 
-// Hooks
 import { usePostDetails } from '@/hooks/posts/usePostDetails';
 
 const PostDetails = () => {
   const {
-    currentPost, authUserId, profiles, authorProfile, currentUserProfile,
-    isLoading, error, likesCount, isLiked, isLikedLoading, isLiking, comments, readTime,
-    handleLike, handleShare, navigate
+    authUserId,
+    post,
+    profileCache,
+    authorProfile,
+    currentUserProfile,
+    isPostLoading,
+    postFetchError,
+    likesCount,
+    isLiked,
+    isLikedLoading,
+    isLiking,
+    comments,
+    estimatedReadTime,
+    handleLike,
+    handleShare,
+    navigate,
   } = usePostDetails();
 
-  if (isLoading) return <PostDetailsSkeleton />;
+  if (isPostLoading) return <PostDetailsSkeleton />;
 
-  const isAuthorized = currentPost?.status === 'published' || currentPost?.authorId === authUserId;
+  const isAuthorized = post?.status === 'published' || post?.authorId === authUserId;
 
-  if (error || !currentPost || !isAuthorized) {
+  if (postFetchError || !post || !isAuthorized) {
     return (
-      <div className="py-10">
-        <Card className="max-w-4xl mx-auto">
-          <CardContent className="p-6">
-            <div className="text-center space-y-4">
-              <Alert variant="destructive">
-                <AlertDescription>
-                  {error || (!isAuthorized ? 'This post is private.' : 'The article you are looking for does not exist.')}
-                </AlertDescription>
-              </Alert>
-              <Button onClick={() => navigate('/')} className="mt-4">
-                <ArrowLeft className="mr-2 h-4 w-4" /> Go Back to Home
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="py-20 flex flex-col items-center gap-4 text-center max-w-md mx-auto">
+        <Alert variant="destructive" className="rounded-xl">
+          <AlertDescription>
+            {postFetchError ||
+              (!isAuthorized
+                ? 'This post is private.'
+                : 'The article you are looking for does not exist.')}
+          </AlertDescription>
+        </Alert>
+        <Button onClick={() => navigate('/')} variant="outline" className="rounded-full gap-2 mt-2">
+          <ArrowLeft className="h-4 w-4" /> Back to Home
+        </Button>
       </div>
     );
   }
 
   return (
-    <div className="bg-background">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-        <div className="lg:col-span-8 space-y-8">
-          <PostContent 
-            title={currentPost.title} 
-            content={currentPost.content} 
-            coverImageUrl={currentPost.coverImageUrl} 
+    <div className="animate-in fade-in duration-500">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 xl:gap-14">
+        <div className="lg:col-span-8 space-y-10">
+          <PostContent
+            title={post.title}
+            content={post.content}
+            coverImageUrl={post.coverImageUrl}
+            category={post.category}
           />
           <Separator />
-          <CommentSection 
-            postId={currentPost.$id} 
-            authUserId={authUserId} 
+          <CommentSection
+            postId={post.$id}
+            authUserId={authUserId}
             currentUserProfile={currentUserProfile}
             initialComments={comments}
-            profiles={profiles}
+            profiles={profileCache}
           />
         </div>
 
         <div className="lg:col-span-4">
-          <AuthorSidebar 
+          <AuthorSidebar
             authorProfile={authorProfile}
-            createdAt={currentPost.$createdAt}
-            readTime={readTime}
+            createdAt={post.$createdAt}
+            readTime={estimatedReadTime}
             likesCount={likesCount}
             isLiked={isLiked}
             isLikedLoading={isLikedLoading}
