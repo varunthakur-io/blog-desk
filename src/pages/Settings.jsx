@@ -138,7 +138,7 @@ export default function Settings() {
       </div>
 
       {/* Content — desktop */}
-      <main className="flex-1 min-w-0 max-w-2xl hidden md:block">
+      <main className="flex-1 min-w-0 hidden md:block">
         {renderPanel()}
       </main>
 
