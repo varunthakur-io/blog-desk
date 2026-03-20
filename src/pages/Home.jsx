@@ -51,7 +51,7 @@ const Home = () => {
       return (
         <div className="text-center py-32">
           <div className="flex flex-col items-center gap-5">
-            <div className="rounded-full bg-muted/60 p-6">
+            <div className="rounded-full bg-muted p-6">
               {searchTerm || activeCategory ? (
                 <Search className="h-10 w-10 text-muted-foreground/50" />
               ) : (
@@ -92,30 +92,22 @@ const Home = () => {
       );
     }
 
-    // Only show featured when browsing "All" with no search — keeps category feeds clean
     const showFeatured = !searchTerm && !activeCategory && posts.length > 0;
     const featuredPost = showFeatured ? posts[0] : null;
     const gridPosts = showFeatured ? posts.slice(1) : posts;
 
     return (
       <div className="space-y-14">
-        {/* Result context line */}
         {(searchTerm || activeCategory) && (
           <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground flex-wrap">
             <span>
               <span className="font-semibold text-foreground">{posts.length}</span>{' '}
               {posts.length === 1 ? 'post' : 'posts'}
               {activeCategory && (
-                <>
-                  {' '}in{' '}
-                  <span className="font-semibold text-primary">{activeCategory}</span>
-                </>
+                <> in <span className="font-semibold text-foreground">{activeCategory}</span></>
               )}
               {searchTerm && (
-                <>
-                  {' '}matching{' '}
-                  <span className="font-semibold text-foreground">&ldquo;{searchTerm}&rdquo;</span>
-                </>
+                <> matching <span className="font-semibold text-foreground">&ldquo;{searchTerm}&rdquo;</span></>
               )}
             </span>
             {activeCategory && (
@@ -157,7 +149,7 @@ const Home = () => {
     <div className="relative">
       {/* Hero */}
       <section className="mx-auto flex flex-col items-center gap-5 pb-10 pt-4 text-center max-w-3xl">
-        <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-accent px-3 py-1 text-xs font-medium text-primary">
+        <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
           <Sparkles className="h-3 w-3" />
           Open platform for writers &amp; developers
         </div>
@@ -171,7 +163,7 @@ const Home = () => {
 
         {/* Search */}
         <div className="w-full max-w-sm mt-1">
-          <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2.5 shadow-sm focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary/40 transition-all">
+          <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2.5 shadow-sm focus-within:ring-2 focus-within:ring-foreground/20 transition-all">
             <Search className="h-4 w-4 text-muted-foreground shrink-0" />
             <Input
               type="search"
@@ -187,13 +179,12 @@ const Home = () => {
       {/* Category filter bar */}
       <div className="mb-10">
         <div className="flex items-center gap-2 flex-wrap justify-center">
-          {/* "All" pill */}
           <button
             onClick={() => activeCategory && handleCategoryChange(activeCategory)}
             className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-semibold border transition-all duration-200 ${
               !activeCategory
-                ? 'bg-primary text-primary-foreground border-primary shadow-sm'
-                : 'border-border text-muted-foreground hover:border-primary/50 hover:text-foreground bg-card'
+                ? 'bg-foreground text-background border-foreground shadow-sm'
+                : 'border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground bg-card'
             }`}
           >
             <Tag className="h-3 w-3" />
@@ -208,8 +199,8 @@ const Home = () => {
                 onClick={() => handleCategoryChange(cat)}
                 className={`rounded-full px-4 py-1.5 text-xs font-semibold border transition-all duration-200 ${
                   isActive
-                    ? 'bg-primary text-primary-foreground border-primary shadow-sm'
-                    : 'border-border text-muted-foreground hover:border-primary/50 hover:text-foreground bg-card'
+                    ? 'bg-foreground text-background border-foreground shadow-sm'
+                    : 'border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground bg-card'
                 }`}
               >
                 {cat}

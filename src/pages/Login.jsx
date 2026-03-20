@@ -18,7 +18,7 @@ const Login = () => {
   } = useLogin();
 
   return (
-    <div className="auth-container bg-[radial-gradient(900px_600px_at_70%_-5%,hsl(var(--accent))_0%,transparent_70%),radial-gradient(700px_500px_at_-5%_100%,hsl(var(--accent))_0%,transparent_70%)]">
+    <div className="auth-container bg-background">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex justify-center mb-8">

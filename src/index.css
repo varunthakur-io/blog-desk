@@ -4,48 +4,48 @@
 
 @layer base {
   :root {
-    --background: 0 0% 99%;
-    --foreground: 224 15% 8%;
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
-    --card-foreground: 224 15% 8%;
+    --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 224 15% 8%;
-    --primary: 224 71% 28%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 240 5.9% 10%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 220 14% 95%;
-    --secondary-foreground: 224 15% 20%;
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 8% 48%;
-    --accent: 217 91% 96%;
-    --accent-foreground: 224 71% 28%;
-    --destructive: 0 84% 58%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 220 14% 91%;
-    --input: 220 14% 91%;
-    --ring: 224 71% 28%;
-    --radius: 0.625rem;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 5.9% 10%;
+    --radius: 0.5rem;
   }
 
   .dark {
-    --background: 224 20% 6%;
-    --foreground: 220 14% 95%;
-    --card: 224 20% 8%;
-    --card-foreground: 220 14% 95%;
-    --popover: 224 20% 8%;
-    --popover-foreground: 220 14% 95%;
-    --primary: 217 91% 65%;
-    --primary-foreground: 224 20% 6%;
-    --secondary: 224 15% 14%;
-    --secondary-foreground: 220 14% 85%;
-    --muted: 224 15% 13%;
-    --muted-foreground: 220 8% 55%;
-    --accent: 224 25% 16%;
-    --accent-foreground: 217 91% 70%;
-    --destructive: 0 72% 51%;
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 224 15% 15%;
-    --input: 224 15% 15%;
-    --ring: 217 91% 65%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
   }
 }
 
@@ -55,10 +55,10 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
-    font-feature-settings: 'rlig' 1, 'calt' 1, 'ss01' 1;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
   }
   ::selection {
-    @apply bg-primary/15 text-foreground;
+    @apply bg-foreground/10 text-foreground;
   }
 }
 
@@ -79,13 +79,13 @@
 
   /* Surface treatments */
   .surface-card {
-    @apply bg-card border border-border/60 rounded-xl shadow-sm;
+    @apply bg-card border border-border rounded-xl shadow-sm;
   }
   .surface-glass {
-    @apply backdrop-blur-xl bg-background/80 border border-border/40 shadow-lg;
+    @apply backdrop-blur-xl bg-background/80 border border-border shadow-lg;
   }
 
-  /* Page header style — used across Dashboard, Settings, etc. */
+  /* Page header */
   .page-header-title {
     @apply text-2xl sm:text-3xl font-bold tracking-tight;
   }
@@ -93,24 +93,24 @@
     @apply text-muted-foreground mt-1 text-sm sm:text-base;
   }
 
-  /* Gradient accent used in hero areas */
+  /* Gradient — neutral/subtle, no blue */
   .gradient-brand {
-    @apply bg-gradient-to-r from-primary via-blue-500 to-indigo-400 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-foreground via-foreground/80 to-foreground/60 bg-clip-text text-transparent;
   }
 
-  /* Subtle dot-grid texture helper (optional overlay) */
+  /* Dot-grid texture */
   .bg-dot-grid {
     background-image: radial-gradient(circle, hsl(var(--border)) 1px, transparent 1px);
     background-size: 28px 28px;
   }
 
-  /* Hover lift for interactive cards */
+  /* Hover lift */
   .card-hover {
     @apply transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:border-border;
   }
 
   /* Ink-line bottom reveal */
   .ink-line {
-    @apply relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-500 hover:after:w-full;
+    @apply relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-foreground after:transition-all after:duration-500 hover:after:w-full;
   }
 }
