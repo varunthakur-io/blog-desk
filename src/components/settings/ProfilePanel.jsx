@@ -163,8 +163,6 @@ const ProfilePanel = ({
             </div>
           </div>
 
-          <Separator />
-
           <div className="flex justify-end">
             <Button onClick={handleSaveProfile} disabled={isSavingProfile} className="gap-2">
               {isSavingProfile
