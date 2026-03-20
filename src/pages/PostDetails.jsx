@@ -56,9 +56,10 @@ const PostDetails = () => {
   }
 
   return (
-    <div className="animate-in fade-in duration-500">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 xl:gap-14">
-        <div className="lg:col-span-8 space-y-10">
+    <div className="animate-in fade-in duration-500 max-w-6xl mx-auto">
+      <div className="flex flex-col lg:flex-row gap-12 xl:gap-16">
+        {/* Main content — takes up most of the width */}
+        <div className="flex-1 min-w-0 space-y-10">
           <PostContent
             title={post.title}
             content={post.content}
@@ -75,7 +76,8 @@ const PostDetails = () => {
           />
         </div>
 
-        <div className="lg:col-span-4">
+        {/* Sidebar — fixed width on desktop */}
+        <div className="w-full lg:w-72 xl:w-80 shrink-0">
           <AuthorSidebar
             authorProfile={authorProfile}
             createdAt={post.$createdAt}

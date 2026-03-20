@@ -24,8 +24,8 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useSettings } from '@/hooks/profile';
 
 const SectionIcon = ({ icon: Icon, variant = 'default' }) => (
-  <div className={`p-2 rounded-lg ${variant === 'destructive' ? 'bg-destructive/10' : 'bg-accent'}`}>
-    <Icon className={`h-4 w-4 ${variant === 'destructive' ? 'text-destructive' : 'text-primary'}`} />
+  <div className={`p-1.5 rounded-md ${variant === 'destructive' ? 'bg-destructive/10' : 'bg-muted'}`}>
+    <Icon className={`h-4 w-4 ${variant === 'destructive' ? 'text-destructive' : 'text-foreground'}`} />
   </div>
 );
 
@@ -45,164 +45,153 @@ const Settings = () => {
   const [isAccountDialogOpen, setIsAccountDialogOpen] = useState(false);
 
   return (
-    <div className="py-2 max-w-5xl mx-auto animate-in fade-in duration-500">
+    <div className="py-2 max-w-3xl mx-auto animate-in fade-in duration-500">
       {/* Header */}
-      <div className="mb-8 flex items-center gap-3">
-        <SectionIcon icon={SettingsIcon} />
-        <div>
-          <h1 className="page-header-title">Settings</h1>
-          <p className="page-header-subtitle">Manage your account preferences and security.</p>
-        </div>
+      <div className="mb-8">
+        <h1 className="page-header-title">Settings</h1>
+        <p className="page-header-subtitle">Manage your account preferences and security.</p>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-2 lg:gap-6">
-        {/* Left column */}
-        <div className="space-y-5">
-          {/* Appearance */}
-          <Card className="border-border/50 shadow-sm rounded-xl">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2.5 text-base">
-                <SectionIcon icon={isDarkMode ? Moon : Sun} />
-                Appearance
-              </CardTitle>
-              <CardDescription className="text-sm">Customize how the app looks.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between gap-4 py-1">
-                <div>
-                  <Label htmlFor="theme-mode" className="text-sm font-medium">
-                    Dark Mode
-                  </Label>
-                  <p className="text-xs text-muted-foreground mt-0.5">Switch between light and dark themes.</p>
-                </div>
-                <Switch id="theme-mode" checked={isDarkMode} onCheckedChange={handleToggleDarkMode} />
+      <div className="space-y-4">
+        {/* Appearance */}
+        <Card className="border-border shadow-sm rounded-xl">
+          <CardHeader className="pb-3 pt-5 px-6">
+            <CardTitle className="flex items-center gap-2.5 text-sm font-semibold">
+              <SectionIcon icon={isDarkMode ? Moon : Sun} />
+              Appearance
+            </CardTitle>
+            <CardDescription className="text-xs">Customize how the app looks on your device.</CardDescription>
+          </CardHeader>
+          <CardContent className="px-6 pb-5">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <Label htmlFor="theme-mode" className="text-sm font-medium">Dark Mode</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">Switch between light and dark themes.</p>
               </div>
-            </CardContent>
-          </Card>
+              <Switch id="theme-mode" checked={isDarkMode} onCheckedChange={handleToggleDarkMode} />
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* Notifications */}
-          <Card className="border-border/50 shadow-sm rounded-xl">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2.5 text-base">
-                <SectionIcon icon={Bell} />
-                Notifications
-              </CardTitle>
-              <CardDescription className="text-sm">Choose what to be notified about.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-5">
-              {isPrefsLoading ? (
-                <div className="py-4 flex justify-center">
-                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                </div>
-              ) : (
-                <>
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <Label htmlFor="marketing" className="text-sm font-medium">Marketing Emails</Label>
-                      <p className="text-xs text-muted-foreground mt-0.5">Receive emails about new features.</p>
-                    </div>
-                    <Switch
-                      id="marketing"
-                      checked={prefs.marketing}
-                      onCheckedChange={(val) => handlePrefChange('marketing', val)}
-                    />
-                  </div>
-                  <Separator />
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <Label htmlFor="security" className="text-sm font-medium">Security Alerts</Label>
-                      <p className="text-xs text-muted-foreground mt-0.5">Get notified about security events.</p>
-                    </div>
-                    <Switch
-                      id="security"
-                      checked={prefs.security}
-                      onCheckedChange={(val) => handlePrefChange('security', val)}
-                    />
-                  </div>
-                </>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Right column */}
-        <div className="space-y-5">
-          {/* Account */}
-          <Card className="border-border/50 shadow-sm rounded-xl">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2.5 text-base">
-                <SectionIcon icon={UserCog} />
-                Account
-              </CardTitle>
-              <CardDescription className="text-sm">Update your profile details.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between gap-4 py-1">
-                <div>
-                  <p className="text-sm font-medium">Profile Information</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Change your name, bio, and avatar.</p>
-                </div>
-                <Button variant="outline" size="sm" asChild className="rounded-full shrink-0">
-                  <Link to="/profile">Go to Profile</Link>
-                </Button>
+        {/* Notifications */}
+        <Card className="border-border shadow-sm rounded-xl">
+          <CardHeader className="pb-3 pt-5 px-6">
+            <CardTitle className="flex items-center gap-2.5 text-sm font-semibold">
+              <SectionIcon icon={Bell} />
+              Notifications
+            </CardTitle>
+            <CardDescription className="text-xs">Choose what you want to be notified about.</CardDescription>
+          </CardHeader>
+          <CardContent className="px-6 pb-5 space-y-5">
+            {isPrefsLoading ? (
+              <div className="py-3 flex justify-center">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Danger Zone */}
-          <Card className="border-destructive/20 shadow-sm rounded-xl">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2.5 text-base text-destructive">
-                <SectionIcon icon={ShieldAlert} variant="destructive" />
-                Danger Zone
-              </CardTitle>
-              <CardDescription className="text-sm">Manage sensitive actions carefully.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Sessions */}
-              <div className="flex items-center justify-between gap-4 p-4 rounded-xl border border-border/50 bg-muted/20">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-muted rounded-lg mt-0.5 shrink-0">
-                    <Laptop className="h-4 w-4 text-muted-foreground" />
-                  </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between gap-4">
                   <div>
-                    <p className="text-sm font-medium">Active Sessions</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">Log out from all other devices.</p>
+                    <Label htmlFor="marketing" className="text-sm font-medium">Marketing Emails</Label>
+                    <p className="text-xs text-muted-foreground mt-0.5">Receive emails about new features and updates.</p>
                   </div>
+                  <Switch
+                    id="marketing"
+                    checked={prefs.marketing}
+                    onCheckedChange={(val) => handlePrefChange('marketing', val)}
+                  />
                 </div>
+                <Separator />
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <Label htmlFor="security" className="text-sm font-medium">Security Alerts</Label>
+                    <p className="text-xs text-muted-foreground mt-0.5">Get notified about account security events.</p>
+                  </div>
+                  <Switch
+                    id="security"
+                    checked={prefs.security}
+                    onCheckedChange={(val) => handlePrefChange('security', val)}
+                  />
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Account */}
+        <Card className="border-border shadow-sm rounded-xl">
+          <CardHeader className="pb-3 pt-5 px-6">
+            <CardTitle className="flex items-center gap-2.5 text-sm font-semibold">
+              <SectionIcon icon={UserCog} />
+              Account
+            </CardTitle>
+            <CardDescription className="text-xs">Update your profile information.</CardDescription>
+          </CardHeader>
+          <CardContent className="px-6 pb-5">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-medium">Profile Information</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Change your name, bio, and avatar.</p>
+              </div>
+              <Button variant="outline" size="sm" asChild className="rounded-lg shrink-0 text-xs">
+                <Link to="/profile">Edit Profile</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Danger Zone */}
+        <Card className="border-destructive/30 shadow-sm rounded-xl">
+          <CardHeader className="pb-3 pt-5 px-6">
+            <CardTitle className="flex items-center gap-2.5 text-sm font-semibold text-destructive">
+              <SectionIcon icon={ShieldAlert} variant="destructive" />
+              Danger Zone
+            </CardTitle>
+            <CardDescription className="text-xs">These actions are permanent and cannot be undone.</CardDescription>
+          </CardHeader>
+          <CardContent className="px-6 pb-5 space-y-4">
+            {/* Sessions */}
+            <div className="flex items-center justify-between gap-4 rounded-lg border border-border p-4 bg-muted/20">
+              <div className="flex items-start gap-3">
+                <div className="p-1.5 bg-muted rounded-md shrink-0">
+                  <Laptop className="h-4 w-4 text-foreground" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Active Sessions</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Log out from all other devices and browsers.</p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={isSettingsUpdating}
+                onClick={() => setIsSessionsDialogOpen(true)}
+                className="shrink-0 gap-1.5 rounded-lg text-xs"
+              >
+                <LogOut className="h-3.5 w-3.5" /> Log Out All
+              </Button>
+            </div>
+
+            {/* Delete Account */}
+            <Alert variant="destructive" className="border-destructive/25 bg-destructive/5 rounded-lg">
+              <Trash2 className="h-4 w-4" />
+              <AlertTitle className="text-sm font-semibold">Delete Account</AlertTitle>
+              <AlertDescription className="mt-1.5 flex flex-col gap-3">
+                <p className="text-xs text-muted-foreground">
+                  Permanently delete your account, posts, comments, and all associated data.
+                </p>
                 <Button
-                  variant="outline"
+                  variant="destructive"
                   size="sm"
                   disabled={isSettingsUpdating}
-                  onClick={() => setIsSessionsDialogOpen(true)}
-                  className="shrink-0 gap-1.5 rounded-full text-xs"
+                  onClick={() => setIsAccountDialogOpen(true)}
+                  className="w-fit rounded-lg text-xs"
                 >
-                  <LogOut className="h-3.5 w-3.5" /> Log Out All
+                  Delete My Account
                 </Button>
-              </div>
-
-              {/* Delete Account */}
-              <Alert variant="destructive" className="border-destructive/20 bg-destructive/5 rounded-xl">
-                <Trash2 className="h-4 w-4" />
-                <AlertTitle className="text-sm font-semibold">Delete Account</AlertTitle>
-                <AlertDescription className="mt-2 flex flex-col gap-3">
-                  <p className="text-xs text-muted-foreground">
-                    Permanently remove your account and all associated data.
-                  </p>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    disabled={isSettingsUpdating}
-                    onClick={() => setIsAccountDialogOpen(true)}
-                    className="w-fit rounded-full text-xs"
-                  >
-                    Delete My Account
-                  </Button>
-                </AlertDescription>
-              </Alert>
-            </CardContent>
-          </Card>
-        </div>
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
       </div>
 
       <ConfirmationDialog
@@ -210,7 +199,7 @@ const Settings = () => {
         onOpenChange={setIsSessionsDialogOpen}
         onConfirm={handleDeleteSessions}
         title="Sign out everywhere?"
-        description="You will need to log in again on all other devices."
+        description="You will need to sign in again on all other devices."
         confirmText="Confirm Log Out"
         isLoading={isSettingsUpdating}
       />

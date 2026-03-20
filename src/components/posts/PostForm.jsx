@@ -23,6 +23,17 @@ import PostEditorToolbar from './PostEditorToolbar';
 import FeaturedImageUpload from './FeaturedImageUpload';
 import PostPreviewDialog from './PostPreviewDialog';
 
+const SidebarCard = ({ title, children }) => (
+  <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+    {title && (
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        {title}
+      </p>
+    )}
+    {children}
+  </div>
+);
+
 const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBackClick }) => {
   const navigate = useNavigate();
 
@@ -37,7 +48,7 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
 
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [postImagePreview, setPostImagePreview] = useState(initialData?.coverImageUrl || null);
-  const [saveStateLabel, setSaveStateLabel] = useState(mode === 'edit' ? 'Published' : 'Unsaved');
+  const [saveStateLabel, setSaveStateLabel] = useState(mode === 'edit' ? 'Saved' : 'Unsaved');
   const isEdit = mode === 'edit';
 
   const editor = useEditor({
@@ -56,12 +67,12 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
     content: formData.content,
     onUpdate: ({ editor }) => {
       setFormData((prev) => ({ ...prev, content: editor.getHTML() }));
-      if (saveStateLabel === 'Published' && isEdit) setSaveStateLabel('Unsaved Changes');
+      if (saveStateLabel === 'Saved' && isEdit) setSaveStateLabel('Unsaved changes');
     },
     editorProps: {
       attributes: {
         class:
-          'prose dark:prose-invert max-w-none focus:outline-none min-h-96 flex-1 py-4 text-base leading-relaxed prose-headings:font-bold prose-headings:tracking-tight prose-code:bg-muted prose-code:rounded prose-code:px-1 prose-code:text-sm prose-code:before:content-none prose-code:after:content-none',
+          'prose dark:prose-invert max-w-none focus:outline-none min-h-[420px] py-4 text-base leading-relaxed prose-headings:font-bold prose-headings:tracking-tight prose-code:bg-muted prose-code:rounded prose-code:px-1.5 prose-code:text-sm prose-code:before:content-none prose-code:after:content-none prose-pre:bg-muted prose-pre:border prose-pre:border-border prose-pre:rounded-xl prose-blockquote:border-l-2 prose-blockquote:border-border prose-blockquote:text-muted-foreground prose-blockquote:not-italic',
       },
     },
   });
@@ -115,59 +126,65 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
   if (!editor)
     return (
       <div className="flex justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     );
 
   return (
     <div className="max-w-6xl mx-auto py-4 animate-in fade-in duration-500">
       {/* Top Bar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
         <div className="flex items-center gap-3">
           <Button
+            type="button"
             variant="ghost"
             size="icon"
             onClick={onBackClick || (() => navigate('/dashboard'))}
-            className="h-9 w-9 rounded-full border border-border/50 hover:bg-muted"
+            className="h-9 w-9 rounded-full border border-border hover:bg-muted shrink-0"
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <h1 className="text-xl font-bold tracking-tight flex items-center gap-2">
-            {isEdit ? 'Edit Post' : 'New Post'}
+          <div className="flex items-center gap-2">
+            <h1 className="text-lg font-bold tracking-tight">
+              {isEdit ? 'Edit Post' : 'New Post'}
+            </h1>
             <Badge
               variant={saveStateLabel.includes('Unsaved') ? 'outline' : 'secondary'}
-              className="font-normal text-[11px] rounded-full"
+              className="text-[11px] font-normal rounded-full px-2"
             >
               {saveStateLabel}
             </Badge>
-          </h1>
+          </div>
         </div>
 
         <div className="flex items-center gap-2">
           {!isEdit && import.meta.env.DEV && (
             <Button
+              type="button"
               variant="ghost"
               size="icon"
               onClick={handleRandomData}
               title="Dev: Auto-fill"
-              className="h-9 w-9 rounded-full"
+              className="h-9 w-9 rounded-full text-muted-foreground"
             >
-              <Code className="h-4 w-4 text-muted-foreground" />
+              <Code className="h-4 w-4" />
             </Button>
           )}
           <Button
+            type="button"
             variant="ghost"
             size="sm"
             onClick={() => navigate('/dashboard')}
-            className="text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground text-sm"
           >
             Discard
           </Button>
           <Button
+            type="button"
             onClick={handleSubmit}
             disabled={isSubmitting}
             size="sm"
-            className="min-w-28 rounded-full gap-2"
+            className="min-w-28 rounded-full gap-2 text-sm"
           >
             {isSubmitting ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -179,21 +196,21 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Editor */}
         <div className="lg:col-span-2">
-          <div className="rounded-xl border border-border/50 bg-card shadow-sm overflow-hidden min-h-[60vh] flex flex-col">
+          <div className="rounded-xl border border-border bg-card overflow-hidden flex flex-col shadow-sm">
             <PostEditorToolbar editor={editor} />
-            <div className="p-6 md:p-8 flex-1 flex flex-col gap-4">
+            <div className="p-6 md:p-8 flex flex-col gap-3 flex-1">
               <Input
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                placeholder="Article title…"
-                className="text-2xl md:text-3xl font-bold border-none shadow-none px-0 py-2 h-auto focus-visible:ring-0 placeholder:text-muted-foreground/30 bg-transparent"
+                placeholder="Post title…"
+                className="text-2xl md:text-[1.75rem] font-bold border-none shadow-none px-0 py-1 h-auto focus-visible:ring-0 placeholder:text-muted-foreground/30 bg-transparent leading-snug"
                 autoFocus
               />
-              <div className="border-t border-border/30 pt-4 flex-1">
+              <div className="border-t border-border pt-4 flex-1">
                 <EditorContent editor={editor} />
               </div>
             </div>
@@ -201,16 +218,11 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-4">
-          {/* Publishing card — Status + Category together */}
-          <div className="rounded-xl border border-border/50 bg-card shadow-sm p-5 space-y-4">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Publishing
-            </p>
-
-            {/* Status */}
+        <div className="space-y-3">
+          {/* Publishing — Status + Category */}
+          <SidebarCard title="Publishing">
             <div className="space-y-1.5">
-              <Label className="text-xs">Status</Label>
+              <Label className="text-xs text-muted-foreground">Status</Label>
               <Select
                 value={formData.status}
                 onValueChange={(val) => setFormData((p) => ({ ...p, status: val }))}
@@ -225,9 +237,8 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
               </Select>
             </div>
 
-            {/* Category */}
             <div className="space-y-1.5">
-              <Label className="text-xs">Category</Label>
+              <Label className="text-xs text-muted-foreground">Category</Label>
               <Select
                 value={formData.category || '__none__'}
                 onValueChange={(val) =>
@@ -235,7 +246,7 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
                 }
               >
                 <SelectTrigger className="h-9 text-sm rounded-lg">
-                  <SelectValue placeholder="Select a category" />
+                  <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__none__">
@@ -249,7 +260,7 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
                 </SelectContent>
               </Select>
             </div>
-          </div>
+          </SidebarCard>
 
           {/* Featured Image */}
           <FeaturedImageUpload
@@ -259,13 +270,13 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
           />
 
           {/* Preview */}
-          <Button
-            variant="outline"
-            className="w-full gap-2 rounded-xl border-dashed border-border/70 text-sm"
+          <button
+            type="button"
             onClick={() => setIsPreviewOpen(true)}
+            className="w-full flex items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-card hover:bg-muted/50 transition-colors py-2.5 text-sm text-muted-foreground hover:text-foreground"
           >
             <Eye className="h-4 w-4" /> Preview Post
-          </Button>
+          </button>
         </div>
       </div>
 

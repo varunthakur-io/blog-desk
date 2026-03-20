@@ -1,45 +1,50 @@
-import React from 'react';
-import { ImageIcon, X } from 'lucide-react';
+import { ImageIcon, X, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 
 const FeaturedImageUpload = ({ imagePreview, onUpload, onRemove }) => {
   return (
-    <Card className="border-border/40 shadow-sm">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
-          Featured Image
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {imagePreview ? (
-          <div className="relative rounded-md overflow-hidden border aspect-video group">
-            <img
-              src={imagePreview}
-              alt="Featured"
-              className="w-full h-full object-cover transition-transform group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <Button variant="destructive" size="sm" onClick={onRemove} className="h-8">
-                <X className="mr-2 h-4 w-4" /> Remove
-              </Button>
-            </div>
+    <div className="rounded-xl border border-border bg-card p-5 space-y-3">
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        Featured Image
+      </p>
+
+      {imagePreview ? (
+        <div className="relative rounded-lg overflow-hidden border border-border aspect-video group">
+          <img
+            src={imagePreview}
+            alt="Featured"
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+          />
+          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={onRemove}
+              className="gap-1.5 text-xs rounded-lg"
+            >
+              <X className="h-3.5 w-3.5" /> Remove
+            </Button>
           </div>
-        ) : (
-          <div className="border-2 border-dashed rounded-md p-6 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:bg-muted/50 transition-colors cursor-pointer relative min-h-40">
-            <ImageIcon className="h-8 w-8 opacity-50" />
-            <span className="text-sm font-medium">Click to upload</span>
-            <Input
-              type="file"
-              accept="image/*"
-              className="absolute inset-0 opacity-0 cursor-pointer h-full"
-              onChange={onUpload}
-            />
+        </div>
+      ) : (
+        <label className="relative flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer min-h-32 p-4 text-center">
+          <div className="p-2 rounded-full bg-muted">
+            <Upload className="h-4 w-4 text-muted-foreground" />
           </div>
-        )}
-      </CardContent>
-    </Card>
+          <div>
+            <p className="text-xs font-medium text-foreground">Click to upload</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">PNG, JPG, WebP up to 5MB</p>
+          </div>
+          <input
+            type="file"
+            accept="image/*"
+            className="absolute inset-0 opacity-0 cursor-pointer"
+            onChange={onUpload}
+          />
+        </label>
+      )}
+    </div>
   );
 };
 

@@ -38,7 +38,8 @@ export default function Profile() {
 
   return (
     <div className="py-2 animate-in fade-in duration-500">
-      <div className="relative">
+      {/* Header row — info + edit button */}
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
         <ProfileInfo
           displayName={displayName}
           displayEmail={displayEmail}
@@ -50,12 +51,13 @@ export default function Profile() {
           followersCount={profile?.followersCount || 0}
           followingCount={profile?.followingCount || 0}
         />
-        <div className="absolute right-0 top-0">
+        {/* Edit button — sits naturally after info instead of absolutely positioned */}
+        <div className="shrink-0">
           <EditProfileDialog profile={profile} profileId={profileId} isOwner={isOwner} />
         </div>
       </div>
 
-      <Separator className="my-8" />
+      <Separator className="mb-8" />
 
       <ProfileTabs
         activeTab={activeTab}

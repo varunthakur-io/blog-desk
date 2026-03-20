@@ -13,20 +13,18 @@ const ProfileInfo = ({
   followingCount,
 }) => {
   return (
-    <div className="flex flex-col sm:flex-row gap-6 items-start">
-      <div className="relative shrink-0">
-        <Avatar className="w-24 h-24 sm:w-28 sm:h-28 border-4 border-background shadow-lg ring-2 ring-border">
-          <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" />
-          <AvatarFallback className="text-3xl font-bold bg-accent text-primary">
-            {displayName?.charAt(0).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
-      </div>
+    <div className="flex flex-col sm:flex-row gap-5 items-start">
+      <Avatar className="w-20 h-20 sm:w-24 sm:h-24 border-2 border-border shadow-sm shrink-0">
+        <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" />
+        <AvatarFallback className="text-2xl font-bold bg-muted text-foreground">
+          {displayName?.charAt(0).toUpperCase()}
+        </AvatarFallback>
+      </Avatar>
 
-      <div className="flex-1 space-y-3 min-w-0">
+      <div className="flex-1 space-y-2.5 min-w-0">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{displayName}</h1>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground mt-1 text-xs">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-muted-foreground mt-1 text-xs">
             {isOwner && displayEmail && (
               <span className="flex items-center gap-1">
                 <Mail className="w-3 h-3" /> {displayEmail}
@@ -39,7 +37,7 @@ const ProfileInfo = ({
         </div>
 
         {displayBio && (
-          <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">{displayBio}</p>
+          <p className="text-sm text-muted-foreground leading-relaxed max-w-lg">{displayBio}</p>
         )}
 
         <div className="flex gap-5 pt-1">
@@ -50,7 +48,7 @@ const ProfileInfo = ({
           ].map(({ label, value }) => (
             <div key={label} className="text-sm">
               <span className="font-bold text-foreground">{value}</span>{' '}
-              <span className="text-muted-foreground">{label}</span>
+              <span className="text-muted-foreground text-xs">{label}</span>
             </div>
           ))}
         </div>
