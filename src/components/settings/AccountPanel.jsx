@@ -43,58 +43,77 @@ const AccountPanel = ({
         </p>
       </div>
 
-      {/* Email card */}
+      {/* Email card — its own <form> so password managers scope it separately */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Email Address</CardTitle>
           <CardDescription>
-            Current email: <span className="font-medium text-foreground">{authUser?.email}</span>
+            Current email:{' '}
+            <span className="font-medium text-foreground">{authUser?.email}</span>
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {emailError && (
-            <Alert variant="destructive">
-              <AlertDescription>{emailError}</AlertDescription>
-            </Alert>
-          )}
+        <CardContent>
+          <form
+            onSubmit={(e) => { e.preventDefault(); handleSaveEmail(); }}
+            autoComplete="on"
+            className="space-y-4"
+          >
+            {emailError && (
+              <Alert variant="destructive">
+                <AlertDescription>{emailError}</AlertDescription>
+              </Alert>
+            )}
 
-          <div className="space-y-2">
-            <Label htmlFor="email">New email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={emailForm.email}
-              onChange={(e) => setEmailForm((p) => ({ ...p, email: e.target.value }))}
-              placeholder="you@example.com"
-            />
-          </div>
+            {/* Hidden username field helps managers associate the password correctly */}
+            <input type="hidden" autoComplete="username" value={authUser?.email || ''} readOnly />
 
-          <div className="space-y-2">
-            <Label htmlFor="email-password">Confirm with current password</Label>
-            <div className="relative">
+            <div className="space-y-2">
+              <Label htmlFor="new-email">New email</Label>
               <Input
-                id="email-password"
-                type={showEmailPw ? 'text' : 'password'}
-                value={emailForm.password}
-                onChange={(e) => setEmailForm((p) => ({ ...p, password: e.target.value }))}
-                placeholder="Your current password"
-                className="pr-10"
-                autoComplete="current-password"
+                id="new-email"
+                name="email"
+                type="email"
+                value={emailForm.email}
+                onChange={(e) => setEmailForm((p) => ({ ...p, email: e.target.value }))}
+                placeholder="you@example.com"
+                autoComplete="email"
               />
-              <EyeToggle show={showEmailPw} onToggle={() => setShowEmailPw(v => !v)} />
             </div>
-          </div>
 
-          <div className="flex justify-end">
-            <Button onClick={handleSaveEmail} disabled={isSavingEmail} size="sm" variant="outline" className="gap-2">
-              {isSavingEmail && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-              Update email
-            </Button>
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="email-current-password">Confirm with current password</Label>
+              <div className="relative">
+                <Input
+                  id="email-current-password"
+                  name="current-password"
+                  type={showEmailPw ? 'text' : 'password'}
+                  value={emailForm.password}
+                  onChange={(e) => setEmailForm((p) => ({ ...p, password: e.target.value }))}
+                  placeholder="Your current password"
+                  className="pr-10"
+                  autoComplete="current-password"
+                />
+                <EyeToggle show={showEmailPw} onToggle={() => setShowEmailPw(v => !v)} />
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <Button
+                type="submit"
+                disabled={isSavingEmail}
+                size="sm"
+                variant="outline"
+                className="gap-2"
+              >
+                {isSavingEmail && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                Update email
+              </Button>
+            </div>
+          </form>
         </CardContent>
       </Card>
 
-      {/* Password card */}
+      {/* Password card — separate <form> so managers don't mix up current vs new */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Password</CardTitle>
@@ -102,67 +121,84 @@ const AccountPanel = ({
             Keep it safe — use a strong password you don't use elsewhere.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {passwordError && (
-            <Alert variant="destructive">
-              <AlertDescription>{passwordError}</AlertDescription>
-            </Alert>
-          )}
+        <CardContent>
+          <form
+            onSubmit={(e) => { e.preventDefault(); handleSavePassword(); }}
+            autoComplete="on"
+            className="space-y-4"
+          >
+            {passwordError && (
+              <Alert variant="destructive">
+                <AlertDescription>{passwordError}</AlertDescription>
+              </Alert>
+            )}
 
-          <div className="space-y-2">
-            <Label htmlFor="current-password">Current password</Label>
-            <div className="relative">
-              <Input
-                id="current-password"
-                type={showCurrentPw ? 'text' : 'password'}
-                value={passwordForm.currentPassword}
-                onChange={(e) => setPasswordForm((p) => ({ ...p, currentPassword: e.target.value }))}
-                placeholder="Your current password"
-                className="pr-10"
-                autoComplete="current-password"
-              />
-              <EyeToggle show={showCurrentPw} onToggle={() => setShowCurrentPw(v => !v)} />
+            <input type="hidden" autoComplete="username" value={authUser?.email || ''} readOnly />
+
+            <div className="space-y-2">
+              <Label htmlFor="current-password">Current password</Label>
+              <div className="relative">
+                <Input
+                  id="current-password"
+                  name="current-password"
+                  type={showCurrentPw ? 'text' : 'password'}
+                  value={passwordForm.currentPassword}
+                  onChange={(e) => setPasswordForm((p) => ({ ...p, currentPassword: e.target.value }))}
+                  placeholder="Your current password"
+                  className="pr-10"
+                  autoComplete="current-password"
+                />
+                <EyeToggle show={showCurrentPw} onToggle={() => setShowCurrentPw(v => !v)} />
+              </div>
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="new-password">New password</Label>
-            <div className="relative">
-              <Input
-                id="new-password"
-                type={showNewPw ? 'text' : 'password'}
-                value={passwordForm.newPassword}
-                onChange={(e) => setPasswordForm((p) => ({ ...p, newPassword: e.target.value }))}
-                placeholder="Minimum 8 characters"
-                className="pr-10"
-                autoComplete="new-password"
-              />
-              <EyeToggle show={showNewPw} onToggle={() => setShowNewPw(v => !v)} />
+            <div className="space-y-2">
+              <Label htmlFor="new-password">New password</Label>
+              <div className="relative">
+                <Input
+                  id="new-password"
+                  name="new-password"
+                  type={showNewPw ? 'text' : 'password'}
+                  value={passwordForm.newPassword}
+                  onChange={(e) => setPasswordForm((p) => ({ ...p, newPassword: e.target.value }))}
+                  placeholder="Minimum 8 characters"
+                  className="pr-10"
+                  autoComplete="new-password"
+                />
+                <EyeToggle show={showNewPw} onToggle={() => setShowNewPw(v => !v)} />
+              </div>
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="confirm-password">Confirm new password</Label>
-            <div className="relative">
-              <Input
-                id="confirm-password"
-                type={showConfirmPw ? 'text' : 'password'}
-                value={passwordForm.confirmPassword}
-                onChange={(e) => setPasswordForm((p) => ({ ...p, confirmPassword: e.target.value }))}
-                placeholder="Repeat new password"
-                className="pr-10"
-                autoComplete="new-password"
-              />
-              <EyeToggle show={showConfirmPw} onToggle={() => setShowConfirmPw(v => !v)} />
+            <div className="space-y-2">
+              <Label htmlFor="confirm-password">Confirm new password</Label>
+              <div className="relative">
+                <Input
+                  id="confirm-password"
+                  name="confirm-password"
+                  type={showConfirmPw ? 'text' : 'password'}
+                  value={passwordForm.confirmPassword}
+                  onChange={(e) => setPasswordForm((p) => ({ ...p, confirmPassword: e.target.value }))}
+                  placeholder="Repeat new password"
+                  className="pr-10"
+                  autoComplete="new-password"
+                />
+                <EyeToggle show={showConfirmPw} onToggle={() => setShowConfirmPw(v => !v)} />
+              </div>
             </div>
-          </div>
 
-          <div className="flex justify-end">
-            <Button onClick={handleSavePassword} disabled={isSavingPassword} size="sm" variant="outline" className="gap-2">
-              {isSavingPassword && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-              Update password
-            </Button>
-          </div>
+            <div className="flex justify-end">
+              <Button
+                type="submit"
+                disabled={isSavingPassword}
+                size="sm"
+                variant="outline"
+                className="gap-2"
+              >
+                {isSavingPassword && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                Update password
+              </Button>
+            </div>
+          </form>
         </CardContent>
       </Card>
     </div>
