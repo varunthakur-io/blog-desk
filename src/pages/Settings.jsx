@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { User, Shield, Bell, Menu, X } from 'lucide-react';
+import { User, Shield, Bell, Palette, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 
 import { useSettings } from '@/hooks/profile';
 
@@ -12,16 +11,15 @@ import NotificationsPanel from '@/components/settings/NotificationsPanel';
 import PrivacyPanel       from '@/components/settings/PrivacyPanel';
 
 const NAV = [
-  { id: 'profile',       label: 'Profile',       icon: User   },
-  { id: 'account',       label: 'Account',        icon: Shield },
-  { id: 'appearance',    label: 'Appearance',     icon: Menu   },
-  { id: 'notifications', label: 'Notifications',  icon: Bell   },
-  { id: 'privacy',       label: 'Privacy',        icon: Shield },
+  { id: 'profile',       label: 'Profile',       icon: User    },
+  { id: 'account',       label: 'Account',        icon: Lock    },
+  { id: 'appearance',    label: 'Appearance',     icon: Palette },
+  { id: 'notifications', label: 'Notifications',  icon: Bell    },
+  { id: 'privacy',       label: 'Privacy',        icon: Shield  },
 ];
 
 export default function Settings() {
-  const [active, setActive]         = useState('profile');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [active, setActive] = useState('profile');
   const s = useSettings();
 
   const renderPanel = () => {
@@ -89,35 +87,19 @@ export default function Settings() {
   };
 
   return (
-    <div className="bg-background -mx-4 sm:-mx-6 lg:-mx-8 min-h-[calc(100vh-4rem)]">
+    <div className="flex gap-8 animate-in fade-in duration-300 min-h-[70vh]">
 
-      {/* Mobile menu button */}
-      <div className="fixed top-20 left-4 z-50 lg:hidden">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-        >
-          {sidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-        </Button>
-      </div>
-
-      {/* Fixed sidebar */}
-      <div
-        className={cn(
-          'fixed inset-y-0 left-0 z-40 w-56 bg-card border-r transform transition-transform duration-200 ease-in-out lg:translate-x-0',
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full',
-        )}
-      >
-        <div className="p-5 pt-20">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-3">
+      {/* Sidebar — inline, not fixed */}
+      <aside className="hidden md:block w-48 shrink-0">
+        <div className="sticky top-24">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-3">
             Settings
           </p>
           <nav className="space-y-0.5">
             {NAV.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
-                onClick={() => { setActive(id); setSidebarOpen(false); }}
+                onClick={() => setActive(id)}
                 className={cn(
                   'flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors text-left',
                   active === id
@@ -131,24 +113,34 @@ export default function Settings() {
             ))}
           </nav>
         </div>
-      </div>
+      </aside>
 
-      {/* Mobile overlay */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* Main content */}
-      <div className="lg:ml-56">
-        <div className="p-6 lg:p-8">
-          <div className="mx-auto max-w-2xl animate-in fade-in duration-300">
-            {renderPanel()}
-          </div>
+      {/* Mobile: horizontal pill tabs */}
+      <div className="md:hidden w-full">
+        <div className="flex gap-1 overflow-x-auto pb-3 mb-4 scrollbar-none">
+          {NAV.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => setActive(id)}
+              className={cn(
+                'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap border transition-colors shrink-0',
+                active === id
+                  ? 'bg-foreground text-background border-foreground'
+                  : 'border-border text-muted-foreground hover:text-foreground',
+              )}
+            >
+              <Icon className="h-3 w-3" />
+              {label}
+            </button>
+          ))}
         </div>
+        <div className="max-w-2xl">{renderPanel()}</div>
       </div>
+
+      {/* Content — desktop */}
+      <main className="flex-1 min-w-0 max-w-2xl hidden md:block">
+        {renderPanel()}
+      </main>
 
     </div>
   );
