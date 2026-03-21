@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -12,8 +12,14 @@ export const useCreatePost = () => {
   const authUserId = useSelector(selectAuthUserId);
   const [createStatus, setCreateStatus] = useState('idle');
 
+  // using a ref instead of checking createStatus inside the callback
+  // because createStatus was in the useCallback deps which caused a new function
+  // reference on every status change — which could lead to double-submits on fast clicks
+  const isSubmittingRef = useRef(false);
+
   const handleCreatePost = useCallback(
     async (formData) => {
+      // basic guards before hitting appwrite
       if (!authUserId) {
         toast.error('You must be logged in to create a post.');
         return;
@@ -22,30 +28,40 @@ export const useCreatePost = () => {
         toast.error('Title and content are required.');
         return;
       }
-      if (createStatus === 'loading') return;
 
+      // prevent double-submit if someone clicks publish twice quickly
+      if (isSubmittingRef.current) return;
+
+      isSubmittingRef.current = true;
       setCreateStatus('loading');
+
       try {
         const newPost = await postService.createPost({
-          title: formData.title.trim(),
-          content: formData.content.trim(),
-          status: formData.status || 'draft',
-          coverImageId: formData.coverImageId || null,
+          title:        formData.title.trim(),
+          content:      formData.content.trim(),
+          status:       formData.status       || 'draft',
+          coverImageId: formData.coverImageId  || null,
           coverImageUrl: formData.coverImageUrl || null,
-          category: formData.category || null,
+          category:     formData.category      || null,
         });
 
+        // cache the new post in redux so it shows up immediately on dashboard/post detail
         if (newPost) dispatch(setPostDetail(newPost));
-        setCreateStatus('idle');
+
         toast.success('Post published successfully!');
         navigate('/dashboard');
       } catch (error) {
         console.error('Create post error:', error);
         setCreateStatus('error');
         toast.error(error?.message || 'Failed to create post. Please try again.');
+      } finally {
+        // always reset the lock and status whether it succeeded or failed
+        isSubmittingRef.current = false;
+        setCreateStatus('idle');
       }
     },
-    [authUserId, dispatch, navigate, createStatus],
+    // removed createStatus from deps — the ref handles the guard now
+    [authUserId, dispatch, navigate],
   );
 
   return {
