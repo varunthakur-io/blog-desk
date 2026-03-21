@@ -114,9 +114,9 @@ const MagazineSidePost = ({ post }) => {
   };
 
   return (
-    <Link to={`/posts/${post.$id}`} className="group flex gap-3 h-full">
+    <Link to={`/posts/${post.$id}`} className="group flex gap-3 w-full">
       {/* thumbnail — fixed size */}
-      <div className="w-24 h-16 shrink-0 rounded-lg overflow-hidden bg-muted border border-border mt-0.5">
+      <div className="w-24 h-16 shrink-0 rounded-lg overflow-hidden bg-muted border border-border">
         {post.coverImageUrl ? (
           <img src={post.coverImageUrl} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.05]" />
         ) : (
@@ -125,24 +125,22 @@ const MagazineSidePost = ({ post }) => {
       </div>
 
       {/* text */}
-      <div className="flex flex-col justify-between min-w-0">
-        <div>
-          {category && (
-            <button
-              onClick={handleCategoryClick}
-              className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors mb-1 block"
-            >
-              {category}
-            </button>
-          )}
-          <h3 className="text-sm font-semibold leading-snug text-foreground line-clamp-2 group-hover:opacity-70 transition-opacity">
-            {post.title}
-          </h3>
-          <p className="text-xs text-muted-foreground line-clamp-2 mt-1 leading-relaxed">
-            {plainContent}
-          </p>
-        </div>
-        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground mt-2">
+      <div className="flex flex-col gap-1.5 min-w-0 flex-1">
+        {category && (
+          <button
+            onClick={handleCategoryClick}
+            className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors text-left"
+          >
+            {category}
+          </button>
+        )}
+        <h3 className="text-sm font-semibold leading-snug text-foreground line-clamp-2 group-hover:opacity-70 transition-opacity">
+          {post.title}
+        </h3>
+        <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+          {plainContent}
+        </p>
+        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground pt-0.5">
           <span>{authorName || 'Anonymous'}</span>
           <span>·</span>
           <span>{readTime}m read</span>
@@ -277,9 +275,9 @@ const Home = () => {
 
           {/* side posts — take 2/5 columns, wrapped in a card matching featured height */}
           {sidePosts.length > 0 && (
-            <div className="lg:col-span-2 rounded-xl border border-border bg-card overflow-hidden flex flex-col">
-              {sidePosts.map((post, i) => (
-                <div key={post.$id} className={`flex-1 p-4 ${i < sidePosts.length - 1 ? 'border-b border-border' : ''}`}>
+            <div className="lg:col-span-2 rounded-xl border border-border bg-card overflow-hidden flex flex-col divide-y divide-border">
+              {sidePosts.map((post) => (
+                <div key={post.$id} className="p-4 flex items-center">
                   <MagazineSidePost post={post} />
                 </div>
               ))}
