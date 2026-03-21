@@ -47,6 +47,8 @@ jobs:
           export VITE_APPWRITE_LIKES_COLLECTION_ID=$(node -p "require('./appwrite.json').likesCollectionId")
           export VITE_APPWRITE_COMMENTS_COLLECTION_ID=$(node -p "require('./appwrite.json').commentsCollectionId")
           export VITE_APPWRITE_BUCKET_ID=$(node -p "require('./appwrite.json').bucketId")
+          export VITE_APPWRITE_PROFILE_COLLECTION_ID=$(node -p "require('./appwrite.json').profileCollectionId || 'profiles'")
+          export VITE_APPWRITE_DELETE_ACCOUNT_FUNCTION_ID=$(node -p "require('./appwrite.json').deleteAccountFunctionId || ''")
 
           # show that envs are set (no secrets printed)
           node -e "console.log('VITE vars set for build')"
