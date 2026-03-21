@@ -5,14 +5,23 @@ import config from './config';
  * Appwrite configuration object.
  */
 export const appwriteConfig = {
+  // Core Appwrite Setup
   url: config.appwrite.endpoint,
   projectId: config.appwrite.projectId,
   databaseId: config.appwrite.databaseId,
+
+  // Collections (Database Tables)
+  profilesCollectionId: config.appwrite.collections.profiles,
   postsCollectionId: config.appwrite.collections.posts,
   likesCollectionId: config.appwrite.collections.likes,
   commentsCollectionId: config.appwrite.collections.comments,
-  bucketId: config.appwrite.buckets.main,
+  followCollectionId: config.appwrite.collections.followCollectionId,
+
+  // Functions (Serverless)
   deleteAccountFunctionId: config.appwrite.functions.deleteAccount,
+
+  // Storage (Buckets)
+  bucketId: config.appwrite.buckets.main,
 };
 
 /**

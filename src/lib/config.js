@@ -1,6 +1,6 @@
 /**
- * Centralized and validated environment configuration.
- * This ensures the app 'fails fast' if the .env file is misconfigured.
+ * Centralized environment configuration (Appwrite setup, collections, storage, and functions)
+ * Ensures required environment variables are present and fails fast if missing.
  */
 
 const getEnvVar = (key, fallback = undefined) => {
@@ -13,23 +13,31 @@ const getEnvVar = (key, fallback = undefined) => {
 
 export const config = {
   appwrite: {
+    // Core Appwrite Setup
     endpoint: getEnvVar('VITE_APPWRITE_ENDPOINT'),
     projectId: getEnvVar('VITE_APPWRITE_PROJECT_ID'),
     databaseId: getEnvVar('VITE_APPWRITE_DATABASE_ID'),
+
+    // Collections (Database Tables)
     collections: {
+      profiles: getEnvVar('VITE_APPWRITE_PROFILE_COLLECTION_ID'),
       posts: getEnvVar('VITE_APPWRITE_POSTS_COLLECTION_ID'),
       likes: getEnvVar('VITE_APPWRITE_LIKES_COLLECTION_ID'),
       comments: getEnvVar('VITE_APPWRITE_COMMENTS_COLLECTION_ID'),
-      profiles: 'profiles',
+      follows: getEnvVar('VITE_APPWRITE_FOLLOWS_COLLECTION_ID'),
     },
+
+    // Storage (Buckets)
     buckets: {
       main: getEnvVar('VITE_APPWRITE_BUCKET_ID'),
     },
+
+    // Functions (Serverless)
     functions: {
       // null fallback so the app doesn't crash if this function isn't deployed yet
       deleteAccount: getEnvVar('VITE_APPWRITE_DELETE_ACCOUNT_FUNCTION_ID', null),
-    }
-  }
+    },
+  },
 };
 
 export default config;
