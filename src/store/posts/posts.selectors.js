@@ -41,22 +41,13 @@ export const selectPostsError = createSelector(
 
 /* ========= Pagination Selectors ========= */
 
-const selectPagination = createSelector(
-  [selectPostsState],
-  (postsState) => postsState.pagination
-);
+const selectPagination = createSelector([selectPostsState], (postsState) => postsState.pagination);
 
-export const selectPage = createSelector(
-  [selectPagination],
-  (pagination) => pagination.page
-);
+export const selectPage = createSelector([selectPagination], (pagination) => pagination.page);
 
-export const selectHasMore = createSelector(
-  [selectPagination],
-  (pagination) => pagination.hasMore
-);
+export const selectHasMore = createSelector([selectPagination], (pagination) => pagination.hasMore);
 
 export const selectInitialLoaded = createSelector(
   [selectPagination],
-  (pagination) => pagination.initialLoaded
+  (pagination) => pagination.initialLoaded,
 );

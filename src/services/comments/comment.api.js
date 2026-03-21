@@ -7,21 +7,22 @@ class CommentApi {
       appwrite.databaseId,
       appwrite.commentsCollectionId,
       ID.unique(),
-      { 
-        postId, 
-        userId, 
+      {
+        postId,
+        userId,
         content,
-        authorName: authorName || 'Anonymous' // Saving the name in the doc
+        authorName: authorName || 'Anonymous',
       },
     );
   }
 
   async listCommentsByPost(postId) {
-    return await databases.listDocuments(
-      appwrite.databaseId,
-      appwrite.commentsCollectionId,
-      [Query.equal('postId', postId), Query.orderDesc('$createdAt'), Query.limit(50)],
-    );
+    return await databases.listDocuments(appwrite.databaseId, appwrite.commentsCollectionId, [
+      Query.equal('postId', postId),
+      // Keep newest comments first so the UI can render without a client-side sort pass.
+      Query.orderDesc('$createdAt'),
+      Query.limit(50),
+    ]);
   }
 
   async deleteComment(commentId) {

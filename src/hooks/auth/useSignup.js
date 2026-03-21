@@ -9,28 +9,27 @@ import { setAuthStatus, setAuthUser, setAuthError } from '@/store/auth';
 import { setUserProfile } from '@/store/profile';
 
 // Strict validation logic for user registration
-const validate = (data) => {
+const validate = (formValues) => {
   const errors = {};
-  if (!data.name?.trim()) errors.name = 'Full name is required';
+  if (!formValues.name?.trim()) errors.name = 'Full name is required';
 
-  if (!data.username?.trim()) {
+  if (!formValues.username?.trim()) {
     errors.username = 'Username is required';
-  } else if (data.username.length < 3) {
+  } else if (formValues.username.length < 3) {
     errors.username = 'Username must be at least 3 characters';
-  } else if (!/^[a-zA-Z0-9_]+$/.test(data.username)) {
-    errors.username =
-      'Username can only contain letters, numbers, and underscores';
+  } else if (!/^[a-zA-Z0-9_]+$/.test(formValues.username)) {
+    errors.username = 'Username can only contain letters, numbers, and underscores';
   }
 
-  if (!data.email) {
+  if (!formValues.email) {
     errors.email = 'Email is required';
-  } else if (!/\S+@\S+\.\S+/.test(data.email)) {
+  } else if (!/\S+@\S+\.\S+/.test(formValues.email)) {
     errors.email = 'Please enter a valid email';
   }
 
-  if (!data.password) {
+  if (!formValues.password) {
     errors.password = 'Password is required';
-  } else if (data.password.length < 8) {
+  } else if (formValues.password.length < 8) {
     errors.password = 'Password must be at least 8 characters';
   }
 
@@ -49,14 +48,12 @@ export const useSignup = () => {
     username: '',
   });
 
-  const [status, setStatus] = useState('idle'); // State machine for submission
+  const [submitStatus, setSubmitStatus] = useState('idle'); // State machine for submission
   const [formErrors, setFormErrors] = useState({});
   const [usernameStatus, setUsernameStatus] = useState('idle'); // 'idle' | 'checking' | 'available' | 'taken'
 
   const checkUsernameAvailability = async (username) => {
     if (!username || username.length < 3) return;
-
-    setUsernameStatus('checking');
     try {
       const isAvailable = await profileService.isUsernameAvailable(username);
       setUsernameStatus(isAvailable ? 'available' : 'taken');
@@ -67,8 +64,8 @@ export const useSignup = () => {
           username: 'Username is already taken',
         }));
       }
-    } catch (err) {
-      console.error('Username check failed:', err);
+    } catch (error) {
+      console.error('Username check failed:', error);
       setUsernameStatus('idle');
     }
   };
@@ -94,9 +91,11 @@ export const useSignup = () => {
       }
 
       if (name === 'username') {
-        setUsernameStatus('idle');
         if (value.length >= 3) {
+          setUsernameStatus('checking');
           debouncedCheck(value);
+        } else {
+          setUsernameStatus('idle');
         }
       }
     },
@@ -108,6 +107,11 @@ export const useSignup = () => {
 
     const validationErrors = validate(formData);
 
+    if (usernameStatus === 'checking') {
+      toast.error('Please wait for the username check to finish.');
+      return;
+    }
+
     if (usernameStatus === 'taken') {
       validationErrors.username = 'Username is already taken';
     }
@@ -117,9 +121,9 @@ export const useSignup = () => {
       return;
     }
 
-    if (status === 'loading') return;
+    if (submitStatus === 'loading') return;
 
-    setStatus('loading');
+    setSubmitStatus('loading');
     dispatch(setAuthStatus('loading'));
 
     try {
@@ -131,26 +135,31 @@ export const useSignup = () => {
 
       toast.success('Account created successfully!');
       navigate('/');
-    } catch (err) {
-      setStatus('error');
-      const message = err?.message || 'Signup failed. Please try again.';
+    } catch (error) {
+      setSubmitStatus('error');
+      const message = error?.message || 'Signup failed. Please try again.';
       dispatch(setAuthError(message));
       toast.error(message);
     } finally {
-      setStatus((current) => (current === 'loading' ? 'idle' : current));
+      setSubmitStatus((current) => (current === 'loading' ? 'idle' : current));
     }
   };
 
   return {
+    // form state
     formData,
     formErrors,
-    isLoading: status === 'loading',
     usernameStatus,
+
+    // loading states
+    isLoading: submitStatus === 'loading',
+
+    // form actions
     handleChange,
     handleSubmit,
+
+    // derived UI state
     isSubmitDisabled:
-      status === 'loading' ||
-      usernameStatus === 'checking' ||
-      usernameStatus === 'taken',
+      submitStatus === 'loading' || usernameStatus === 'checking' || usernameStatus === 'taken',
   };
 };

@@ -1,4 +1,3 @@
-// src/store/profile/profile.slice.js
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
@@ -45,11 +44,7 @@ const profileSlice = createSlice({
   },
 });
 
-export const {
-  setProfileLoading,
-  setUserProfile,
-  setProfileError,
-  clearUserProfile,
-} = profileSlice.actions;
+export const { setProfileLoading, setUserProfile, setProfileError, clearUserProfile } =
+  profileSlice.actions;
 
 export default profileSlice.reducer;

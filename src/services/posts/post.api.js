@@ -5,6 +5,7 @@ class PostApi {
     return await databases.createDocument(
       appwrite.databaseId,
       appwrite.postsCollectionId,
+      // Appwrite accepts the literal "unique()" helper string here.
       'unique()',
       postData,
     );
@@ -20,27 +21,15 @@ class PostApi {
   }
 
   async getPostById(postId) {
-    return await databases.getDocument(
-      appwrite.databaseId,
-      appwrite.postsCollectionId,
-      postId,
-    );
+    return await databases.getDocument(appwrite.databaseId, appwrite.postsCollectionId, postId);
   }
 
   async listPosts(queries) {
-    return await databases.listDocuments(
-      appwrite.databaseId,
-      appwrite.postsCollectionId,
-      queries,
-    );
+    return await databases.listDocuments(appwrite.databaseId, appwrite.postsCollectionId, queries);
   }
 
   async clearPost(postId) {
-    return await databases.deleteDocument(
-      appwrite.databaseId,
-      appwrite.postsCollectionId,
-      postId,
-    );
+    return await databases.deleteDocument(appwrite.databaseId, appwrite.postsCollectionId, postId);
   }
 }
 

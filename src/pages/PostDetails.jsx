@@ -1,4 +1,3 @@
-// PostDetails.jsx
 import { ArrowLeft } from 'lucide-react';
 
 // UI Components
@@ -7,7 +6,6 @@ import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
 
-// Custom Post Components
 import {
   PostDetailsSkeleton,
   PostContent,
@@ -20,9 +18,33 @@ import { usePostDetails } from '@/hooks/posts/usePostDetails';
 
 const PostDetails = () => {
   const {
-    currentPost, authUserId, profiles, authorProfile, currentUserProfile,
-    isLoading, error, likesCount, isLiked, isLikedLoading, isLiking, comments, readTime,
-    handleLike, handleShare, navigate
+    // routing / identity
+    authUserId,
+
+    // cached entities
+    currentPost,
+    profiles,
+    authorProfile,
+    currentUserProfile,
+
+    // loading and errors
+    isLoading,
+    error,
+
+    // interaction state
+    likesCount,
+    isLiked,
+    isLikedLoading,
+    isLiking,
+
+    // post content
+    comments,
+    readTime,
+
+    // actions
+    handleLike,
+    handleShare,
+    navigate,
   } = usePostDetails();
 
   if (isLoading) return <PostDetailsSkeleton />;
@@ -37,7 +59,10 @@ const PostDetails = () => {
             <div className="text-center space-y-4">
               <Alert variant="destructive">
                 <AlertDescription>
-                  {error || (!isAuthorized ? 'This post is private.' : 'The article you are looking for does not exist.')}
+                  {error ||
+                    (!isAuthorized
+                      ? 'This post is private.'
+                      : 'The article you are looking for does not exist.')}
                 </AlertDescription>
               </Alert>
               <Button onClick={() => navigate('/')} className="mt-4">
@@ -54,15 +79,15 @@ const PostDetails = () => {
     <div className="bg-background">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         <div className="lg:col-span-8 space-y-8">
-          <PostContent 
-            title={currentPost.title} 
-            content={currentPost.content} 
-            coverImageUrl={currentPost.coverImageUrl} 
+          <PostContent
+            title={currentPost.title}
+            content={currentPost.content}
+            coverImageUrl={currentPost.coverImageUrl}
           />
           <Separator />
-          <CommentSection 
-            postId={currentPost.$id} 
-            authUserId={authUserId} 
+          <CommentSection
+            postId={currentPost.$id}
+            authUserId={authUserId}
             currentUserProfile={currentUserProfile}
             initialComments={comments}
             profiles={profiles}
@@ -70,7 +95,7 @@ const PostDetails = () => {
         </div>
 
         <div className="lg:col-span-4">
-          <AuthorSidebar 
+          <AuthorSidebar
             authorProfile={authorProfile}
             createdAt={currentPost.$createdAt}
             readTime={readTime}

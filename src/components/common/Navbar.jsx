@@ -1,16 +1,7 @@
 import { useState, useCallback } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  Sun,
-  Moon,
-  Menu,
-  X,
-  LogOut,
-  User,
-  Settings,
-  PenSquare,
-} from 'lucide-react';
+import { Sun, Moon, Menu, X, LogOut, User, Settings, PenSquare } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 // UI Components
@@ -47,7 +38,7 @@ const Navbar = () => {
   const userEmail = useSelector(selectAuthEmail);
   const isAuthenticated = useSelector(selectIsAuthenticated);
 
-  // Profile Selector (Used for avatar and other domain data)
+  // Profile data powers the avatar even when auth only contains account fields.
   const profile = useSelector((state) => selectProfileById(state, userId));
 
   // Theme and UI State
@@ -62,11 +53,11 @@ const Navbar = () => {
 
       toast.success('Logged out successfully!');
       navigate('/login');
-    } catch (err) {
+    } catch (error) {
       // If server call fails, we clear local state anyway
       // to prevent the user from being "stuck" in a broken UI.
       dispatch(clearAuthUser());
-      toast.error(err.message || 'Session ended with errors.');
+      toast.error(error.message || 'Session ended with errors.');
     }
   }, [dispatch, navigate]);
 
@@ -107,9 +98,7 @@ const Navbar = () => {
                     to={item.slug}
                     className={({ isActive }) =>
                       `transition-colors hover:text-primary ${
-                        isActive
-                          ? 'text-foreground font-semibold'
-                          : 'text-muted-foreground'
+                        isActive ? 'text-foreground font-semibold' : 'text-muted-foreground'
                       }`
                     }
                   >
@@ -143,11 +132,7 @@ const Navbar = () => {
                   className="relative h-9 w-9 rounded-full border border-border/50"
                 >
                   <Avatar className="h-9 w-9">
-                    <AvatarImage
-                      src={profile?.avatarUrl}
-                      alt={userName}
-                      className="object-cover"
-                    />
+                    <AvatarImage src={profile?.avatarUrl} alt={userName} className="object-cover" />
                     <AvatarFallback className="bg-primary/10 text-primary font-medium">
                       {userName.charAt(0).toUpperCase()}
                     </AvatarFallback>
@@ -157,9 +142,7 @@ const Navbar = () => {
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      {userName}
-                    </p>
+                    <p className="text-sm font-medium leading-none">{userName}</p>
                     <p className="text-xs leading-none text-muted-foreground truncate">
                       {userEmail}
                     </p>
@@ -212,11 +195,7 @@ const Navbar = () => {
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label="Toggle menu"
             >
-              {isMobileMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
+              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
           </div>
         </div>

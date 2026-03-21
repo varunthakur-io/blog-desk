@@ -23,7 +23,7 @@ const PostDetailsSkeleton = () => {
 
             {/* Back Button */}
             <div className="shrink-0 ml-4">
-               <Skeleton className="h-10 w-20" />
+              <Skeleton className="h-10 w-20" />
             </div>
           </div>
         </CardHeader>
@@ -32,17 +32,17 @@ const PostDetailsSkeleton = () => {
 
         {/* Content */}
         <CardContent className="pt-6 px-0">
-           <div className="px-4 sm:px-6 lg:px-8 space-y-4">
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-11/12" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-64 w-full rounded-xl my-6" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-5/6" />
-           </div>
+          <div className="px-4 sm:px-6 lg:px-8 space-y-4">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-11/12" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-64 w-full rounded-xl my-6" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-5/6" />
+          </div>
         </CardContent>
       </Card>
     </div>

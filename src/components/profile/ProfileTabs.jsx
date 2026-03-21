@@ -11,7 +11,7 @@ const ProfileTabs = ({
   setActiveTab,
   isOwner,
   postsLoading,
-  initialPostsLoaded,
+  postsError,
   userPosts,
   likedPosts,
   isLoadingLikes,
@@ -21,7 +21,7 @@ const ProfileTabs = ({
   joinedDate,
 }) => {
   return (
-    <Tabs defaultValue="posts" className="w-full" onValueChange={setActiveTab}>
+    <Tabs value={activeTab} className="w-full" onValueChange={setActiveTab}>
       <TabsList className="grid w-full grid-cols-3 max-w-[400px] mx-auto sm:mx-0 mb-8">
         <TabsTrigger value="posts">Posts</TabsTrigger>
         <TabsTrigger value="likes">Liked</TabsTrigger>
@@ -29,12 +29,16 @@ const ProfileTabs = ({
       </TabsList>
 
       <TabsContent value="posts" className="space-y-6">
-        {postsLoading && !initialPostsLoaded ? (
+        {postsLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
               <PostCardSkeleton key={i} />
             ))}
           </div>
+        ) : postsError ? (
+          <Alert variant="destructive">
+            <AlertDescription>{postsError}</AlertDescription>
+          </Alert>
         ) : userPosts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
             {userPosts.map((post) => (
@@ -93,17 +97,13 @@ const ProfileTabs = ({
         <div className="border rounded-lg p-6 space-y-6">
           <div>
             <h3 className="font-semibold text-lg mb-2">Bio</h3>
-            <p className="text-muted-foreground">
-              {displayBio || 'No bio available.'}
-            </p>
+            <p className="text-muted-foreground">{displayBio || 'No bio available.'}</p>
           </div>
           <Separator />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {isOwner && (
               <div>
-                <h4 className="text-sm font-medium text-muted-foreground mb-1">
-                  Contact
-                </h4>
+                <h4 className="text-sm font-medium text-muted-foreground mb-1">Contact</h4>
                 <div className="flex items-center gap-2">
                   <Mail className="w-4 h-4" />
                   <span>{displayEmail}</span>
@@ -111,9 +111,7 @@ const ProfileTabs = ({
               </div>
             )}
             <div>
-              <h4 className="text-sm font-medium text-muted-foreground mb-1">
-                Joined
-              </h4>
+              <h4 className="text-sm font-medium text-muted-foreground mb-1">Joined</h4>
               <div className="flex items-center gap-2">
                 <CalendarDays className="w-4 h-4" />
                 <span>{joinedDate}</span>

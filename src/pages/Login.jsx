@@ -1,8 +1,6 @@
-// src/pages/Login.jsx
 import { Link } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 
-// Shadcn UI components
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -20,10 +18,15 @@ import { useLogin } from '@/hooks/auth';
 
 const Login = () => {
   const {
+    // form state
     formData,
-    isLoading,
     formErrors,
     showPassword,
+
+    // loading state
+    isLoading,
+
+    // actions
     handleChange,
     handleSubmit,
     togglePasswordVisibility,
@@ -70,9 +73,7 @@ const Login = () => {
                   className={`h-12 text-base rounded-lg border-border/70 focus-visible:ring-2 focus-visible:ring-primary/50 ${formErrors.email ? 'border-destructive focus-visible:ring-destructive/50' : ''}`}
                 />
                 {formErrors.email && (
-                  <p className="text-xs text-destructive font-medium ml-1">
-                    {formErrors.email}
-                  </p>
+                  <p className="text-xs text-destructive font-medium ml-1">{formErrors.email}</p>
                 )}
               </div>
 
@@ -112,9 +113,7 @@ const Login = () => {
                   </Button>
                 </div>
                 {formErrors.password && (
-                  <p className="text-xs text-destructive font-medium ml-1">
-                    {formErrors.password}
-                  </p>
+                  <p className="text-xs text-destructive font-medium ml-1">{formErrors.password}</p>
                 )}
               </div>
 

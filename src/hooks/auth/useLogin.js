@@ -14,17 +14,17 @@ import {
 import { setUserProfile } from '@/store/profile';
 
 // Pure validation logic for credentials
-const validate = (data) => {
+const validate = (formValues) => {
   const errors = {};
-  if (!data.email) {
+  if (!formValues.email) {
     errors.email = 'Email is required';
-  } else if (!/\S+@\S+\.\S+/.test(data.email)) {
+  } else if (!/\S+@\S+\.\S+/.test(formValues.email)) {
     errors.email = 'Please enter a valid email';
   }
 
-  if (!data.password) {
+  if (!formValues.password) {
     errors.password = 'Password is required';
-  } else if (data.password.length < 8) {
+  } else if (formValues.password.length < 8) {
     errors.password = 'Password must be at least 8 characters';
   }
 
@@ -42,7 +42,7 @@ export const useLogin = () => {
 
   // Local State
   const [formData, setFormData] = useState({ email: '', password: '' });
-  const [status, setStatus] = useState('idle');
+  const [submitStatus, setSubmitStatus] = useState('idle');
   const [formErrors, setFormErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
 
@@ -79,9 +79,9 @@ export const useLogin = () => {
       return;
     }
 
-    if (status === 'loading' || isAuthLoading) return;
+    if (submitStatus === 'loading' || isAuthLoading) return;
 
-    setStatus('loading');
+    setSubmitStatus('loading');
     dispatch(setAuthStatus('loading'));
 
     try {
@@ -93,13 +93,13 @@ export const useLogin = () => {
 
       toast.success(`Welcome back, ${user.name || 'friend'}!`);
       navigate('/', { replace: true });
-    } catch (err) {
-      setStatus('error');
-      const message = err?.message || 'Invalid email or password';
+    } catch (error) {
+      setSubmitStatus('error');
+      const message = error?.message || 'Invalid email or password';
       dispatch(setAuthError(message));
       toast.error(message);
     } finally {
-      setStatus((current) => (current === 'loading' ? 'idle' : current));
+      setSubmitStatus((current) => (current === 'loading' ? 'idle' : current));
     }
   };
 
@@ -108,14 +108,21 @@ export const useLogin = () => {
   }, []);
 
   return {
+    // form state
     formData,
     formErrors,
-    isLoading: status === 'loading' || isAuthLoading,
     showPassword,
+
+    // loading states
+    isLoading: submitStatus === 'loading' || isAuthLoading,
+
+    // form actions
     handleChange,
     handleSubmit,
     togglePasswordVisibility,
+
+    // derived UI state
     isSubmitDisabled:
-      status === 'loading' || isAuthLoading || !formData.email || !formData.password,
+      submitStatus === 'loading' || isAuthLoading || !formData.email || !formData.password,
   };
 };

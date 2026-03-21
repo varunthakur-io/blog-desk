@@ -7,16 +7,11 @@ import { useSelector } from 'react-redux';
 import { selectProfileById } from '@/store/profile';
 
 const FeaturedPost = ({ post }) => {
-  const authorName = useSelector((state) =>
-    selectProfileById(state, post.authorId),
-  )?.name;
+  const authorName = useSelector((state) => selectProfileById(state, post.authorId))?.name;
 
   if (!post) return null;
 
-  const readTime = Math.max(
-    1,
-    Math.ceil((post.content || '').split(' ').length / 200),
-  );
+  const readTime = Math.max(1, Math.ceil((post.content || '').split(' ').length / 200));
 
   const plainContent = DOMPurify.sanitize(post.content || '', {
     USE_PROFILES: { html: false },
@@ -41,9 +36,7 @@ const FeaturedPost = ({ post }) => {
       {/* Content */}
       <div className="relative h-full flex flex-col justify-end p-8 sm:p-10 text-white">
         <div className="flex items-center gap-3 mb-4">
-          <Badge className="bg-white/90 text-black capitalize">
-            {post.category || 'Featured'}
-          </Badge>
+          <Badge className="bg-white/90 text-black capitalize">{post.category || 'Featured'}</Badge>
 
           <div className="flex items-center text-sm text-white/80">
             <Clock className="mr-1.5 h-4 w-4" />
@@ -57,9 +50,7 @@ const FeaturedPost = ({ post }) => {
           </h2>
         </Link>
 
-        <p className="text-white/80 line-clamp-2 mb-6 max-w-2xl">
-          {plainContent}
-        </p>
+        <p className="text-white/80 line-clamp-2 mb-6 max-w-2xl">{plainContent}</p>
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -83,10 +74,7 @@ const FeaturedPost = ({ post }) => {
             </div>
           </div>
 
-          <Button
-            asChild
-            className="rounded-full bg-white text-black hover:bg-white/90"
-          >
+          <Button asChild className="rounded-full bg-white text-black hover:bg-white/90">
             <Link to={`/posts/${post.$id}`}>
               Read Story <ArrowRight className="ml-2 h-4 w-4" />
             </Link>

@@ -1,4 +1,3 @@
-// src/pages/Settings.jsx
 import { Link } from 'react-router-dom';
 import {
   Moon,
@@ -15,13 +14,7 @@ import {
 
 // UI Components
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
@@ -43,10 +36,15 @@ import { useSettings } from '@/hooks/profile';
 
 const Settings = () => {
   const {
-    isDarkMode,
+    // loading states
     isLoading,
     isPrefsLoading,
+
+    // settings values
+    isDarkMode,
     prefs,
+
+    // actions
     handleToggleDarkMode,
     handlePrefChange,
     handleDeleteSessions,
@@ -72,9 +70,7 @@ const Settings = () => {
                 </div>
                 Appearance
               </CardTitle>
-              <CardDescription>
-                Customize how the application looks on your device.
-              </CardDescription>
+              <CardDescription>Customize how the application looks on your device.</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between space-x-4">
@@ -83,11 +79,19 @@ const Settings = () => {
                     {isDarkMode ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
                   </div>
                   <div>
-                    <Label htmlFor="theme-mode" className="text-base font-medium">Dark Mode</Label>
-                    <p className="text-sm text-muted-foreground">Switch between light and dark themes.</p>
+                    <Label htmlFor="theme-mode" className="text-base font-medium">
+                      Dark Mode
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      Switch between light and dark themes.
+                    </p>
                   </div>
                 </div>
-                <Switch id="theme-mode" checked={isDarkMode} onCheckedChange={handleToggleDarkMode} />
+                <Switch
+                  id="theme-mode"
+                  checked={isDarkMode}
+                  onCheckedChange={handleToggleDarkMode}
+                />
               </div>
             </CardContent>
           </Card>
@@ -111,18 +115,34 @@ const Settings = () => {
                 <>
                   <div className="flex items-center justify-between space-x-4">
                     <div>
-                      <Label htmlFor="marketing" className="text-base font-medium">Marketing Emails</Label>
-                      <p className="text-sm text-muted-foreground">Receive emails about new features.</p>
+                      <Label htmlFor="marketing" className="text-base font-medium">
+                        Marketing Emails
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Receive emails about new features.
+                      </p>
                     </div>
-                    <Switch id="marketing" checked={prefs.marketing} onCheckedChange={(val) => handlePrefChange('marketing', val)} />
+                    <Switch
+                      id="marketing"
+                      checked={prefs.marketing}
+                      onCheckedChange={(val) => handlePrefChange('marketing', val)}
+                    />
                   </div>
                   <Separator />
                   <div className="flex items-center justify-between space-x-4">
                     <div>
-                      <Label htmlFor="security" className="text-base font-medium">Security Alerts</Label>
-                      <p className="text-sm text-muted-foreground">Get notified about security events.</p>
+                      <Label htmlFor="security" className="text-base font-medium">
+                        Security Alerts
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Get notified about security events.
+                      </p>
                     </div>
-                    <Switch id="security" checked={prefs.security} onCheckedChange={(val) => handlePrefChange('security', val)} />
+                    <Switch
+                      id="security"
+                      checked={prefs.security}
+                      onCheckedChange={(val) => handlePrefChange('security', val)}
+                    />
                   </div>
                 </>
               )}
@@ -145,7 +165,9 @@ const Settings = () => {
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <h4 className="text-base font-medium">Profile Information</h4>
-                  <p className="text-sm text-muted-foreground">Change your name, bio, and avatar.</p>
+                  <p className="text-sm text-muted-foreground">
+                    Change your name, bio, and avatar.
+                  </p>
                 </div>
                 <Button variant="outline" asChild>
                   <Link to="/profile">Go to Profile</Link>
@@ -167,24 +189,34 @@ const Settings = () => {
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between p-4 border rounded-lg bg-background/50 hover:bg-background transition-colors">
                 <div className="flex items-start gap-4">
-                  <div className="p-2 bg-muted rounded-full mt-1"><Laptop className="h-5 w-5" /></div>
+                  <div className="p-2 bg-muted rounded-full mt-1">
+                    <Laptop className="h-5 w-5" />
+                  </div>
                   <div>
                     <h4 className="text-base font-medium">Active Sessions</h4>
-                    <p className="text-sm text-muted-foreground max-w-xs">Log out from all other devices.</p>
+                    <p className="text-sm text-muted-foreground max-w-xs">
+                      Log out from all other devices.
+                    </p>
                   </div>
                 </div>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="outline" size="sm" disabled={isLoading}><LogOut className="mr-2 h-4 w-4" /> Log Out All</Button>
+                    <Button variant="outline" size="sm" disabled={isLoading}>
+                      <LogOut className="mr-2 h-4 w-4" /> Log Out All
+                    </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
                       <AlertDialogTitle>Sign out everywhere?</AlertDialogTitle>
-                      <AlertDialogDescription>You will need to log in again.</AlertDialogDescription>
+                      <AlertDialogDescription>
+                        You will need to log in again.
+                      </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDeleteSessions}>Confirm Log Out</AlertDialogAction>
+                      <AlertDialogAction onClick={handleDeleteSessions}>
+                        Confirm Log Out
+                      </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
@@ -197,16 +229,25 @@ const Settings = () => {
                   <p className="text-sm text-muted-foreground">Permanently remove your account.</p>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="sm" disabled={isLoading}>Delete Account</Button>
+                      <Button variant="destructive" size="sm" disabled={isLoading}>
+                        Delete Account
+                      </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
                         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                        <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+                        <AlertDialogDescription>
+                          This action cannot be undone.
+                        </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive hover:bg-destructive/90">Delete My Account</AlertDialogAction>
+                        <AlertDialogAction
+                          onClick={handleDeleteAccount}
+                          className="bg-destructive hover:bg-destructive/90"
+                        >
+                          Delete My Account
+                        </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>

@@ -1,4 +1,3 @@
-// src/pages/CreatePost.jsx
 import { PostForm } from '@/components/posts';
 import { useCreatePost } from '@/hooks/posts';
 
@@ -7,11 +6,7 @@ const CreatePost = () => {
 
   return (
     <div>
-      <PostForm
-        mode="create"
-        onSubmit={handleCreatePost}
-        isSubmitting={isSubmitting}
-      />
+      <PostForm mode="create" onSubmit={handleCreatePost} isSubmitting={isSubmitting} />
     </div>
   );
 };

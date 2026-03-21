@@ -13,11 +13,8 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
   const [newComment, setNewComment] = useState('');
   const [isCommenting, setIsCommenting] = useState(false);
 
-  // CRITICAL FIX: Sync local state when parent fetches comments
   useEffect(() => {
-    if (initialComments && initialComments.length > 0) {
-      setComments(initialComments);
-    }
+    setComments(initialComments || []);
   }, [initialComments]);
 
   const currentUserName = currentUserProfile?.name || 'You';
@@ -50,11 +47,9 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
       });
 
       // Replace temp with real data from server
-      setComments((prev) =>
-        prev.map((c) => (c.$id === tempId ? createdComment : c)),
-      );
+      setComments((prev) => prev.map((c) => (c.$id === tempId ? createdComment : c)));
       toast.success('Comment posted!');
-    } catch (err) {
+    } catch {
       // Revert on error
       setComments((prev) => prev.filter((c) => c.$id !== tempId));
       setNewComment(content);
@@ -68,9 +63,11 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
     <div className="space-y-8 pt-8">
       <div className="flex items-center justify-between">
         <h3 className="text-2xl font-bold tracking-tight">Discussion</h3>
-        <Badge variant="secondary" className="rounded-full px-3">
-          {comments.length} comments
-        </Badge>
+        <div className="flex items-center gap-3">
+          <Badge variant="secondary" className="rounded-full px-3">
+            {comments.length} comments
+          </Badge>
+        </div>
       </div>
 
       {authUserId ? (
@@ -78,7 +75,9 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
           <CardContent className="p-6">
             <div className="flex gap-4">
               <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
-                {currentUserProfile?.avatarUrl && <AvatarImage src={currentUserProfile.avatarUrl} />}
+                {currentUserProfile?.avatarUrl && (
+                  <AvatarImage src={currentUserProfile.avatarUrl} />
+                )}
                 <AvatarFallback className="bg-primary/10 text-primary font-semibold">
                   {currentUserName.charAt(0).toUpperCase()}
                 </AvatarFallback>
@@ -123,10 +122,9 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
           </div>
         ) : (
           comments.map((comment) => {
-            // FIX: If it's the current user, use currentUserProfile directly
             const isMe = comment.userId === authUserId;
             const commenterProfile = isMe ? currentUserProfile : profiles[comment.userId];
-            
+
             const name = commenterProfile?.name || (isMe ? currentUserName : 'Anonymous User');
             const avatarUrl = commenterProfile?.avatarUrl;
             const commentorInitial = name.charAt(0).toUpperCase();

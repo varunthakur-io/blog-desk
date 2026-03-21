@@ -61,9 +61,9 @@ const useAuthCheck = () => {
             dispatch(setUserProfile(profileDoc));
           }
         }
-      } catch (err) {
+      } catch (error) {
         if (mountedRef.current) {
-          dispatch(setAuthError(err?.message));
+          dispatch(setAuthError(error?.message));
         }
       } finally {
         if (mountedRef.current) {
