@@ -41,7 +41,7 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        bold: true, italic: true, bulletList: true, orderedList: true,
+        bold: true, italic: true, code: true, bulletList: true, orderedList: true,
         heading: { levels: [1, 2, 3] },
         blockquote: true, codeBlock: true, link: true,
       }),
