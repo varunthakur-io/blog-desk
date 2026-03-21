@@ -146,9 +146,9 @@ const Home = () => {
   };
 
   return (
-    <div className="relative">
+    <div className="page-root relative">
       {/* Hero */}
-      <section className="mx-auto flex flex-col items-center gap-5 pb-10 pt-4 text-center max-w-3xl">
+      <section className="mx-auto flex flex-col items-center gap-5 pb-10 text-center max-w-3xl">
         <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
           <Sparkles className="h-3 w-3" />
           Open platform for writers &amp; developers

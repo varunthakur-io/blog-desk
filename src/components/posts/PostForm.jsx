@@ -131,7 +131,7 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
     );
 
   return (
-    <div className="max-w-6xl mx-auto py-4 animate-in fade-in duration-500">
+    <div className="max-w-6xl mx-auto page-root">
       {/* Top Bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
         <div className="flex items-center gap-3">

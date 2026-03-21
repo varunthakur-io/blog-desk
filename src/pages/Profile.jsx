@@ -39,7 +39,7 @@ export default function Profile() {
   return (
     <div className="page-root">
       {/* Header row — info + edit button */}
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
         <ProfileInfo
           displayName={displayName}
           displayEmail={displayEmail}
@@ -57,7 +57,7 @@ export default function Profile() {
         </div>
       </div>
 
-      <Separator className="mb-8" />
+      <Separator className="mb-6" />
 
       <ProfileTabs
         activeTab={activeTab}

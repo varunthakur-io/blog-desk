@@ -33,8 +33,7 @@ const About = () => {
           About Blog Desk
         </div>
         <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight">
-          Crafting Stories,{' '}
-          <span className="gradient-brand">Empowering Voices.</span>
+          Crafting Stories, <span className="gradient-brand">Empowering Voices.</span>
         </h1>
         <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
           Blog Desk is built for creators, developers, and thinkers who want to share their
@@ -79,7 +78,9 @@ const About = () => {
       <section className="max-w-3xl mx-auto mb-20">
         <div className="text-center mb-10">
           <h2 className="text-3xl font-extrabold tracking-tight mb-2">Why Blog Desk?</h2>
-          <p className="text-muted-foreground text-sm">Built with modern tools and real attention to detail.</p>
+          <p className="text-muted-foreground text-sm">
+            Built with modern tools and real attention to detail.
+          </p>
         </div>
         <div className="space-y-7 p-8 rounded-2xl border border-border bg-card shadow-sm">
           <WhyItem
@@ -120,4 +121,3 @@ const About = () => {
 };
 
 export default About;
-
