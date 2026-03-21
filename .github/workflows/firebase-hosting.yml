@@ -1,42 +1,50 @@
-name: CI / Deploy Firebase Hosting (Frontend)
+name: Build and Deploy to Firebase
 
+# runs when you push to dev or main only
 on:
   push:
     branches:
       - dev
       - main
 
-# avoid multiple concurrent runs for same ref
+# if you push twice quickly, cancel the old run and only keep the new one
 concurrency:
-  group: ci-deploy-${{ github.ref }}
+  group: deploy-${{ github.ref }}
   cancel-in-progress: true
 
+# permissions this robot needs to read code, auth with firebase, and post deploy status
 permissions:
   contents: read
   id-token: write
   deployments: write
 
 jobs:
+
+  # ── JOB 1: build the React app ──────────────────────────────────────────────
   build:
-    name: Build (Vite)
+    name: Build React App
     runs-on: ubuntu-latest
-    outputs:
-      build-path: dist
     steps:
-      - name: Checkout repository
+
+      # download your code onto the blank computer
+      - name: Checkout code
         uses: actions/checkout@v4
 
+      # install Node.js 20 — cache saves node_modules so next run is faster
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
 
-      - name: Load APPWRITE_CONFIG (single repository Variable) and export VITE_ envs
+      # load Appwrite credentials from GitHub Variables and build the app
+      # APPWRITE_CONFIG is a JSON string stored in: repo → Settings → Variables
+      # we read each field from it and export as VITE_ env vars so Vite can use them
+      - name: Load env vars and build
         env:
           APPWRITE_CONFIG: ${{ vars.APPWRITE_CONFIG }}
         run: |
-          # write the JSON to a file
+          # save the JSON to a temp file so Node can read it
           echo "$APPWRITE_CONFIG" > appwrite.json
 
           # Core Appwrite Setup
@@ -44,64 +52,69 @@ jobs:
           export VITE_APPWRITE_PROJECT_ID=$(node -p "require('./appwrite.json').projectId")
           export VITE_APPWRITE_DATABASE_ID=$(node -p "require('./appwrite.json').databaseId")
 
-          # Collections (Database Tables)
+          # Collections
           export VITE_APPWRITE_PROFILE_COLLECTION_ID=$(node -p "require('./appwrite.json').profileCollectionId")
           export VITE_APPWRITE_POSTS_COLLECTION_ID=$(node -p "require('./appwrite.json').postsCollectionId")
           export VITE_APPWRITE_LIKES_COLLECTION_ID=$(node -p "require('./appwrite.json').likesCollectionId")
           export VITE_APPWRITE_COMMENTS_COLLECTION_ID=$(node -p "require('./appwrite.json').commentsCollectionId")
           export VITE_APPWRITE_FOLLOWS_COLLECTION_ID=$(node -p "require('./appwrite.json').followsCollectionId || ''")
 
-          # Storage (Buckets)
+          # Storage
           export VITE_APPWRITE_BUCKET_ID=$(node -p "require('./appwrite.json').bucketId")
 
-          # Functions (Serverless)
+          # Functions — || '' means use empty string if not set yet, so the app doesn't crash
           export VITE_APPWRITE_DELETE_ACCOUNT_FUNCTION_ID=$(node -p "require('./appwrite.json').deleteAccountFunctionId || ''")
 
-          # show that envs are set (no secrets printed)
-          node -e "console.log('VITE vars set for build')"
-
-          # install & build (these will pick up the exported VITE_ envs)
+          # install packages and build — Vite bakes all VITE_ vars into the dist/ output
           npm ci
           npm run build
 
-      - name: Verify build output
+      # safety check — stop here if dist/ wasn't produced
+      - name: Verify dist/ exists
         run: |
           if [ ! -d dist ]; then
-            echo "Error: dist directory not found. Build failed."
-            ls -la || true
+            echo "ERROR: build failed, dist/ not found"
             exit 1
           fi
-          echo "dist exists, size:"
-          du -sh dist || true
+          du -sh dist
 
-      - name: Upload build artifact
+      # upload dist/ to GitHub's temporary storage so the deploy job can access it
+      # (build and deploy run on separate computers so we need to pass files like this)
+      - name: Upload dist/ artifact
         uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist
-          retention-days: 3
+          retention-days: 3  # GitHub auto-deletes after 3 days
 
+
+  # ── JOB 2: deploy to Firebase ───────────────────────────────────────────────
   deploy:
-    name: Deploy to Firebase Hosting
-    needs: build
+    name: Deploy to Firebase
     runs-on: ubuntu-latest
-    # only run deploy for pushes and PRs (not other events)
-    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    needs: build  # only runs if build job succeeded
+
     steps:
-      - name: Checkout repository
+
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download build artifact
+      # download the dist/ folder that was saved by the build job
+      - name: Download dist/ artifact
         uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist
 
-      - name: Setup Node.js (for deploy)
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
+      # push dist/ to Firebase Hosting
+      # - main branch → deploys to 'live' channel (blog-desk.web.app)
+      # - dev branch  → deploys to 'dev' preview channel (for testing before going live)
+      # FIREBASE_SERVICE_ACCOUNT and FIREBASE_PROJECT_ID are stored in: repo → Settings → Secrets
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
