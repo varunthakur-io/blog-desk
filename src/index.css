@@ -74,14 +74,14 @@
   /*
    * PAGE SPACING TOKENS — change here to update every page at once
    *
-   * .page-root   : outermost div of every page (fade-in + small top nudge)
+   * .page-root   : outermost div of every page (animation + top padding)
    * .page-content: flex-col gap between major sections inside a page
    */
   .page-root {
-    @apply py-2 animate-in fade-in duration-500;
+    @apply py-page-top animate-in fade-in duration-500;
   }
   .page-content {
-    @apply flex flex-col gap-6;
+    @apply flex flex-col gap-page-gap;
   }
 
   .form-container {
