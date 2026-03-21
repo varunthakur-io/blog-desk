@@ -122,9 +122,9 @@ const MagazineSidePost = ({ post }) => {
   return (
     <Link to={`/posts/${post.$id}`} className="group flex gap-3 w-full">
       {/* thumbnail — fixed size */}
-      <div className="w-24 h-16 shrink-0 rounded-lg overflow-hidden bg-muted border border-border">
+      <div className="w-24 h-20 shrink-0 rounded-lg overflow-hidden bg-muted border border-border">
         {post.coverImageUrl ? (
-          <img src={post.coverImageUrl} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.05]" />
+          <img src={post.coverImageUrl} alt={post.title} className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.05]" />
         ) : (
           // no-cover fallback — show category initial as watermark
           <div className="w-full h-full bg-muted flex items-center justify-center">
