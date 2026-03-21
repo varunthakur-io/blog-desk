@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
-import { BookOpen, Code2, Lightbulb, Users, ArrowRight, Zap } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import { BookOpen, Code2, Lightbulb, Users, ArrowRight, Zap, LayoutDashboard, PenLine } from 'lucide-react';
+import { selectIsAuthenticated } from '@/store/auth/auth.selectors';
 
 const FeatureCard = ({ icon: Icon, title, description }) => (
   <div className="flex flex-col items-center text-center p-7 rounded-xl border border-border bg-card shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all duration-300">
@@ -24,6 +26,8 @@ const WhyItem = ({ icon: Icon, title, description }) => (
 );
 
 const About = () => {
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+
   return (
     <div className="page-root">
       {/* Hero */}
@@ -40,18 +44,37 @@ const About = () => {
           perspectives with the world — without the noise.
         </p>
         <div className="flex items-center justify-center gap-3 pt-2">
-          <Link
-            to="/signup"
-            className="inline-flex items-center gap-2 bg-foreground text-background text-sm font-semibold rounded-full px-5 py-2.5 hover:opacity-80 transition-opacity shadow-sm"
-          >
-            Get Started <ArrowRight className="h-4 w-4" />
-          </Link>
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 border border-border text-sm font-semibold rounded-full px-5 py-2.5 hover:bg-muted transition-colors"
-          >
-            Browse Posts
-          </Link>
+          {isAuthenticated ? (
+            <>
+              <Link
+                to="/create"
+                className="inline-flex items-center gap-2 bg-foreground text-background text-sm font-semibold rounded-full px-5 py-2.5 hover:opacity-80 transition-opacity shadow-sm"
+              >
+                <PenLine className="h-4 w-4" /> Start Writing
+              </Link>
+              <Link
+                to="/dashboard"
+                className="inline-flex items-center gap-2 border border-border text-sm font-semibold rounded-full px-5 py-2.5 hover:bg-muted transition-colors"
+              >
+                <LayoutDashboard className="h-4 w-4" /> Dashboard
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/signup"
+                className="inline-flex items-center gap-2 bg-foreground text-background text-sm font-semibold rounded-full px-5 py-2.5 hover:opacity-80 transition-opacity shadow-sm"
+              >
+                Get Started <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                to="/"
+                className="inline-flex items-center gap-2 border border-border text-sm font-semibold rounded-full px-5 py-2.5 hover:bg-muted transition-colors"
+              >
+                Browse Posts
+              </Link>
+            </>
+          )}
         </div>
       </section>
 
@@ -103,18 +126,43 @@ const About = () => {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* Bottom CTA */}
       <section className="text-center max-w-lg mx-auto py-10 px-8 rounded-2xl border border-border bg-muted/40">
-        <h2 className="text-2xl font-extrabold tracking-tight mb-2">Ready to start writing?</h2>
-        <p className="text-muted-foreground text-sm mb-6 leading-relaxed">
-          Join Blog Desk today and turn your ideas into stories that matter.
-        </p>
-        <Link
-          to="/signup"
-          className="inline-flex items-center gap-2 bg-foreground text-background text-sm font-semibold rounded-full px-6 py-2.5 hover:opacity-80 transition-opacity shadow-sm"
-        >
-          Create Free Account <ArrowRight className="h-4 w-4" />
-        </Link>
+        {isAuthenticated ? (
+          <>
+            <h2 className="text-2xl font-extrabold tracking-tight mb-2">What will you write today?</h2>
+            <p className="text-muted-foreground text-sm mb-6 leading-relaxed">
+              Head to your dashboard to manage posts or start a new one.
+            </p>
+            <div className="flex items-center justify-center gap-3">
+              <Link
+                to="/create"
+                className="inline-flex items-center gap-2 bg-foreground text-background text-sm font-semibold rounded-full px-6 py-2.5 hover:opacity-80 transition-opacity shadow-sm"
+              >
+                <PenLine className="h-4 w-4" /> New Post
+              </Link>
+              <Link
+                to="/dashboard"
+                className="inline-flex items-center gap-2 border border-border text-sm font-semibold rounded-full px-6 py-2.5 hover:bg-muted transition-colors"
+              >
+                <LayoutDashboard className="h-4 w-4" /> Dashboard
+              </Link>
+            </div>
+          </>
+        ) : (
+          <>
+            <h2 className="text-2xl font-extrabold tracking-tight mb-2">Ready to start writing?</h2>
+            <p className="text-muted-foreground text-sm mb-6 leading-relaxed">
+              Join Blog Desk today and turn your ideas into stories that matter.
+            </p>
+            <Link
+              to="/signup"
+              className="inline-flex items-center gap-2 bg-foreground text-background text-sm font-semibold rounded-full px-6 py-2.5 hover:opacity-80 transition-opacity shadow-sm"
+            >
+              Create Free Account <ArrowRight className="h-4 w-4" />
+            </Link>
+          </>
+        )}
       </section>
     </div>
   );
