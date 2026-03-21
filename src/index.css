@@ -22,7 +22,7 @@
     --destructive-foreground: 0 0% 98%;
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 240 10% 3.9%;
+    --ring: 240 5.9% 10%;
     --radius: 0.5rem;
   }
 
@@ -54,40 +54,77 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
-    font-feature-settings:
-      'rlig' 1,
-      'calt' 1;
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+  ::selection {
+    @apply bg-foreground/10 text-foreground;
   }
 }
 
 @layer components {
-  .glass-card {
-    @apply backdrop-blur-xl bg-white/80 dark:bg-slate-900/80 border border-white/20 dark:border-slate-800/30 shadow-xl;
-  }
-
-  .minimal-hover {
-    @apply transition-all duration-300 ease-out hover:scale-105 hover:shadow-xl;
-  }
-
-  .gradient-text {
-    @apply bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent;
-  }
-
-  /* Standard Layout Classes */
+  /* Layout */
   .page-wrapper {
     @apply container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1200px];
   }
-
   .section-spacing {
-    @apply py-8 md:py-12;
+    @apply py-6 md:py-8;
+  }
+
+  /*
+   * PAGE SPACING TOKENS — change here to update every page at once
+   *
+   * .page-root   : outermost div of every page (animation + top padding)
+   * .page-content: flex-col gap between major sections inside a page
+   */
+  .page-root {
+    @apply py-page-top animate-in fade-in duration-500;
+  }
+  .page-content {
+    @apply flex flex-col gap-page-gap;
   }
 
   .form-container {
     @apply max-w-3xl mx-auto;
   }
-
   .auth-container {
     @apply min-h-screen grid place-items-center p-4 sm:p-8 md:p-12;
+  }
+
+  /* Surface treatments */
+  .surface-card {
+    @apply bg-card border border-border rounded-xl shadow-sm;
+  }
+  .surface-glass {
+    @apply backdrop-blur-xl bg-background/80 border border-border shadow-lg;
+  }
+
+  /* Page header */
+  .page-header-title {
+    @apply text-2xl sm:text-3xl font-bold tracking-tight;
+  }
+  .page-header-subtitle {
+    @apply text-muted-foreground mt-1 text-sm sm:text-base;
+  }
+
+  /* Gradient — neutral/subtle, no blue */
+  .gradient-brand {
+    @apply bg-gradient-to-r from-foreground via-foreground/80 to-foreground/60 bg-clip-text text-transparent;
+  }
+
+  /* Dot-grid texture */
+  .bg-dot-grid {
+    background-image: radial-gradient(circle, hsl(var(--border)) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+  /* Hover lift */
+  .card-hover {
+    @apply transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:border-border;
+  }
+
+  /* Ink-line bottom reveal */
+  .ink-line {
+    @apply relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-foreground after:transition-all after:duration-500 hover:after:w-full;
   }
 }

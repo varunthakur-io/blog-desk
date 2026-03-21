@@ -30,6 +30,10 @@ class AuthApi {
     return await account.updateEmail(email, password);
   }
 
+  async updatePassword(newPassword, oldPassword) {
+    return await account.updatePassword(newPassword, oldPassword);
+  }
+
   async updatePrefs(prefs) {
     return await account.updatePrefs(prefs);
   }
@@ -42,17 +46,13 @@ class AuthApi {
     if (!appwrite.deleteAccountFunctionId) {
       throw new Error('Delete account function is not configured.');
     }
-
-    // The browser cannot delete Appwrite users directly, so we invoke a privileged function.
     return await functions.createExecution(
       appwrite.deleteAccountFunctionId,
       JSON.stringify({}),
       false,
       '/',
       'POST',
-      {
-        'content-type': 'application/json',
-      },
+      { 'content-type': 'application/json' },
     );
   }
 }

@@ -10,7 +10,6 @@ export const useEditPost = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // Prefer the cached post when available so the form can hydrate instantly.
   const post = useSelector((state) => selectPostById(state, id));
 
   const [formData, setFormData] = useState(null);
@@ -35,6 +34,7 @@ export const useEditPost = () => {
           status: post.status || 'draft',
           coverImageUrl: post.coverImageUrl || null,
           coverImageId: post.coverImageId || null,
+          category: post.category || null,
         });
         setPostFetchStatus('success');
         return;
@@ -45,14 +45,14 @@ export const useEditPost = () => {
         const fetchedPost = await postService.getPostById(id);
         if (cancelled) return;
 
-        if (fetchedPost && fetchedPost.$id) {
-          // Mirror server data into Redux so later detail/dashboard views reuse the fresh copy.
+        if (fetchedPost?.$id) {
           setFormData({
             title: fetchedPost.title || '',
             content: fetchedPost.content || '',
             status: fetchedPost.status || 'draft',
             coverImageUrl: fetchedPost.coverImageUrl || null,
             coverImageId: fetchedPost.coverImageId || null,
+            category: fetchedPost.category || null,
           });
           dispatch(setPostDetail(fetchedPost));
           setPostFetchStatus('success');
@@ -69,9 +69,7 @@ export const useEditPost = () => {
     };
 
     loadPost();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [id, post, dispatch]);
 
   const handleUpdate = useCallback(
@@ -81,23 +79,22 @@ export const useEditPost = () => {
         toast.error('Title and content are required.');
         return;
       }
-
       if (updateStatus === 'loading') return;
 
       setUpdateStatus('loading');
       setPostFetchError('');
 
       try {
-        // Send only the editable fields; postService handles slug regeneration when title changes.
         const updatedPost = await postService.updatePost(id, {
           title: formValues.title.trim(),
           content: formValues.content.trim(),
           status: formValues.status || 'draft',
           coverImageId: formValues.coverImageId || null,
           coverImageUrl: formValues.coverImageUrl || null,
+          category: formValues.category || null,
         });
 
-        if (updatedPost && updatedPost.$id) {
+        if (updatedPost?.$id) {
           dispatch(setPostDetail(updatedPost));
           setUpdateStatus('success');
           toast.success('Post updated successfully!');
@@ -117,17 +114,10 @@ export const useEditPost = () => {
   );
 
   return {
-    // form data
     formData,
-
-    // loading states
     isPostLoading: postFetchStatus === 'loading',
     isPostUpdating: updateStatus === 'loading',
-
-    // error state
     postFetchError,
-
-    // actions
     handleUpdate,
     navigate,
   };

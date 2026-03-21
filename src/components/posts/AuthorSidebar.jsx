@@ -1,8 +1,7 @@
 import { Link } from 'react-router-dom';
-import { Calendar, Clock, Heart, Share2, Loader2 } from 'lucide-react';
+import { Calendar, Clock, Heart, Share2, Loader2, ExternalLink } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 
 const AuthorSidebar = ({
@@ -21,92 +20,91 @@ const AuthorSidebar = ({
   const displayAuthorAvatar = authorProfile?.avatarUrl;
 
   return (
-    <div className="sticky top-24 space-y-6">
-      {/* Author Card */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col items-center text-center space-y-4">
-            <Avatar className="h-20 w-20 border-2 border-background shadow-sm">
-              {displayAuthorAvatar ? (
-                <AvatarImage src={displayAuthorAvatar} alt={displayAuthorName} />
-              ) : null}
-              <AvatarFallback className="text-2xl bg-primary/10 text-primary">
-                {displayAuthorName?.charAt(0).toUpperCase() || 'A'}
-              </AvatarFallback>
-            </Avatar>
-            <div className="space-y-1">
-              <h3 className="font-bold text-lg">{displayAuthorName}</h3>
-              {displayAuthorBio && (
-                <p className="text-sm text-muted-foreground max-w-[200px] line-clamp-2">
-                  {displayAuthorBio}
-                </p>
-              )}
-              <p className="text-sm text-muted-foreground">Author</p>
-            </div>
-
-            {authorProfile?.username && (
-              <Button asChild variant="outline" className="w-full rounded-full mt-4">
-                <Link to={`/profile/${authorProfile.username}`}>View Profile</Link>
-              </Button>
+    <div className="sticky top-24 space-y-3">
+      {/* Author */}
+      <div className="rounded-xl border border-border bg-card p-5">
+        <div className="flex items-center gap-3 mb-4">
+          <Avatar className="h-10 w-10 border border-border shrink-0">
+            {displayAuthorAvatar && (
+              <AvatarImage src={displayAuthorAvatar} alt={displayAuthorName} className="object-cover" />
             )}
+            <AvatarFallback className="text-sm bg-muted font-semibold">
+              {displayAuthorName?.charAt(0).toUpperCase() || 'A'}
+            </AvatarFallback>
+          </Avatar>
+          <div className="min-w-0">
+            <p className="font-semibold text-sm truncate">{displayAuthorName}</p>
+            <p className="text-xs text-muted-foreground">Author</p>
           </div>
+        </div>
 
-          <Separator className="my-6" />
+        {displayAuthorBio && (
+          <p className="text-xs text-muted-foreground leading-relaxed mb-4 line-clamp-3">
+            {displayAuthorBio}
+          </p>
+        )}
 
-          <div className="space-y-4 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground flex items-center gap-2">
-                <Calendar className="h-4 w-4" /> Published
-              </span>
-              <span className="font-medium">
-                {new Date(createdAt).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric',
-                })}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground flex items-center gap-2">
-                <Clock className="h-4 w-4" /> Read time
-              </span>
-              <span className="font-medium">{readTime} min</span>
-            </div>
+        {authorProfile?.username && (
+          <Button asChild variant="outline" size="sm" className="w-full rounded-lg text-xs gap-1.5">
+            <Link to={`/profile/${authorProfile.username}`}>
+              <ExternalLink className="h-3 w-3" /> View Profile
+            </Link>
+          </Button>
+        )}
+
+        <Separator className="my-4" />
+
+        <div className="space-y-2.5">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground flex items-center gap-1.5">
+              <Calendar className="h-3.5 w-3.5" /> Published
+            </span>
+            <span className="font-medium">
+              {new Date(createdAt).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+              })}
+            </span>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Actions Card */}
-      <Card>
-        <CardContent className="p-6 space-y-4">
-          <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">
-            Actions
-          </h4>
-          <div className="grid grid-cols-2 gap-3">
-            <Button
-              onClick={handleLike}
-              variant={isLiked ? 'default' : 'secondary'}
-              className={`w-full justify-center ${isLiked ? 'bg-red-600 hover:bg-red-700 text-white' : ''}`}
-              disabled={isLikedLoading || isLiking}
-            >
-              {isLiking ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Liking...
-                </>
-              ) : (
-                <>
-                  <Heart className={`mr-2 h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
-                  {likesCount}
-                </>
-              )}
-            </Button>
-            <Button onClick={handleShare} variant="outline" className="w-full">
-              <Share2 className="mr-2 h-4 w-4" /> Share
-            </Button>
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground flex items-center gap-1.5">
+              <Clock className="h-3.5 w-3.5" /> Read time
+            </span>
+            <span className="font-medium">{readTime} min read</span>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+
+      {/* Like + Share */}
+      <div className="rounded-xl border border-border bg-card p-4">
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            onClick={handleLike}
+            variant={isLiked ? 'default' : 'outline'}
+            size="sm"
+            className={`w-full justify-center gap-2 rounded-lg transition-all text-xs ${
+              isLiked ? 'bg-rose-500 hover:bg-rose-600 text-white border-rose-500' : ''
+            }`}
+            disabled={isLikedLoading || isLiking}
+          >
+            {isLiking ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Heart className={`h-3.5 w-3.5 ${isLiked ? 'fill-current' : ''}`} />
+            )}
+            {likesCount}
+          </Button>
+          <Button
+            onClick={handleShare}
+            variant="outline"
+            size="sm"
+            className="w-full gap-2 rounded-lg text-xs"
+          >
+            <Share2 className="h-3.5 w-3.5" /> Share
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };

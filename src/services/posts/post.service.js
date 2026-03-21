@@ -5,9 +5,6 @@ import { likeService } from '../likes';
 import { authService } from '../auth';
 import { Query } from 'appwrite';
 
-/**
- * Utility to generate a URL-friendly slug from a title.
- */
 const generateSlug = (title) => {
   return title
     .toLowerCase()
@@ -18,8 +15,7 @@ const generateSlug = (title) => {
 };
 
 class PostService {
-  // Seed author metadata and denormalized counters once so feeds/details can render without follow-up writes.
-  async createPost({ title, content, status, coverImageId, coverImageUrl }) {
+  async createPost({ title, content, status, coverImageId, coverImageUrl, category }) {
     const user = await authService.getAccount();
     const postData = {
       authorId: user.$id,
@@ -29,21 +25,22 @@ class PostService {
       status: status || 'draft',
       coverImageId: coverImageId || null,
       coverImageUrl: coverImageUrl || null,
+      category: category || null,
       likesCount: 0,
       commentsCount: 0,
     };
-
-    // Seed denormalized counters once so list/detail screens can read them cheaply.
     return await postApi.createPost(postData);
   }
 
   async updatePost(postId, updates) {
     const postData = { ...updates };
-
     if (postData.title) {
       postData.slug = generateSlug(postData.title);
     }
-
+    // Allow explicit null to clear the category
+    if (!('category' in postData)) {
+      postData.category = postData.category || null;
+    }
     return await postApi.updatePost(postId, postData);
   }
 
@@ -51,15 +48,23 @@ class PostService {
     return await postApi.getPostById(postId);
   }
 
-  async getAllPosts(page = 1, skip = 6) {
+  // category: string | null — when provided, filters server-side via Query.equal
+  async getAllPosts(page = 1, skip = 6, category = null) {
     const offset = (page - 1) * skip;
-    const limit = skip;
-    const queries = [Query.limit(limit), Query.offset(offset), Query.equal('status', 'published')];
+    const queries = [
+      Query.limit(skip),
+      Query.offset(offset),
+      Query.equal('status', 'published'),
+      Query.orderDesc('$createdAt'),
+    ];
+
+    if (category) {
+      queries.push(Query.equal('category', category));
+    }
 
     return await postApi.listPosts(queries);
   }
 
-  // Build the profile/dashboard query from filters instead of maintaining separate list methods per view.
   async getPostsByUserId(
     userId,
     page = 1,
@@ -85,11 +90,8 @@ class PostService {
     return await postApi.listPosts(queries);
   }
 
-  // Remove dependent records first so the app never points at likes/comments for a missing post.
   async clearPostById(postId) {
     if (!postId) throw new Error('clearPostById: "postId" is required');
-
-    // Remove dependent relations first so dashboards/details never point at a missing post.
     await likeService.deleteLikesByPostId(postId);
     await commentService.deleteCommentsByPostId(postId);
     await postApi.clearPost(postId);

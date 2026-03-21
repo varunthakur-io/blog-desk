@@ -7,11 +7,13 @@ import {
   selectPostsError,
   selectHasMore,
   selectPage,
+  selectActiveCategory,
   setPostsStatus,
   setPostsError,
   setPostList,
   appendPostPage,
   setPostPagination,
+  setActiveCategory,
 } from '@/store/posts';
 import { POSTS_PER_PAGE } from '@/constants';
 
@@ -20,23 +22,21 @@ const LIMIT = POSTS_PER_PAGE;
 export const useHome = () => {
   const dispatch = useDispatch();
 
-  // Redux Selectors
   const posts = useSelector(selectAllPosts);
   const isPostsLoading = useSelector(selectIsPostsLoading);
   const postsError = useSelector(selectPostsError);
   const hasMore = useSelector(selectHasMore);
   const page = useSelector(selectPage);
+  const activeCategory = useSelector(selectActiveCategory);
 
-  // Local UI State
   const [searchTerm, setSearchTerm] = useState('');
 
   const loadPage = useCallback(
-    async (pageNum) => {
+    async (pageNum, category) => {
       if (isPostsLoading) return;
       dispatch(setPostsStatus('loading'));
-
       try {
-        const postPage = await postService.getAllPosts(pageNum, LIMIT);
+        const postPage = await postService.getAllPosts(pageNum, LIMIT, category);
         const pagePosts = postPage.documents ?? [];
         const totalFetched = (pageNum - 1) * LIMIT + pagePosts.length;
 
@@ -45,23 +45,23 @@ export const useHome = () => {
         } else {
           dispatch(appendPostPage(pagePosts));
         }
-
         dispatch(setPostPagination({ page: pageNum, hasMore: totalFetched < postPage.total }));
       } catch (error) {
         dispatch(setPostsError(error?.message ?? 'Failed to fetch posts'));
       }
     },
-    [dispatch, isPostsLoading],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dispatch],
   );
 
-  // Initial Load
+  // Initial load + reload when category changes
   useEffect(() => {
     dispatch(setPostPagination({ page: 1 }));
-    loadPage(1);
+    loadPage(1, activeCategory);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch]);
+  }, [dispatch, activeCategory]);
 
-  // Infinite Scroll Observer
+  // Infinite scroll — disabled while searching
   useEffect(() => {
     const handleScroll = () => {
       const { innerHeight } = window;
@@ -73,18 +73,17 @@ export const useHome = () => {
         hasMore &&
         !searchTerm
       ) {
-        loadPage(page + 1);
+        loadPage(page + 1, activeCategory);
       }
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [isPostsLoading, hasMore, page, loadPage, searchTerm]);
+  }, [isPostsLoading, hasMore, page, loadPage, searchTerm, activeCategory]);
 
-  // Client-side search filtering
+  // Client-side search filter on top of whatever page is loaded
   const filteredPosts = useMemo(() => {
     if (!searchTerm.trim()) return posts;
-
     const q = searchTerm.toLowerCase().trim();
     return posts.filter((post) => {
       const title = post.title?.toLowerCase() ?? '';
@@ -101,20 +100,25 @@ export const useHome = () => {
     [dispatch],
   );
 
-  return {
-    // post feed
-    posts: filteredPosts,
+  const handleCategoryChange = useCallback(
+    (category) => {
+      // Toggle: clicking the active category clears it
+      const next = category === activeCategory ? null : category;
+      setSearchTerm('');
+      dispatch(setActiveCategory(next));
+    },
+    [dispatch, activeCategory],
+  );
 
-    // loading state
+  return {
+    posts: filteredPosts,
     postsLoading: isPostsLoading,
     postsError,
     hasMore,
-
-    // search state
     searchTerm,
-
-    // actions
+    activeCategory,
     handleSearchChange,
+    handleCategoryChange,
     LIMIT,
   };
 };

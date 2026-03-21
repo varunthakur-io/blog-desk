@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Bold,
   Italic,
@@ -10,103 +9,121 @@ import {
   Quote,
   Undo,
   Redo,
+  CodeSquare,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+
+const ToolbarButton = ({ onClick, isActive, disabled, title, children }) => (
+  <button
+    type="button"
+    onMouseDown={(e) => {
+      e.preventDefault();
+      onClick();
+    }}
+    disabled={disabled}
+    title={title}
+    className={`h-8 w-8 flex items-center justify-center rounded-md text-sm transition-colors
+      ${isActive
+        ? 'bg-foreground text-background'
+        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+      }
+      disabled:opacity-30 disabled:cursor-not-allowed`}
+  >
+    {children}
+  </button>
+);
 
 const PostEditorToolbar = ({ editor }) => {
   if (!editor) return null;
 
   return (
-    <div
-      className="border-b bg-muted/20 p-2 flex items-center gap-1 flex-wrap"
-      onMouseDown={(e) => e.preventDefault()}
-    >
-      <Button
-        variant="ghost"
-        size="icon"
+    <div className="border-b border-border bg-muted/30 px-3 py-2 flex items-center gap-0.5 flex-wrap">
+      <ToolbarButton
         onClick={() => editor.chain().focus().toggleBold().run()}
-        className={`h-8 w-8 ${editor.isActive('bold') ? 'bg-accent' : ''}`}
+        isActive={editor.isActive('bold')}
+        title="Bold"
       >
-        <Bold className="h-4 w-4" />
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon"
+        <Bold className="h-3.5 w-3.5" />
+      </ToolbarButton>
+      <ToolbarButton
         onClick={() => editor.chain().focus().toggleItalic().run()}
-        className={`h-8 w-8 ${editor.isActive('italic') ? 'bg-accent' : ''}`}
+        isActive={editor.isActive('italic')}
+        title="Italic"
       >
-        <Italic className="h-4 w-4" />
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon"
+        <Italic className="h-3.5 w-3.5" />
+      </ToolbarButton>
+      <ToolbarButton
         onClick={() => editor.chain().focus().toggleCode().run()}
-        className={`h-8 w-8 ${editor.isActive('code') ? 'bg-accent' : ''}`}
+        isActive={editor.isActive('code')}
+        title="Inline code"
       >
-        <Code className="h-4 w-4" />
-      </Button>
-      <Separator orientation="vertical" className="h-6 mx-1" />
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => editor.chain().focus().toggleBulletList().run()}
-        className={`h-8 w-8 ${editor.isActive('bulletList') ? 'bg-accent' : ''}`}
-      >
-        <List className="h-4 w-4" />
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => editor.chain().focus().toggleOrderedList().run()}
-        className={`h-8 w-8 ${editor.isActive('orderedList') ? 'bg-accent' : ''}`}
-      >
-        <ListOrdered className="h-4 w-4" />
-      </Button>
-      <Separator orientation="vertical" className="h-6 mx-1" />
-      <Button
-        variant="ghost"
-        size="icon"
+        <Code className="h-3.5 w-3.5" />
+      </ToolbarButton>
+
+      <Separator orientation="vertical" className="h-5 mx-1.5" />
+
+      <ToolbarButton
         onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-        className={`h-8 w-8 ${editor.isActive('heading', { level: 1 }) ? 'bg-accent' : ''}`}
+        isActive={editor.isActive('heading', { level: 1 })}
+        title="Heading 1"
       >
-        <Heading1 className="h-4 w-4" />
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon"
+        <Heading1 className="h-3.5 w-3.5" />
+      </ToolbarButton>
+      <ToolbarButton
         onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-        className={`h-8 w-8 ${editor.isActive('heading', { level: 2 }) ? 'bg-accent' : ''}`}
+        isActive={editor.isActive('heading', { level: 2 })}
+        title="Heading 2"
       >
-        <Heading2 className="h-4 w-4" />
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon"
+        <Heading2 className="h-3.5 w-3.5" />
+      </ToolbarButton>
+
+      <Separator orientation="vertical" className="h-5 mx-1.5" />
+
+      <ToolbarButton
+        onClick={() => editor.chain().focus().toggleBulletList().run()}
+        isActive={editor.isActive('bulletList')}
+        title="Bullet list"
+      >
+        <List className="h-3.5 w-3.5" />
+      </ToolbarButton>
+      <ToolbarButton
+        onClick={() => editor.chain().focus().toggleOrderedList().run()}
+        isActive={editor.isActive('orderedList')}
+        title="Ordered list"
+      >
+        <ListOrdered className="h-3.5 w-3.5" />
+      </ToolbarButton>
+      <ToolbarButton
         onClick={() => editor.chain().focus().toggleBlockquote().run()}
-        className={`h-8 w-8 ${editor.isActive('blockquote') ? 'bg-accent' : ''}`}
+        isActive={editor.isActive('blockquote')}
+        title="Blockquote"
       >
-        <Quote className="h-4 w-4" />
-      </Button>
-      <Separator orientation="vertical" className="h-6 mx-1" />
-      <Button
-        variant="ghost"
-        size="icon"
+        <Quote className="h-3.5 w-3.5" />
+      </ToolbarButton>
+      <ToolbarButton
+        onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+        isActive={editor.isActive('codeBlock')}
+        title="Code block"
+      >
+        <CodeSquare className="h-3.5 w-3.5" />
+      </ToolbarButton>
+
+      <Separator orientation="vertical" className="h-5 mx-1.5" />
+
+      <ToolbarButton
         onClick={() => editor.chain().focus().undo().run()}
         disabled={!editor.can().undo()}
-        className="h-8 w-8"
+        title="Undo"
       >
-        <Undo className="h-4 w-4" />
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon"
+        <Undo className="h-3.5 w-3.5" />
+      </ToolbarButton>
+      <ToolbarButton
         onClick={() => editor.chain().focus().redo().run()}
         disabled={!editor.can().redo()}
-        className="h-8 w-8"
+        title="Redo"
       >
-        <Redo className="h-4 w-4" />
-      </Button>
+        <Redo className="h-3.5 w-3.5" />
+      </ToolbarButton>
     </div>
   );
 };

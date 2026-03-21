@@ -1,17 +1,18 @@
 import { Client, Databases, Account, Storage, Functions } from 'appwrite';
+import config from './config';
 
 /**
  * Appwrite configuration object.
  */
 export const appwriteConfig = {
-  url: String(import.meta.env.VITE_APPWRITE_ENDPOINT),
-  projectId: String(import.meta.env.VITE_APPWRITE_PROJECT_ID),
-  databaseId: String(import.meta.env.VITE_APPWRITE_DATABASE_ID),
-  postsCollectionId: String(import.meta.env.VITE_APPWRITE_POSTS_COLLECTION_ID),
-  likesCollectionId: String(import.meta.env.VITE_APPWRITE_LIKES_COLLECTION_ID),
-  commentsCollectionId: String(import.meta.env.VITE_APPWRITE_COMMENTS_COLLECTION_ID),
-  bucketId: String(import.meta.env.VITE_APPWRITE_BUCKET_ID),
-  deleteAccountFunctionId: String(import.meta.env.VITE_APPWRITE_DELETE_ACCOUNT_FUNCTION_ID),
+  url: config.appwrite.endpoint,
+  projectId: config.appwrite.projectId,
+  databaseId: config.appwrite.databaseId,
+  postsCollectionId: config.appwrite.collections.posts,
+  likesCollectionId: config.appwrite.collections.likes,
+  commentsCollectionId: config.appwrite.collections.comments,
+  bucketId: config.appwrite.buckets.main,
+  deleteAccountFunctionId: config.appwrite.functions.deleteAccount,
 };
 
 /**

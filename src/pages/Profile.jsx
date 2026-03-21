@@ -1,26 +1,18 @@
-// UI Components
 import { ProfileSkeleton, ProfileInfo, EditProfileDialog, ProfileTabs } from '@/components/profile';
 import { Separator } from '@/components/ui/separator';
-
-// Hooks
 import { useProfile } from '@/hooks/profile';
 
 export default function Profile() {
   const {
-    // loading states
     authLoading,
     profileLoading,
     postsLoading,
     isFetchingUsername,
     isLoadingLikes,
-
-    // errors
     profileError,
     postsError,
     likesError,
     usernameFetchError,
-
-    // profile details
     profileId,
     profile,
     displayName,
@@ -29,27 +21,25 @@ export default function Profile() {
     avatarUrl,
     joinedDate,
     isOwner,
-
-    // post collections
     userPosts,
     likedPosts,
-
-    // UI state
     activeTab,
     setActiveTab,
   } = useProfile();
 
   if (isFetchingUsername) return <ProfileSkeleton />;
   if (usernameFetchError)
-    return <div className="p-8 text-center text-red-500">{usernameFetchError}</div>;
-  if (!profileId) return <div className="p-8 text-center">Profile not found.</div>;
+    return <div className="py-20 text-center text-sm text-destructive">{usernameFetchError}</div>;
+  if (!profileId)
+    return <div className="py-20 text-center text-sm text-muted-foreground">Profile not found.</div>;
   if (authLoading || profileLoading) return <ProfileSkeleton />;
   if (!profile && profileError)
-    return <div className="p-8 text-center text-red-500">{profileError}</div>;
+    return <div className="py-20 text-center text-sm text-destructive">{profileError}</div>;
 
   return (
-    <div className="py-2">
-      <div className="flex flex-col md:flex-row gap-8 items-start relative">
+    <div className="page-root">
+      {/* Header row — info + edit button */}
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
         <ProfileInfo
           displayName={displayName}
           displayEmail={displayEmail}
@@ -57,17 +47,17 @@ export default function Profile() {
           avatarUrl={avatarUrl}
           joinedDate={joinedDate}
           isOwner={isOwner}
-          postsCount={postsLoading ? profile?.postsCount || 0 : userPosts.length}
+          postsCount={postsLoading ? (profile?.postsCount || 0) : userPosts.length}
           followersCount={profile?.followersCount || 0}
           followingCount={profile?.followingCount || 0}
         />
-
-        <div className="absolute right-0 top-0">
+        {/* Edit button — sits naturally after info instead of absolutely positioned */}
+        <div className="shrink-0">
           <EditProfileDialog profile={profile} profileId={profileId} isOwner={isOwner} />
         </div>
       </div>
 
-      <Separator className="my-8" />
+      <Separator className="mb-6" />
 
       <ProfileTabs
         activeTab={activeTab}
@@ -86,3 +76,4 @@ export default function Profile() {
     </div>
   );
 }
+

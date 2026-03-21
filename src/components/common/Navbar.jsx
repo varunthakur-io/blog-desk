@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Sun, Moon, Menu, X, LogOut, User, Settings, PenSquare } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-// UI Components
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -16,7 +15,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-// Store & Services
 import {
   selectAuthUserId,
   selectAuthName,
@@ -32,30 +30,22 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Auth Selectors
   const userId = useSelector(selectAuthUserId);
   const userName = useSelector(selectAuthName);
   const userEmail = useSelector(selectAuthEmail);
   const isAuthenticated = useSelector(selectIsAuthenticated);
-
-  // Profile data powers the avatar even when auth only contains account fields.
   const profile = useSelector((state) => selectProfileById(state, userId));
 
-  // Theme and UI State
   const [isDarkMode, setDarkMode] = useDarkMode();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Logout handler
   const handleLogout = useCallback(async () => {
     try {
       await authService.logout();
       dispatch(clearAuthUser());
-
       toast.success('Logged out successfully!');
       navigate('/login');
     } catch (error) {
-      // If server call fails, we clear local state anyway
-      // to prevent the user from being "stuck" in a broken UI.
       dispatch(clearAuthUser());
       toast.error(error.message || 'Session ended with errors.');
     }
@@ -63,33 +53,32 @@ const Navbar = () => {
 
   const closeMobileMenu = useCallback(() => setIsMobileMenuOpen(false), []);
 
-  // Navigation items
   const navItems = [
     { name: 'Home', slug: '/', requiresAuth: false },
     { name: 'Dashboard', slug: '/dashboard', requiresAuth: true },
-    { name: 'Create Post', slug: '/create', requiresAuth: true },
+    { name: 'Write', slug: '/create', requiresAuth: true },
     { name: 'About', slug: '/about', requiresAuth: false },
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/85 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70">
       <div className="page-wrapper flex h-16 items-center justify-between">
-        {/* Logo + Desktop Nav */}
+        {/* Logo */}
         <div className="flex items-center gap-8">
           <NavLink
             to="/"
-            className="flex items-center space-x-2.5 transition-opacity hover:opacity-80"
+            className="flex items-center space-x-2.5 group transition-opacity hover:opacity-90"
           >
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-lg shadow-sm">
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-base shadow-sm ring-1 ring-primary/20">
               B
             </div>
-            <span className="font-bold text-xl tracking-tight hidden sm:inline-block">
+            <span className="font-bold text-lg tracking-tight hidden sm:inline-block">
               Blog Desk
             </span>
           </NavLink>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center gap-1 text-sm font-medium">
             {navItems.map(
               (item) =>
                 (!item.requiresAuth || isAuthenticated) && (
@@ -97,8 +86,10 @@ const Navbar = () => {
                     key={item.name}
                     to={item.slug}
                     className={({ isActive }) =>
-                      `transition-colors hover:text-primary ${
-                        isActive ? 'text-foreground font-semibold' : 'text-muted-foreground'
+                      `px-3 py-1.5 rounded-md transition-colors ${
+                        isActive
+                          ? 'text-foreground bg-muted font-semibold'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                       }`
                     }
                   >
@@ -109,80 +100,72 @@ const Navbar = () => {
           </nav>
         </div>
 
-        {/* Right Actions Area */}
-        <div className="flex items-center gap-2 md:gap-4">
-          {/* Theme Toggle */}
+        {/* Right Actions */}
+        <div className="flex items-center gap-1.5 md:gap-2">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setDarkMode(!isDarkMode)}
-            className="text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground rounded-full h-9 w-9"
             aria-label="Toggle theme"
           >
-            <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <Sun className="h-4.5 w-4.5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-4.5 w-4.5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           </Button>
 
-          {/* User Menu */}
           {isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="relative h-9 w-9 rounded-full border border-border/50"
+                  className="relative h-9 w-9 rounded-full ring-1 ring-border hover:ring-primary/30 transition-all"
                 >
-                  <Avatar className="h-9 w-9">
+                  <Avatar className="h-8 w-8">
                     <AvatarImage src={profile?.avatarUrl} alt={userName} className="object-cover" />
-                    <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                      {userName.charAt(0).toUpperCase()}
+                    <AvatarFallback className="bg-muted text-foreground font-semibold text-sm">
+                      {userName?.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{userName}</p>
-                    <p className="text-xs leading-none text-muted-foreground truncate">
-                      {userEmail}
-                    </p>
+              <DropdownMenuContent className="w-56 shadow-lg border-border/60" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal py-2.5">
+                  <div className="flex flex-col gap-0.5">
+                    <p className="text-sm font-semibold leading-none">{userName}</p>
+                    <p className="text-xs leading-none text-muted-foreground truncate mt-1">{userEmail}</p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild className="cursor-pointer">
-                  <NavLink to="/profile" className="flex items-center w-full">
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Profile</span>
+                <DropdownMenuItem asChild className="cursor-pointer gap-2">
+                  <NavLink to="/profile">
+                    <User className="h-4 w-4" /> Profile
                   </NavLink>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild className="cursor-pointer">
-                  <NavLink to="/create" className="flex items-center w-full">
-                    <PenSquare className="mr-2 h-4 w-4" />
-                    <span>Write Post</span>
+                <DropdownMenuItem asChild className="cursor-pointer gap-2">
+                  <NavLink to="/create">
+                    <PenSquare className="h-4 w-4" /> Write Post
                   </NavLink>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild className="cursor-pointer">
-                  <NavLink to="/settings" className="flex items-center w-full">
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
+                <DropdownMenuItem asChild className="cursor-pointer gap-2">
+                  <NavLink to="/settings">
+                    <Settings className="h-4 w-4" /> Settings
                   </NavLink>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={handleLogout}
-                  className="text-destructive focus:text-destructive cursor-pointer"
+                  className="text-destructive focus:text-destructive cursor-pointer gap-2"
                 >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
+                  <LogOut className="h-4 w-4" /> Log out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <div className="flex items-center gap-2">
-              <Button variant="ghost" asChild className="hidden sm:flex">
+              <Button variant="ghost" size="sm" asChild className="hidden sm:flex text-sm">
                 <NavLink to="/login">Log in</NavLink>
               </Button>
-              <Button asChild>
+              <Button size="sm" asChild className="text-sm rounded-full px-4">
                 <NavLink to="/signup">Sign up</NavLink>
               </Button>
             </div>
@@ -193,18 +176,19 @@ const Navbar = () => {
               variant="ghost"
               size="icon"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="h-9 w-9 rounded-full"
               aria-label="Toggle menu"
             >
-              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {isMobileMenuOpen ? <X className="h-4.5 w-4.5" /> : <Menu className="h-4.5 w-4.5" />}
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Mobile Menu Overlay */}
+      {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-x-0 top-16 bg-background border-b shadow-lg animate-in slide-in-from-top-5 z-40">
-          <nav className="grid gap-2 p-4">
+        <div className="md:hidden fixed inset-x-0 top-16 bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-xl animate-in slide-in-from-top-3 duration-200 z-40">
+          <nav className="grid gap-1 p-3">
             {navItems.map(
               (item) =>
                 (!item.requiresAuth || isAuthenticated) && (
@@ -213,10 +197,10 @@ const Navbar = () => {
                     to={item.slug}
                     onClick={closeMobileMenu}
                     className={({ isActive }) =>
-                      `flex items-center rounded-md px-4 py-3 text-sm font-medium transition-colors ${
+                      `flex items-center rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
                         isActive
-                          ? 'bg-primary/10 text-primary'
-                          : 'hover:bg-muted text-foreground/80'
+                          ? 'bg-muted text-foreground font-semibold'
+                          : 'hover:bg-muted text-foreground/70 hover:text-foreground'
                       }`
                     }
                   >
@@ -224,13 +208,12 @@ const Navbar = () => {
                   </NavLink>
                 ),
             )}
-
             {!isAuthenticated && (
-              <div className="grid grid-cols-2 gap-2 mt-2">
-                <Button variant="outline" asChild onClick={closeMobileMenu}>
+              <div className="grid grid-cols-2 gap-2 mt-2 px-1">
+                <Button variant="outline" size="sm" asChild onClick={closeMobileMenu}>
                   <NavLink to="/login">Log in</NavLink>
                 </Button>
-                <Button asChild onClick={closeMobileMenu}>
+                <Button size="sm" asChild onClick={closeMobileMenu}>
                   <NavLink to="/signup">Sign up</NavLink>
                 </Button>
               </div>
