@@ -14,12 +14,11 @@ import { setActiveCategory } from '@/store/posts';
 import { useHome } from '@/hooks/posts';
 import { CATEGORIES } from '@/constants';
 
-// ── Magazine featured post — large card taking up ~60% width ──────────────────
-const MagazineFeatured = ({ post, fullWidth = false }) => {
+// ── Bento big card — spans 2×2, full photo background ────────────────────────
+const BentoFeatured = ({ post }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const authorName = useSelector((state) => selectProfileById(state, post.authorId))?.name;
-
   const readTime = Math.max(1, Math.ceil((post.content || '').split(' ').length / 200));
   const category = post.category || null;
   const plainContent = DOMPurify.sanitize(post.content || '', { USE_PROFILES: { html: false } });
@@ -32,41 +31,29 @@ const MagazineFeatured = ({ post, fullWidth = false }) => {
 
   return (
     <Link to={`/posts/${post.$id}`} className="group block h-full">
-      <div className={`relative overflow-hidden rounded-xl h-full border border-border bg-card transition-shadow duration-300 group-hover:shadow-md ${fullWidth ? 'min-h-[360px]' : 'min-h-[420px]'}`}>
-
+      <div className="relative overflow-hidden rounded-xl h-full min-h-[420px] border border-border bg-card transition-all duration-300 group-hover:shadow-lg">
         {post.coverImageUrl ? (
-          <img
-            src={post.coverImageUrl}
-            alt={post.title}
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-          />
+          <img src={post.coverImageUrl} alt={post.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" />
         ) : (
-          // no-cover fallback — muted bg with large watermark category text for visual interest
           <div className="absolute inset-0 bg-muted flex items-center justify-center overflow-hidden">
-            <span className="text-[8rem] font-black text-foreground/5 select-none leading-none tracking-tighter uppercase">
-              {category || 'Blog'}
+            <span className="text-[10rem] font-black text-foreground/5 select-none leading-none tracking-tighter uppercase">
+              {category?.charAt(0) || 'B'}
             </span>
           </div>
         )}
+        {/* gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/92 via-black/35 to-transparent" />
 
-        {/* dark overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
-
-        {/* top badges */}
+        {/* top row */}
         <div className="absolute top-4 left-5 right-5 flex items-center justify-between">
           {category ? (
-            <button
-              onClick={handleCategoryClick}
-              className="bg-white/15 text-white border border-white/25 backdrop-blur-sm font-semibold text-[10px] uppercase tracking-wider rounded-full px-2.5 py-1 hover:bg-white hover:text-black transition-all duration-200"
-            >
+            <button onClick={handleCategoryClick} className="bg-white/15 text-white border border-white/25 backdrop-blur-sm font-semibold text-[10px] uppercase tracking-wider rounded-full px-2.5 py-1 hover:bg-white hover:text-black transition-all duration-200">
               {category}
             </button>
           ) : (
-            <span className="bg-white/15 text-white border border-white/25 backdrop-blur-sm font-semibold text-[10px] uppercase tracking-wider rounded-full px-2.5 py-1">
-              Featured
-            </span>
+            <span className="bg-white/15 text-white border border-white/25 backdrop-blur-sm font-semibold text-[10px] uppercase tracking-wider rounded-full px-2.5 py-1">Featured</span>
           )}
-          <div className="flex items-center gap-2.5 text-white/60 text-[11px] bg-black/25 backdrop-blur-sm rounded-full px-2.5 py-1">
+          <div className="flex items-center gap-2 text-white/60 text-[11px] bg-black/25 backdrop-blur-sm rounded-full px-2.5 py-1">
             <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{readTime}m</span>
             <span className="flex items-center gap-1"><Heart className="h-3 w-3" />{post.likesCount || 0}</span>
           </div>
@@ -74,15 +61,15 @@ const MagazineFeatured = ({ post, fullWidth = false }) => {
 
         {/* bottom content */}
         <div className="absolute bottom-0 left-0 right-0 p-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-white leading-tight tracking-tight mb-2 line-clamp-2">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white leading-tight tracking-tight mb-2 line-clamp-2">
             {post.title}
           </h2>
-          <p className="text-white/55 text-sm line-clamp-2 mb-5 leading-relaxed">
+          <p className="text-white/55 text-sm line-clamp-2 mb-5 leading-relaxed max-w-lg">
             {plainContent}
           </p>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="h-7 w-7 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-white font-bold text-xs shrink-0">
+              <div className="h-8 w-8 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-white font-bold text-sm shrink-0">
                 {authorName?.charAt(0).toUpperCase() || 'A'}
               </div>
               <div>
@@ -103,12 +90,11 @@ const MagazineFeatured = ({ post, fullWidth = false }) => {
   );
 };
 
-// ── Small side post — stacks in the right column ──────────────────────────────
-const MagazineSidePost = ({ post }) => {
+// ── Bento small card — stacks in the right column ────────────────────────────
+const BentoSmall = ({ post }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const authorName = useSelector((state) => selectProfileById(state, post.authorId))?.name;
-
   const readTime = Math.max(1, Math.ceil((post.content || '').split(' ').length / 200));
   const category = post.category || null;
   const plainContent = DOMPurify.sanitize(post.content || '', { USE_PROFILES: { html: false } });
@@ -120,43 +106,40 @@ const MagazineSidePost = ({ post }) => {
   };
 
   return (
-    <Link to={`/posts/${post.$id}`} className="group flex gap-3 w-full">
-      {/* thumbnail — fixed size */}
-      <div className="w-24 h-20 shrink-0 rounded-lg overflow-hidden bg-muted border border-border">
+    <Link to={`/posts/${post.$id}`} className="group block h-full">
+      <div className="relative overflow-hidden rounded-xl h-full min-h-[196px] border border-border bg-card transition-all duration-300 group-hover:shadow-md">
         {post.coverImageUrl ? (
-          <img src={post.coverImageUrl} alt={post.title} className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.05]" />
+          <img src={post.coverImageUrl} alt={post.title} className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.04]" />
         ) : (
-          // no-cover fallback — show category initial as watermark
-          <div className="w-full h-full bg-muted flex items-center justify-center">
-            <span className="text-2xl font-black text-foreground/10 uppercase">
-              {(category || post.title)?.charAt(0)}
+          <div className="absolute inset-0 bg-muted flex items-center justify-center overflow-hidden">
+            <span className="text-[5rem] font-black text-foreground/5 select-none leading-none uppercase">
+              {category?.charAt(0) || 'B'}
             </span>
           </div>
         )}
-      </div>
+        {/* gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
 
-      {/* text */}
-      <div className="flex flex-col gap-1 min-w-0 flex-1">
-        {/* always reserve the category line height so titles align consistently */}
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground block min-h-[14px]">
-          {category ? (
-            <button onClick={handleCategoryClick} className="hover:text-foreground transition-colors">
+        {/* category badge top-left */}
+        {category && (
+          <div className="absolute top-3 left-3">
+            <button onClick={handleCategoryClick} className="bg-white/15 text-white border border-white/25 backdrop-blur-sm font-semibold text-[10px] uppercase tracking-wider rounded-full px-2.5 py-1 hover:bg-white hover:text-black transition-all duration-200">
               {category}
             </button>
-          ) : null}
-        </span>
-        <h3 className="text-sm font-semibold leading-snug text-foreground line-clamp-2 group-hover:opacity-70 transition-opacity">
-          {post.title}
-        </h3>
-        <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-          {plainContent}
-        </p>
-        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground pt-0.5">
-          <span>{authorName || 'Anonymous'}</span>
-          <span>·</span>
-          <span>{readTime}m read</span>
-          <span>·</span>
-          <span className="flex items-center gap-1"><MessageSquare className="h-2.5 w-2.5" />{post.commentsCount || 0}</span>
+          </div>
+        )}
+
+        {/* bottom content */}
+        <div className="absolute bottom-0 left-0 right-0 p-4">
+          <h3 className="text-sm font-bold text-white leading-snug tracking-tight line-clamp-2 mb-2 group-hover:opacity-80 transition-opacity">
+            {post.title}
+          </h3>
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] text-white/50">{authorName || 'Anonymous'} · {readTime}m</span>
+            <span className="flex items-center gap-1 text-white/50 text-[11px]">
+              <MessageSquare className="h-2.5 w-2.5" />{post.commentsCount || 0}
+            </span>
+          </div>
         </div>
       </div>
     </Link>
@@ -181,9 +164,11 @@ const Home = () => {
     if (postsLoading && posts.length === 0) {
       return (
         <div className="space-y-8">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
-            <div className="lg:col-span-3 rounded-xl bg-muted animate-pulse min-h-[420px]" />
-            <div className="lg:col-span-2 rounded-xl bg-muted animate-pulse min-h-[200px]" />
+          {/* Bento skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="lg:col-span-2 lg:row-span-2 rounded-xl bg-muted animate-pulse min-h-[420px]" />
+            <div className="rounded-xl bg-muted animate-pulse min-h-[196px]" />
+            <div className="rounded-xl bg-muted animate-pulse min-h-[196px]" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 3 }).map((_, i) => <PostCardSkeleton key={i} />)}
@@ -270,37 +255,34 @@ const Home = () => {
       );
     }
 
-    // normal view
-    const featuredPost = posts[0];
-    const sidePosts    = posts.slice(1, 3);  // up to 2 side posts
-    const gridPosts    = posts.slice(3);     // rest in grid
-
-    // edge case: only 1 or 2 posts — featured goes full width, no right column
-    const hasSidePosts = sidePosts.length > 0;
+    // normal view — bento grid top, uniform grid below
+    const featuredPost = posts[0];       // big 2×2 card
+    const bentoSide    = posts.slice(1, 3); // 2 small cards stacked right
+    const gridPosts    = posts.slice(3); // rest in uniform grid
 
     return (
       <div className="space-y-10">
 
-        {/* Magazine block */}
-        {hasSidePosts ? (
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 items-start">
-            <div className="lg:col-span-3">
-              <MagazineFeatured post={featuredPost} />
-            </div>
-            <div className="lg:col-span-2 rounded-xl border border-border bg-card overflow-hidden divide-y divide-border">
-              {sidePosts.map((post) => (
-                <div key={post.$id} className="p-4">
-                  <MagazineSidePost post={post} />
-                </div>
-              ))}
-            </div>
-          </div>
+        {/* Bento top block */}
+        {posts.length === 1 ? (
+          // only 1 post — full width
+          <BentoFeatured post={featuredPost} />
         ) : (
-          // only 1 post — full width featured
-          <MagazineFeatured post={featuredPost} fullWidth />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4" style={{ gridTemplateRows: 'auto' }}>
+            {/* big card — spans 2 cols and 2 rows */}
+            <div className="lg:col-span-2 lg:row-span-2">
+              <BentoFeatured post={featuredPost} />
+            </div>
+            {/* 2 small cards stacked in col 3 */}
+            {bentoSide.map((post) => (
+              <div key={post.$id} className="lg:col-span-1">
+                <BentoSmall post={post} />
+              </div>
+            ))}
+          </div>
         )}
 
-        {/* grid below — only show when there are posts beyond the magazine block */}
+        {/* rest of posts — uniform 3-col grid */}
         {gridPosts.length > 0 && (
           <div>
             <div className="flex items-center gap-3 mb-6">
