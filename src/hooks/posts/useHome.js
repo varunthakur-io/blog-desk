@@ -106,8 +106,8 @@ export const useHome = () => {
     posts: filteredPosts,
 
     // loading state
-    loading: isPostsLoading,
-    error: postsError,
+    postsLoading: isPostsLoading,
+    postsError,
     hasMore,
 
     // search state

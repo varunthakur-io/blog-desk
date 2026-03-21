@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom';
 import { profileService } from '@/services/profile';
 import { postService } from '@/services/posts';
 import { likeService } from '@/services/likes';
+import { formatJoinedDate } from '@/utils/formatters';
 
 import { selectAuthUserId, selectAuthEmail, selectIsAuthLoading } from '@/store/auth';
 
@@ -214,12 +215,7 @@ export const useProfile = () => {
   const displayBio = profile?.bio || '';
   const avatarUrl = profile?.avatarUrl || null;
 
-  const joinedDate = profile?.$createdAt
-    ? new Date(profile.$createdAt).toLocaleDateString('en-US', {
-        month: 'long',
-        year: 'numeric',
-      })
-    : '—';
+  const joinedDate = formatJoinedDate(profile?.$createdAt);
 
   return {
     profileId,

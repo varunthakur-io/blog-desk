@@ -57,6 +57,16 @@ class ProfileService {
     }
   }
 
+  async getProfilesByIds(userIds) {
+    try {
+      const response = await profileApi.getProfilesByIds(userIds);
+      return response.documents || [];
+    } catch (error) {
+      console.error('ProfileService :: getProfilesByIds() failed:', error);
+      return [];
+    }
+  }
+
   async clearProfileById(userId) {
     try {
       return await profileApi.clearProfile(userId);

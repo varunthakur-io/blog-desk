@@ -32,6 +32,14 @@ class ProfileApi {
     ]);
     return profileList.total === 0;
   }
+
+  async getProfilesByIds(userIds) {
+    if (!userIds || userIds.length === 0) return { documents: [], total: 0 };
+    return await databases.listDocuments(appwrite.databaseId, 'profiles', [
+      Query.equal('$id', userIds),
+      Query.limit(userIds.length),
+    ]);
+  }
 }
 
 export const profileApi = new ProfileApi();

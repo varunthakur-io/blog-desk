@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { debounce } from '@/lib/utils';
 import { authService } from '@/services/auth';
 import { profileService } from '@/services/profile';
+import { parseApiError } from '@/lib/error-handler';
 import { setAuthStatus, setAuthUser, setAuthError } from '@/store/auth';
 import { setUserProfile } from '@/store/profile';
 
@@ -48,25 +49,25 @@ export const useSignup = () => {
     username: '',
   });
 
-  const [submitStatus, setSubmitStatus] = useState('idle'); // State machine for submission
-  const [formErrors, setFormErrors] = useState({});
-  const [usernameStatus, setUsernameStatus] = useState('idle'); // 'idle' | 'checking' | 'available' | 'taken'
+  const [signupStatus, setSignupStatus] = useState('idle'); // State machine for submission
+  const [signupErrors, setSignupErrors] = useState({});
+  const [usernameCheckStatus, setUsernameCheckStatus] = useState('idle'); // 'idle' | 'checking' | 'available' | 'taken'
 
   const checkUsernameAvailability = async (username) => {
     if (!username || username.length < 3) return;
     try {
       const isAvailable = await profileService.isUsernameAvailable(username);
-      setUsernameStatus(isAvailable ? 'available' : 'taken');
+      setUsernameCheckStatus(isAvailable ? 'available' : 'taken');
 
       if (!isAvailable) {
-        setFormErrors((prev) => ({
+        setSignupErrors((prev) => ({
           ...prev,
           username: 'Username is already taken',
         }));
       }
     } catch (error) {
       console.error('Username check failed:', error);
-      setUsernameStatus('idle');
+      setUsernameCheckStatus('idle');
     }
   };
 
@@ -82,8 +83,8 @@ export const useSignup = () => {
       const { name, value } = e.target;
       setFormData((prev) => ({ ...prev, [name]: value }));
 
-      if (formErrors[name]) {
-        setFormErrors((prev) => {
+      if (signupErrors[name]) {
+        setSignupErrors((prev) => {
           const next = { ...prev };
           delete next[name];
           return next;
@@ -92,14 +93,14 @@ export const useSignup = () => {
 
       if (name === 'username') {
         if (value.length >= 3) {
-          setUsernameStatus('checking');
+          setUsernameCheckStatus('checking');
           debouncedCheck(value);
         } else {
-          setUsernameStatus('idle');
+          setUsernameCheckStatus('idle');
         }
       }
     },
-    [formErrors, debouncedCheck],
+    [signupErrors, debouncedCheck],
   );
 
   const handleSubmit = async (e) => {
@@ -107,23 +108,23 @@ export const useSignup = () => {
 
     const validationErrors = validate(formData);
 
-    if (usernameStatus === 'checking') {
+    if (usernameCheckStatus === 'checking') {
       toast.error('Please wait for the username check to finish.');
       return;
     }
 
-    if (usernameStatus === 'taken') {
+    if (usernameCheckStatus === 'taken') {
       validationErrors.username = 'Username is already taken';
     }
 
     if (Object.keys(validationErrors).length > 0) {
-      setFormErrors(validationErrors);
+      setSignupErrors(validationErrors);
       return;
     }
 
-    if (submitStatus === 'loading') return;
+    if (signupStatus === 'loading') return;
 
-    setSubmitStatus('loading');
+    setSignupStatus('loading');
     dispatch(setAuthStatus('loading'));
 
     try {
@@ -136,23 +137,23 @@ export const useSignup = () => {
       toast.success('Account created successfully!');
       navigate('/');
     } catch (error) {
-      setSubmitStatus('error');
-      const message = error?.message || 'Signup failed. Please try again.';
+      setSignupStatus('error');
+      const message = parseApiError(error, 'Signup failed. Please try again.');
       dispatch(setAuthError(message));
       toast.error(message);
     } finally {
-      setSubmitStatus((current) => (current === 'loading' ? 'idle' : current));
+      setSignupStatus((current) => (current === 'loading' ? 'idle' : current));
     }
   };
 
   return {
     // form state
     formData,
-    formErrors,
-    usernameStatus,
+    signupErrors,
+    usernameCheckStatus,
 
     // loading states
-    isLoading: submitStatus === 'loading',
+    isSignupLoading: signupStatus === 'loading',
 
     // form actions
     handleChange,
@@ -160,6 +161,8 @@ export const useSignup = () => {
 
     // derived UI state
     isSubmitDisabled:
-      submitStatus === 'loading' || usernameStatus === 'checking' || usernameStatus === 'taken',
+      signupStatus === 'loading' ||
+      usernameCheckStatus === 'checking' ||
+      usernameCheckStatus === 'taken',
   };
 };

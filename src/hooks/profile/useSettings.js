@@ -12,10 +12,9 @@ export const useSettings = () => {
   const dispatch = useDispatch();
 
   // Local UI state
-  const [loadingState, setLoadingState] = useState({
-    isBusy: false,
-    isPrefsLoading: true,
-  });
+  const [isSettingsUpdating, setIsSettingsUpdating] = useState(false);
+  const [isPrefsLoading, setIsPrefsLoading] = useState(true);
+
   const [prefs, setPrefs] = useState({
     marketing: false,
     security: true,
@@ -36,12 +35,13 @@ export const useSettings = () => {
   }, [isDarkMode, setDarkMode]);
 
   useEffect(() => {
-    let mounted = true;
+    let cancelled = false;
 
     const fetchPrefs = async () => {
+      setIsPrefsLoading(true);
       try {
         const user = await authService.getAccount();
-        if (mounted && user) {
+        if (!cancelled && user) {
           setPrefs({
             marketing: user.prefs?.marketing ?? false,
             security: user.prefs?.security ?? true,
@@ -50,14 +50,14 @@ export const useSettings = () => {
       } catch (error) {
         console.error('Failed to fetch settings:', error);
       } finally {
-        if (mounted) {
-          setLoadingState((prev) => ({ ...prev, isPrefsLoading: false }));
+        if (!cancelled) {
+          setIsPrefsLoading(false);
         }
       }
     };
     fetchPrefs();
     return () => {
-      mounted = false;
+      cancelled = true;
     };
   }, []);
 
@@ -87,8 +87,8 @@ export const useSettings = () => {
   );
 
   const handleDeleteSessions = useCallback(async () => {
-    if (loadingState.isBusy) return;
-    setLoadingState((prev) => ({ ...prev, isBusy: true }));
+    if (isSettingsUpdating) return;
+    setIsSettingsUpdating(true);
     try {
       // Force all sessions invalid, then clear local auth state to avoid stale UI.
       await authService.deleteAllSessions();
@@ -98,13 +98,13 @@ export const useSettings = () => {
     } catch {
       toast.error('Failed to delete sessions.');
     } finally {
-      setLoadingState((prev) => ({ ...prev, isBusy: false }));
+      setIsSettingsUpdating(false);
     }
-  }, [dispatch, navigate, loadingState.isBusy]);
+  }, [dispatch, navigate, isSettingsUpdating]);
 
   const handleDeleteAccount = useCallback(async () => {
-    if (loadingState.isBusy) return;
-    setLoadingState((prev) => ({ ...prev, isBusy: true }));
+    if (isSettingsUpdating) return;
+    setIsSettingsUpdating(true);
     try {
       // The backend function performs the real deletion; frontend just clears local state after success.
       await authService.deleteAccount();
@@ -114,15 +114,15 @@ export const useSettings = () => {
     } catch (error) {
       toast.error(error?.message || 'Failed to delete account.');
     } finally {
-      setLoadingState((prev) => ({ ...prev, isBusy: false }));
+      setIsSettingsUpdating(false);
     }
-  }, [dispatch, navigate, loadingState.isBusy]);
+  }, [dispatch, navigate, isSettingsUpdating]);
 
   return {
     // appearance and loading state
     isDarkMode,
-    isLoading: loadingState.isBusy,
-    isPrefsLoading: loadingState.isPrefsLoading,
+    isSettingsUpdating,
+    isPrefsLoading,
 
     // preference data
     prefs,

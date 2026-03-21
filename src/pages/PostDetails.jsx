@@ -22,14 +22,14 @@ const PostDetails = () => {
     authUserId,
 
     // cached entities
-    currentPost,
-    profiles,
+    post,
+    profileCache,
     authorProfile,
     currentUserProfile,
 
     // loading and errors
-    isLoading,
-    error,
+    isPostLoading,
+    postFetchError,
 
     // interaction state
     likesCount,
@@ -39,7 +39,7 @@ const PostDetails = () => {
 
     // post content
     comments,
-    readTime,
+    estimatedReadTime,
 
     // actions
     handleLike,
@@ -47,11 +47,11 @@ const PostDetails = () => {
     navigate,
   } = usePostDetails();
 
-  if (isLoading) return <PostDetailsSkeleton />;
+  if (isPostLoading) return <PostDetailsSkeleton />;
 
-  const isAuthorized = currentPost?.status === 'published' || currentPost?.authorId === authUserId;
+  const isAuthorized = post?.status === 'published' || post?.authorId === authUserId;
 
-  if (error || !currentPost || !isAuthorized) {
+  if (postFetchError || !post || !isAuthorized) {
     return (
       <div className="py-10">
         <Card className="max-w-4xl mx-auto">
@@ -59,7 +59,7 @@ const PostDetails = () => {
             <div className="text-center space-y-4">
               <Alert variant="destructive">
                 <AlertDescription>
-                  {error ||
+                  {postFetchError ||
                     (!isAuthorized
                       ? 'This post is private.'
                       : 'The article you are looking for does not exist.')}
@@ -80,25 +80,25 @@ const PostDetails = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         <div className="lg:col-span-8 space-y-8">
           <PostContent
-            title={currentPost.title}
-            content={currentPost.content}
-            coverImageUrl={currentPost.coverImageUrl}
+            title={post.title}
+            content={post.content}
+            coverImageUrl={post.coverImageUrl}
           />
           <Separator />
           <CommentSection
-            postId={currentPost.$id}
+            postId={post.$id}
             authUserId={authUserId}
             currentUserProfile={currentUserProfile}
             initialComments={comments}
-            profiles={profiles}
+            profiles={profileCache}
           />
         </div>
 
         <div className="lg:col-span-4">
           <AuthorSidebar
             authorProfile={authorProfile}
-            createdAt={currentPost.$createdAt}
-            readTime={readTime}
+            createdAt={post.$createdAt}
+            readTime={estimatedReadTime}
             likesCount={likesCount}
             isLiked={isLiked}
             isLikedLoading={isLikedLoading}
