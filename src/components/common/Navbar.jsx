@@ -88,7 +88,7 @@ const Navbar = () => {
                     className={({ isActive }) =>
                       `px-3 py-1.5 rounded-md transition-colors ${
                         isActive
-                          ? 'text-foreground bg-accent font-semibold'
+                          ? 'text-foreground bg-muted font-semibold'
                           : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                       }`
                     }
@@ -122,7 +122,7 @@ const Navbar = () => {
                 >
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={profile?.avatarUrl} alt={userName} className="object-cover" />
-                    <AvatarFallback className="bg-accent text-primary font-semibold text-sm">
+                    <AvatarFallback className="bg-muted text-foreground font-semibold text-sm">
                       {userName?.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
@@ -199,7 +199,7 @@ const Navbar = () => {
                     className={({ isActive }) =>
                       `flex items-center rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
                         isActive
-                          ? 'bg-accent text-primary font-semibold'
+                          ? 'bg-muted text-foreground font-semibold'
                           : 'hover:bg-muted text-foreground/70 hover:text-foreground'
                       }`
                     }

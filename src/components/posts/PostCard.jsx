@@ -27,13 +27,12 @@ const PostCard = ({ post }) => {
   };
 
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-xl border border-border/50 bg-card shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:border-border">
-      {/* Ink-line reveal */}
-      <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-primary transition-all duration-500 group-hover:w-full rounded-full" />
+    // h-full makes the card stretch to fill the grid row height — all cards in a row stay same height
+    <div className="group flex flex-col h-full overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
 
-      {/* Cover Image */}
+      {/* Cover Image — fixed aspect ratio so cards with/without images don't cause height jumps */}
       {coverImageUrl && (
-        <div className="aspect-[16/9] w-full overflow-hidden bg-muted">
+        <div className="aspect-[16/9] w-full overflow-hidden bg-muted shrink-0">
           <img
             src={coverImageUrl}
             alt={post.title}
@@ -42,14 +41,16 @@ const PostCard = ({ post }) => {
         </div>
       )}
 
-      <div className={`flex flex-col flex-1 ${coverImageUrl ? 'pt-4' : 'pt-5'} px-5 pb-5 gap-3`}>
-        {/* Top meta row */}
-        <div className="flex items-center justify-between">
-          {/* Clickable category badge */}
+      {/* flex-1 so this section grows to fill remaining card height */}
+      <div className={`flex flex-col flex-1 ${coverImageUrl ? 'pt-4' : 'pt-5'} px-5 pb-5`}>
+
+        {/* Top meta row — category badge + stats */}
+        <div className="flex items-center justify-between mb-3">
+          {/* Clickable category badge — uses neutral secondary colors, no blue */}
           {category ? (
             <button
               onClick={handleCategoryClick}
-              className="text-[10px] font-semibold px-2 py-0.5 uppercase tracking-wider rounded-md bg-accent text-primary hover:bg-primary hover:text-primary-foreground transition-colors duration-200"
+              className="text-[10px] font-semibold px-2 py-0.5 uppercase tracking-wider rounded-md bg-secondary text-secondary-foreground hover:bg-foreground hover:text-background transition-colors duration-200"
             >
               {category}
             </button>
@@ -75,22 +76,26 @@ const PostCard = ({ post }) => {
           </div>
         </div>
 
-        {/* Title */}
-        <Link to={`/posts/${post.$id}`} className="block">
-          <h3 className="text-[0.975rem] font-bold leading-snug tracking-tight text-foreground line-clamp-2 group-hover:text-primary transition-colors duration-200">
+        {/* Title — always reserves exactly 2 lines of height so short titles don't shrink the card */}
+        <Link to={`/posts/${post.$id}`} className="block mb-3">
+          <h3
+            className="text-[0.975rem] font-bold leading-snug tracking-tight text-foreground line-clamp-2 group-hover:opacity-70 transition-opacity duration-200"
+            style={{ minHeight: '2.75rem' }} // 2 lines × line-height ~1.375rem each
+          >
             {post.title}
           </h3>
         </Link>
 
-        {/* Excerpt */}
-        <p className="text-muted-foreground text-[13px] line-clamp-3 leading-relaxed flex-1">
+        {/* Excerpt — flex-1 fills all available space, pushing footer to the bottom */}
+        <p className="text-muted-foreground text-[13px] line-clamp-3 leading-relaxed flex-1 mb-4">
           {plainContent}
         </p>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between pt-3 border-t border-border/40 mt-auto">
+        {/* Footer — always pinned to the bottom of the card */}
+        <div className="flex items-center justify-between pt-3 border-t border-border/40">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="h-7 w-7 rounded-full bg-accent text-primary flex items-center justify-center text-xs font-bold shrink-0 ring-1 ring-border">
+            {/* Author avatar — neutral muted bg instead of bg-accent which can have blue tint */}
+            <div className="h-7 w-7 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-xs font-bold shrink-0 ring-1 ring-border">
               {authorName?.charAt(0).toUpperCase() || 'A'}
             </div>
             <div className="min-w-0">
@@ -114,7 +119,7 @@ const PostCard = ({ post }) => {
 
           <Link
             to={`/posts/${post.$id}`}
-            className="shrink-0 flex items-center gap-1 text-[11px] font-semibold text-muted-foreground hover:text-primary transition-colors duration-200 ml-2 group/link"
+            className="shrink-0 flex items-center gap-1 text-[11px] font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 ml-2 group/link"
           >
             Read
             <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />

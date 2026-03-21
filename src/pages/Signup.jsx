@@ -41,7 +41,7 @@ const Signup = () => {
         </div>
 
         {/* Card */}
-        <div className="rounded-2xl border border-border/60 bg-card/90 backdrop-blur shadow-xl p-8 space-y-6">
+        <div className="rounded-2xl border border-border bg-card p-8 space-y-6">
           <div className="space-y-1 text-center">
             <h1 className="text-2xl font-bold tracking-tight">Create your account</h1>
             <p className="text-muted-foreground text-sm">Join Blog Desk and start writing today</p>
@@ -140,7 +140,7 @@ const Signup = () => {
 
           <p className="text-center text-sm text-muted-foreground">
             Already have an account?{' '}
-            <Link to="/login" className="font-semibold text-primary hover:underline underline-offset-4">
+            <Link to="/login" className="font-semibold text-foreground underline underline-offset-4 hover:opacity-70">
               Sign in
             </Link>
           </p>

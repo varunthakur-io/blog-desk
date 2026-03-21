@@ -44,7 +44,7 @@ const PostContent = ({ title, content, coverImageUrl, category }) => {
 
       {/* Body */}
       <article
-        className="prose prose-base lg:prose-lg dark:prose-invert max-w-none
+        className="prose prose-base lg:prose-lg dark:prose-invert max-w-prose
           prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground
           prose-p:text-foreground/85 prose-p:leading-relaxed
           prose-a:text-foreground prose-a:underline prose-a:underline-offset-4 hover:prose-a:opacity-70

@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { Edit, Mail, CalendarDays, Heart } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import PostCard from '@/components/posts/PostCard';
 import PostCardSkeleton from '@/components/posts/PostCardSkeleton';
 
@@ -27,7 +28,7 @@ const EmptyPosts = ({ isOwner, isLikes }) => (
     </p>
     {isOwner && !isLikes && (
       <Button asChild size="sm" className="rounded-full px-5 text-xs">
-        <a href="/create">Write a Post</a>
+        <Link to="/create">Write a Post</Link>
       </Button>
     )}
   </div>
@@ -66,7 +67,7 @@ const ProfileTabs = ({
             <AlertDescription>{postsError}</AlertDescription>
           </Alert>
         ) : userPosts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 items-start">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {userPosts.map((post) => <PostCard key={post.$id} post={post} />)}
           </div>
         ) : (
@@ -89,7 +90,7 @@ const ProfileTabs = ({
             <AlertDescription>{likesError}</AlertDescription>
           </Alert>
         ) : likedPosts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 items-start">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {likedPosts.map((post) => <PostCard key={post.$id} post={post} />)}
           </div>
         ) : (
@@ -132,3 +133,4 @@ const ProfileTabs = ({
 };
 
 export default ProfileTabs;
+
