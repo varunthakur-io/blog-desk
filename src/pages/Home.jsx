@@ -267,7 +267,7 @@ const Home = () => {
       <div className="space-y-10">
 
         {/* Magazine block — featured large left, 2 side posts right */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 items-start">
           {/* featured — takes 3/5 columns */}
           <div className="lg:col-span-3">
             <MagazineFeatured post={featuredPost} />
