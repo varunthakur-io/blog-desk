@@ -6,7 +6,6 @@ import DOMPurify from 'dompurify';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
 import { PostCard, PostCardSkeleton } from '@/components/posts';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectProfileById } from '@/store/profile';
@@ -115,9 +114,9 @@ const MagazineSidePost = ({ post }) => {
   };
 
   return (
-    <Link to={`/posts/${post.$id}`} className="group flex gap-4">
-      {/* thumbnail — fixed square, no stretching */}
-      <div className="w-28 h-20 shrink-0 rounded-lg overflow-hidden bg-muted border border-border">
+    <Link to={`/posts/${post.$id}`} className="group flex gap-3 h-full">
+      {/* thumbnail — fixed size */}
+      <div className="w-24 h-16 shrink-0 rounded-lg overflow-hidden bg-muted border border-border mt-0.5">
         {post.coverImageUrl ? (
           <img src={post.coverImageUrl} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.05]" />
         ) : (
@@ -126,12 +125,12 @@ const MagazineSidePost = ({ post }) => {
       </div>
 
       {/* text */}
-      <div className="flex flex-col justify-between min-w-0 py-0.5">
+      <div className="flex flex-col justify-between min-w-0">
         <div>
           {category && (
             <button
               onClick={handleCategoryClick}
-              className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors mb-1.5 block"
+              className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors mb-1 block"
             >
               {category}
             </button>
@@ -143,7 +142,7 @@ const MagazineSidePost = ({ post }) => {
             {plainContent}
           </p>
         </div>
-        <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-2">
+        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground mt-2">
           <span>{authorName || 'Anonymous'}</span>
           <span>·</span>
           <span>{readTime}m read</span>
@@ -276,15 +275,12 @@ const Home = () => {
             <MagazineFeatured post={featuredPost} />
           </div>
 
-          {/* side posts — take 2/5 columns, stacked */}
+          {/* side posts — take 2/5 columns, wrapped in a card matching featured height */}
           {sidePosts.length > 0 && (
-            <div className="lg:col-span-2 flex flex-col justify-between gap-0">
+            <div className="lg:col-span-2 rounded-xl border border-border bg-card overflow-hidden flex flex-col">
               {sidePosts.map((post, i) => (
-                <div key={post.$id} className="flex flex-col">
-                  <div className="flex-1 py-5 first:pt-0 last:pb-0">
-                    <MagazineSidePost post={post} />
-                  </div>
-                  {i < sidePosts.length - 1 && <Separator />}
+                <div key={post.$id} className={`flex-1 p-4 ${i < sidePosts.length - 1 ? 'border-b border-border' : ''}`}>
+                  <MagazineSidePost post={post} />
                 </div>
               ))}
             </div>
