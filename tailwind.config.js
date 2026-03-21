@@ -81,6 +81,15 @@ export default {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
       },
+      // ─── Page spacing tokens ───────────────────────────────────────
+      // Change these values to update spacing across the entire app.
+      //   page-top   : padding between navbar and page content
+      //   page-gap   : gap between major sections inside a page
+      // ──────────────────────────────────────────────────────────────
+      spacing: {
+        'page-top': '0.5rem',   // py-page-top  → change here to adjust all pages
+        'page-gap': '1.5rem',   // gap-page-gap → change here to adjust all sections
+      },
     },
   },
   plugins: [animate, require('@tailwindcss/typography')],

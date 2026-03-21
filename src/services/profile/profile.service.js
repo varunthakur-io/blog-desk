@@ -10,10 +10,13 @@ class ProfileService {
     return await profileApi.getProfileByUsername(username);
   }
 
+  // Keep profile docs keyed by auth user id so the auth/profile relationship stays 1:1 across the app.
   async createProfile(user, username) {
     if (!user || !user.$id) {
       throw new Error('ProfileService :: createProfile() Invalid user');
     }
+
+    // Profile docs intentionally share the auth user id so auth/profile lookups stay 1:1.
     return await profileApi.createProfile(user.$id, {
       name: user.name || 'Anonymous',
       username: username,
@@ -32,8 +35,13 @@ class ProfileService {
     return true;
   }
 
+  // Replace the old avatar before updating the profile so the stored file reference is always valid.
   async updateAvatar(userId, currentAvatarFileId, file) {
-    const { fileId, fileUrl } = await storageService.uploadFileWithReplacement(file, currentAvatarFileId);
+    // Upload replacement first so the profile only points at files that definitely exist.
+    const { fileId, fileUrl } = await storageService.uploadFileWithReplacement(
+      file,
+      currentAvatarFileId,
+    );
 
     return await this.updateProfile(userId, {
       avatarId: fileId,
@@ -46,6 +54,16 @@ class ProfileService {
       return await profileApi.checkUsernameAvailable(username);
     } catch {
       return false;
+    }
+  }
+
+  async getProfilesByIds(userIds) {
+    try {
+      const response = await profileApi.getProfilesByIds(userIds);
+      return response.documents || [];
+    } catch (error) {
+      console.error('ProfileService :: getProfilesByIds() failed:', error);
+      return [];
     }
   }
 

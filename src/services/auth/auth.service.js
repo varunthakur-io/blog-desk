@@ -43,12 +43,12 @@ class AuthService {
   async loginUser({ email, password }) {
     await authApi.createEmailPasswordSession(email, password);
     const user = await authApi.getAccount();
-    
+
     let profile = null;
     try {
       profile = await profileService.getProfile(user.$id);
     } catch {
-      // Silently fail if profile can't be loaded, user session is still valid.
+      // Silently fail — session is still valid
     }
 
     this.cacheUser({ ...user, profile });
@@ -68,14 +68,14 @@ class AuthService {
   async getAccount() {
     try {
       const user = await authApi.getAccount();
-      
+
       let profile = null;
       try {
         profile = await profileService.getProfile(user.$id);
       } catch {
         // ignore
       }
-      
+
       const cached = this.getCachedUser() || {};
       const updatedUser = { ...cached, ...user, profile };
       this.cacheUser(updatedUser);
@@ -101,6 +101,10 @@ class AuthService {
     return user.email;
   }
 
+  async updatePassword(newPassword, oldPassword) {
+    return await authApi.updatePassword(newPassword, oldPassword);
+  }
+
   async updatePrefs(prefs) {
     const updatedUser = await authApi.updatePrefs(prefs);
     const cached = this.getCachedUser() || {};
@@ -109,14 +113,19 @@ class AuthService {
   }
 
   async deleteAccount() {
-    await authApi.updateStatus();
-    try {
-      const currentUser = await authApi.getAccount();
-      await profileService.clearProfileById(currentUser.$id);
-    } catch {
-      // Continue even if profile deletion fails
+    const execution = await authApi.executeDeleteAccount();
+    if (execution.responseStatusCode >= 400) {
+      let message = 'Failed to delete account.';
+      try {
+        const parsed = JSON.parse(execution.responseBody || '{}');
+        message = parsed?.message || message;
+      } catch {
+        // ignore parse errors
+      }
+      throw new Error(message);
     }
     this.clearCachedUser();
+    return true;
   }
 }
 

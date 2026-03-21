@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { authService } from '@/services/auth';
+import { parseApiError } from '@/lib/error-handler';
 import {
   selectAuthUserId,
   selectAuthStatus,
@@ -14,17 +15,17 @@ import {
 import { setUserProfile } from '@/store/profile';
 
 // Pure validation logic for credentials
-const validate = (data) => {
+const validate = (formValues) => {
   const errors = {};
-  if (!data.email) {
+  if (!formValues.email) {
     errors.email = 'Email is required';
-  } else if (!/\S+@\S+\.\S+/.test(data.email)) {
+  } else if (!/\S+@\S+\.\S+/.test(formValues.email)) {
     errors.email = 'Please enter a valid email';
   }
 
-  if (!data.password) {
+  if (!formValues.password) {
     errors.password = 'Password is required';
-  } else if (data.password.length < 8) {
+  } else if (formValues.password.length < 8) {
     errors.password = 'Password must be at least 8 characters';
   }
 
@@ -41,9 +42,9 @@ export const useLogin = () => {
   const isAuthLoading = useSelector(selectIsAuthLoading);
 
   // Local State
-  const [formData, setFormData] = useState({ email: '', password: '' });
-  const [status, setStatus] = useState('idle');
-  const [formErrors, setFormErrors] = useState({});
+  const [credentials, setCredentials] = useState({ email: '', password: '' });
+  const [loginStatus, setLoginStatus] = useState('idle');
+  const [loginErrors, setLoginErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
 
   // Redirect if already authenticated
@@ -56,36 +57,36 @@ export const useLogin = () => {
   const handleChange = useCallback(
     (e) => {
       const { name, value } = e.target;
-      setFormData((prev) => ({ ...prev, [name]: value }));
+      setCredentials((prev) => ({ ...prev, [name]: value }));
 
       // Clear error immediately when user starts fixing the field
-      if (formErrors[name]) {
-        setFormErrors((prev) => {
+      if (loginErrors[name]) {
+        setLoginErrors((prev) => {
           const newErrors = { ...prev };
           delete newErrors[name];
           return newErrors;
         });
       }
     },
-    [formErrors],
+    [loginErrors],
   );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const validationErrors = validate(formData);
+    const validationErrors = validate(credentials);
     if (Object.keys(validationErrors).length > 0) {
-      setFormErrors(validationErrors);
+      setLoginErrors(validationErrors);
       return;
     }
 
-    if (status === 'loading' || isAuthLoading) return;
+    if (loginStatus === 'loading' || isAuthLoading) return;
 
-    setStatus('loading');
+    setLoginStatus('loading');
     dispatch(setAuthStatus('loading'));
 
     try {
-      const { user, profile } = await authService.loginUser(formData);
+      const { user, profile } = await authService.loginUser(credentials);
 
       // Populate global store with full identity and domain data
       dispatch(setAuthUser(user));
@@ -93,13 +94,13 @@ export const useLogin = () => {
 
       toast.success(`Welcome back, ${user.name || 'friend'}!`);
       navigate('/', { replace: true });
-    } catch (err) {
-      setStatus('error');
-      const message = err?.message || 'Invalid email or password';
+    } catch (error) {
+      setLoginStatus('error');
+      const message = parseApiError(error, 'Invalid email or password');
       dispatch(setAuthError(message));
       toast.error(message);
     } finally {
-      setStatus((current) => (current === 'loading' ? 'idle' : current));
+      setLoginStatus((current) => (current === 'loading' ? 'idle' : current));
     }
   };
 
@@ -108,14 +109,21 @@ export const useLogin = () => {
   }, []);
 
   return {
-    formData,
-    formErrors,
-    isLoading: status === 'loading' || isAuthLoading,
+    // form state
+    credentials,
+    loginErrors,
     showPassword,
+
+    // loading states
+    isLoginLoading: loginStatus === 'loading' || isAuthLoading,
+
+    // form actions
     handleChange,
     handleSubmit,
     togglePasswordVisibility,
+
+    // derived UI state
     isSubmitDisabled:
-      status === 'loading' || isAuthLoading || !formData.email || !formData.password,
+      loginStatus === 'loading' || isAuthLoading || !credentials.email || !credentials.password,
   };
 };

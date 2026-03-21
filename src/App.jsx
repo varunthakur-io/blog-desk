@@ -31,11 +31,7 @@ function App() {
 
   return (
     <Suspense fallback={<AppSkeleton />}>
-      <Toaster
-        position="bottom-right"
-        reverseOrder={false}
-        toastOptions={{ duration: 2500 }}
-      />
+      <Toaster position="bottom-right" reverseOrder={false} toastOptions={{ duration: 2500 }} />
       <Routes>
         {/* Routes with layout */}
         <Route element={<MainLayout />}>

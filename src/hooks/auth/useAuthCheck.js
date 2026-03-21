@@ -8,10 +8,10 @@ import {
   clearAuthUser,
   selectAuthStatus,
   selectAuthUserId,
-} from '../../store/auth';
-import { setUserProfile, selectProfileById } from '../../store/profile';
-import { authService } from '../../services/auth';
-import { profileService } from '../../services/profile';
+} from '@/store/auth';
+import { setUserProfile, selectProfileById } from '@/store/profile';
+import { authService } from '@/services/auth';
+import { profileService } from '@/services/profile';
 
 const useAuthCheck = () => {
   const dispatch = useDispatch();
@@ -61,9 +61,9 @@ const useAuthCheck = () => {
             dispatch(setUserProfile(profileDoc));
           }
         }
-      } catch (err) {
+      } catch (error) {
         if (mountedRef.current) {
-          dispatch(setAuthError(err?.message));
+          dispatch(setAuthError(error?.message));
         }
       } finally {
         if (mountedRef.current) {

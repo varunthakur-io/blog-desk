@@ -13,17 +13,17 @@ export const useEditPost = () => {
   const post = useSelector((state) => selectPostById(state, id));
 
   const [formData, setFormData] = useState(null);
-  const [fetchStatus, setFetchStatus] = useState('loading'); 
-  const [submitStatus, setSubmitStatus] = useState('idle');
-  const [error, setError] = useState('');
+  const [postFetchStatus, setPostFetchStatus] = useState('loading');
+  const [updateStatus, setUpdateStatus] = useState('idle');
+  const [postFetchError, setPostFetchError] = useState('');
 
   useEffect(() => {
-    let mounted = true;
+    let cancelled = false;
 
     const loadPost = async () => {
       if (!id) {
-        setError('Invalid post ID.');
-        setFetchStatus('error');
+        setPostFetchError('Invalid post ID.');
+        setPostFetchStatus('error');
         return;
       }
 
@@ -34,85 +34,90 @@ export const useEditPost = () => {
           status: post.status || 'draft',
           coverImageUrl: post.coverImageUrl || null,
           coverImageId: post.coverImageId || null,
+          category: post.category || null,
         });
-        setFetchStatus('success');
+        setPostFetchStatus('success');
         return;
       }
 
-      setFetchStatus('loading');
+      setPostFetchStatus('loading');
       try {
-        const data = await postService.getPostById(id);
-        if (!mounted) return;
+        const fetchedPost = await postService.getPostById(id);
+        if (cancelled) return;
 
-        if (data && data.$id) {
+        if (fetchedPost?.$id) {
           setFormData({
-            title: data.title || '',
-            content: data.content || '',
-            status: data.status || 'draft',
-            coverImageUrl: data.coverImageUrl || null,
-            coverImageId: data.coverImageId || null,
+            title: fetchedPost.title || '',
+            content: fetchedPost.content || '',
+            status: fetchedPost.status || 'draft',
+            coverImageUrl: fetchedPost.coverImageUrl || null,
+            coverImageId: fetchedPost.coverImageId || null,
+            category: fetchedPost.category || null,
           });
-          dispatch(setPostDetail(data));
-          setFetchStatus('success');
+          dispatch(setPostDetail(fetchedPost));
+          setPostFetchStatus('success');
         } else {
-          setError('Post not found.');
-          setFetchStatus('error');
+          setPostFetchError('Post not found.');
+          setPostFetchStatus('error');
         }
-      } catch (err) {
-        if (mounted) {
-          setError(err?.message || 'Failed to load post.');
-          setFetchStatus('error');
+      } catch (error) {
+        if (!cancelled) {
+          setPostFetchError(error?.message || 'Failed to load post.');
+          setPostFetchStatus('error');
         }
       }
     };
 
     loadPost();
-    return () => { mounted = false; };
+    return () => { cancelled = true; };
   }, [id, post, dispatch]);
 
-  const handleUpdate = useCallback(async (data) => {
-    if (!id) return;
-    if (!data.title?.trim() || !data.content?.trim()) {
-      toast.error('Title and content are required.');
-      return;
-    }
-
-    if (submitStatus === 'submitting') return;
-
-    setSubmitStatus('submitting');
-    setError('');
-
-    try {
-      const updatedPost = await postService.updatePost(id, {
-        title: data.title.trim(),
-        content: data.content.trim(),
-        status: data.status || 'draft',
-        coverImageId: data.coverImageId || null,
-        coverImageUrl: data.coverImageUrl || null,
-      });
-
-      if (updatedPost && updatedPost.$id) {
-        dispatch(setPostDetail(updatedPost));
-        setSubmitStatus('success');
-        toast.success('Post updated successfully!');
-        navigate('/dashboard');
-      } else {
-        throw new Error('Failed to update post.');
+  const handleUpdate = useCallback(
+    async (formValues) => {
+      if (!id) return;
+      if (!formValues.title?.trim() || !formValues.content?.trim()) {
+        toast.error('Title and content are required.');
+        return;
       }
-    } catch (err) {
-      console.error('Update failed:', err);
-      setSubmitStatus('error');
-      const msg = err?.message || 'Failed to update post';
-      toast.error(msg);
-      setError(msg);
-    }
-  }, [id, dispatch, navigate, submitStatus]);
+      if (updateStatus === 'loading') return;
+
+      setUpdateStatus('loading');
+      setPostFetchError('');
+
+      try {
+        const updatedPost = await postService.updatePost(id, {
+          title: formValues.title.trim(),
+          content: formValues.content.trim(),
+          status: formValues.status || 'draft',
+          coverImageId: formValues.coverImageId || null,
+          coverImageUrl: formValues.coverImageUrl || null,
+          category: formValues.category || null,
+        });
+
+        if (updatedPost?.$id) {
+          dispatch(setPostDetail(updatedPost));
+          setUpdateStatus('success');
+          toast.success('Post updated successfully!');
+          navigate('/dashboard');
+        } else {
+          throw new Error('Failed to update post.');
+        }
+      } catch (error) {
+        console.error('Update failed:', error);
+        setUpdateStatus('error');
+        const msg = error?.message || 'Failed to update post';
+        toast.error(msg);
+        setPostFetchError(msg);
+      }
+    },
+    [id, dispatch, navigate, updateStatus],
+  );
 
   return {
     formData,
-    isLoading: fetchStatus === 'loading',
-    isSaving: submitStatus === 'submitting',
-    error,
+    isPostLoading: postFetchStatus === 'loading',
+    isPostUpdating: updateStatus === 'loading',
+    postFetchError,
     handleUpdate,
     navigate,
   };

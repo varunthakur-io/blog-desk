@@ -1,50 +1,75 @@
 import { Skeleton } from '@/components/ui/skeleton';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 
 const PostDetailsSkeleton = () => {
   return (
-    <div className="py-2">
-      <Card className="p-0 border-none">
-        <CardHeader className="border-0 pb-4 px-0">
-          <div className="flex justify-between items-start px-4 sm:px-6 lg:px-8">
-            <div className="flex-1 space-y-4">
-              {/* Title */}
-              <Skeleton className="h-10 w-3/4 sm:w-5/6" />
-              <Skeleton className="h-10 w-2/3 hidden sm:block" />
+    <div className="page-root max-w-6xl mx-auto">
+      <div className="flex flex-col lg:flex-row gap-12 xl:gap-16">
 
-              {/* Meta badges */}
-              <div className="flex items-center gap-3 mt-3">
-                <Skeleton className="h-6 w-32 rounded-full" />
-                <Skeleton className="h-4 w-4 rounded-full" />
-                <Skeleton className="h-4 w-24" />
+        {/* Main content */}
+        <div className="flex-1 min-w-0 space-y-10">
+          {/* Category + title */}
+          <div className="space-y-4">
+            <Skeleton className="h-6 w-20 rounded-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-4/5" />
+          </div>
+
+          {/* Cover image */}
+          <Skeleton className="w-full aspect-[2/1] rounded-2xl" />
+
+          {/* Body paragraphs */}
+          <div className="space-y-3">
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="h-4 w-full" />
+            ))}
+            <Skeleton className="h-4 w-3/4" />
+          </div>
+          <div className="space-y-3">
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="h-4 w-full" />
+            ))}
+            <Skeleton className="h-4 w-5/6" />
+          </div>
+        </div>
+
+        {/* Sidebar */}
+        <div className="w-full lg:w-72 xl:w-80 shrink-0">
+          <div className="sticky top-24 space-y-3">
+            {/* Author card */}
+            <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <div className="space-y-1.5">
+                  <Skeleton className="h-4 w-28" />
+                  <Skeleton className="h-3 w-16" />
+                </div>
+              </div>
+              <Skeleton className="h-3 w-full" />
+              <Skeleton className="h-3 w-5/6" />
+              <Skeleton className="h-8 w-full rounded-lg" />
+              <Skeleton className="h-px w-full" />
+              <div className="space-y-2.5">
+                <div className="flex justify-between">
+                  <Skeleton className="h-3 w-20" />
+                  <Skeleton className="h-3 w-24" />
+                </div>
+                <div className="flex justify-between">
+                  <Skeleton className="h-3 w-16" />
+                  <Skeleton className="h-3 w-20" />
+                </div>
               </div>
             </div>
-
-            {/* Back Button */}
-            <div className="shrink-0 ml-4">
-               <Skeleton className="h-10 w-20" />
+            {/* Like + share card */}
+            <div className="rounded-xl border border-border bg-card p-4">
+              <div className="grid grid-cols-2 gap-2">
+                <Skeleton className="h-8 rounded-lg" />
+                <Skeleton className="h-8 rounded-lg" />
+              </div>
             </div>
           </div>
-        </CardHeader>
+        </div>
 
-        <Separator />
-
-        {/* Content */}
-        <CardContent className="pt-6 px-0">
-           <div className="px-4 sm:px-6 lg:px-8 space-y-4">
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-11/12" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-64 w-full rounded-xl my-6" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-5/6" />
-           </div>
-        </CardContent>
-      </Card>
+      </div>
     </div>
   );
 };

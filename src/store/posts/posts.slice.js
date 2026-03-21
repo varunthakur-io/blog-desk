@@ -1,18 +1,20 @@
-// src/store/posts/posts.slice.js
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  byId: {},        // postId -> post object
-  allIds: [],      // array of postIds in order
-  status: 'idle',  // idle | loading | error | success
+  byId: {}, // postId -> post object
+  allIds: [], // array of postIds in order
+  status: 'idle', // idle | loading | error | success
   error: null,
-  
+
   // Grouped Metadata for feed control
   pagination: {
     page: 1,
     hasMore: true,
     initialLoaded: false,
   },
+
+  // Active category filter for the home feed (null = all)
+  activeCategory: null,
 };
 
 const postsSlice = createSlice({
@@ -68,7 +70,7 @@ const postsSlice = createSlice({
 
       state.byId[id] = post;
       if (!exists) {
-        state.allIds.unshift(id); // Prepend new content
+        state.allIds.unshift(id);
       }
       state.status = 'success';
     },
@@ -87,6 +89,14 @@ const postsSlice = createSlice({
         ...action.payload,
       };
     },
+    // Sets the active category filter; resets pagination so a fresh fetch fires
+    setActiveCategory(state, action) {
+      state.activeCategory = action.payload ?? null;
+      state.byId = {};
+      state.allIds = [];
+      state.pagination = { page: 1, hasMore: true, initialLoaded: false };
+      state.status = 'idle';
+    },
   },
 });
 
@@ -98,6 +108,7 @@ export const {
   setPostDetail,
   clearPostRecord,
   setPostPagination,
+  setActiveCategory,
 } = postsSlice.actions;
 
 export default postsSlice.reducer;
