@@ -78,7 +78,7 @@
    * .page-content: flex-col gap between major sections inside a page
    */
   .page-root {
-    @apply py-page-top animate-in fade-in duration-500;
+    @apply animate-in fade-in duration-500; padding-top: 0.5rem; padding-bottom: 0.5rem;
   }
   .page-content {
     @apply flex flex-col gap-page-gap;
@@ -128,3 +128,4 @@
     @apply relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-foreground after:transition-all after:duration-500 hover:after:w-full;
   }
 }
+
