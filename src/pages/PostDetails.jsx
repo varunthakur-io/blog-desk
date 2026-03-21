@@ -56,7 +56,7 @@ const PostDetails = () => {
   }
 
   return (
-    <div className="animate-in fade-in duration-500 max-w-6xl mx-auto">
+    <div className="page-root max-w-6xl mx-auto">
       <div className="flex flex-col lg:flex-row gap-12 xl:gap-16">
         {/* Main content — takes up most of the width */}
         <div className="flex-1 min-w-0 space-y-10">
@@ -96,3 +96,4 @@ const PostDetails = () => {
 };
 
 export default PostDetails;
+

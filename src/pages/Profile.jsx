@@ -37,7 +37,7 @@ export default function Profile() {
     return <div className="py-20 text-center text-sm text-destructive">{profileError}</div>;
 
   return (
-    <div className="py-2 animate-in fade-in duration-500">
+    <div className="page-root">
       {/* Header row — info + edit button */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
         <ProfileInfo
@@ -76,3 +76,4 @@ export default function Profile() {
     </div>
   );
 }
+

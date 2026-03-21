@@ -25,7 +25,7 @@ const WhyItem = ({ icon: Icon, title, description }) => (
 
 const About = () => {
   return (
-    <div className="py-4 animate-in fade-in duration-500">
+    <div className="page-root">
       {/* Hero */}
       <section className="text-center mb-20 max-w-3xl mx-auto space-y-5">
         <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
@@ -120,3 +120,4 @@ const About = () => {
 };
 
 export default About;
+

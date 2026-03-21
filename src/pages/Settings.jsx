@@ -87,7 +87,7 @@ export default function Settings() {
   };
 
   return (
-    <div className="flex gap-8 animate-in fade-in duration-300 min-h-[70vh]">
+    <div className="page-root flex gap-8 min-h-[70vh]">
 
       {/* Sidebar — inline, not fixed */}
       <aside className="hidden md:block w-48 shrink-0">
@@ -145,3 +145,4 @@ export default function Settings() {
     </div>
   );
 }
+

@@ -70,6 +70,20 @@
   .section-spacing {
     @apply py-6 md:py-8;
   }
+
+  /*
+   * PAGE SPACING TOKENS — change here to update every page at once
+   *
+   * .page-root   : outermost div of every page (fade-in + small top nudge)
+   * .page-content: flex-col gap between major sections inside a page
+   */
+  .page-root {
+    @apply py-2 animate-in fade-in duration-500;
+  }
+  .page-content {
+    @apply flex flex-col gap-6;
+  }
+
   .form-container {
     @apply max-w-3xl mx-auto;
   }

@@ -93,8 +93,8 @@ export default function Dashboard() {
   } = useDashboard();
 
   return (
-    <div className="py-2 animate-in fade-in duration-500">
-      <div className="flex flex-col gap-5">
+    <div className="page-root">
+      <div className="page-content">
         {/* Header */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -271,3 +271,4 @@ export default function Dashboard() {
     </div>
   );
 }
+
