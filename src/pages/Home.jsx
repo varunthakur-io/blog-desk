@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Search, ArrowRight, X, ArrowUpRight, Clock, Heart, MessageSquare, Calendar } from 'lucide-react';
+import { BookOpen, Search, ArrowRight, X, ArrowUpRight, Clock, Heart, MessageSquare, Calendar, Loader2 } from 'lucide-react';
 import DOMPurify from 'dompurify';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -15,7 +15,7 @@ import { useHome } from '@/hooks/posts';
 import { CATEGORIES } from '@/constants';
 
 // ── Magazine featured post — large card taking up ~60% width ──────────────────
-const MagazineFeatured = ({ post }) => {
+const MagazineFeatured = ({ post, fullWidth = false }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const authorName = useSelector((state) => selectProfileById(state, post.authorId))?.name;
@@ -32,7 +32,8 @@ const MagazineFeatured = ({ post }) => {
 
   return (
     <Link to={`/posts/${post.$id}`} className="group block h-full">
-      <div className="relative overflow-hidden rounded-xl h-full min-h-[420px] border border-border bg-card transition-shadow duration-300 group-hover:shadow-md">
+      <div className={`relative overflow-hidden rounded-xl h-full border border-border bg-card transition-shadow duration-300 group-hover:shadow-md ${fullWidth ? 'min-h-[360px]' : 'min-h-[420px]'}`}>
+
         {post.coverImageUrl ? (
           <img
             src={post.coverImageUrl}
@@ -40,7 +41,12 @@ const MagazineFeatured = ({ post }) => {
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
           />
         ) : (
-          <div className="absolute inset-0 bg-muted" />
+          // no-cover fallback — muted bg with large watermark category text for visual interest
+          <div className="absolute inset-0 bg-muted flex items-center justify-center overflow-hidden">
+            <span className="text-[8rem] font-black text-foreground/5 select-none leading-none tracking-tighter uppercase">
+              {category || 'Blog'}
+            </span>
+          </div>
         )}
 
         {/* dark overlay */}
@@ -120,20 +126,25 @@ const MagazineSidePost = ({ post }) => {
         {post.coverImageUrl ? (
           <img src={post.coverImageUrl} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.05]" />
         ) : (
-          <div className="w-full h-full bg-muted" />
+          // no-cover fallback — show category initial as watermark
+          <div className="w-full h-full bg-muted flex items-center justify-center">
+            <span className="text-2xl font-black text-foreground/10 uppercase">
+              {(category || post.title)?.charAt(0)}
+            </span>
+          </div>
         )}
       </div>
 
       {/* text */}
-      <div className="flex flex-col gap-1.5 min-w-0 flex-1">
-        {category && (
-          <button
-            onClick={handleCategoryClick}
-            className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors text-left"
-          >
-            {category}
-          </button>
-        )}
+      <div className="flex flex-col gap-1 min-w-0 flex-1">
+        {/* always reserve the category line height so titles align consistently */}
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground block min-h-[14px]">
+          {category ? (
+            <button onClick={handleCategoryClick} className="hover:text-foreground transition-colors">
+              {category}
+            </button>
+          ) : null}
+        </span>
         <h3 className="text-sm font-semibold leading-snug text-foreground line-clamp-2 group-hover:opacity-70 transition-opacity">
           {post.title}
         </h3>
@@ -170,13 +181,9 @@ const Home = () => {
     if (postsLoading && posts.length === 0) {
       return (
         <div className="space-y-8">
-          {/* Magazine skeleton */}
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
             <div className="lg:col-span-3 rounded-xl bg-muted animate-pulse min-h-[420px]" />
-            <div className="lg:col-span-2 flex flex-col gap-5">
-              <div className="flex-1 rounded-xl bg-muted animate-pulse" />
-              <div className="flex-1 rounded-xl bg-muted animate-pulse" />
-            </div>
+            <div className="lg:col-span-2 rounded-xl bg-muted animate-pulse min-h-[200px]" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 3 }).map((_, i) => <PostCardSkeleton key={i} />)}
@@ -233,10 +240,10 @@ const Home = () => {
       );
     }
 
-    // when searching or filtering — no magazine layout, just a plain grid
+    // search/filter view — plain grid, no magazine
     if (searchTerm || activeCategory) {
       return (
-        <div className="space-y-8">
+        <div className="space-y-6">
           <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
             <span>
               <span className="font-semibold text-foreground">{posts.length}</span>{' '}
@@ -252,50 +259,66 @@ const Home = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {posts.map((post) => <PostCard key={post.$id} post={post} />)}
-            {postsLoading && hasMore && [...Array(LIMIT)].map((_, i) => <PostCardSkeleton key={i} />)}
           </div>
+          {/* infinite scroll indicator */}
+          {postsLoading && hasMore && (
+            <div className="flex justify-center pt-4">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          )}
         </div>
       );
     }
 
-    // normal view — magazine layout at top, grid below
-    const featuredPost  = posts[0];
-    const sidePosts     = posts.slice(1, 3);   // next 2 go in the right column
-    const gridPosts     = posts.slice(3);       // rest go in the 3-col grid
+    // normal view
+    const featuredPost = posts[0];
+    const sidePosts    = posts.slice(1, 3);  // up to 2 side posts
+    const gridPosts    = posts.slice(3);     // rest in grid
+
+    // edge case: only 1 or 2 posts — featured goes full width, no right column
+    const hasSidePosts = sidePosts.length > 0;
 
     return (
       <div className="space-y-10">
 
-        {/* Magazine block — featured large left, 2 side posts right */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 items-start">
-          {/* featured — takes 3/5 columns */}
-          <div className="lg:col-span-3">
-            <MagazineFeatured post={featuredPost} />
-          </div>
-
-          {/* side posts — take 2/5 columns, wrapped in a card matching featured height */}
-          {sidePosts.length > 0 && (
-            <div className="lg:col-span-2 rounded-xl border border-border bg-card overflow-hidden flex flex-col divide-y divide-border">
+        {/* Magazine block */}
+        {hasSidePosts ? (
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 items-start">
+            <div className="lg:col-span-3">
+              <MagazineFeatured post={featuredPost} />
+            </div>
+            <div className="lg:col-span-2 rounded-xl border border-border bg-card overflow-hidden divide-y divide-border">
               {sidePosts.map((post) => (
-                <div key={post.$id} className="p-4 flex items-center">
+                <div key={post.$id} className="p-4">
                   <MagazineSidePost post={post} />
                 </div>
               ))}
             </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          // only 1 post — full width featured
+          <MagazineFeatured post={featuredPost} fullWidth />
+        )}
 
-        {/* rest of posts in normal 3-col grid */}
+        {/* grid below — only show when there are posts beyond the magazine block */}
         {gridPosts.length > 0 && (
           <div>
             <div className="flex items-center gap-3 mb-6">
-              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">More posts</h2>
+              <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
+                {gridPosts.length} more {gridPosts.length === 1 ? 'post' : 'posts'}
+              </h2>
               <div className="flex-1 h-px bg-border" />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {gridPosts.map((post) => <PostCard key={post.$id} post={post} />)}
-              {postsLoading && hasMore && [...Array(LIMIT)].map((_, i) => <PostCardSkeleton key={i} />)}
             </div>
+          </div>
+        )}
+
+        {/* infinite scroll indicator */}
+        {postsLoading && hasMore && (
+          <div className="flex justify-center pt-2">
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
         )}
 
@@ -328,7 +351,7 @@ const Home = () => {
       <div className="flex items-center gap-2 flex-wrap mb-8">
         <button
           onClick={() => activeCategory && handleCategoryChange(activeCategory)}
-          className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold border transition-all duration-200 ${
+          className={`inline-flex items-center rounded-full px-3.5 py-1.5 text-xs font-semibold border transition-all duration-200 ${
             !activeCategory
               ? 'bg-foreground text-background border-foreground'
               : 'border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground bg-card'
