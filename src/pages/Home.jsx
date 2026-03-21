@@ -136,9 +136,10 @@ const BentoSmall = ({ post }) => {
           </h3>
           <div className="flex items-center justify-between">
             <span className="text-[11px] text-white/50">{authorName || 'Anonymous'} · {readTime}m</span>
-            <span className="flex items-center gap-1 text-white/50 text-[11px]">
-              <MessageSquare className="h-2.5 w-2.5" />{post.commentsCount || 0}
-            </span>
+            <div className="flex items-center gap-2.5 text-[11px] text-white/50">
+              <span className="flex items-center gap-1"><Heart className="h-2.5 w-2.5" />{post.likesCount || 0}</span>
+              <span className="flex items-center gap-1"><MessageSquare className="h-2.5 w-2.5" />{post.commentsCount || 0}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -266,7 +267,8 @@ const Home = () => {
         {/* Bento top block */}
         {posts.length === 1 ? (
           // only 1 post — full width
-          <BentoFeatured post={featuredPost} />
+          // <BentoFeatured post={featuredPost} />
+          <></>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4" style={{ gridTemplateRows: 'auto' }}>
             {/* big card — spans 2 cols and 2 rows */}
