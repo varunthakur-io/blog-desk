@@ -20,13 +20,14 @@ export const config = {
       posts: getEnvVar('VITE_APPWRITE_POSTS_COLLECTION_ID'),
       likes: getEnvVar('VITE_APPWRITE_LIKES_COLLECTION_ID'),
       comments: getEnvVar('VITE_APPWRITE_COMMENTS_COLLECTION_ID'),
-      profiles: 'profiles', // This one is hardcoded in your services currently
+      profiles: 'profiles',
     },
     buckets: {
       main: getEnvVar('VITE_APPWRITE_BUCKET_ID'),
     },
     functions: {
-      deleteAccount: getEnvVar('VITE_APPWRITE_DELETE_ACCOUNT_FUNCTION_ID'),
+      // null fallback so the app doesn't crash if this function isn't deployed yet
+      deleteAccount: getEnvVar('VITE_APPWRITE_DELETE_ACCOUNT_FUNCTION_ID', null),
     }
   }
 };
