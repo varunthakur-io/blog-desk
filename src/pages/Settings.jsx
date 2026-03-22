@@ -89,9 +89,11 @@ export default function Settings() {
   return (
     <div className="page-root flex gap-8 min-h-[70vh]">
 
-      {/* Sidebar — inline, not fixed */}
+      {/* Sidebar — sticky, full viewport height so the vertical line always spans the screen */}
       <aside className="hidden md:block w-48 shrink-0">
-        <div className="sticky top-24">
+        <div className="sticky top-24 relative pr-6 min-h-[calc(100vh-6rem)]">
+          {/* vertical fading line — h-full works because parent has min-h-screen */}
+          <div className="absolute top-0 right-0 w-px h-full bg-gradient-to-b from-transparent via-border to-transparent hidden lg:block" />
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-3">
             Settings
           </p>
@@ -145,4 +147,3 @@ export default function Settings() {
     </div>
   );
 }
-

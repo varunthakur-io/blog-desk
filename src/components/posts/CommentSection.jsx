@@ -8,13 +8,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { commentService } from '@/services/comments';
 
 const CommentSection = ({ postId, authUserId, currentUserProfile, initialComments, profiles }) => {
-  const [comments, setComments] = useState(initialComments || []);
+  const [comments, setComments]     = useState(initialComments || []);
   const [newComment, setNewComment] = useState('');
   const [isCommenting, setIsCommenting] = useState(false);
 
-  useEffect(() => {
-    setComments(initialComments || []);
-  }, [initialComments]);
+  useEffect(() => { setComments(initialComments || []); }, [initialComments]);
 
   const currentUserName = currentUserProfile?.name || 'You';
 
@@ -24,20 +22,15 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
 
     setIsCommenting(true);
     const tempId = 'temp-' + Date.now();
-    const optimisticComment = {
-      $id: tempId,
-      postId,
-      userId: authUserId,
-      content,
-      $createdAt: new Date().toISOString(),
-    };
-
-    setComments((prev) => [optimisticComment, ...prev]);
+    setComments((prev) => [{
+      $id: tempId, postId, userId: authUserId,
+      content, $createdAt: new Date().toISOString(),
+    }, ...prev]);
     setNewComment('');
 
     try {
-      const createdComment = await commentService.addComment({ postId, userId: authUserId, content });
-      setComments((prev) => prev.map((c) => (c.$id === tempId ? createdComment : c)));
+      const created = await commentService.addComment({ postId, userId: authUserId, content });
+      setComments((prev) => prev.map((c) => (c.$id === tempId ? created : c)));
       toast.success('Comment posted!');
     } catch {
       setComments((prev) => prev.filter((c) => c.$id !== tempId));
@@ -49,30 +42,28 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-      handleCommentSubmit();
-    }
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleCommentSubmit();
   };
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="flex items-center gap-2">
-        <h3 className="text-lg font-bold tracking-tight">Discussion</h3>
+
+      {/* header */}
+      <div className="flex items-center gap-3">
+        <h3 className="text-base font-semibold tracking-tight">Discussion</h3>
         {comments.length > 0 && (
           <span className="text-xs font-semibold text-muted-foreground bg-muted rounded-full px-2 py-0.5">
             {comments.length}
           </span>
         )}
+        <div className="flex-1 h-px bg-border" />
       </div>
 
-      {/* Compose box */}
+      {/* compose */}
       {authUserId ? (
         <div className="flex gap-3">
           <Avatar className="h-8 w-8 border border-border shrink-0 mt-1">
-            {currentUserProfile?.avatarUrl && (
-              <AvatarImage src={currentUserProfile.avatarUrl} />
-            )}
+            {currentUserProfile?.avatarUrl && <AvatarImage src={currentUserProfile.avatarUrl} />}
             <AvatarFallback className="bg-muted text-muted-foreground font-semibold text-xs">
               {currentUserName.charAt(0).toUpperCase()}
             </AvatarFallback>
@@ -82,28 +73,26 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Share your thoughts… (Ctrl+Enter to post)"
+              placeholder="Share your thoughts…"
               className="min-h-[80px] bg-background border-border resize-none focus-visible:ring-1 text-sm rounded-lg"
             />
-            <div className="flex justify-end">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] text-muted-foreground">Ctrl+Enter to post</p>
               <Button
                 onClick={handleCommentSubmit}
                 disabled={isCommenting || !newComment.trim()}
                 size="sm"
-                className="gap-2 rounded-lg text-xs px-4"
+                className="gap-2 rounded-full text-xs px-4"
               >
-                {isCommenting ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <Send className="h-3.5 w-3.5" />
-                )}
+                {isCommenting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
                 {isCommenting ? 'Posting…' : 'Post'}
               </Button>
             </div>
           </div>
         </div>
       ) : (
-        <div className="rounded-xl border border-dashed border-border bg-muted/30 py-6 text-center">
+        <div className="rounded-xl border border-dashed border-border bg-muted/20 py-8 text-center">
+          <MessageSquare className="h-7 w-7 text-muted-foreground/30 mx-auto mb-3" />
           <p className="text-sm text-muted-foreground">
             <Link to="/login" className="font-semibold text-foreground underline underline-offset-4 hover:opacity-70">
               Sign in
@@ -113,38 +102,34 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
         </div>
       )}
 
-      {/* Comments list */}
-      <div className="space-y-4">
+      {/* list */}
+      <div className="space-y-3">
         {comments.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-border bg-muted/20 py-10 text-center">
-            <MessageSquare className="h-8 w-8 text-muted-foreground/30 mx-auto mb-3" />
-            <p className="text-sm text-muted-foreground">No comments yet. Start the conversation.</p>
+          <div className="py-10 text-center">
+            <MessageSquare className="h-7 w-7 text-muted-foreground/20 mx-auto mb-3" />
+            <p className="text-sm text-muted-foreground">No comments yet. Be the first.</p>
           </div>
         ) : (
           comments.map((comment) => {
             const isMe = comment.userId === authUserId;
-            const commenterProfile = isMe ? currentUserProfile : profiles[comment.userId];
-            const name = commenterProfile?.name || (isMe ? currentUserName : 'Anonymous');
-            const avatarUrl = commenterProfile?.avatarUrl;
+            const profile = isMe ? currentUserProfile : profiles[comment.userId];
+            const name = profile?.name || (isMe ? currentUserName : 'Anonymous');
 
             return (
               <div key={comment.$id} className="flex gap-3">
                 <Avatar className="h-8 w-8 border border-border shrink-0 mt-0.5">
-                  <AvatarImage src={avatarUrl} alt={name} />
+                  <AvatarImage src={profile?.avatarUrl} alt={name} />
                   <AvatarFallback className="bg-muted text-muted-foreground font-medium text-xs">
                     {name.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <div className="rounded-lg border border-border bg-muted/30 px-4 py-3">
-                    <div className="flex items-baseline justify-between gap-3 mb-1.5">
-                      <span className="font-semibold text-xs">{name}</span>
+                  <div className="rounded-xl border border-border bg-card px-4 py-3">
+                    <div className="flex items-baseline justify-between gap-3 mb-2">
+                      <span className="text-xs font-semibold text-foreground">{name}</span>
                       <time className="text-[11px] text-muted-foreground shrink-0">
                         {comment.$createdAt
-                          ? new Date(comment.$createdAt).toLocaleDateString('en-US', {
-                              month: 'short',
-                              day: 'numeric',
-                            })
+                          ? new Date(comment.$createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
                           : 'Just now'}
                       </time>
                     </div>

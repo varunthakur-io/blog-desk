@@ -8,3 +8,4 @@ export { default as PostDetailsSkeleton } from './PostDetailsSkeleton';
 export { default as PostContent } from './PostContent';
 export { default as CommentSection } from './CommentSection';
 export { default as AuthorSidebar } from './AuthorSidebar';
+export { default as TableOfContents } from './TableOfContents';

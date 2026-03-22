@@ -143,7 +143,9 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
 
       {/* ── Left sidebar — post options (desktop only, hidden on mobile) ── */}
       <aside className="hidden md:flex w-48 shrink-0 flex-col gap-6">
-        <div className="sticky top-24 flex flex-col gap-6">
+        <div className="sticky top-24 flex flex-col gap-6 relative pr-6">
+          {/* vertical fading line — exactly like shadcn docs */}
+          <div className="absolute top-0 right-0 bottom-0 hidden h-full w-px bg-gradient-to-b from-transparent via-border to-transparent lg:block" />
 
           {/* back button + post title + save indicator */}
           <div className="flex items-center gap-2">
