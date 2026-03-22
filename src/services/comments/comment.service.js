@@ -56,6 +56,28 @@ class CommentService {
       throw error;
     }
   }
+
+  async deleteComment(commentId, postId) {
+    try {
+      await commentApi.deleteComment(commentId);
+
+      // Decrement the post's comment count best-effort.
+      try {
+        const post = await postService.getPostById(postId);
+        const currentCount = post?.commentsCount || 0;
+        await postService.updatePost(postId, {
+          commentsCount: Math.max(0, currentCount - 1),
+        });
+      } catch (postError) {
+        console.warn('CommentService :: Failed to decrement post comment count', postError);
+      }
+
+      return true;
+    } catch (error) {
+      console.error('CommentService :: deleteComment()', error);
+      throw error;
+    }
+  }
 }
 
 export const commentService = new CommentService();
