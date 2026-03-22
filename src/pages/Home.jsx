@@ -1,5 +1,4 @@
-import { NavLink } from 'react-router-dom';
-import { Link, useNavigate } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Search, ArrowRight, X, ArrowUpRight, Clock, Heart, MessageSquare, Calendar, Loader2 } from 'lucide-react';
 import DOMPurify from 'dompurify';
 
@@ -97,7 +96,6 @@ const BentoSmall = ({ post }) => {
   const authorName = useSelector((state) => selectProfileById(state, post.authorId))?.name;
   const readTime = Math.max(1, Math.ceil((post.content || '').split(' ').length / 200));
   const category = post.category || null;
-  const plainContent = DOMPurify.sanitize(post.content || '', { USE_PROFILES: { html: false } });
 
   const handleCategoryClick = (e) => {
     e.preventDefault();
@@ -158,7 +156,6 @@ const Home = () => {
     activeCategory,
     handleSearchChange,
     handleCategoryChange,
-    LIMIT,
   } = useHome();
 
   const renderContent = () => {
@@ -226,7 +223,7 @@ const Home = () => {
       );
     }
 
-    // search/filter view — plain grid, no magazine
+    // search/filter view — plain grid, no bento
     if (searchTerm || activeCategory) {
       return (
         <div className="space-y-6">
@@ -246,7 +243,6 @@ const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {posts.map((post) => <PostCard key={post.$id} post={post} />)}
           </div>
-          {/* infinite scroll indicator */}
           {postsLoading && hasMore && (
             <div className="flex justify-center pt-4">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
@@ -257,32 +253,24 @@ const Home = () => {
     }
 
     // normal view — bento grid top, uniform grid below
-    const featuredPost = posts[0];       // big 2×2 card
-    const bentoSide    = posts.slice(1, 3); // 2 small cards stacked right
-    const gridPosts    = posts.slice(3); // rest in uniform grid
+    const featuredPost = posts[0];
+    const bentoSide    = posts.slice(1, 3);
+    const gridPosts    = posts.slice(3);
 
     return (
       <div className="space-y-10">
 
         {/* Bento top block */}
-        {posts.length === 1 ? (
-          // only 1 post — full width
-          // <BentoFeatured post={featuredPost} />
-          <></>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4" style={{ gridTemplateRows: 'auto' }}>
-            {/* big card — spans 2 cols and 2 rows */}
-            <div className="lg:col-span-2 lg:row-span-2">
-              <BentoFeatured post={featuredPost} />
-            </div>
-            {/* 2 small cards stacked in col 3 */}
-            {bentoSide.map((post) => (
-              <div key={post.$id} className="lg:col-span-1">
-                <BentoSmall post={post} />
-              </div>
-            ))}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4" style={{ gridTemplateRows: 'auto' }}>
+          <div className="lg:col-span-2 lg:row-span-2">
+            <BentoFeatured post={featuredPost} />
           </div>
-        )}
+          {bentoSide.map((post) => (
+            <div key={post.$id} className="lg:col-span-1">
+              <BentoSmall post={post} />
+            </div>
+          ))}
+        </div>
 
         {/* rest of posts — uniform 3-col grid */}
         {gridPosts.length > 0 && (
@@ -299,7 +287,6 @@ const Home = () => {
           </div>
         )}
 
-        {/* infinite scroll indicator */}
         {postsLoading && hasMore && (
           <div className="flex justify-center pt-2">
             <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />

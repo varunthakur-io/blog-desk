@@ -1,8 +1,5 @@
-import { Sun, Moon } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 
 const AppearancePanel = ({ isDarkMode, handleToggleDarkMode }) => {
   return (

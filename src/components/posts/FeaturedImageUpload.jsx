@@ -1,4 +1,4 @@
-import { ImageIcon, X, Upload } from 'lucide-react';
+import { X, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const FeaturedImageUpload = ({ imagePreview, onUpload, onRemove }) => {

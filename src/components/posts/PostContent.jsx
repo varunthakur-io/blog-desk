@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 import { setActiveCategory } from '@/store/posts';
 
 // extracts all h2/h3 headings from html string for the TOC
-export const extractHeadings = (html) => {
+const extractHeadings = (html) => {
   const div = document.createElement('div');
   div.innerHTML = DOMPurify.sanitize(html);
   const nodes = div.querySelectorAll('h2, h3');
