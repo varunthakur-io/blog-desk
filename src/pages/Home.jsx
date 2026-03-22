@@ -32,6 +32,7 @@ const BentoFeatured = ({ post }) => {
   const readTime = Math.max(1, Math.ceil((post.content || '').split(' ').length / 200));
   const category = post.category || null;
   const plainContent = DOMPurify.sanitize(post.content || '', { USE_PROFILES: { html: false } });
+  const hasImage = !!post.coverImageUrl;
 
   const handleCategoryClick = (e) => {
     e.preventDefault();
@@ -45,7 +46,7 @@ const BentoFeatured = ({ post }) => {
   return (
     <Link to={`/posts/${post.$id}`} className="group block h-full">
       <div className="relative overflow-hidden rounded-xl h-full min-h-[420px] border border-border bg-card transition-all duration-300 group-hover:shadow-lg">
-        {post.coverImageUrl ? (
+        {hasImage ? (
           <img
             src={post.coverImageUrl}
             alt={post.title}
@@ -54,27 +55,45 @@ const BentoFeatured = ({ post }) => {
         ) : (
           <div className="absolute inset-0">
             <div className="absolute inset-0 bg-gradient-to-br from-muted to-background" />
-            <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
           </div>
         )}
-        {/* gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/92 via-black/35 to-transparent" />
+
+        {/* gradient overlay — only when image exists */}
+        {hasImage && (
+          <div className="absolute inset-0 bg-gradient-to-t from-black/92 via-black/35 to-transparent" />
+        )}
 
         {/* top row */}
         <div className="absolute top-4 left-5 right-5 flex items-center justify-between">
           {category ? (
             <button
               onClick={handleCategoryClick}
-              className="bg-white/15 text-white border border-white/25 backdrop-blur-sm font-semibold text-[10px] uppercase tracking-wider rounded-full px-2.5 py-1 hover:bg-white hover:text-black transition-all duration-200"
+              className={`font-semibold text-[10px] uppercase tracking-wider rounded-full px-2.5 py-1 border transition-all duration-200 ${
+                hasImage
+                  ? 'bg-white/15 text-white border-white/25 backdrop-blur-sm hover:bg-white hover:text-black'
+                  : 'bg-foreground/10 text-foreground border-border hover:bg-foreground hover:text-background'
+              }`}
             >
               {category}
             </button>
           ) : (
-            <span className="bg-white/15 text-white border border-white/25 backdrop-blur-sm font-semibold text-[10px] uppercase tracking-wider rounded-full px-2.5 py-1">
+            <span
+              className={`font-semibold text-[10px] uppercase tracking-wider rounded-full px-2.5 py-1 border ${
+                hasImage
+                  ? 'bg-white/15 text-white border-white/25 backdrop-blur-sm'
+                  : 'bg-foreground/10 text-foreground border-border'
+              }`}
+            >
               Featured
             </span>
           )}
-          <div className="flex items-center gap-2 text-white/60 text-[11px] bg-black/25 backdrop-blur-sm rounded-full px-2.5 py-1">
+          <div
+            className={`flex items-center gap-2 text-[11px] rounded-full px-2.5 py-1 ${
+              hasImage
+                ? 'text-white/60 bg-black/25 backdrop-blur-sm'
+                : 'text-muted-foreground bg-muted'
+            }`}
+          >
             <span className="flex items-center gap-1">
               <Clock className="h-3 w-3" />
               {readTime}m
@@ -88,22 +107,44 @@ const BentoFeatured = ({ post }) => {
 
         {/* bottom content */}
         <div className="absolute bottom-0 left-0 right-0 p-6">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white leading-tight tracking-tight mb-2 line-clamp-2">
+          <h2
+            className={`text-2xl sm:text-3xl font-bold leading-tight tracking-tight mb-2 line-clamp-2 ${
+              hasImage ? 'text-white' : 'text-foreground'
+            }`}
+          >
             {post.title}
           </h2>
-          <p className="text-white/55 text-sm line-clamp-2 mb-5 leading-relaxed max-w-lg">
+          <p
+            className={`text-sm line-clamp-2 mb-5 leading-relaxed max-w-lg ${
+              hasImage ? 'text-white/55' : 'text-muted-foreground'
+            }`}
+          >
             {plainContent}
           </p>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="h-8 w-8 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-white font-bold text-sm shrink-0">
+              <div
+                className={`h-8 w-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${
+                  hasImage
+                    ? 'bg-white/20 border border-white/30 text-white'
+                    : 'bg-muted border border-border text-foreground'
+                }`}
+              >
                 {authorName?.charAt(0).toUpperCase() || 'A'}
               </div>
               <div>
-                <p className="text-white text-xs font-semibold leading-none mb-0.5">
+                <p
+                  className={`text-xs font-semibold leading-none mb-0.5 ${
+                    hasImage ? 'text-white' : 'text-foreground'
+                  }`}
+                >
                   {authorName || 'Anonymous'}
                 </p>
-                <div className="flex items-center gap-1 text-white/50 text-[11px]">
+                <div
+                  className={`flex items-center gap-1 text-[11px] ${
+                    hasImage ? 'text-white/50' : 'text-muted-foreground'
+                  }`}
+                >
                   <Calendar className="h-2.5 w-2.5" />
                   <time>
                     {new Date(post.$createdAt).toLocaleDateString('en-US', {
@@ -115,7 +156,13 @@ const BentoFeatured = ({ post }) => {
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-1.5 text-white text-xs font-semibold bg-white/10 border border-white/20 rounded-full px-3 py-1.5 transition-all duration-300 group-hover:bg-white group-hover:text-black">
+            <div
+              className={`flex items-center gap-1.5 text-xs font-semibold rounded-full px-3 py-1.5 border transition-all duration-300 ${
+                hasImage
+                  ? 'text-white bg-white/10 border-white/20 group-hover:bg-white group-hover:text-black'
+                  : 'text-foreground bg-muted border-border group-hover:bg-foreground group-hover:text-background'
+              }`}
+            >
               Read <ArrowUpRight className="h-3.5 w-3.5" />
             </div>
           </div>
@@ -132,6 +179,7 @@ const BentoSmall = ({ post }) => {
   const authorName = useSelector((state) => selectProfileById(state, post.authorId))?.name;
   const readTime = Math.max(1, Math.ceil((post.content || '').split(' ').length / 200));
   const category = post.category || null;
+  const hasImage = !!post.coverImageUrl;
 
   const handleCategoryClick = (e) => {
     e.preventDefault();
@@ -145,7 +193,7 @@ const BentoSmall = ({ post }) => {
   return (
     <Link to={`/posts/${post.$id}`} className="group block h-full">
       <div className="relative overflow-hidden rounded-xl h-full min-h-[196px] border border-border bg-card transition-all duration-300 group-hover:shadow-md">
-        {post.coverImageUrl ? (
+        {hasImage ? (
           <img
             src={post.coverImageUrl}
             alt={post.title}
@@ -158,15 +206,22 @@ const BentoSmall = ({ post }) => {
             </span>
           </div>
         )}
-        {/* gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+
+        {/* gradient overlay — only when image exists */}
+        {hasImage && (
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+        )}
 
         {/* category badge top-left */}
         {category && (
           <div className="absolute top-3 left-3">
             <button
               onClick={handleCategoryClick}
-              className="bg-white/15 text-white border border-white/25 backdrop-blur-sm font-semibold text-[10px] uppercase tracking-wider rounded-full px-2.5 py-1 hover:bg-white hover:text-black transition-all duration-200"
+              className={`font-semibold text-[10px] uppercase tracking-wider rounded-full px-2.5 py-1 border transition-all duration-200 ${
+                hasImage
+                  ? 'bg-white/15 text-white border-white/25 backdrop-blur-sm hover:bg-white hover:text-black'
+                  : 'bg-foreground/10 text-foreground border-border hover:bg-foreground hover:text-background'
+              }`}
             >
               {category}
             </button>
@@ -175,14 +230,22 @@ const BentoSmall = ({ post }) => {
 
         {/* bottom content */}
         <div className="absolute bottom-0 left-0 right-0 p-4">
-          <h3 className="text-sm font-bold text-white leading-snug tracking-tight line-clamp-2 mb-2 group-hover:opacity-80 transition-opacity">
+          <h3
+            className={`text-sm font-bold leading-snug tracking-tight line-clamp-2 mb-2 transition-opacity group-hover:opacity-80 ${
+              hasImage ? 'text-white' : 'text-foreground'
+            }`}
+          >
             {post.title}
           </h3>
           <div className="flex items-center justify-between">
-            <span className="text-[11px] text-white/50">
+            <span className={`text-[11px] ${hasImage ? 'text-white/50' : 'text-muted-foreground'}`}>
               {authorName || 'Anonymous'} · {readTime}m
             </span>
-            <div className="flex items-center gap-2.5 text-[11px] text-white/50">
+            <div
+              className={`flex items-center gap-2.5 text-[11px] ${
+                hasImage ? 'text-white/50' : 'text-muted-foreground'
+              }`}
+            >
               <span className="flex items-center gap-1">
                 <Heart className="h-2.5 w-2.5" />
                 {post.likesCount || 0}
