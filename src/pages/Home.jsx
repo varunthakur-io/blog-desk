@@ -1,5 +1,16 @@
 import { NavLink, Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Search, ArrowRight, X, ArrowUpRight, Clock, Heart, MessageSquare, Calendar, Loader2 } from 'lucide-react';
+import {
+  BookOpen,
+  Search,
+  ArrowRight,
+  X,
+  ArrowUpRight,
+  Clock,
+  Heart,
+  MessageSquare,
+  Calendar,
+  Loader2,
+} from 'lucide-react';
 import DOMPurify from 'dompurify';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -25,19 +36,25 @@ const BentoFeatured = ({ post }) => {
   const handleCategoryClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (category) { dispatch(setActiveCategory(category)); navigate('/'); }
+    if (category) {
+      dispatch(setActiveCategory(category));
+      navigate('/');
+    }
   };
 
   return (
     <Link to={`/posts/${post.$id}`} className="group block h-full">
       <div className="relative overflow-hidden rounded-xl h-full min-h-[420px] border border-border bg-card transition-all duration-300 group-hover:shadow-lg">
         {post.coverImageUrl ? (
-          <img src={post.coverImageUrl} alt={post.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" />
+          <img
+            src={post.coverImageUrl}
+            alt={post.title}
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+          />
         ) : (
-          <div className="absolute inset-0 bg-muted flex items-center justify-center overflow-hidden">
-            <span className="text-[10rem] font-black text-foreground/5 select-none leading-none tracking-tighter uppercase">
-              {category?.charAt(0) || 'B'}
-            </span>
+          <div className="absolute inset-0">
+            <div className="absolute inset-0 bg-gradient-to-br from-muted to-background" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
           </div>
         )}
         {/* gradient overlay */}
@@ -46,15 +63,26 @@ const BentoFeatured = ({ post }) => {
         {/* top row */}
         <div className="absolute top-4 left-5 right-5 flex items-center justify-between">
           {category ? (
-            <button onClick={handleCategoryClick} className="bg-white/15 text-white border border-white/25 backdrop-blur-sm font-semibold text-[10px] uppercase tracking-wider rounded-full px-2.5 py-1 hover:bg-white hover:text-black transition-all duration-200">
+            <button
+              onClick={handleCategoryClick}
+              className="bg-white/15 text-white border border-white/25 backdrop-blur-sm font-semibold text-[10px] uppercase tracking-wider rounded-full px-2.5 py-1 hover:bg-white hover:text-black transition-all duration-200"
+            >
               {category}
             </button>
           ) : (
-            <span className="bg-white/15 text-white border border-white/25 backdrop-blur-sm font-semibold text-[10px] uppercase tracking-wider rounded-full px-2.5 py-1">Featured</span>
+            <span className="bg-white/15 text-white border border-white/25 backdrop-blur-sm font-semibold text-[10px] uppercase tracking-wider rounded-full px-2.5 py-1">
+              Featured
+            </span>
           )}
           <div className="flex items-center gap-2 text-white/60 text-[11px] bg-black/25 backdrop-blur-sm rounded-full px-2.5 py-1">
-            <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{readTime}m</span>
-            <span className="flex items-center gap-1"><Heart className="h-3 w-3" />{post.likesCount || 0}</span>
+            <span className="flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              {readTime}m
+            </span>
+            <span className="flex items-center gap-1">
+              <Heart className="h-3 w-3" />
+              {post.likesCount || 0}
+            </span>
           </div>
         </div>
 
@@ -72,10 +100,18 @@ const BentoFeatured = ({ post }) => {
                 {authorName?.charAt(0).toUpperCase() || 'A'}
               </div>
               <div>
-                <p className="text-white text-xs font-semibold leading-none mb-0.5">{authorName || 'Anonymous'}</p>
+                <p className="text-white text-xs font-semibold leading-none mb-0.5">
+                  {authorName || 'Anonymous'}
+                </p>
                 <div className="flex items-center gap-1 text-white/50 text-[11px]">
                   <Calendar className="h-2.5 w-2.5" />
-                  <time>{new Date(post.$createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</time>
+                  <time>
+                    {new Date(post.$createdAt).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })}
+                  </time>
                 </div>
               </div>
             </div>
@@ -100,14 +136,21 @@ const BentoSmall = ({ post }) => {
   const handleCategoryClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (category) { dispatch(setActiveCategory(category)); navigate('/'); }
+    if (category) {
+      dispatch(setActiveCategory(category));
+      navigate('/');
+    }
   };
 
   return (
     <Link to={`/posts/${post.$id}`} className="group block h-full">
       <div className="relative overflow-hidden rounded-xl h-full min-h-[196px] border border-border bg-card transition-all duration-300 group-hover:shadow-md">
         {post.coverImageUrl ? (
-          <img src={post.coverImageUrl} alt={post.title} className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.04]" />
+          <img
+            src={post.coverImageUrl}
+            alt={post.title}
+            className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.04]"
+          />
         ) : (
           <div className="absolute inset-0 bg-muted flex items-center justify-center overflow-hidden">
             <span className="text-[5rem] font-black text-foreground/5 select-none leading-none uppercase">
@@ -121,7 +164,10 @@ const BentoSmall = ({ post }) => {
         {/* category badge top-left */}
         {category && (
           <div className="absolute top-3 left-3">
-            <button onClick={handleCategoryClick} className="bg-white/15 text-white border border-white/25 backdrop-blur-sm font-semibold text-[10px] uppercase tracking-wider rounded-full px-2.5 py-1 hover:bg-white hover:text-black transition-all duration-200">
+            <button
+              onClick={handleCategoryClick}
+              className="bg-white/15 text-white border border-white/25 backdrop-blur-sm font-semibold text-[10px] uppercase tracking-wider rounded-full px-2.5 py-1 hover:bg-white hover:text-black transition-all duration-200"
+            >
               {category}
             </button>
           </div>
@@ -133,10 +179,18 @@ const BentoSmall = ({ post }) => {
             {post.title}
           </h3>
           <div className="flex items-center justify-between">
-            <span className="text-[11px] text-white/50">{authorName || 'Anonymous'} · {readTime}m</span>
+            <span className="text-[11px] text-white/50">
+              {authorName || 'Anonymous'} · {readTime}m
+            </span>
             <div className="flex items-center gap-2.5 text-[11px] text-white/50">
-              <span className="flex items-center gap-1"><Heart className="h-2.5 w-2.5" />{post.likesCount || 0}</span>
-              <span className="flex items-center gap-1"><MessageSquare className="h-2.5 w-2.5" />{post.commentsCount || 0}</span>
+              <span className="flex items-center gap-1">
+                <Heart className="h-2.5 w-2.5" />
+                {post.likesCount || 0}
+              </span>
+              <span className="flex items-center gap-1">
+                <MessageSquare className="h-2.5 w-2.5" />
+                {post.commentsCount || 0}
+              </span>
             </div>
           </div>
         </div>
@@ -169,7 +223,9 @@ const Home = () => {
             <div className="rounded-xl bg-muted animate-pulse min-h-[196px]" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 3 }).map((_, i) => <PostCardSkeleton key={i} />)}
+            {Array.from({ length: 3 }).map((_, i) => (
+              <PostCardSkeleton key={i} />
+            ))}
           </div>
         </div>
       );
@@ -191,10 +247,11 @@ const Home = () => {
         <div className="text-center py-32">
           <div className="flex flex-col items-center gap-5">
             <div className="rounded-full bg-muted p-6">
-              {searchTerm || activeCategory
-                ? <Search className="h-10 w-10 text-muted-foreground/50" />
-                : <BookOpen className="h-10 w-10 text-muted-foreground/50" />
-              }
+              {searchTerm || activeCategory ? (
+                <Search className="h-10 w-10 text-muted-foreground/50" />
+              ) : (
+                <BookOpen className="h-10 w-10 text-muted-foreground/50" />
+              )}
             </div>
             <div className="space-y-2">
               <h3 className="text-xl font-semibold tracking-tight">
@@ -204,18 +261,25 @@ const Home = () => {
                 {searchTerm
                   ? `Nothing matched "${searchTerm}". Try a different keyword.`
                   : activeCategory
-                  ? `No posts in "${activeCategory}" yet.`
-                  : 'Be the first to share your ideas with the world.'}
+                    ? `No posts in "${activeCategory}" yet.`
+                    : 'Be the first to share your ideas with the world.'}
               </p>
             </div>
             {activeCategory && (
-              <Button variant="outline" size="sm" onClick={() => handleCategoryChange(activeCategory)} className="rounded-full gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleCategoryChange(activeCategory)}
+                className="rounded-full gap-2"
+              >
                 <X className="h-3.5 w-3.5" /> Clear filter
               </Button>
             )}
             {!searchTerm && !activeCategory && (
               <Button asChild className="rounded-full px-6 mt-2">
-                <NavLink to="/create">Write First Post <ArrowRight className="ml-2 h-4 w-4" /></NavLink>
+                <NavLink to="/create">
+                  Write First Post <ArrowRight className="ml-2 h-4 w-4" />
+                </NavLink>
               </Button>
             )}
           </div>
@@ -231,17 +295,33 @@ const Home = () => {
             <span>
               <span className="font-semibold text-foreground">{posts.length}</span>{' '}
               {posts.length === 1 ? 'post' : 'posts'}
-              {activeCategory && <> in <span className="font-semibold text-foreground">{activeCategory}</span></>}
-              {searchTerm && <> matching <span className="font-semibold text-foreground">&ldquo;{searchTerm}&rdquo;</span></>}
+              {activeCategory && (
+                <>
+                  {' '}
+                  in <span className="font-semibold text-foreground">{activeCategory}</span>
+                </>
+              )}
+              {searchTerm && (
+                <>
+                  {' '}
+                  matching{' '}
+                  <span className="font-semibold text-foreground">&ldquo;{searchTerm}&rdquo;</span>
+                </>
+              )}
             </span>
             {activeCategory && (
-              <button onClick={() => handleCategoryChange(activeCategory)} className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
+              <button
+                onClick={() => handleCategoryChange(activeCategory)}
+                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
                 <X className="h-3 w-3" /> Clear
               </button>
             )}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {posts.map((post) => <PostCard key={post.$id} post={post} />)}
+            {posts.map((post) => (
+              <PostCard key={post.$id} post={post} />
+            ))}
           </div>
           {postsLoading && hasMore && (
             <div className="flex justify-center pt-4">
@@ -254,12 +334,11 @@ const Home = () => {
 
     // normal view — bento grid top, uniform grid below
     const featuredPost = posts[0];
-    const bentoSide    = posts.slice(1, 3);
-    const gridPosts    = posts.slice(3);
+    const bentoSide = posts.slice(1, 3);
+    const gridPosts = posts.slice(3);
 
     return (
       <div className="space-y-10">
-
         {/* Bento top block */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4" style={{ gridTemplateRows: 'auto' }}>
           <div className="lg:col-span-2 lg:row-span-2">
@@ -282,7 +361,9 @@ const Home = () => {
               <div className="flex-1 h-px bg-border" />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {gridPosts.map((post) => <PostCard key={post.$id} post={post} />)}
+              {gridPosts.map((post) => (
+                <PostCard key={post.$id} post={post} />
+              ))}
             </div>
           </div>
         )}
@@ -292,14 +373,12 @@ const Home = () => {
             <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
         )}
-
       </div>
     );
   };
 
   return (
     <div className="page-root">
-
       {/* Slim header — title left, search right */}
       <div className="flex items-center justify-between gap-6 mb-6">
         <div>
@@ -349,7 +428,6 @@ const Home = () => {
       </div>
 
       {renderContent()}
-
     </div>
   );
 };
