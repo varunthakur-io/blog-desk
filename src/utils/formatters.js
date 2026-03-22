@@ -8,12 +8,12 @@
  */
 export const formatDate = (dateString, options = {}) => {
   if (!dateString) return '—';
-  
+
   const defaultOptions = {
     month: 'long',
     day: 'numeric',
     year: 'numeric',
-    ...options
+    ...options,
   };
 
   try {
@@ -38,10 +38,10 @@ export const formatJoinedDate = (dateString) => {
  */
 export const calculateReadTime = (content) => {
   if (!content || typeof content !== 'string') return 1;
-  
+
   // Strip HTML tags if any (Tiptap content)
   const plainText = content.replace(/<[^>]*>?/gm, '');
   const words = plainText.trim().split(/\s+/).length;
-  
+
   return Math.max(1, Math.ceil(words / 200));
 };

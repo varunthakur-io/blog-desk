@@ -14,7 +14,7 @@ const TableOfContents = ({ headings, comments, profiles, authUserId, currentUser
           if (entry.isIntersecting) setActiveId(entry.target.id);
         });
       },
-      { rootMargin: '0px 0px -70% 0px', threshold: 0 }
+      { rootMargin: '0px 0px -70% 0px', threshold: 0 },
     );
 
     headings.forEach(({ id }) => {
@@ -31,7 +31,6 @@ const TableOfContents = ({ headings, comments, profiles, authUserId, currentUser
 
   return (
     <aside className="sticky top-24 flex flex-col gap-6">
-
       {/* ── On this page ───────────────────────────── */}
       {headings.length > 0 && (
         <div>
@@ -89,7 +88,6 @@ const TableOfContents = ({ headings, comments, profiles, authUserId, currentUser
           </div>
         </div>
       )}
-
     </aside>
   );
 };

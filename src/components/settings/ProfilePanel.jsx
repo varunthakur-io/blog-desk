@@ -20,9 +20,7 @@ const ProfilePanel = ({
   authUser,
 }) => {
   const initial =
-    profileForm.name?.charAt(0).toUpperCase() ||
-    authUser?.name?.charAt(0).toUpperCase() ||
-    '?';
+    profileForm.name?.charAt(0).toUpperCase() || authUser?.name?.charAt(0).toUpperCase() || '?';
 
   return (
     <div className="space-y-6">
@@ -43,18 +41,14 @@ const ProfilePanel = ({
       <Card>
         <CardHeader className="pb-4">
           <CardTitle className="text-base">Profile photo</CardTitle>
-          <CardDescription>
-            Displayed on your profile and across Blog Desk.
-          </CardDescription>
+          <CardDescription>Displayed on your profile and across Blog Desk.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-4">
             <div className="relative group shrink-0">
               <Avatar className="h-16 w-16 border border-border shadow-sm">
                 <AvatarImage src={avatarPreview} className="object-cover" />
-                <AvatarFallback className="text-xl font-bold bg-muted">
-                  {initial}
-                </AvatarFallback>
+                <AvatarFallback className="text-xl font-bold bg-muted">{initial}</AvatarFallback>
               </Avatar>
               <button
                 type="button"
@@ -76,9 +70,7 @@ const ProfilePanel = ({
               <p className="text-sm font-medium leading-none">
                 {profileForm.name || authUser?.name || 'Your name'}
               </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                JPG, PNG or WebP · Max 3 MB
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">JPG, PNG or WebP · Max 3 MB</p>
               <div className="flex gap-2 mt-3">
                 <Button
                   size="sm"
@@ -165,10 +157,11 @@ const ProfilePanel = ({
 
           <div className="flex justify-end">
             <Button onClick={handleSaveProfile} disabled={isSavingProfile} className="gap-2">
-              {isSavingProfile
-                ? <Loader2 className="h-4 w-4 animate-spin" />
-                : <Save className="h-4 w-4" />
-              }
+              {isSavingProfile ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
               Save changes
             </Button>
           </div>

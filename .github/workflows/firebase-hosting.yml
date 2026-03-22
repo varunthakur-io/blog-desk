@@ -19,13 +19,11 @@ permissions:
   deployments: write
 
 jobs:
-
   # ── JOB 1: build the React app ──────────────────────────────────────────────
   build:
     name: Build React App
     runs-on: ubuntu-latest
     steps:
-
       # download your code onto the blank computer
       - name: Checkout code
         uses: actions/checkout@v4
@@ -85,17 +83,15 @@ jobs:
         with:
           name: dist
           path: dist
-          retention-days: 3  # GitHub auto-deletes after 3 days
-
+          retention-days: 3 # GitHub auto-deletes after 3 days
 
   # ── JOB 2: deploy to Firebase ───────────────────────────────────────────────
   deploy:
     name: Deploy to Firebase
     runs-on: ubuntu-latest
-    needs: build  # only runs if build job succeeded
+    needs: build # only runs if build job succeeded
 
     steps:
-
       - name: Checkout code
         uses: actions/checkout@v4
 

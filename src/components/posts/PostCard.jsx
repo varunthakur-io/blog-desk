@@ -29,7 +29,6 @@ const PostCard = ({ post }) => {
   return (
     // h-full makes the card stretch to fill the grid row height — all cards in a row stay same height
     <div className="group flex flex-col h-full overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-
       {/* Cover Image — fixed aspect ratio so cards with/without images don't cause height jumps */}
       {coverImageUrl && (
         <div className="aspect-[16/9] w-full overflow-hidden bg-muted shrink-0">
@@ -43,7 +42,6 @@ const PostCard = ({ post }) => {
 
       {/* flex-1 so this section grows to fill remaining card height */}
       <div className={`flex flex-col flex-1 ${coverImageUrl ? 'pt-4' : 'pt-5'} px-5 pb-5`}>
-
         {/* Top meta row — category badge + stats */}
         <div className="flex items-center justify-between mb-3">
           {/* Clickable category badge — uses neutral secondary colors, no blue */}

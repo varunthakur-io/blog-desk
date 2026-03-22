@@ -54,13 +54,11 @@ const PostDetails = () => {
 
   return (
     <div className="page-root">
-
       {/* 2-column grid — left sidebar fixed, right content scrolls independently */}
       <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-0 lg:gap-8 xl:gap-12">
-
         {/* ── Left sidebar — fixed height, doesn't scroll ── */}
         <div className="hidden lg:block">
-          <div className="sticky top-[calc(64px+2rem)] h-[calc(100vh-64px-4rem)] overflow-hidden scrollbar-none pr-6 relative">
+          <div className="sticky top-[calc(64px+2rem)] h-[calc(100vh-64px-4rem)] overflow-hidden scrollbar-none pr-6 ">
             {/* vertical fading line — exactly like shadcn docs */}
             <div className="absolute top-0 right-0 bottom-0 hidden h-full w-px bg-gradient-to-b from-transparent via-border to-transparent lg:block" />
             <AuthorSidebar
@@ -102,14 +100,15 @@ const PostDetails = () => {
         </div>
 
         {/* ── Right sidebar — removed, article gets full width ── */}
-
       </div>
 
       {/* mobile: like + share bar fixed at bottom */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/95 backdrop-blur-sm px-4 py-3 flex items-center justify-between gap-3">
         <div className="text-sm text-muted-foreground">
-          By <span className="font-medium text-foreground">{authorProfile?.name || 'Anonymous'}</span>
-          {' · '}{estimatedReadTime} min read
+          By{' '}
+          <span className="font-medium text-foreground">{authorProfile?.name || 'Anonymous'}</span>
+          {' · '}
+          {estimatedReadTime} min read
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -121,13 +120,17 @@ const PostDetails = () => {
           >
             {likesCount}
           </Button>
-          <Button onClick={handleShare} variant="outline" size="sm" className="gap-1.5 rounded-full text-xs px-3">
+          <Button
+            onClick={handleShare}
+            variant="outline"
+            size="sm"
+            className="gap-1.5 rounded-full text-xs px-3"
+          >
             Share
           </Button>
         </div>
       </div>
       <div className="lg:hidden h-20" />
-
     </div>
   );
 };

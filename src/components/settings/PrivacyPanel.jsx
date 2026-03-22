@@ -34,10 +34,11 @@ const PrivacyPanel = ({
             onClick={() => setIsSessionsDialogOpen(true)}
             className="gap-2"
           >
-            {isUpdatingSession
-              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              : <LogOut className="h-3.5 w-3.5" />
-            }
+            {isUpdatingSession ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <LogOut className="h-3.5 w-3.5" />
+            )}
             Log out all devices
           </Button>
         </CardContent>
@@ -63,10 +64,11 @@ const PrivacyPanel = ({
             onClick={() => setIsDeleteDialogOpen(true)}
             className="gap-2"
           >
-            {isUpdatingSession
-              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              : <Trash2 className="h-3.5 w-3.5" />
-            }
+            {isUpdatingSession ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Trash2 className="h-3.5 w-3.5" />
+            )}
             Delete my account
           </Button>
         </CardContent>

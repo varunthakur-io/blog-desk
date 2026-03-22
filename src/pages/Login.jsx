@@ -40,7 +40,9 @@ const Login = () => {
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             {/* Email */}
             <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+              <Label htmlFor="email" className="text-sm font-medium">
+                Email
+              </Label>
               <Input
                 id="email"
                 type="email"
@@ -53,14 +55,14 @@ const Login = () => {
                 autoComplete="email"
                 className={`h-11 rounded-lg text-sm ${loginErrors.email ? 'border-destructive focus-visible:ring-destructive/40' : ''}`}
               />
-              {loginErrors.email && (
-                <p className="text-xs text-destructive">{loginErrors.email}</p>
-              )}
+              {loginErrors.email && <p className="text-xs text-destructive">{loginErrors.email}</p>}
             </div>
 
             {/* Password */}
             <div className="space-y-1.5">
-              <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+              <Label htmlFor="password" className="text-sm font-medium">
+                Password
+              </Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -98,15 +100,22 @@ const Login = () => {
               disabled={isLoginLoading}
               className="w-full h-11 rounded-full font-semibold gap-2 text-sm mt-2"
             >
-              {isLoginLoading ? 'Signing in…' : (
-                <><span>Sign In</span> <ArrowRight className="h-4 w-4" /></>
+              {isLoginLoading ? (
+                'Signing in…'
+              ) : (
+                <>
+                  <span>Sign In</span> <ArrowRight className="h-4 w-4" />
+                </>
               )}
             </Button>
           </form>
 
           <p className="text-center text-sm text-muted-foreground">
             Don&apos;t have an account?{' '}
-            <Link to="/signup" className="font-semibold text-foreground underline underline-offset-4 hover:opacity-70">
+            <Link
+              to="/signup"
+              className="font-semibold text-foreground underline underline-offset-4 hover:opacity-70"
+            >
               Sign up for free
             </Link>
           </p>

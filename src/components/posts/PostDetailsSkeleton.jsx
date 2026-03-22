@@ -3,9 +3,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 const PostDetailsSkeleton = () => {
   return (
     <div className="page-root">
-
       <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-0 lg:gap-8 xl:gap-12">
-
         {/* left sidebar */}
         <div className="hidden lg:flex flex-col gap-6">
           {/* back button */}
@@ -55,17 +53,20 @@ const PostDetailsSkeleton = () => {
           </div>
           <Skeleton className="w-full rounded-xl" style={{ height: '360px' }} />
           <div className="space-y-3">
-            {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-4 w-full" />)}
+            {[...Array(5)].map((_, i) => (
+              <Skeleton key={i} className="h-4 w-full" />
+            ))}
             <Skeleton className="h-4 w-3/4" />
           </div>
           <div className="space-y-3">
-            {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-4 w-full" />)}
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="h-4 w-full" />
+            ))}
             <Skeleton className="h-4 w-4/5" />
           </div>
         </div>
 
         {/* right column removed */}
-
       </div>
     </div>
   );

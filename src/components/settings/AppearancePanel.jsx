@@ -17,10 +17,7 @@ const AppearancePanel = ({ isDarkMode, handleToggleDarkMode }) => {
                 Switch between light and dark themes.
               </p>
             </div>
-            <Switch
-              checked={isDarkMode}
-              onCheckedChange={handleToggleDarkMode}
-            />
+            <Switch checked={isDarkMode} onCheckedChange={handleToggleDarkMode} />
           </div>
         </CardContent>
       </Card>

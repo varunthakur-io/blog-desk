@@ -10,26 +10,24 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
-const ConfirmationDialog = ({ 
-  open, 
-  onOpenChange, 
-  onConfirm, 
+const ConfirmationDialog = ({
+  open,
+  onOpenChange,
+  onConfirm,
   onCancel,
-  title = "Are you sure?", 
-  description = "This action cannot be undone.",
-  confirmText = "Continue",
-  cancelText = "Cancel",
-  variant = "default", // "default" | "destructive"
-  isLoading = false
+  title = 'Are you sure?',
+  description = 'This action cannot be undone.',
+  confirmText = 'Continue',
+  cancelText = 'Cancel',
+  variant = 'default', // "default" | "destructive"
+  isLoading = false,
 }) => {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>
-            {description}
-          </AlertDialogDescription>
+          <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isLoading} onClick={onCancel}>
@@ -41,9 +39,13 @@ const ConfirmationDialog = ({
               e.preventDefault();
               onConfirm();
             }}
-            className={variant === 'destructive' ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' : ''}
+            className={
+              variant === 'destructive'
+                ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground'
+                : ''
+            }
           >
-            {isLoading ? "Processing..." : confirmText}
+            {isLoading ? 'Processing...' : confirmText}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

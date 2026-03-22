@@ -52,7 +52,10 @@ const PostContent = ({ title, content, coverImageUrl, category, onHeadingsReady 
   }, [content, onHeadingsReady]);
 
   const handleCategoryClick = () => {
-    if (category) { dispatch(setActiveCategory(category)); navigate('/'); }
+    if (category) {
+      dispatch(setActiveCategory(category));
+      navigate('/');
+    }
   };
 
   const processedContent = content ? injectHeadingIds(content) : '';
@@ -61,11 +64,13 @@ const PostContent = ({ title, content, coverImageUrl, category, onHeadingsReady 
     <>
       {/* reading progress bar — outside space-y wrapper so it doesn't add layout margin */}
       <div className="fixed top-0 left-0 right-0 z-50 h-0.5 bg-border/50">
-        <div className="h-full bg-foreground transition-all duration-75 ease-out" style={{ width: `${progress}%` }} />
+        <div
+          className="h-full bg-foreground transition-all duration-75 ease-out"
+          style={{ width: `${progress}%` }}
+        />
       </div>
 
       <div className="space-y-6">
-
         {/* category */}
         {category && (
           <button
@@ -83,8 +88,16 @@ const PostContent = ({ title, content, coverImageUrl, category, onHeadingsReady 
 
         {/* cover image — max height capped so it doesn't dominate the page */}
         {coverImageUrl && (
-          <div className="relative w-full rounded-xl overflow-hidden bg-muted border border-border" style={{ maxHeight: '360px' }}>
-            <img src={coverImageUrl} alt={title} className="w-full h-full object-cover" style={{ maxHeight: '360px' }} />
+          <div
+            className="relative w-full rounded-xl overflow-hidden bg-muted border border-border"
+            style={{ maxHeight: '360px' }}
+          >
+            <img
+              src={coverImageUrl}
+              alt={title}
+              className="w-full h-full object-cover"
+              style={{ maxHeight: '360px' }}
+            />
           </div>
         )}
 
@@ -105,7 +118,6 @@ const PostContent = ({ title, content, coverImageUrl, category, onHeadingsReady 
             prose-li:text-foreground/85"
           dangerouslySetInnerHTML={{ __html: processedContent }}
         />
-
       </div>
     </>
   );

@@ -3,11 +3,11 @@ import { Query, ID } from 'appwrite';
 
 class LikeApi {
   async getLike(postId, userId) {
-    const likeList = await databases.listDocuments(appwrite.databaseId, appwrite.likesCollectionId, [
-      Query.equal('postId', postId),
-      Query.equal('userId', userId),
-      Query.limit(1),
-    ]);
+    const likeList = await databases.listDocuments(
+      appwrite.databaseId,
+      appwrite.likesCollectionId,
+      [Query.equal('postId', postId), Query.equal('userId', userId), Query.limit(1)],
+    );
     return likeList.total > 0 ? likeList.documents[0] : null;
   }
 

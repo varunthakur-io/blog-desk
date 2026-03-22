@@ -14,14 +14,12 @@ export const useSettings = () => {
   const [isDarkMode, setDarkMode] = useDarkMode();
 
   const authUser = useSelector(selectAuthUser);
-  const profile = useSelector((state) =>
-    selectProfileById(state, authUser?.$id),
-  );
+  const profile = useSelector((state) => selectProfileById(state, authUser?.$id));
 
   // ─── Loading flags ───────────────────────────────────────────────
-  const [isPrefsLoading, setIsPrefsLoading]     = useState(true);
-  const [isSavingProfile, setIsSavingProfile]   = useState(false);
-  const [isSavingEmail, setIsSavingEmail]       = useState(false);
+  const [isPrefsLoading, setIsPrefsLoading] = useState(true);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [isSavingEmail, setIsSavingEmail] = useState(false);
   const [isSavingPassword, setIsSavingPassword] = useState(false);
   const [isUpdatingSession, setIsUpdatingSession] = useState(false);
 
@@ -49,14 +47,14 @@ export const useSettings = () => {
 
   // ─── Danger zone dialogs ─────────────────────────────────────────
   const [isSessionsDialogOpen, setIsSessionsDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen]     = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   // Seed forms from live Redux state whenever it changes
   useEffect(() => {
     if (authUser) {
       setProfileForm((prev) => ({
         name: prev.name || authUser.name || '',
-        bio:  prev.bio  || profile?.bio   || '',
+        bio: prev.bio || profile?.bio || '',
       }));
       setEmailForm((prev) => ({ ...prev, email: prev.email || authUser.email || '' }));
       setAvatarPreview(profile?.avatarUrl || null);
@@ -73,7 +71,7 @@ export const useSettings = () => {
         if (!cancelled && user) {
           setPrefs({
             marketing: user.prefs?.marketing ?? false,
-            security:  user.prefs?.security  ?? true,
+            security: user.prefs?.security ?? true,
           });
         }
       } catch (err) {
@@ -83,7 +81,9 @@ export const useSettings = () => {
       }
     };
     fetchPrefs();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Clean up blob URL on unmount
@@ -94,23 +94,29 @@ export const useSettings = () => {
   }, []);
 
   // ─── Appearance ──────────────────────────────────────────────────
-  const handleToggleDarkMode = useCallback((checked) => {
-    setDarkMode(checked);
-    toast.success(`Switched to ${checked ? 'dark' : 'light'} mode`);
-  }, [setDarkMode]);
+  const handleToggleDarkMode = useCallback(
+    (checked) => {
+      setDarkMode(checked);
+      toast.success(`Switched to ${checked ? 'dark' : 'light'} mode`);
+    },
+    [setDarkMode],
+  );
 
   // ─── Notifications ───────────────────────────────────────────────
-  const handlePrefChange = useCallback(async (key, value) => {
-    const prev = { ...prefs };
-    setPrefs((p) => ({ ...p, [key]: value }));
-    try {
-      await authService.updatePrefs({ ...prev, [key]: value });
-      toast.success('Preference saved.');
-    } catch {
-      setPrefs(prev);
-      toast.error('Failed to save preference.');
-    }
-  }, [prefs]);
+  const handlePrefChange = useCallback(
+    async (key, value) => {
+      const prev = { ...prefs };
+      setPrefs((p) => ({ ...p, [key]: value }));
+      try {
+        await authService.updatePrefs({ ...prev, [key]: value });
+        toast.success('Preference saved.');
+      } catch {
+        setPrefs(prev);
+        toast.error('Failed to save preference.');
+      }
+    },
+    [prefs],
+  );
 
   // ─── Profile ─────────────────────────────────────────────────────
   const handleAvatarSelect = useCallback((e) => {

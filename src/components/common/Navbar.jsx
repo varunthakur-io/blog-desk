@@ -128,11 +128,17 @@ const Navbar = () => {
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 shadow-lg border-border/60" align="end" forceMount>
+              <DropdownMenuContent
+                className="w-56 shadow-lg border-border/60"
+                align="end"
+                forceMount
+              >
                 <DropdownMenuLabel className="font-normal py-2.5">
                   <div className="flex flex-col gap-0.5">
                     <p className="text-sm font-semibold leading-none">{userName}</p>
-                    <p className="text-xs leading-none text-muted-foreground truncate mt-1">{userEmail}</p>
+                    <p className="text-xs leading-none text-muted-foreground truncate mt-1">
+                      {userEmail}
+                    </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />

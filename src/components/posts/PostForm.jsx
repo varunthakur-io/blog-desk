@@ -5,15 +5,17 @@ import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link'; // not included in StarterKit by default, need to add separately
 import { postService } from '@/services/posts';
 import toast from 'react-hot-toast';
-import {
-  Loader2, Save, ArrowLeft, Eye, Code, ImageIcon, X, Settings2,
-} from 'lucide-react';
+import { Loader2, Save, ArrowLeft, Eye, Code, ImageIcon, X, Settings2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/ui/select';
 import { getRandomPostData } from '@/utils/fakePostData';
 import { CATEGORIES } from '@/constants';
@@ -27,32 +29,39 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
 
   // all the fields i need to send to appwrite when submitting
   const [formData, setFormData] = useState({
-    title:         initialData?.title         || '',
-    content:       initialData?.content       || '',
-    status:        initialData?.status        || 'draft',
+    title: initialData?.title || '',
+    content: initialData?.content || '',
+    status: initialData?.status || 'draft',
     coverImageUrl: initialData?.coverImageUrl || null,
-    coverImageId:  initialData?.coverImageId  || null,
-    category:      initialData?.category      || null,
+    coverImageId: initialData?.coverImageId || null,
+    category: initialData?.category || null,
   });
 
-  const [isPreviewOpen,     setIsPreviewOpen]     = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [mobileOptionsOpen, setMobileOptionsOpen] = useState(false); // toggles the mobile options panel
-  const [postImagePreview,  setPostImagePreview]  = useState(initialData?.coverImageUrl || null); // local blob preview before upload completes
-  const [saveStateLabel,    setSaveStateLabel]    = useState(mode === 'edit' ? 'Saved' : 'Unsaved');
+  const [postImagePreview, setPostImagePreview] = useState(initialData?.coverImageUrl || null); // local blob preview before upload completes
+  const [saveStateLabel, setSaveStateLabel] = useState(mode === 'edit' ? 'Saved' : 'Unsaved');
   const isEdit = mode === 'edit';
 
   // keep a ref in sync with saveStateLabel so the tiptap onUpdate closure
   // always reads the latest value — without this it captures the initial value
   // and never updates (stale closure bug)
   const saveStateLabelRef = useRef(saveStateLabel);
-  useEffect(() => { saveStateLabelRef.current = saveStateLabel; }, [saveStateLabel]);
+  useEffect(() => {
+    saveStateLabelRef.current = saveStateLabel;
+  }, [saveStateLabel]);
 
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        bold: true, italic: true, code: true, bulletList: true, orderedList: true,
+        bold: true,
+        italic: true,
+        code: true,
+        bulletList: true,
+        orderedList: true,
         heading: { levels: [1, 2, 3] },
-        blockquote: true, codeBlock: true,
+        blockquote: true,
+        codeBlock: true,
         // note: link is NOT in StarterKit, i'm adding it below separately
       }),
       Link.configure({ openOnClick: false }), // openOnClick: false so clicking a link in the editor doesn't navigate away
@@ -140,7 +149,6 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
 
   return (
     <div className="page-root flex gap-8">
-
       {/* ── Left sidebar — post options (desktop only, hidden on mobile) ── */}
       <aside className="hidden md:flex w-48 shrink-0 flex-col gap-6">
         <div className="sticky top-24 flex flex-col gap-6 relative pr-6">
@@ -159,15 +167,16 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
               <ArrowLeft className="h-3.5 w-3.5" />
             </Button>
             <div className="flex items-center gap-1.5 min-w-0">
-              <p className="text-sm font-semibold truncate">
-                {isEdit ? 'Edit Post' : 'New Post'}
-              </p>
+              <p className="text-sm font-semibold truncate">{isEdit ? 'Edit Post' : 'New Post'}</p>
               {/* small dot indicator — filled = unsaved, checkmark = saved */}
-              <span className={`inline-flex items-center justify-center h-4 w-4 rounded-full shrink-0 ${saveStateLabel.includes('Unsaved') ? 'bg-muted border border-border' : 'bg-muted'}`}>
-                {saveStateLabel.includes('Unsaved')
-                  ? <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground" />
-                  : <span className="text-[9px] text-muted-foreground">✓</span>
-                }
+              <span
+                className={`inline-flex items-center justify-center h-4 w-4 rounded-full shrink-0 ${saveStateLabel.includes('Unsaved') ? 'bg-muted border border-border' : 'bg-muted'}`}
+              >
+                {saveStateLabel.includes('Unsaved') ? (
+                  <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground" />
+                ) : (
+                  <span className="text-[9px] text-muted-foreground">✓</span>
+                )}
               </span>
             </div>
           </div>
@@ -211,7 +220,9 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
                   <span className="text-muted-foreground">Uncategorised</span>
                 </SelectItem>
                 {CATEGORIES.map((cat) => (
-                  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                  <SelectItem key={cat} value={cat}>
+                    {cat}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -225,11 +236,7 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
             {postImagePreview ? (
               // show the uploaded image with a hover-reveal remove button
               <div className="relative rounded-lg overflow-hidden border border-border aspect-video group">
-                <img
-                  src={postImagePreview}
-                  alt="Cover"
-                  className="w-full h-full object-cover"
-                />
+                <img src={postImagePreview} alt="Cover" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <Button
                     type="button"
@@ -299,20 +306,19 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
               onClick={handleSubmit}
               disabled={isSubmitting}
             >
-              {isSubmitting
-                ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                : <Save className="h-3.5 w-3.5" />
-              }
+              {isSubmitting ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Save className="h-3.5 w-3.5" />
+              )}
               {isEdit ? 'Update post' : 'Publish post'}
             </Button>
           </div>
-
         </div>
       </aside>
 
       {/* ── Right side — the actual editor ── */}
       <main className="flex-1 min-w-0">
-
         {/* mobile top bar — sidebar is hidden on mobile so i show a compact row instead */}
         <div className="md:hidden flex items-center justify-between gap-2 mb-4">
           <div className="flex items-center gap-2">
@@ -325,9 +331,7 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <span className="text-sm font-semibold">
-              {isEdit ? 'Edit Post' : 'New Post'}
-            </span>
+            <span className="text-sm font-semibold">{isEdit ? 'Edit Post' : 'New Post'}</span>
           </div>
           <div className="flex items-center gap-2">
             {/* options button toggles the collapsible panel below */}
@@ -346,10 +350,11 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
               onClick={handleSubmit}
               disabled={isSubmitting}
             >
-              {isSubmitting
-                ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                : <Save className="h-3.5 w-3.5" />
-              }
+              {isSubmitting ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Save className="h-3.5 w-3.5" />
+              )}
               {isEdit ? 'Update' : 'Publish'}
             </Button>
           </div>
@@ -359,9 +364,16 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
         {mobileOptionsOpen && (
           <div className="md:hidden rounded-xl border border-border bg-card p-4 mb-4 space-y-4">
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</Label>
-              <Select value={formData.status} onValueChange={(val) => setFormData((p) => ({ ...p, status: val }))}>
-                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Status
+              </Label>
+              <Select
+                value={formData.status}
+                onValueChange={(val) => setFormData((p) => ({ ...p, status: val }))}
+              >
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="published">Published</SelectItem>
                   <SelectItem value="draft">Draft</SelectItem>
@@ -369,25 +381,45 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Category</Label>
+              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Category
+              </Label>
               <Select
                 value={formData.category || '__none__'}
-                onValueChange={(val) => setFormData((p) => ({ ...p, category: val === '__none__' ? null : val }))}
+                onValueChange={(val) =>
+                  setFormData((p) => ({ ...p, category: val === '__none__' ? null : val }))
+                }
               >
-                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="__none__"><span className="text-muted-foreground">Uncategorised</span></SelectItem>
-                  {CATEGORIES.map((cat) => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}
+                  <SelectItem value="__none__">
+                    <span className="text-muted-foreground">Uncategorised</span>
+                  </SelectItem>
+                  {CATEGORIES.map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      {cat}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Cover Image</Label>
+              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Cover Image
+              </Label>
               {postImagePreview ? (
                 <div className="relative rounded-lg overflow-hidden border border-border aspect-video group">
                   <img src={postImagePreview} alt="Cover" className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <Button type="button" variant="destructive" size="sm" onClick={removeFeaturedImage} className="gap-1 text-xs h-7 px-2">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={removeFeaturedImage}
+                      className="gap-1 text-xs h-7 px-2"
+                    >
                       <X className="h-3 w-3" /> Remove
                     </Button>
                   </div>
@@ -395,15 +427,30 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
               ) : (
                 <label className="flex items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer py-3 text-xs text-muted-foreground">
                   <ImageIcon className="h-3.5 w-3.5" /> Click to upload
-                  <input type="file" accept="image/*" className="hidden" onChange={handleFeaturedImageUpload} />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFeaturedImageUpload}
+                  />
                 </label>
               )}
             </div>
             <Separator />
-            <button type="button" onClick={() => setIsPreviewOpen(true)} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <button
+              type="button"
+              onClick={() => setIsPreviewOpen(true)}
+              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
               <Eye className="h-4 w-4" /> Preview post
             </button>
-            <Button type="button" variant="outline" size="sm" className="w-full text-xs" onClick={() => navigate('/dashboard')}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="w-full text-xs"
+              onClick={() => navigate('/dashboard')}
+            >
               Discard
             </Button>
           </div>
@@ -427,7 +474,6 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
             <EditorContent editor={editor} />
           </div>
         </div>
-
       </main>
 
       {/* preview dialog — shows a sanitized render of the current title + content */}
@@ -437,7 +483,6 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
         title={formData.title}
         content={editor.getHTML()}
       />
-
     </div>
   );
 };

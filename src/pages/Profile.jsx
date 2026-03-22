@@ -31,7 +31,9 @@ export default function Profile() {
   if (usernameFetchError)
     return <div className="py-20 text-center text-sm text-destructive">{usernameFetchError}</div>;
   if (!profileId)
-    return <div className="py-20 text-center text-sm text-muted-foreground">Profile not found.</div>;
+    return (
+      <div className="py-20 text-center text-sm text-muted-foreground">Profile not found.</div>
+    );
   if (authLoading || profileLoading) return <ProfileSkeleton />;
   if (!profile && profileError)
     return <div className="py-20 text-center text-sm text-destructive">{profileError}</div>;
@@ -47,7 +49,7 @@ export default function Profile() {
           avatarUrl={avatarUrl}
           joinedDate={joinedDate}
           isOwner={isOwner}
-          postsCount={postsLoading ? (profile?.postsCount || 0) : userPosts.length}
+          postsCount={postsLoading ? profile?.postsCount || 0 : userPosts.length}
           followersCount={profile?.followersCount || 0}
           followingCount={profile?.followingCount || 0}
         />
@@ -76,4 +78,3 @@ export default function Profile() {
     </div>
   );
 }
-

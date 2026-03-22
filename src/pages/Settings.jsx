@@ -4,18 +4,18 @@ import { cn } from '@/lib/utils';
 
 import { useSettings } from '@/hooks/profile';
 
-import ProfilePanel       from '@/components/settings/ProfilePanel';
-import AccountPanel       from '@/components/settings/AccountPanel';
-import AppearancePanel    from '@/components/settings/AppearancePanel';
+import ProfilePanel from '@/components/settings/ProfilePanel';
+import AccountPanel from '@/components/settings/AccountPanel';
+import AppearancePanel from '@/components/settings/AppearancePanel';
 import NotificationsPanel from '@/components/settings/NotificationsPanel';
-import PrivacyPanel       from '@/components/settings/PrivacyPanel';
+import PrivacyPanel from '@/components/settings/PrivacyPanel';
 
 const NAV = [
-  { id: 'profile',       label: 'Profile',       icon: User    },
-  { id: 'account',       label: 'Account',        icon: Lock    },
-  { id: 'appearance',    label: 'Appearance',     icon: Palette },
-  { id: 'notifications', label: 'Notifications',  icon: Bell    },
-  { id: 'privacy',       label: 'Privacy',        icon: Shield  },
+  { id: 'profile', label: 'Profile', icon: User },
+  { id: 'account', label: 'Account', icon: Lock },
+  { id: 'appearance', label: 'Appearance', icon: Palette },
+  { id: 'notifications', label: 'Notifications', icon: Bell },
+  { id: 'privacy', label: 'Privacy', icon: Shield },
 ];
 
 export default function Settings() {
@@ -88,7 +88,6 @@ export default function Settings() {
 
   return (
     <div className="page-root flex gap-8 min-h-[70vh]">
-
       {/* Sidebar — sticky, full viewport height so the vertical line always spans the screen */}
       <aside className="hidden md:block w-48 shrink-0">
         <div className="sticky top-24 relative pr-6 min-h-[calc(100vh-6rem)]">
@@ -140,10 +139,7 @@ export default function Settings() {
       </div>
 
       {/* Content — desktop */}
-      <main className="flex-1 min-w-0 hidden md:block">
-        {renderPanel()}
-      </main>
-
+      <main className="flex-1 min-w-0 hidden md:block">{renderPanel()}</main>
     </div>
   );
 }

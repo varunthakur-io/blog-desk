@@ -69,7 +69,9 @@ export const useEditPost = () => {
     };
 
     loadPost();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [id, post, dispatch]);
 
   const handleUpdate = useCallback(

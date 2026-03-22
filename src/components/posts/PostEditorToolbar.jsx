@@ -23,9 +23,10 @@ const ToolbarButton = ({ onClick, isActive, disabled, title, children }) => (
     disabled={disabled}
     title={title}
     className={`h-8 w-8 flex items-center justify-center rounded-md text-sm transition-colors
-      ${isActive
-        ? 'bg-foreground text-background'
-        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+      ${
+        isActive
+          ? 'bg-foreground text-background'
+          : 'text-muted-foreground hover:text-foreground hover:bg-muted'
       }
       disabled:opacity-30 disabled:cursor-not-allowed`}
   >

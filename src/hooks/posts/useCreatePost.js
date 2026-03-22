@@ -37,12 +37,12 @@ export const useCreatePost = () => {
 
       try {
         const newPost = await postService.createPost({
-          title:        formData.title.trim(),
-          content:      formData.content.trim(),
-          status:       formData.status       || 'draft',
-          coverImageId: formData.coverImageId  || null,
+          title: formData.title.trim(),
+          content: formData.content.trim(),
+          status: formData.status || 'draft',
+          coverImageId: formData.coverImageId || null,
           coverImageUrl: formData.coverImageUrl || null,
-          category:     formData.category      || null,
+          category: formData.category || null,
         });
 
         // cache the new post in redux so it shows up immediately on dashboard/post detail

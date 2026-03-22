@@ -13,7 +13,10 @@ const AppSkeleton = () => {
             </div>
             <div className="hidden md:flex items-center gap-1">
               {[60, 72, 44, 52].map((w, i) => (
-                <Skeleton key={i} className={`h-7 w-${w === 60 ? '16' : w === 72 ? '20' : w === 44 ? '12' : '14'} rounded-md`} />
+                <Skeleton
+                  key={i}
+                  className={`h-7 w-${w === 60 ? '16' : w === 72 ? '20' : w === 44 ? '12' : '14'} rounded-md`}
+                />
               ))}
             </div>
           </div>

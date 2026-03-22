@@ -139,7 +139,14 @@ const AccountPanel = ({
               </Alert>
             )}
 
-            <input type="text" autoComplete="username" name="username" value={authUser?.email || ''} readOnly style={{ display: 'none' }} />
+            <input
+              type="text"
+              autoComplete="username"
+              name="username"
+              value={authUser?.email || ''}
+              readOnly
+              style={{ display: 'none' }}
+            />
 
             <div className="space-y-2">
               <Label htmlFor="current-password">Current password</Label>

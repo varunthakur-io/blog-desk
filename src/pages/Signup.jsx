@@ -19,8 +19,10 @@ const Signup = () => {
 
   const getUsernameMessage = () => {
     if (usernameCheckStatus === 'checking') return { type: 'info', text: 'Checking availability…' };
-    if (usernameCheckStatus === 'available') return { type: 'success', text: 'Username is available!' };
-    if (usernameCheckStatus === 'taken') return { type: 'error', text: 'Username is already taken.' };
+    if (usernameCheckStatus === 'available')
+      return { type: 'success', text: 'Username is available!' };
+    if (usernameCheckStatus === 'taken')
+      return { type: 'error', text: 'Username is already taken.' };
     if (signupErrors.username) return { type: 'error', text: signupErrors.username };
     return null;
   };
@@ -50,7 +52,9 @@ const Signup = () => {
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             {/* Name */}
             <div className="space-y-1.5">
-              <Label htmlFor="name" className="text-sm font-medium">Full Name</Label>
+              <Label htmlFor="name" className="text-sm font-medium">
+                Full Name
+              </Label>
               <Input
                 id="name"
                 type="text"
@@ -67,7 +71,9 @@ const Signup = () => {
 
             {/* Username */}
             <div className="space-y-1.5">
-              <Label htmlFor="username" className="text-sm font-medium">Username</Label>
+              <Label htmlFor="username" className="text-sm font-medium">
+                Username
+              </Label>
               <Input
                 id="username"
                 type="text"
@@ -78,14 +84,21 @@ const Signup = () => {
                 required
                 disabled={isSignupLoading}
                 className={`h-11 rounded-lg text-sm ${
-                  signupErrors.username || usernameCheckStatus === 'taken' ? 'border-destructive' : ''
+                  signupErrors.username || usernameCheckStatus === 'taken'
+                    ? 'border-destructive'
+                    : ''
                 }`}
               />
               {usernameMessage && (
-                <p className={`text-xs font-medium ${
-                  usernameMessage.type === 'success' ? 'text-green-600 dark:text-green-400' :
-                  usernameMessage.type === 'info' ? 'text-blue-500' : 'text-destructive'
-                }`}>
+                <p
+                  className={`text-xs font-medium ${
+                    usernameMessage.type === 'success'
+                      ? 'text-green-600 dark:text-green-400'
+                      : usernameMessage.type === 'info'
+                        ? 'text-blue-500'
+                        : 'text-destructive'
+                  }`}
+                >
                   {usernameMessage.text}
                 </p>
               )}
@@ -93,7 +106,9 @@ const Signup = () => {
 
             {/* Email */}
             <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+              <Label htmlFor="email" className="text-sm font-medium">
+                Email
+              </Label>
               <Input
                 id="email"
                 type="email"
@@ -106,12 +121,16 @@ const Signup = () => {
                 autoComplete="email"
                 className={`h-11 rounded-lg text-sm ${signupErrors.email ? 'border-destructive' : ''}`}
               />
-              {signupErrors.email && <p className="text-xs text-destructive">{signupErrors.email}</p>}
+              {signupErrors.email && (
+                <p className="text-xs text-destructive">{signupErrors.email}</p>
+              )}
             </div>
 
             {/* Password */}
             <div className="space-y-1.5">
-              <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+              <Label htmlFor="password" className="text-sm font-medium">
+                Password
+              </Label>
               <Input
                 id="password"
                 type="password"
@@ -124,7 +143,9 @@ const Signup = () => {
                 autoComplete="new-password"
                 className={`h-11 rounded-lg text-sm ${signupErrors.password ? 'border-destructive' : ''}`}
               />
-              {signupErrors.password && <p className="text-xs text-destructive">{signupErrors.password}</p>}
+              {signupErrors.password && (
+                <p className="text-xs text-destructive">{signupErrors.password}</p>
+              )}
             </div>
 
             <Button
@@ -132,15 +153,22 @@ const Signup = () => {
               className="w-full h-11 rounded-full font-semibold gap-2 text-sm mt-2"
               disabled={isSignupLoading || isSubmitDisabled}
             >
-              {isSignupLoading ? 'Creating account…' : (
-                <><span>Create Account</span> <ArrowRight className="h-4 w-4" /></>
+              {isSignupLoading ? (
+                'Creating account…'
+              ) : (
+                <>
+                  <span>Create Account</span> <ArrowRight className="h-4 w-4" />
+                </>
               )}
             </Button>
           </form>
 
           <p className="text-center text-sm text-muted-foreground">
             Already have an account?{' '}
-            <Link to="/login" className="font-semibold text-foreground underline underline-offset-4 hover:opacity-70">
+            <Link
+              to="/login"
+              className="font-semibold text-foreground underline underline-offset-4 hover:opacity-70"
+            >
               Sign in
             </Link>
           </p>

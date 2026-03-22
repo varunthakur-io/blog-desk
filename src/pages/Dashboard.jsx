@@ -108,7 +108,13 @@ export default function Dashboard() {
           </div>
 
           <div className="flex flex-col sm:flex-row w-full md:w-auto items-stretch sm:items-center gap-2">
-            <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
+            <Select
+              value={statusFilter}
+              onValueChange={(v) => {
+                setStatusFilter(v);
+                setPage(1);
+              }}
+            >
               <SelectTrigger className="w-full sm:w-[120px] h-9 text-sm">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
@@ -119,7 +125,13 @@ export default function Dashboard() {
               </SelectContent>
             </Select>
 
-            <Select value={sortBy} onValueChange={(v) => { setSortBy(v); setPage(1); }}>
+            <Select
+              value={sortBy}
+              onValueChange={(v) => {
+                setSortBy(v);
+                setPage(1);
+              }}
+            >
               <SelectTrigger className="w-full sm:w-[120px] h-9 text-sm">
                 <SelectValue placeholder="Sort" />
               </SelectTrigger>
@@ -141,7 +153,11 @@ export default function Dashboard() {
               />
             </div>
 
-            <Button onClick={() => navigate('/create')} size="sm" className="shrink-0 gap-2 rounded-full px-4">
+            <Button
+              onClick={() => navigate('/create')}
+              size="sm"
+              className="shrink-0 gap-2 rounded-full px-4"
+            >
               <Plus className="h-4 w-4" /> New Post
             </Button>
           </div>
@@ -158,15 +174,25 @@ export default function Dashboard() {
         ) : posts.length === 0 ? (
           <EmptyState onCreate={() => navigate('/create')} hasQuery={!!searchQuery} />
         ) : (
-          <div className={`flex flex-col gap-4 transition-opacity duration-200 ${postsLoading ? 'opacity-50 pointer-events-none' : ''}`}>
+          <div
+            className={`flex flex-col gap-4 transition-opacity duration-200 ${postsLoading ? 'opacity-50 pointer-events-none' : ''}`}
+          >
             <div className="rounded-xl border border-border/50 overflow-hidden shadow-sm">
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/40 hover:bg-muted/40">
-                    <TableHead className="w-[420px] font-semibold text-xs uppercase tracking-wider">Title</TableHead>
-                    <TableHead className="font-semibold text-xs uppercase tracking-wider">Status</TableHead>
-                    <TableHead className="font-semibold text-xs uppercase tracking-wider">Created</TableHead>
-                    <TableHead className="text-right font-semibold text-xs uppercase tracking-wider">Actions</TableHead>
+                    <TableHead className="w-[420px] font-semibold text-xs uppercase tracking-wider">
+                      Title
+                    </TableHead>
+                    <TableHead className="font-semibold text-xs uppercase tracking-wider">
+                      Status
+                    </TableHead>
+                    <TableHead className="font-semibold text-xs uppercase tracking-wider">
+                      Created
+                    </TableHead>
+                    <TableHead className="text-right font-semibold text-xs uppercase tracking-wider">
+                      Actions
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -194,12 +220,18 @@ export default function Dashboard() {
                       <TableCell className="text-right py-3.5">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-muted">
+                            <Button
+                              variant="ghost"
+                              className="h-8 w-8 p-0 rounded-full hover:bg-muted"
+                            >
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="shadow-lg border-border/60">
-                            <DropdownMenuItem onClick={() => navigate(`/edit/${post.$id}`)} className="gap-2 cursor-pointer">
+                            <DropdownMenuItem
+                              onClick={() => navigate(`/edit/${post.$id}`)}
+                              className="gap-2 cursor-pointer"
+                            >
                               <Edit2 className="h-3.5 w-3.5" /> Edit
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
@@ -260,7 +292,9 @@ export default function Dashboard() {
         description={
           <span>
             This will permanently delete{' '}
-            <span className="font-semibold text-foreground">&ldquo;{postToDelete?.title}&rdquo;</span>{' '}
+            <span className="font-semibold text-foreground">
+              &ldquo;{postToDelete?.title}&rdquo;
+            </span>{' '}
             and all its comments and likes. This cannot be undone.
           </span>
         }
@@ -271,4 +305,3 @@ export default function Dashboard() {
     </div>
   );
 }
-

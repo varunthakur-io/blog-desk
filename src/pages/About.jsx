@@ -1,6 +1,15 @@
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { BookOpen, Code2, Lightbulb, Users, ArrowRight, Zap, LayoutDashboard, PenLine } from 'lucide-react';
+import {
+  BookOpen,
+  Code2,
+  Lightbulb,
+  Users,
+  ArrowRight,
+  Zap,
+  LayoutDashboard,
+  PenLine,
+} from 'lucide-react';
 import { selectIsAuthenticated } from '@/store/auth/auth.selectors';
 
 const FeatureCard = ({ icon: Icon, title, description }) => (
@@ -130,7 +139,9 @@ const About = () => {
       <section className="text-center max-w-lg mx-auto py-10 px-8 rounded-2xl border border-border bg-muted/40">
         {isAuthenticated ? (
           <>
-            <h2 className="text-2xl font-extrabold tracking-tight mb-2">What will you write today?</h2>
+            <h2 className="text-2xl font-extrabold tracking-tight mb-2">
+              What will you write today?
+            </h2>
             <p className="text-muted-foreground text-sm mb-6 leading-relaxed">
               Head to your dashboard to manage posts or start a new one.
             </p>

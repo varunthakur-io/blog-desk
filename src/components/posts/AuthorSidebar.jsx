@@ -1,5 +1,15 @@
 import { Link } from 'react-router-dom';
-import { Calendar, Clock, Heart, Share2, Loader2, Tag, MessageSquare, ArrowLeft, User } from 'lucide-react';
+import {
+  Calendar,
+  Clock,
+  Heart,
+  Share2,
+  Loader2,
+  Tag,
+  MessageSquare,
+  ArrowLeft,
+  User,
+} from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 
@@ -18,14 +28,13 @@ const AuthorSidebar = ({
   authUserId,
   onBack,
 }) => {
-  const authorName     = authorProfile?.name     || 'Anonymous';
-  const authorBio      = authorProfile?.bio;
-  const authorAvatar   = authorProfile?.avatarUrl;
+  const authorName = authorProfile?.name || 'Anonymous';
+  const authorBio = authorProfile?.bio;
+  const authorAvatar = authorProfile?.avatarUrl;
   const authorUsername = authorProfile?.username;
 
   return (
     <aside className="flex flex-col gap-6">
-
       {/* back button — same style as settings nav items */}
       <button
         onClick={onBack}
@@ -43,7 +52,9 @@ const AuthorSidebar = ({
         <div className="px-3 space-y-3">
           <div className="flex items-center gap-3">
             <Avatar className="h-9 w-9 border border-border shrink-0">
-              {authorAvatar && <AvatarImage src={authorAvatar} alt={authorName} className="object-cover" />}
+              {authorAvatar && (
+                <AvatarImage src={authorAvatar} alt={authorName} className="object-cover" />
+              )}
               <AvatarFallback className="text-xs font-semibold bg-muted">
                 {authorName.charAt(0).toUpperCase()}
               </AvatarFallback>
@@ -59,7 +70,12 @@ const AuthorSidebar = ({
           </div>
 
           {authorUsername && (
-            <Button asChild variant="outline" size="sm" className="w-full rounded-md text-xs gap-1.5 h-8">
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="w-full rounded-md text-xs gap-1.5 h-8"
+            >
               <Link to={`/profile/${authorUsername}`}>
                 <User className="h-3.5 w-3.5" /> View Profile
               </Link>
@@ -79,7 +95,11 @@ const AuthorSidebar = ({
               <Calendar className="h-4 w-4 shrink-0" /> Published
             </span>
             <span className="font-medium text-foreground text-xs">
-              {new Date(createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+              {new Date(createdAt).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+              })}
             </span>
           </div>
           <div className="flex items-center justify-between rounded-md px-3 py-2 text-sm">
@@ -126,10 +146,11 @@ const AuthorSidebar = ({
                 : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
             }`}
           >
-            {isLiking
-              ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
-              : <Heart className={`h-4 w-4 shrink-0 ${isLiked ? 'fill-current' : ''}`} />
-            }
+            {isLiking ? (
+              <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
+            ) : (
+              <Heart className={`h-4 w-4 shrink-0 ${isLiked ? 'fill-current' : ''}`} />
+            )}
             {isLiked ? 'Liked' : 'Like'} · {likesCount}
           </button>
           <button
@@ -141,7 +162,6 @@ const AuthorSidebar = ({
           </button>
         </nav>
       </div>
-
     </aside>
   );
 };

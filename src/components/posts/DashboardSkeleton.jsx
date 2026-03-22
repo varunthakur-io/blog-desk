@@ -32,7 +32,10 @@ const DashboardSkeleton = () => {
 
         {/* Table rows */}
         {[1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className="flex items-center gap-4 px-4 py-3.5 border-b border-border/30 last:border-0">
+          <div
+            key={i}
+            className="flex items-center gap-4 px-4 py-3.5 border-b border-border/30 last:border-0"
+          >
             <Skeleton className="h-4 w-1/2" />
             <Skeleton className="h-5 w-16 rounded-full" />
             <Skeleton className="h-4 w-24" />

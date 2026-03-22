@@ -87,8 +87,8 @@ export default {
       //   page-gap   : gap between major sections inside a page
       // ──────────────────────────────────────────────────────────────
       spacing: {
-        'page-top': '0.5rem',   // py-page-top  → change here to adjust all pages
-        'page-gap': '1.5rem',   // gap-page-gap → change here to adjust all sections
+        'page-top': '0.5rem', // py-page-top  → change here to adjust all pages
+        'page-gap': '1.5rem', // gap-page-gap → change here to adjust all sections
       },
     },
   },

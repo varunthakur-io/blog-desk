@@ -8,11 +8,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { commentService } from '@/services/comments';
 
 const CommentSection = ({ postId, authUserId, currentUserProfile, initialComments, profiles }) => {
-  const [comments, setComments]     = useState(initialComments || []);
+  const [comments, setComments] = useState(initialComments || []);
   const [newComment, setNewComment] = useState('');
   const [isCommenting, setIsCommenting] = useState(false);
 
-  useEffect(() => { setComments(initialComments || []); }, [initialComments]);
+  useEffect(() => {
+    setComments(initialComments || []);
+  }, [initialComments]);
 
   const currentUserName = currentUserProfile?.name || 'You';
 
@@ -22,10 +24,16 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
 
     setIsCommenting(true);
     const tempId = 'temp-' + Date.now();
-    setComments((prev) => [{
-      $id: tempId, postId, userId: authUserId,
-      content, $createdAt: new Date().toISOString(),
-    }, ...prev]);
+    setComments((prev) => [
+      {
+        $id: tempId,
+        postId,
+        userId: authUserId,
+        content,
+        $createdAt: new Date().toISOString(),
+      },
+      ...prev,
+    ]);
     setNewComment('');
 
     try {
@@ -47,7 +55,6 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
 
   return (
     <div className="space-y-8">
-
       {/* header */}
       <div className="flex items-center gap-3">
         <h3 className="text-base font-semibold tracking-tight">Discussion</h3>
@@ -84,7 +91,11 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
                 size="sm"
                 className="gap-2 rounded-full text-xs px-4"
               >
-                {isCommenting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+                {isCommenting ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Send className="h-3.5 w-3.5" />
+                )}
                 {isCommenting ? 'Posting…' : 'Post'}
               </Button>
             </div>
@@ -94,7 +105,10 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
         <div className="rounded-xl border border-dashed border-border bg-muted/20 py-8 text-center">
           <MessageSquare className="h-7 w-7 text-muted-foreground/30 mx-auto mb-3" />
           <p className="text-sm text-muted-foreground">
-            <Link to="/login" className="font-semibold text-foreground underline underline-offset-4 hover:opacity-70">
+            <Link
+              to="/login"
+              className="font-semibold text-foreground underline underline-offset-4 hover:opacity-70"
+            >
               Sign in
             </Link>{' '}
             to join the discussion.
@@ -129,7 +143,10 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
                       <span className="text-xs font-semibold text-foreground">{name}</span>
                       <time className="text-[11px] text-muted-foreground shrink-0">
                         {comment.$createdAt
-                          ? new Date(comment.$createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                          ? new Date(comment.$createdAt).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                            })
                           : 'Just now'}
                       </time>
                     </div>
