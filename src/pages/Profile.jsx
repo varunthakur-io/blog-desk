@@ -1,5 +1,8 @@
 import { ProfileSkeleton, ProfileInfo, EditProfileDialog, ProfileTabs } from '@/components/profile';
 import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
+import { UserPlus, UserMinus, Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useProfile } from '@/hooks/profile';
 
 export default function Profile() {
@@ -25,6 +28,12 @@ export default function Profile() {
     likedPosts,
     activeTab,
     setActiveTab,
+
+    // follow state & actions
+    isFollowing,
+    isFollowLoading,
+    handleToggleFollow,
+    authUserId,
   } = useProfile();
 
   if (isFetchingUsername) return <ProfileSkeleton />;
@@ -38,10 +47,41 @@ export default function Profile() {
   if (!profile && profileError)
     return <div className="py-20 text-center text-sm text-destructive">{profileError}</div>;
 
+  const onFollowClick = () => {
+    if (!authUserId) {
+      toast.error('Please login to follow users');
+      return;
+    }
+    handleToggleFollow();
+  };
+
+  const actionButton = isOwner ? (
+    <EditProfileDialog profile={profile} profileId={profileId} isOwner={isOwner} />
+  ) : (
+    <Button
+      variant={isFollowing ? 'secondary' : 'default'}
+      size="sm"
+      onClick={onFollowClick}
+      disabled={isFollowLoading}
+      className={`rounded-full px-6 font-medium transition-all ${
+        !isFollowing ? 'shadow-sm active:scale-95' : 'hover:bg-destructive hover:text-destructive-foreground hover:border-destructive'
+      }`}
+    >
+      {isFollowLoading ? (
+        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+      ) : isFollowing ? (
+        <UserMinus className="h-4 w-4 mr-2" />
+      ) : (
+        <UserPlus className="h-4 w-4 mr-2" />
+      )}
+      {isFollowing ? 'Following' : 'Follow'}
+    </Button>
+  );
+
   return (
     <div className="page-root">
-      {/* Header row — info + edit button */}
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
+      {/* Header Area */}
+      <div className="mb-8">
         <ProfileInfo
           displayName={displayName}
           displayEmail={displayEmail}
@@ -52,14 +92,11 @@ export default function Profile() {
           postsCount={postsLoading ? profile?.postsCount || 0 : userPosts.length}
           followersCount={profile?.followersCount || 0}
           followingCount={profile?.followingCount || 0}
+          actionButton={actionButton}
         />
-        {/* Edit button — sits naturally after info instead of absolutely positioned */}
-        <div className="shrink-0">
-          <EditProfileDialog profile={profile} profileId={profileId} isOwner={isOwner} />
-        </div>
       </div>
 
-      <Separator className="mb-6" />
+      <Separator className="mb-8" />
 
       <ProfileTabs
         activeTab={activeTab}
