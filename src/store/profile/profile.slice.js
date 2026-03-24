@@ -1,9 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { set } from 'react-hook-form';
 
 const initialState = {
   byId: {}, // userId -> profile object
   statusById: {}, // userId -> 'idle' | 'loading' | 'error' | 'success'
   errorById: {}, // userId -> string | null
+  followersById: {}, // userId -> profile object
 };
 
 const profileSlice = createSlice({
@@ -41,10 +43,25 @@ const profileSlice = createSlice({
       delete state.statusById[id];
       delete state.errorById[id];
     },
+    setFollowers(state, action) {
+      const followers = action.payload;
+      if (!followers) return;
+      followers.forEach((element) => {
+        const id = String(element.$id);
+        state.followersById[id] = {
+          ...element,
+        };
+      });
+    },
   },
 });
 
-export const { setProfileLoading, setUserProfile, setProfileError, clearUserProfile } =
-  profileSlice.actions;
+export const {
+  setProfileLoading,
+  setUserProfile,
+  setProfileError,
+  clearUserProfile,
+  setFollowers,
+} = profileSlice.actions;
 
 export default profileSlice.reducer;
