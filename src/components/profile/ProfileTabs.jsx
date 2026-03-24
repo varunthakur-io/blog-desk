@@ -2,33 +2,56 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
-import { Edit, Mail, CalendarDays, Heart } from 'lucide-react';
+import { Edit, Mail, CalendarDays, Heart, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PostCard from '@/components/posts/PostCard';
 import PostCardSkeleton from '@/components/posts/PostCardSkeleton';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Skeleton } from '@/components/ui/skeleton';
 
-const EmptyPosts = ({ isOwner, isLikes }) => (
-  <div className="flex flex-col items-center justify-center py-16 text-center rounded-xl border border-dashed border-border">
+const EmptyState = ({ icon: Icon, title, description, action }) => (
+  <div className="flex flex-col items-center justify-center py-16 text-center rounded-xl border border-dashed border-border bg-muted/5">
     <div className="bg-muted p-4 rounded-full mb-3">
-      {isLikes ? (
-        <Heart className="w-6 h-6 text-muted-foreground/50" />
-      ) : (
-        <Edit className="w-6 h-6 text-muted-foreground/50" />
-      )}
+      <Icon className="w-6 h-6 text-muted-foreground/50" />
     </div>
-    <h3 className="text-sm font-semibold mb-1">{isLikes ? 'No liked posts' : 'No posts yet'}</h3>
-    <p className="text-xs text-muted-foreground max-w-xs leading-relaxed mb-4">
-      {isLikes
-        ? 'Posts you like will appear here.'
-        : isOwner
-          ? 'Share your thoughts with the world.'
-          : "This user hasn't posted anything yet."}
-    </p>
-    {isOwner && !isLikes && (
-      <Button asChild size="sm" className="rounded-full px-5 text-xs">
-        <Link to="/create">Write a Post</Link>
-      </Button>
-    )}
+    <h3 className="text-sm font-semibold mb-1">{title}</h3>
+    <p className="text-xs text-muted-foreground max-w-xs leading-relaxed mb-4">{description}</p>
+    {action}
+  </div>
+);
+
+const UserCard = ({ user }) => (
+  <Link key={user.$id} to={`/profile/${user.username}`} className="block group">
+    <div className="flex items-center justify-between px-4 py-3 rounded-xl border bg-card hover:bg-muted/40 transition-all duration-200 group-hover:border-primary/20 group-hover:shadow-sm">
+      <div className="flex items-center gap-3">
+        <Avatar className="h-10 w-10 border group-hover:border-primary/30 transition-colors">
+          <AvatarImage src={user.avatarUrl} className="object-cover" />
+          <AvatarFallback className="bg-primary/5 text-primary text-xs font-bold">
+            {user.name?.charAt(0).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+        <div className="leading-tight">
+          <p className="text-sm font-semibold group-hover:text-primary transition-colors">
+            {user.name}
+          </p>
+          <p className="text-xs text-muted-foreground">@{user.username}</p>
+        </div>
+      </div>
+    </div>
+  </Link>
+);
+
+const UserListSkeleton = () => (
+  <div className="space-y-2">
+    {[...Array(3)].map((_, i) => (
+      <div key={i} className="flex items-center gap-3 px-4 py-3 rounded-xl border bg-card">
+        <Skeleton className="h-10 w-10 rounded-full" />
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-3 w-20" />
+        </div>
+      </div>
+    ))}
   </div>
 );
 
@@ -45,23 +68,35 @@ const ProfileTabs = ({
   displayBio,
   displayEmail,
   joinedDate,
+  followersProfiles = [],
+  followingProfiles = [],
+  isFollowersLoading,
+  isFollowingLoading,
 }) => {
   return (
     <Tabs value={activeTab} className="w-full" onValueChange={setActiveTab}>
-      <TabsList className="h-9 bg-muted p-1 mb-6 w-fit rounded-lg">
-        <TabsTrigger value="posts" className="rounded-md text-xs px-4 font-medium">
-          Posts
-        </TabsTrigger>
-        <TabsTrigger value="likes" className="rounded-md text-xs px-4 font-medium">
-          Liked
-        </TabsTrigger>
-        <TabsTrigger value="about" className="rounded-md text-xs px-4 font-medium">
-          About
-        </TabsTrigger>
-      </TabsList>
+      <div className="overflow-x-auto pb-2">
+        <TabsList className="h-9 bg-muted/50 p-1 mb-6 w-fit rounded-lg border">
+          <TabsTrigger value="posts" className="rounded-md text-xs px-4 font-medium">
+            Posts
+          </TabsTrigger>
+          <TabsTrigger value="likes" className="rounded-md text-xs px-4 font-medium">
+            Liked
+          </TabsTrigger>
+          <TabsTrigger value="followers" className="rounded-md text-xs px-4 font-medium">
+            Followers
+          </TabsTrigger>
+          <TabsTrigger value="following" className="rounded-md text-xs px-4 font-medium">
+            Following
+          </TabsTrigger>
+          <TabsTrigger value="about" className="rounded-md text-xs px-4 font-medium">
+            About
+          </TabsTrigger>
+        </TabsList>
+      </div>
 
       {/* Posts Tab */}
-      <TabsContent value="posts" className="mt-0">
+      <TabsContent value="posts" className="mt-0 outline-none">
         {postsLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {[...Array(6)].map((_, i) => (
@@ -79,12 +114,27 @@ const ProfileTabs = ({
             ))}
           </div>
         ) : (
-          <EmptyPosts isOwner={isOwner} isLikes={false} />
+          <EmptyState
+            icon={Edit}
+            title="No posts yet"
+            description={
+              isOwner
+                ? 'Share your thoughts with the world.'
+                : "This user hasn't posted anything yet."
+            }
+            action={
+              isOwner && (
+                <Button asChild size="sm" className="rounded-full px-5 text-xs">
+                  <Link to="/create">Write a Post</Link>
+                </Button>
+              )
+            }
+          />
         )}
       </TabsContent>
 
       {/* Likes Tab */}
-      <TabsContent value="likes" className="mt-0">
+      <TabsContent value="likes" className="mt-0 outline-none">
         {!isOwner ? (
           <div className="py-12 text-center text-sm text-muted-foreground">
             Liked posts are private.
@@ -106,18 +156,66 @@ const ProfileTabs = ({
             ))}
           </div>
         ) : (
-          <EmptyPosts isOwner={isOwner} isLikes={true} />
+          <EmptyState
+            icon={Heart}
+            title="No liked posts"
+            description="Posts you like will appear here."
+          />
+        )}
+      </TabsContent>
+
+      {/* Followers Tab */}
+      <TabsContent value="followers" className="mt-0 space-y-4 outline-none">
+        {isFollowersLoading ? (
+          <UserListSkeleton />
+        ) : followersProfiles.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {followersProfiles.map((user) => (
+              <UserCard key={user.$id} user={user} />
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            icon={Users}
+            title="No followers yet"
+            description={
+              isOwner
+                ? "You don't have any followers yet."
+                : "This user doesn't have any followers yet."
+            }
+          />
+        )}
+      </TabsContent>
+
+      {/* Following Tab */}
+      <TabsContent value="following" className="mt-0 space-y-4 outline-none">
+        {isFollowingLoading ? (
+          <UserListSkeleton />
+        ) : followingProfiles.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {followingProfiles.map((user) => (
+              <UserCard key={user.$id} user={user} />
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            icon={Users}
+            title="Not following anyone"
+            description={
+              isOwner ? "You aren't following anyone yet." : "This user isn't following anyone yet."
+            }
+          />
         )}
       </TabsContent>
 
       {/* About Tab */}
-      <TabsContent value="about" className="mt-0">
-        <div className="rounded-xl border border-border bg-card p-6 space-y-5 max-w-2xl">
+      <TabsContent value="about" className="mt-0 outline-none">
+        <div className="rounded-xl border border-border bg-card p-6 space-y-5 max-w-2xl shadow-sm">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
               Bio
             </p>
-            <p className="text-sm text-foreground/80 leading-relaxed">
+            <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
               {displayBio || 'No bio provided.'}
             </p>
           </div>
