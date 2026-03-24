@@ -19,6 +19,7 @@ import {
   setProfileLoading,
   setUserProfile,
   setProfileError,
+  setFollowers,
 } from '@/store/profile';
 
 export const useProfile = () => {
@@ -216,7 +217,7 @@ export const useProfile = () => {
     };
   }, [activeTab, isOwner, profileId]);
 
-  // 
+  // Check if the current user is following this profile
   useEffect(() => {
     if (isOwner || !authUserId || !profileId) return;
 
@@ -231,7 +232,7 @@ export const useProfile = () => {
           setFollowFetchStatus('success');
         }
       } catch (error) {
-        if (!cancelled) setFollowFetchStatus('error');
+        if (!cancelled) setFollowFetchStatus(error);
       }
     };
 
@@ -277,6 +278,71 @@ export const useProfile = () => {
 
   const joinedDate = formatJoinedDate(profile?.$createdAt);
 
+  const [followersProfiles, setFollowersProfiles] = useState([]);
+  const [followingProfiles, setFollowingProfiles] = useState([]);
+  const [isFollowersLoading, setIsFollowersLoading] = useState(false);
+  const [isFollowingLoading, setIsFollowingLoading] = useState(false);
+
+  // 1. Fetch Followers List (Lazy loaded when tab opens)
+  useEffect(() => {
+    if (!profileId || activeTab !== 'followers') return;
+
+    let cancelled = false;
+    const fetchFollowers = async () => {
+      setIsFollowersLoading(true);
+      try {
+        const followers = await followService.getFollowers(profileId);
+        const followerIds = followers.map((f) => f.followerId);
+
+        if (followerIds.length > 0) {
+          const profiles = await profileService.getProfilesByIds(followerIds);
+          if (!cancelled) setFollowersProfiles(profiles);
+        } else {
+          if (!cancelled) setFollowersProfiles([]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch followers:', error);
+      } finally {
+        if (!cancelled) setIsFollowersLoading(false);
+      }
+    };
+
+    fetchFollowers();
+    return () => {
+      cancelled = true;
+    };
+  }, [profileId, activeTab]);
+
+  // 2. Fetch Following List (Lazy loaded when tab opens)
+  useEffect(() => {
+    if (!profileId || activeTab !== 'following') return;
+
+    let cancelled = false;
+    const fetchFollowing = async () => {
+      setIsFollowingLoading(true);
+      try {
+        const following = await followService.getFollowing(profileId);
+        const followingIds = following.map((f) => f.followingId);
+
+        if (followingIds.length > 0) {
+          const profiles = await profileService.getProfilesByIds(followingIds);
+          if (!cancelled) setFollowingProfiles(profiles);
+        } else {
+          if (!cancelled) setFollowingProfiles([]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch following:', error);
+      } finally {
+        if (!cancelled) setIsFollowingLoading(false);
+      }
+    };
+
+    fetchFollowing();
+    return () => {
+      cancelled = true;
+    };
+  }, [profileId, activeTab]);
+
   return {
     profileId,
     isOwner,
@@ -310,5 +376,11 @@ export const useProfile = () => {
     displayBio,
     avatarUrl,
     joinedDate,
+
+    // Follower/Following lists
+    followersProfiles,
+    followingProfiles,
+    isFollowersLoading,
+    isFollowingLoading,
   };
 };
