@@ -34,6 +34,11 @@ export default function Profile() {
     isFollowLoading,
     handleToggleFollow,
     authUserId,
+
+    followersProfiles,
+    followingProfiles,
+    isFollowersLoading,
+    isFollowingLoading,
   } = useProfile();
 
   if (isFetchingUsername) return <ProfileSkeleton />;
@@ -64,7 +69,9 @@ export default function Profile() {
       onClick={onFollowClick}
       disabled={isFollowLoading}
       className={`rounded-full px-6 font-medium transition-all ${
-        !isFollowing ? 'shadow-sm active:scale-95' : 'hover:bg-destructive hover:text-destructive-foreground hover:border-destructive'
+        !isFollowing
+          ? 'shadow-sm active:scale-95'
+          : 'hover:bg-destructive hover:text-destructive-foreground hover:border-destructive'
       }`}
     >
       {isFollowLoading ? (
@@ -111,6 +118,10 @@ export default function Profile() {
         displayBio={displayBio}
         displayEmail={displayEmail}
         joinedDate={joinedDate}
+        followersProfiles={followersProfiles}
+        followingProfiles={followingProfiles}
+        isFollowersLoading={isFollowersLoading}
+        isFollowingLoading={isFollowingLoading}
       />
     </div>
   );
