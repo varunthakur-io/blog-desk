@@ -5,7 +5,10 @@ import { useParams } from 'react-router-dom';
 import { profileService } from '@/services/profile';
 import { postService } from '@/services/posts';
 import { likeService } from '@/services/likes';
+import { followService } from '@/services/follows';
 import { formatJoinedDate } from '@/utils/formatters';
+import { parseApiError } from '@/lib/error-handler';
+import toast from 'react-hot-toast';
 
 import { selectAuthUserId, selectAuthEmail, selectIsAuthLoading } from '@/store/auth';
 
@@ -46,6 +49,10 @@ export const useProfile = () => {
   // Data state
   const [userPosts, setUserPosts] = useState([]);
   const [likedPosts, setLikedPosts] = useState([]);
+
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followFetchStatus, setFollowFetchStatus] = useState('idle');
+  const [followActionStatus, setFollowActionStatus] = useState('idle');
 
   // Fetch profile using the username from the URL
   useEffect(() => {
@@ -209,6 +216,59 @@ export const useProfile = () => {
     };
   }, [activeTab, isOwner, profileId]);
 
+  // 
+  useEffect(() => {
+    if (isOwner || !authUserId || !profileId) return;
+
+    let cancelled = false;
+
+    const checkFollowStatus = async () => {
+      setFollowFetchStatus('loading');
+      try {
+        const following = await followService.isFollowing(authUserId, profileId);
+        if (!cancelled) {
+          setIsFollowing(following);
+          setFollowFetchStatus('success');
+        }
+      } catch (error) {
+        if (!cancelled) setFollowFetchStatus('error');
+      }
+    };
+
+    checkFollowStatus();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authUserId, profileId, isOwner]);
+
+  const handleToggleFollow = async () => {
+    if (!authUserId) return;
+    if (followActionStatus === 'loading') return;
+
+    setFollowActionStatus('loading');
+    const originalState = isFollowing;
+
+    try {
+      if (originalState) {
+        await followService.unfollowUser(authUserId, profileId);
+        setIsFollowing(false);
+        toast.success('Unfollowed');
+      } else {
+        await followService.followUser(authUserId, profileId);
+        setIsFollowing(true);
+        toast.success('Following');
+      }
+      setFollowActionStatus('success');
+    } catch (error) {
+      setFollowActionStatus('error');
+      const message = parseApiError(error, `Failed to ${originalState ? 'unfollow' : 'follow'}`);
+      toast.error(message);
+    } finally {
+      setFollowActionStatus('idle');
+    }
+  };
+
   // Data prepared for UI display
   const displayName = profile?.name || 'Unnamed User';
   const displayEmail = isOwner ? authUserEmail : '';
@@ -224,10 +284,11 @@ export const useProfile = () => {
     profileLoading,
     profileError,
 
+    authUserId,
+    authLoading,
+
     isFetchingUsername: usernameFetchStatus === 'loading',
     usernameFetchError,
-
-    authLoading,
 
     userPosts,
     postsLoading: postsFetchStatus === 'loading',
@@ -239,6 +300,10 @@ export const useProfile = () => {
     likedPosts,
     isLoadingLikes: likesFetchStatus === 'loading',
     likesError,
+
+    isFollowing,
+    isFollowLoading: followFetchStatus === 'loading' || followActionStatus === 'loading',
+    handleToggleFollow,
 
     displayName,
     displayEmail,
