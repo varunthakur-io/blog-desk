@@ -24,7 +24,7 @@ export const config = {
       posts: getEnvVar('VITE_APPWRITE_POSTS_COLLECTION_ID'),
       likes: getEnvVar('VITE_APPWRITE_LIKES_COLLECTION_ID'),
       comments: getEnvVar('VITE_APPWRITE_COMMENTS_COLLECTION_ID'),
-      follows: getEnvVar('VITE_APPWRITE_FOLLOWS_COLLECTION_ID', null), // null fallback — follows not yet implemented
+      follows: getEnvVar('VITE_APPWRITE_FOLLOWS_COLLECTION_ID'),
     },
 
     // Storage (Buckets)
