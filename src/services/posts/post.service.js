@@ -49,7 +49,7 @@ class PostService {
   }
 
   // category: string | null — when provided, filters server-side via Query.equal
-  async getAllPosts(page = 1, skip = 6, category = null) {
+  async getAllPosts(page = 1, skip = 6, category = null, searchQuery = '') {
     const offset = (page - 1) * skip;
     const queries = [
       Query.limit(skip),
@@ -60,6 +60,10 @@ class PostService {
 
     if (category) {
       queries.push(Query.equal('category', category));
+    }
+
+    if (searchQuery) {
+      queries.push(Query.search('title', searchQuery));
     }
 
     return await postApi.listPosts(queries);

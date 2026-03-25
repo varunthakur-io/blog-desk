@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { postService } from '@/services/posts';
+import { debounce } from '@/lib/utils';
 import {
   selectAllPosts,
   selectIsPostsLoading,
@@ -30,13 +31,29 @@ export const useHome = () => {
   const activeCategory = useSelector(selectActiveCategory);
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+
+  // 1. Debounce logic for search input
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const updateDebouncedSearch = useCallback(
+    debounce((value) => {
+      setDebouncedSearchTerm(value);
+    }, 500),
+    [],
+  );
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    updateDebouncedSearch(value);
+  };
 
   const loadPage = useCallback(
-    async (pageNum, category) => {
+    async (pageNum, category, search) => {
       if (isPostsLoading) return;
       dispatch(setPostsStatus('loading'));
       try {
-        const postPage = await postService.getAllPosts(pageNum, LIMIT, category);
+        const postPage = await postService.getAllPosts(pageNum, LIMIT, category, search);
         const pagePosts = postPage.documents ?? [];
         const totalFetched = (pageNum - 1) * LIMIT + pagePosts.length;
 
@@ -50,68 +67,42 @@ export const useHome = () => {
         dispatch(setPostsError(error?.message ?? 'Failed to fetch posts'));
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dispatch],
+    [dispatch, isPostsLoading],
   );
 
-  // Initial load + reload when category changes
+  // 2. Initial load + reload when category OR debounced search changes
   useEffect(() => {
     dispatch(setPostPagination({ page: 1 }));
-    loadPage(1, activeCategory);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, activeCategory]);
+    loadPage(1, activeCategory, debouncedSearchTerm);
+  }, [dispatch, activeCategory, debouncedSearchTerm, loadPage]);
 
-  // Infinite scroll — disabled while searching
+  // 3. Infinite scroll
   useEffect(() => {
     const handleScroll = () => {
       const { innerHeight } = window;
       const { scrollTop, offsetHeight } = document.documentElement;
 
-      if (
-        innerHeight + scrollTop >= offsetHeight - 150 &&
-        !isPostsLoading &&
-        hasMore &&
-        !searchTerm
-      ) {
-        loadPage(page + 1, activeCategory);
+      if (innerHeight + scrollTop >= offsetHeight - 150 && !isPostsLoading && hasMore) {
+        loadPage(page + 1, activeCategory, debouncedSearchTerm);
       }
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [isPostsLoading, hasMore, page, loadPage, searchTerm, activeCategory]);
-
-  // Client-side search filter on top of whatever page is loaded
-  const filteredPosts = useMemo(() => {
-    if (!searchTerm.trim()) return posts;
-    const q = searchTerm.toLowerCase().trim();
-    return posts.filter((post) => {
-      const title = post.title?.toLowerCase() ?? '';
-      const content = post.content?.toLowerCase() ?? '';
-      return title.includes(q) || content.includes(q);
-    });
-  }, [posts, searchTerm]);
-
-  const handleSearchChange = useCallback(
-    (e) => {
-      setSearchTerm(e.target.value);
-      dispatch(setPostPagination({ initialLoaded: false }));
-    },
-    [dispatch],
-  );
+  }, [isPostsLoading, hasMore, page, loadPage, debouncedSearchTerm, activeCategory]);
 
   const handleCategoryChange = useCallback(
     (category) => {
-      // Toggle: clicking the active category clears it
       const next = category === activeCategory ? null : category;
       setSearchTerm('');
+      setDebouncedSearchTerm('');
       dispatch(setActiveCategory(next));
     },
     [dispatch, activeCategory],
   );
 
   return {
-    posts: filteredPosts,
+    posts,
     postsLoading: isPostsLoading,
     postsError,
     hasMore,
