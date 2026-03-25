@@ -2,7 +2,13 @@ import { useState } from 'react';
 import { User, Shield, Bell, Palette, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-import { useSettings } from '@/hooks/profile';
+import useDarkMode from '@/hooks/common/useDarkMode';
+import {
+  useProfileSettings,
+  useAccountSettings,
+  useNotificationSettings,
+  usePrivacySettings,
+} from '@/hooks/settings';
 
 import ProfilePanel from '@/components/settings/ProfilePanel';
 import AccountPanel from '@/components/settings/AccountPanel';
@@ -20,65 +26,71 @@ const NAV = [
 
 export default function Settings() {
   const [active, setActive] = useState('profile');
-  const s = useSettings();
+  const [isDarkMode, setDarkMode] = useDarkMode();
+
+  const profile = useProfileSettings();
+  const account = useAccountSettings();
+  const notifications = useNotificationSettings();
+  const privacy = usePrivacySettings();
+
+  const handleToggleDarkMode = (checked) => {
+    setDarkMode(checked);
+  };
 
   const renderPanel = () => {
     switch (active) {
       case 'profile':
         return (
           <ProfilePanel
-            profileForm={s.profileForm}
-            setProfileForm={s.setProfileForm}
-            avatarPreview={s.avatarPreview}
-            fileInputRef={s.fileInputRef}
-            handleAvatarSelect={s.handleAvatarSelect}
-            handleSaveProfile={s.handleSaveProfile}
-            isSavingProfile={s.isSavingProfile}
-            profileError={s.profileError}
-            authUser={s.authUser}
+            profileForm={profile.profileForm}
+            setProfileForm={profile.setProfileForm}
+            avatarPreview={profile.avatarPreview}
+            fileInputRef={profile.fileInputRef}
+            handleAvatarSelect={profile.handleAvatarSelect}
+            handleSaveProfile={profile.handleSaveProfile}
+            isSavingProfile={profile.isSavingProfile}
+            profileError={profile.profileError}
+            authUser={profile.authUser}
           />
         );
       case 'account':
         return (
           <AccountPanel
-            authUser={s.authUser}
-            emailForm={s.emailForm}
-            setEmailForm={s.setEmailForm}
-            emailError={s.emailError}
-            handleSaveEmail={s.handleSaveEmail}
-            isSavingEmail={s.isSavingEmail}
-            passwordForm={s.passwordForm}
-            setPasswordForm={s.setPasswordForm}
-            passwordError={s.passwordError}
-            handleSavePassword={s.handleSavePassword}
-            isSavingPassword={s.isSavingPassword}
+            authUser={account.authUser}
+            emailForm={account.emailForm}
+            setEmailForm={account.setEmailForm}
+            emailError={account.emailError}
+            handleSaveEmail={account.handleSaveEmail}
+            isSavingEmail={account.isSavingEmail}
+            passwordForm={account.passwordForm}
+            setPasswordForm={account.setPasswordForm}
+            passwordError={account.passwordError}
+            handleSavePassword={account.handleSavePassword}
+            isSavingPassword={account.isSavingPassword}
           />
         );
       case 'appearance':
         return (
-          <AppearancePanel
-            isDarkMode={s.isDarkMode}
-            handleToggleDarkMode={s.handleToggleDarkMode}
-          />
+          <AppearancePanel isDarkMode={isDarkMode} handleToggleDarkMode={handleToggleDarkMode} />
         );
       case 'notifications':
         return (
           <NotificationsPanel
-            prefs={s.prefs}
-            isPrefsLoading={s.isPrefsLoading}
-            handlePrefChange={s.handlePrefChange}
+            prefs={notifications.prefs}
+            isPrefsLoading={notifications.isPrefsLoading}
+            handlePrefChange={notifications.handlePrefChange}
           />
         );
       case 'privacy':
         return (
           <PrivacyPanel
-            isUpdatingSession={s.isUpdatingSession}
-            isSessionsDialogOpen={s.isSessionsDialogOpen}
-            setIsSessionsDialogOpen={s.setIsSessionsDialogOpen}
-            isDeleteDialogOpen={s.isDeleteDialogOpen}
-            setIsDeleteDialogOpen={s.setIsDeleteDialogOpen}
-            handleDeleteSessions={s.handleDeleteSessions}
-            handleDeleteAccount={s.handleDeleteAccount}
+            isUpdatingSession={privacy.isUpdatingSession}
+            isSessionsDialogOpen={privacy.isSessionsDialogOpen}
+            setIsSessionsDialogOpen={privacy.setIsSessionsDialogOpen}
+            isDeleteDialogOpen={privacy.isDeleteDialogOpen}
+            setIsDeleteDialogOpen={privacy.setIsDeleteDialogOpen}
+            handleDeleteSessions={privacy.handleDeleteSessions}
+            handleDeleteAccount={privacy.handleDeleteAccount}
           />
         );
       default:
@@ -88,10 +100,9 @@ export default function Settings() {
 
   return (
     <div className="page-root flex gap-8 min-h-[70vh]">
-      {/* Sidebar — sticky, full viewport height so the vertical line always spans the screen */}
+      {/* Sidebar — desktop */}
       <aside className="hidden md:block w-48 shrink-0">
-        <div className="sticky top-24 relative pr-6 min-h-[calc(100vh-6rem)]">
-          {/* vertical fading line — h-full works because parent has min-h-screen */}
+        <div className="sticky top-24 pr-6 min-h-[calc(100vh-6rem)]">
           <div className="absolute top-0 right-0 w-px h-full bg-gradient-to-b from-transparent via-border to-transparent hidden lg:block" />
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-3">
             Settings
@@ -116,7 +127,7 @@ export default function Settings() {
         </div>
       </aside>
 
-      {/* Mobile: horizontal pill tabs */}
+      {/* Mobile tabs */}
       <div className="md:hidden w-full">
         <div className="flex gap-1 overflow-x-auto pb-3 mb-4 scrollbar-none">
           {NAV.map(({ id, label, icon: Icon }) => (
@@ -138,8 +149,10 @@ export default function Settings() {
         <div className="max-w-2xl">{renderPanel()}</div>
       </div>
 
-      {/* Content — desktop */}
-      <main className="flex-1 min-w-0 hidden md:block">{renderPanel()}</main>
+      {/* Main Content */}
+      <main className="flex-1 min-w-0 hidden md:block">
+        <div className="max-w-2xl">{renderPanel()}</div>
+      </main>
     </div>
   );
 }
