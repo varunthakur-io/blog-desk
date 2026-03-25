@@ -51,7 +51,8 @@ class PostService {
   // category: string | null — when provided, filters server-side via Query.equal
   async getAllPosts(page = 1, skip = 6, category = null, searchQuery = '') {
     const offset = (page - 1) * skip;
-    const queries = [
+
+    const baseQueries = [
       Query.limit(skip),
       Query.offset(offset),
       Query.equal('status', 'published'),
@@ -59,14 +60,16 @@ class PostService {
     ];
 
     if (category) {
-      queries.push(Query.equal('category', category));
+      baseQueries.push(Query.equal('category', category));
     }
 
     if (searchQuery) {
-      queries.push(Query.search('title', searchQuery));
+      baseQueries.push(
+        Query.or([Query.contains('title', searchQuery), Query.contains('content', searchQuery)]),
+      );
     }
 
-    return await postApi.listPosts(queries);
+    return await postApi.listPosts(baseQueries);
   }
 
   async getPostsByUserId(
