@@ -79,7 +79,7 @@ const PostDetails = () => {
           </div>
         </div>
 
-        {/* ── Center — scrollable content column ── */}
+        {/* ── Right — scrollable content column ── */}
         <div className="min-w-0 pb-10">
           <PostContent
             title={post.title}
@@ -98,8 +98,6 @@ const PostDetails = () => {
             profiles={profileCache}
           />
         </div>
-
-        {/* ── Right sidebar — removed, article gets full width ── */}
       </div>
 
       {/* mobile: like + share bar fixed at bottom */}
