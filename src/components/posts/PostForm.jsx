@@ -5,24 +5,17 @@ import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import { postService } from '@/services/posts';
 import toast from 'react-hot-toast';
-import { Loader2, Save, ArrowLeft, Eye, Code, Settings2 } from 'lucide-react';
+import { Loader2, Save, ArrowLeft, Settings2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { getRandomPostData } from '@/utils/fakePostData';
-import FeaturedImageUpload from './FeaturedImageUpload';
-import { CATEGORIES } from '@/constants';
 
+// Sub-components
 import PostEditorToolbar from './PostEditorToolbar';
 import PostPreviewDialog from './PostPreviewDialog';
+import PostSettingsSidebar from './PostSettingsSidebar';
+import PostMobileOptions from './PostMobileOptions';
 
 const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBackClick }) => {
   const navigate = useNavigate();
@@ -131,147 +124,25 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
 
   return (
     <div className="page-root flex gap-8">
+      <PostSettingsSidebar
+        isEdit={isEdit}
+        onBackClick={onBackClick || (() => navigate('/dashboard'))}
+        saveStateLabel={saveStateLabel}
+        status={formData.status}
+        onStatusChange={(val) => setFormData((p) => ({ ...p, status: val }))}
+        category={formData.category}
+        onCategoryChange={(val) => setFormData((p) => ({ ...p, category: val }))}
+        imagePreview={postImagePreview}
+        onImageUpload={handleFeaturedImageUpload}
+        onImageRemove={removeFeaturedImage}
+        onPreviewClick={() => setIsPreviewOpen(true)}
+        onRandomData={handleRandomData}
+        onDiscard={() => navigate('/dashboard')}
+        onSubmit={handleSubmit}
+        isSubmitting={isSubmitting}
+      />
 
-      {/* ── Left sidebar — desktop only ── */}
-      <aside className="hidden md:flex w-48 shrink-0 flex-col gap-6">
-        <div className="sticky top-24 flex flex-col gap-6 relative pr-6">
-          {/* vertical fading line */}
-          <div className="absolute top-0 right-0 bottom-0 hidden h-full w-px bg-gradient-to-b from-transparent via-border to-transparent lg:block" />
-
-          {/* back + title + save indicator */}
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={onBackClick || (() => navigate('/dashboard'))}
-              className="h-7 w-7 rounded-full shrink-0"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" />
-            </Button>
-            <div className="flex items-center gap-1.5 min-w-0">
-              <p className="text-sm font-semibold truncate">{isEdit ? 'Edit Post' : 'New Post'}</p>
-              <span
-                className={`inline-flex items-center justify-center h-4 w-4 rounded-full shrink-0 ${saveStateLabel.includes('Unsaved') ? 'bg-muted border border-border' : 'bg-muted'}`}
-              >
-                {saveStateLabel.includes('Unsaved') ? (
-                  <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground" />
-                ) : (
-                  <span className="text-[9px] text-muted-foreground">✓</span>
-                )}
-              </span>
-            </div>
-          </div>
-
-          {/* status */}
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Status
-            </Label>
-            <Select
-              value={formData.status}
-              onValueChange={(val) => setFormData((p) => ({ ...p, status: val }))}
-            >
-              <SelectTrigger className="h-8 text-xs">
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="published">Published</SelectItem>
-                <SelectItem value="draft">Draft</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* category */}
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Category
-            </Label>
-            <Select
-              value={formData.category || '__none__'}
-              onValueChange={(val) =>
-                setFormData((p) => ({ ...p, category: val === '__none__' ? null : val }))
-              }
-            >
-              <SelectTrigger className="h-8 text-xs">
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="__none__">
-                  <span className="text-muted-foreground">Uncategorised</span>
-                </SelectItem>
-                {CATEGORIES.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
-                    {cat}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* cover image */}
-          <FeaturedImageUpload
-            imagePreview={postImagePreview}
-            onUpload={handleFeaturedImageUpload}
-            onRemove={removeFeaturedImage}
-          />
-
-          <Separator />
-
-          {/* preview */}
-          <button
-            type="button"
-            onClick={() => setIsPreviewOpen(true)}
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <Eye className="h-4 w-4 shrink-0" /> Preview post
-          </button>
-
-          {/* dev only auto-fill */}
-          {!isEdit && import.meta.env.DEV && (
-            <button
-              type="button"
-              onClick={handleRandomData}
-              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <Code className="h-4 w-4 shrink-0" /> Auto-fill (dev)
-            </button>
-          )}
-
-          <Separator />
-
-          {/* discard + publish */}
-          <div className="space-y-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="w-full text-xs"
-              onClick={() => navigate('/dashboard')}
-            >
-              Discard
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              className="w-full text-xs gap-1.5"
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Save className="h-3.5 w-3.5" />
-              )}
-              {isEdit ? 'Update post' : 'Publish post'}
-            </Button>
-          </div>
-        </div>
-      </aside>
-
-      {/* ── Right — editor ── */}
       <main className="flex-1 min-w-0">
-
         {/* mobile top bar */}
         <div className="md:hidden flex items-center justify-between gap-2 mb-4">
           <div className="flex items-center gap-2">
@@ -312,80 +183,20 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
           </div>
         </div>
 
-        {/* mobile collapsible options panel */}
         {mobileOptionsOpen && (
-          <div className="md:hidden rounded-xl border border-border bg-card p-4 mb-4 space-y-4">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Status
-              </Label>
-              <Select
-                value={formData.status}
-                onValueChange={(val) => setFormData((p) => ({ ...p, status: val }))}
-              >
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="published">Published</SelectItem>
-                  <SelectItem value="draft">Draft</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Category
-              </Label>
-              <Select
-                value={formData.category || '__none__'}
-                onValueChange={(val) =>
-                  setFormData((p) => ({ ...p, category: val === '__none__' ? null : val }))
-                }
-              >
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none__">
-                    <span className="text-muted-foreground">Uncategorised</span>
-                  </SelectItem>
-                  {CATEGORIES.map((cat) => (
-                    <SelectItem key={cat} value={cat}>
-                      {cat}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* cover image — mobile */}
-            <FeaturedImageUpload
-              imagePreview={postImagePreview}
-              onUpload={handleFeaturedImageUpload}
-              onRemove={removeFeaturedImage}
-            />
-
-            <Separator />
-            <button
-              type="button"
-              onClick={() => setIsPreviewOpen(true)}
-              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <Eye className="h-4 w-4" /> Preview post
-            </button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="w-full text-xs"
-              onClick={() => navigate('/dashboard')}
-            >
-              Discard
-            </Button>
-          </div>
+          <PostMobileOptions
+            status={formData.status}
+            onStatusChange={(val) => setFormData((p) => ({ ...p, status: val }))}
+            category={formData.category}
+            onCategoryChange={(val) => setFormData((p) => ({ ...p, category: val }))}
+            imagePreview={postImagePreview}
+            onImageUpload={handleFeaturedImageUpload}
+            onImageRemove={removeFeaturedImage}
+            onPreviewClick={() => setIsPreviewOpen(true)}
+            onDiscard={() => navigate('/dashboard')}
+          />
         )}
 
-        {/* editor card */}
         <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
           <PostEditorToolbar editor={editor} />
           <div className="p-6 md:p-8">
@@ -403,7 +214,6 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
         </div>
       </main>
 
-      {/* preview dialog */}
       <PostPreviewDialog
         isOpen={isPreviewOpen}
         onOpenChange={setIsPreviewOpen}
