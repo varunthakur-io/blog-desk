@@ -23,7 +23,17 @@ export const useProfileIdentity = () => {
 
   // 1. Resolve username to profileId
   useEffect(() => {
-    if (!username) return;
+    // If no username in URL, try to use the logged-in user's ID
+    if (!username) {
+      if (authUserId) {
+        setProfileId(authUserId);
+        setUsernameFetchStatus('success');
+      } else {
+        // Not logged in and no username — wait or fail
+        setUsernameFetchStatus('idle');
+      }
+      return;
+    }
 
     let cancelled = false;
     const fetchId = async () => {

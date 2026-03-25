@@ -70,9 +70,11 @@ const ProfileTabs = ({
           <TabsTrigger value="posts" className="rounded-md text-xs px-4 font-medium">
             Posts
           </TabsTrigger>
-          <TabsTrigger value="likes" className="rounded-md text-xs px-4 font-medium">
-            Liked
-          </TabsTrigger>
+          {isOwner && (
+            <TabsTrigger value="likes" className="rounded-md text-xs px-4 font-medium">
+              Liked
+            </TabsTrigger>
+          )}
           <TabsTrigger value="followers" className="rounded-md text-xs px-4 font-medium">
             Followers
           </TabsTrigger>

@@ -43,14 +43,13 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/create" element={<CreatePost />} />
             <Route path="/edit/:id" element={<EditPost />} />
-            {/* <Route path="/profile" element={<Profile />} /> */}
+            <Route path="/profile" element={<Profile />} />
             <Route path="/settings" element={<Settings />} />
           </Route>
 
           {/* Public route for viewing articles */}
           <Route path="/posts/:id" element={<PostDetails />} />
           <Route path="/profile/:username" element={<Profile />} />
-          <Route path="/profile" element={<Profile />} />
         </Route>
 
         {/* Auth pages (no layout) */}
