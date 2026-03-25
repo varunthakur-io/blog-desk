@@ -11,11 +11,13 @@ import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { getRandomPostData } from '@/utils/fakePostData';
 
-// Sub-components
-import PostEditorToolbar from './PostEditorToolbar';
-import PostPreviewDialog from './PostPreviewDialog';
-import PostSettingsSidebar from './PostSettingsSidebar';
-import PostMobileOptions from './PostMobileOptions';
+// UI Helpers
+import {
+  PostEditorToolbar,
+  PostPreviewDialog,
+  PostSettingsSidebar,
+  PostMobileOptions,
+} from './PostFormUI';
 
 const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBackClick }) => {
   const navigate = useNavigate();
@@ -51,6 +53,8 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
         heading: { levels: [1, 2, 3] },
         blockquote: true,
         codeBlock: true,
+        // Disable link in starter kit to avoid duplication with standalone Link extension
+        link: false,
       }),
       Link.configure({ openOnClick: false }),
     ],
@@ -145,7 +149,7 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
       <main className="flex-1 min-w-0">
         {/* mobile top bar */}
         <div className="md:hidden flex items-center justify-between gap-2 mb-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 text-left">
             <Button
               type="button"
               variant="ghost"
