@@ -26,7 +26,7 @@ export const useComments = (postId, initialComments, authUserId) => {
 
     setIsCommenting(true);
     const tempId = 'temp-' + Date.now();
-    
+
     // Optimistic Update
     const optimisticComment = {
       $id: tempId,
@@ -44,7 +44,7 @@ export const useComments = (postId, initialComments, authUserId) => {
       // Replace optimistic entry with real server data
       setComments((prev) => prev.map((c) => (c.$id === tempId ? created : c)));
       toast.success('Comment posted!');
-    } catch (error) {
+    } catch {
       // Rollback on failure
       setComments((prev) => prev.filter((c) => c.$id !== tempId));
       setNewComment(content);
@@ -54,11 +54,14 @@ export const useComments = (postId, initialComments, authUserId) => {
     }
   }, [newComment, postId, authUserId]);
 
-  const handleKeyDown = useCallback((e) => {
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-      handleCommentSubmit();
-    }
-  }, [handleCommentSubmit]);
+  const handleKeyDown = useCallback(
+    (e) => {
+      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+        handleCommentSubmit();
+      }
+    },
+    [handleCommentSubmit],
+  );
 
   const confirmDelete = useCallback(async () => {
     if (!commentToDelete || !postId) return;
@@ -68,7 +71,7 @@ export const useComments = (postId, initialComments, authUserId) => {
       await commentService.deleteComment(commentToDelete.$id, postId);
       setComments((prev) => prev.filter((c) => c.$id !== commentToDelete.$id));
       toast.success('Comment deleted!');
-    } catch (error) {
+    } catch {
       toast.error('Failed to delete comment');
     } finally {
       setCommentToDelete(null);
@@ -81,7 +84,7 @@ export const useComments = (postId, initialComments, authUserId) => {
     comments,
     newComment,
     setNewComment,
-    
+
     // Action states
     isCommenting,
     isDeleting,

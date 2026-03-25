@@ -32,7 +32,7 @@ export const useHome = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
-  
+
   // Ref to track loading state without triggering re-renders or effect loops
   const loadingRef = useRef(false);
 

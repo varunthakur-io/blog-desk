@@ -1,12 +1,12 @@
 import React from 'react';
-import { 
-  X, 
-  Upload, 
-  ArrowLeft, 
-  Save, 
-  Loader2, 
-  Eye, 
-  Code, 
+import {
+  X,
+  Upload,
+  ArrowLeft,
+  Save,
+  Loader2,
+  Eye,
+  Code,
   Bold,
   Italic,
   List,
