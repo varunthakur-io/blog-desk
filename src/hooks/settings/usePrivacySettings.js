@@ -37,6 +37,7 @@ export const usePrivacySettings = () => {
       navigate('/login');
       toast.success('Account deleted.');
     } catch (err) {
+      console.error('handleDeleteAccount error:', err);
       toast.error(err?.message || 'Failed to delete account.');
     } finally {
       setIsUpdatingSession(false);

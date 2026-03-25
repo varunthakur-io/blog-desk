@@ -47,6 +47,7 @@ export default async ({ req, res, log, error }) => {
     const likesCollectionId = getRequiredEnv('APPWRITE_LIKES_COLLECTION_ID');
     const commentsCollectionId = getRequiredEnv('APPWRITE_COMMENTS_COLLECTION_ID');
     const profilesCollectionId = getRequiredEnv('APPWRITE_PROFILES_COLLECTION_ID');
+    const followsCollectionId = getRequiredEnv('APPWRITE_FOLLOWS_COLLECTION_ID');
     const bucketId = getRequiredEnv('APPWRITE_BUCKET_ID');
 
     const userId = req.headers['x-appwrite-user-id'];
@@ -61,6 +62,7 @@ export default async ({ req, res, log, error }) => {
     const storage = new Storage(client);
     const users = new Users(client);
 
+    // 1. Clean up user's own posts
     const userPosts = await listAllDocuments(databases, databaseId, postsCollectionId, [
       Query.equal('authorId', userId),
     ]);
@@ -93,6 +95,7 @@ export default async ({ req, res, log, error }) => {
       await databases.deleteDocument(databaseId, postsCollectionId, post.$id);
     }
 
+    // 2. Clean up comments and likes made by this user on other posts
     const userComments = await listAllDocuments(databases, databaseId, commentsCollectionId, [
       Query.equal('userId', userId),
     ]);
@@ -109,6 +112,34 @@ export default async ({ req, res, log, error }) => {
       await databases.deleteDocument(databaseId, likesCollectionId, like.$id);
     }
 
+    // 3. Clean up Follow relationships
+    // A. Where the user was the follower
+    const following = await listAllDocuments(databases, databaseId, followsCollectionId, [
+      Query.equal('followerId', userId),
+    ]);
+    for (const relationship of following) {
+      try {
+        // Ideally we should decrement followersCount of the target user here, 
+        // but for safety in deletion we focus on the relationship cleanup.
+        await databases.deleteDocument(databaseId, followsCollectionId, relationship.$id);
+      } catch (err) {
+        log(`Failed to delete following relationship ${relationship.$id}`);
+      }
+    }
+
+    // B. Where the user was being followed
+    const followers = await listAllDocuments(databases, databaseId, followsCollectionId, [
+      Query.equal('followingId', userId),
+    ]);
+    for (const relationship of followers) {
+      try {
+        await databases.deleteDocument(databaseId, followsCollectionId, relationship.$id);
+      } catch (err) {
+        log(`Failed to delete follower relationship ${relationship.$id}`);
+      }
+    }
+
+    // 4. Delete Profile and Avatar
     try {
       const profile = await databases.getDocument(databaseId, profilesCollectionId, userId);
       if (profile.avatarId) {
@@ -124,6 +155,7 @@ export default async ({ req, res, log, error }) => {
       log(`Profile cleanup skipped for ${userId}: ${profileError.message}`);
     }
 
+    // 5. Finally, delete the Auth Account
     await users.delete(userId);
 
     return json(res, 200, {
