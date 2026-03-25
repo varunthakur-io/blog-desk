@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 
 import { DashboardSkeleton } from '@/components/posts';
-import { ConfirmationDialog } from '@/components/common';
+import { ConfirmationDialog, EmptyState } from '@/components/common';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
@@ -43,29 +43,23 @@ import {
 import { useDashboard } from '@/hooks/posts';
 import { formatDate } from '@/utils/formatters';
 
-const EmptyState = ({ onCreate, hasQuery }) => (
-  <div className="flex flex-col items-center justify-center py-20 text-center rounded-xl border border-dashed border-border bg-muted/20">
-    <div className="bg-muted/60 p-4 rounded-full mb-4">
-      {hasQuery ? (
-        <Search className="h-7 w-7 text-muted-foreground/50" />
-      ) : (
-        <FileText className="h-7 w-7 text-muted-foreground/50" />
-      )}
-    </div>
-    <h3 className="text-base font-semibold tracking-tight">
-      {hasQuery ? 'No matching posts' : 'No posts yet'}
-    </h3>
-    <p className="text-sm text-muted-foreground max-w-xs mt-1.5 mb-6 leading-relaxed">
-      {hasQuery
+const DashboardEmptyState = ({ onCreate, hasQuery }) => (
+  <EmptyState
+    icon={hasQuery ? Search : FileText}
+    title={hasQuery ? 'No matching posts' : 'No posts yet'}
+    description={
+      hasQuery
         ? 'Try different keywords or clear the search.'
-        : 'Start writing and share your first post with the world.'}
-    </p>
-    {!hasQuery && (
-      <Button onClick={onCreate} className="rounded-full px-5 gap-2">
-        <Plus className="h-4 w-4" /> Create First Post
-      </Button>
-    )}
-  </div>
+        : 'Start writing and share your first post with the world.'
+    }
+    action={
+      !hasQuery && (
+        <Button onClick={onCreate} className="rounded-full px-5 gap-2">
+          <Plus className="h-4 w-4" /> Create First Post
+        </Button>
+      )
+    }
+  />
 );
 
 export default function Dashboard() {

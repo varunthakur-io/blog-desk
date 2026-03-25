@@ -8,17 +8,7 @@ import PostCard from '@/components/posts/PostCard';
 import PostCardSkeleton from '@/components/posts/PostCardSkeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
-
-const EmptyState = ({ icon: Icon, title, description, action }) => (
-  <div className="flex flex-col items-center justify-center py-16 text-center rounded-xl border border-dashed border-border bg-muted/5">
-    <div className="bg-muted p-4 rounded-full mb-3">
-      <Icon className="w-6 h-6 text-muted-foreground/50" />
-    </div>
-    <h3 className="text-sm font-semibold mb-1">{title}</h3>
-    <p className="text-xs text-muted-foreground max-w-xs leading-relaxed mb-4">{description}</p>
-    {action}
-  </div>
-);
+import { EmptyState } from '@/components/common';
 
 const UserCard = ({ user }) => (
   <Link key={user.$id} to={`/profile/${user.username}`} className="block group">

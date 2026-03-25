@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 
 import { commentService } from '@/services/comments';
-import { ConfirmationDialog } from '@/components/common';
+import { ConfirmationDialog, EmptyState } from '@/components/common';
 
 const CommentSection = ({ postId, authUserId, currentUserProfile, initialComments, profiles }) => {
   const [comments, setComments] = useState(initialComments || []);
@@ -124,27 +124,26 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
           </div>
         </div>
       ) : (
-        <div className="rounded-xl border border-dashed border-border bg-muted/20 py-8 text-center">
-          <MessageSquare className="h-7 w-7 text-muted-foreground/30 mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground">
-            <Link
-              to="/login"
-              className="font-semibold text-foreground underline underline-offset-4 hover:opacity-70"
-            >
-              Sign in
-            </Link>{' '}
-            to join the discussion.
-          </p>
-        </div>
+        <EmptyState
+          icon={MessageSquare}
+          title="Sign in to comment"
+          description="Join the discussion by signing in or creating an account."
+          action={
+            <Button asChild size="sm" className="rounded-full px-6">
+              <Link to="/login">Sign In</Link>
+            </Button>
+          }
+        />
       )}
 
       {/* list */}
       <div className="space-y-3">
         {comments.length === 0 ? (
-          <div className="py-10 text-center">
-            <MessageSquare className="h-7 w-7 text-muted-foreground/20 mx-auto mb-3" />
-            <p className="text-sm text-muted-foreground">No comments yet. Be the first.</p>
-          </div>
+          <EmptyState
+            icon={MessageSquare}
+            title="No comments yet"
+            description="Be the first to share your thoughts."
+          />
         ) : (
           comments.map((comment) => {
             const isMe = comment.userId === authUserId;
