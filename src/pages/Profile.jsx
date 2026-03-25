@@ -1,4 +1,4 @@
-import { ProfileSkeleton, ProfileInfo, EditProfileDialog, ProfileTabs } from '@/components/profile';
+import { EditProfileDialog, ProfileTabs, ProfileSkeleton, ProfileInfo } from '@/components/profile';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { UserPlus, UserMinus, Loader2 } from 'lucide-react';

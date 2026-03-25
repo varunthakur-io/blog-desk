@@ -5,7 +5,7 @@ import { Separator } from '@/components/ui/separator';
 import { Edit, Mail, CalendarDays, Heart, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PostCard from '@/components/posts/PostCard';
-import PostCardSkeleton from '@/components/posts/PostCardSkeleton';
+import { PostCardSkeleton } from '@/components/posts';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/common';
