@@ -1,268 +1,9 @@
-import { NavLink, Link, useNavigate } from 'react-router-dom';
-import {
-  BookOpen,
-  Search,
-  ArrowRight,
-  X,
-  ArrowUpRight,
-  Clock,
-  Heart,
-  MessageSquare,
-  Calendar,
-  Loader2,
-} from 'lucide-react';
-import DOMPurify from 'dompurify';
-
+import { Loader2, X } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { PostCard, PostCardSkeleton } from '@/components/posts';
-import { useSelector, useDispatch } from 'react-redux';
-import { selectProfileById } from '@/store/profile';
-import { setActiveCategory } from '@/store/posts';
-
+import { PostCard, PostCardSkeleton, BentoGrid } from '@/components/posts';
 import { useHome } from '@/hooks/posts';
-import { CATEGORIES } from '@/constants';
+import { HomeHeader, HomeCategoryFilters, EmptyHomeState } from './HomeUI';
 
-// ── Bento big card — spans 2×2, full photo background ────────────────────────
-const BentoFeatured = ({ post }) => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const authorName = useSelector((state) => selectProfileById(state, post.authorId))?.name;
-  const readTime = Math.max(1, Math.ceil((post.content || '').split(' ').length / 200));
-  const category = post.category || null;
-  const plainContent = DOMPurify.sanitize(post.content || '', { USE_PROFILES: { html: false } });
-  const hasImage = !!post.coverImageUrl;
-
-  const handleCategoryClick = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (category) {
-      dispatch(setActiveCategory(category));
-      navigate('/');
-    }
-  };
-
-  return (
-    <Link to={`/posts/${post.$id}`} className="group block h-full">
-      <div className="relative overflow-hidden rounded-xl h-full min-h-[420px] border border-border bg-card transition-all duration-300 group-hover:shadow-lg">
-        {hasImage ? (
-          <img
-            src={post.coverImageUrl}
-            alt={post.title}
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-          />
-        ) : (
-          <div className="absolute inset-0">
-            <div className="absolute inset-0 bg-gradient-to-br from-muted to-background" />
-          </div>
-        )}
-
-        {/* gradient overlay — only when image exists */}
-        {hasImage && (
-          <div className="absolute inset-0 bg-gradient-to-t from-black/92 via-black/35 to-transparent" />
-        )}
-
-        {/* top row */}
-        <div className="absolute top-4 left-5 right-5 flex items-center justify-between">
-          {category ? (
-            <button
-              onClick={handleCategoryClick}
-              className={`font-semibold text-[10px] uppercase tracking-wider rounded-full px-2.5 py-1 border transition-all duration-200 ${
-                hasImage
-                  ? 'bg-white/15 text-white border-white/25 backdrop-blur-sm hover:bg-white hover:text-black'
-                  : 'bg-foreground/10 text-foreground border-border hover:bg-foreground hover:text-background'
-              }`}
-            >
-              {category}
-            </button>
-          ) : (
-            <span
-              className={`font-semibold text-[10px] uppercase tracking-wider rounded-full px-2.5 py-1 border ${
-                hasImage
-                  ? 'bg-white/15 text-white border-white/25 backdrop-blur-sm'
-                  : 'bg-foreground/10 text-foreground border-border'
-              }`}
-            >
-              Featured
-            </span>
-          )}
-          <div
-            className={`flex items-center gap-2 text-[11px] rounded-full px-2.5 py-1 ${
-              hasImage
-                ? 'text-white/60 bg-black/25 backdrop-blur-sm'
-                : 'text-muted-foreground bg-muted'
-            }`}
-          >
-            <span className="flex items-center gap-1">
-              <Clock className="h-3 w-3" />
-              {readTime}m
-            </span>
-            <span className="flex items-center gap-1">
-              <Heart className="h-3 w-3" />
-              {post.likesCount || 0}
-            </span>
-          </div>
-        </div>
-
-        {/* bottom content */}
-        <div className="absolute bottom-0 left-0 right-0 p-6">
-          <h2
-            className={`text-2xl sm:text-3xl font-bold leading-tight tracking-tight mb-2 line-clamp-2 ${
-              hasImage ? 'text-white' : 'text-foreground'
-            }`}
-          >
-            {post.title}
-          </h2>
-          <p
-            className={`text-sm line-clamp-2 mb-5 leading-relaxed max-w-lg ${
-              hasImage ? 'text-white/55' : 'text-muted-foreground'
-            }`}
-          >
-            {plainContent}
-          </p>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div
-                className={`h-8 w-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${
-                  hasImage
-                    ? 'bg-white/20 border border-white/30 text-white'
-                    : 'bg-muted border border-border text-foreground'
-                }`}
-              >
-                {authorName?.charAt(0).toUpperCase() || 'A'}
-              </div>
-              <div>
-                <p
-                  className={`text-xs font-semibold leading-none mb-0.5 ${
-                    hasImage ? 'text-white' : 'text-foreground'
-                  }`}
-                >
-                  {authorName || 'Anonymous'}
-                </p>
-                <div
-                  className={`flex items-center gap-1 text-[11px] ${
-                    hasImage ? 'text-white/50' : 'text-muted-foreground'
-                  }`}
-                >
-                  <Calendar className="h-2.5 w-2.5" />
-                  <time>
-                    {new Date(post.$createdAt).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}
-                  </time>
-                </div>
-              </div>
-            </div>
-            <div
-              className={`flex items-center gap-1.5 text-xs font-semibold rounded-full px-3 py-1.5 border transition-all duration-300 ${
-                hasImage
-                  ? 'text-white bg-white/10 border-white/20 group-hover:bg-white group-hover:text-black'
-                  : 'text-foreground bg-muted border-border group-hover:bg-foreground group-hover:text-background'
-              }`}
-            >
-              Read <ArrowUpRight className="h-3.5 w-3.5" />
-            </div>
-          </div>
-        </div>
-      </div>
-    </Link>
-  );
-};
-
-// ── Bento small card — stacks in the right column ────────────────────────────
-const BentoSmall = ({ post }) => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const authorName = useSelector((state) => selectProfileById(state, post.authorId))?.name;
-  const readTime = Math.max(1, Math.ceil((post.content || '').split(' ').length / 200));
-  const category = post.category || null;
-  const hasImage = !!post.coverImageUrl;
-
-  const handleCategoryClick = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (category) {
-      dispatch(setActiveCategory(category));
-      navigate('/');
-    }
-  };
-
-  return (
-    <Link to={`/posts/${post.$id}`} className="group block h-full">
-      <div className="relative overflow-hidden rounded-xl h-full min-h-[196px] border border-border bg-card transition-all duration-300 group-hover:shadow-md">
-        {hasImage ? (
-          <img
-            src={post.coverImageUrl}
-            alt={post.title}
-            className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.04]"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-muted flex items-center justify-center overflow-hidden">
-            <span className="text-[5rem] font-black text-foreground/5 select-none leading-none uppercase">
-              {category?.charAt(0) || 'B'}
-            </span>
-          </div>
-        )}
-
-        {/* gradient overlay — only when image exists */}
-        {hasImage && (
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-        )}
-
-        {/* category badge top-left */}
-        {category && (
-          <div className="absolute top-3 left-3">
-            <button
-              onClick={handleCategoryClick}
-              className={`font-semibold text-[10px] uppercase tracking-wider rounded-full px-2.5 py-1 border transition-all duration-200 ${
-                hasImage
-                  ? 'bg-white/15 text-white border-white/25 backdrop-blur-sm hover:bg-white hover:text-black'
-                  : 'bg-foreground/10 text-foreground border-border hover:bg-foreground hover:text-background'
-              }`}
-            >
-              {category}
-            </button>
-          </div>
-        )}
-
-        {/* bottom content */}
-        <div className="absolute bottom-0 left-0 right-0 p-4">
-          <h3
-            className={`text-sm font-bold leading-snug tracking-tight line-clamp-2 mb-2 transition-opacity group-hover:opacity-80 ${
-              hasImage ? 'text-white' : 'text-foreground'
-            }`}
-          >
-            {post.title}
-          </h3>
-          <div className="flex items-center justify-between">
-            <span className={`text-[11px] ${hasImage ? 'text-white/50' : 'text-muted-foreground'}`}>
-              {authorName || 'Anonymous'} · {readTime}m
-            </span>
-            <div
-              className={`flex items-center gap-2.5 text-[11px] ${
-                hasImage ? 'text-white/50' : 'text-muted-foreground'
-              }`}
-            >
-              <span className="flex items-center gap-1">
-                <Heart className="h-2.5 w-2.5" />
-                {post.likesCount || 0}
-              </span>
-              <span className="flex items-center gap-1">
-                <MessageSquare className="h-2.5 w-2.5" />
-                {post.commentsCount || 0}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </Link>
-  );
-};
-
-// ── Main Home page ─────────────────────────────────────────────────────────────
 const Home = () => {
   const {
     posts,
@@ -279,7 +20,6 @@ const Home = () => {
     if (postsLoading && posts.length === 0) {
       return (
         <div className="space-y-8">
-          {/* Bento skeleton */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div className="lg:col-span-2 lg:row-span-2 rounded-xl bg-muted animate-pulse min-h-[420px]" />
             <div className="rounded-xl bg-muted animate-pulse min-h-[196px]" />
@@ -307,46 +47,11 @@ const Home = () => {
 
     if (posts.length === 0) {
       return (
-        <div className="text-center py-32">
-          <div className="flex flex-col items-center gap-5">
-            <div className="rounded-full bg-muted p-6">
-              {searchTerm || activeCategory ? (
-                <Search className="h-10 w-10 text-muted-foreground/50" />
-              ) : (
-                <BookOpen className="h-10 w-10 text-muted-foreground/50" />
-              )}
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-xl font-semibold tracking-tight">
-                {searchTerm || activeCategory ? 'No Results Found' : 'No Posts Yet'}
-              </h3>
-              <p className="text-muted-foreground text-sm max-w-xs mx-auto">
-                {searchTerm
-                  ? `Nothing matched "${searchTerm}". Try a different keyword.`
-                  : activeCategory
-                    ? `No posts in "${activeCategory}" yet.`
-                    : 'Be the first to share your ideas with the world.'}
-              </p>
-            </div>
-            {activeCategory && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleCategoryChange(activeCategory)}
-                className="rounded-full gap-2"
-              >
-                <X className="h-3.5 w-3.5" /> Clear filter
-              </Button>
-            )}
-            {!searchTerm && !activeCategory && (
-              <Button asChild className="rounded-full px-6 mt-2">
-                <NavLink to="/create">
-                  Write First Post <ArrowRight className="ml-2 h-4 w-4" />
-                </NavLink>
-              </Button>
-            )}
-          </div>
-        </div>
+        <EmptyHomeState
+          searchTerm={searchTerm}
+          activeCategory={activeCategory}
+          onClearFilters={() => handleCategoryChange(null)}
+        />
       );
     }
 
@@ -374,7 +79,7 @@ const Home = () => {
             </span>
             {activeCategory && (
               <button
-                onClick={() => handleCategoryChange(activeCategory)}
+                onClick={() => handleCategoryChange(null)}
                 className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
                 <X className="h-3 w-3" /> Clear
@@ -396,25 +101,12 @@ const Home = () => {
     }
 
     // normal view — bento grid top, uniform grid below
-    const featuredPost = posts[0];
-    const bentoSide = posts.slice(1, 3);
     const gridPosts = posts.slice(3);
 
     return (
       <div className="space-y-10">
-        {/* Bento top block */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4" style={{ gridTemplateRows: 'auto' }}>
-          <div className="lg:col-span-2 lg:row-span-2">
-            <BentoFeatured post={featuredPost} />
-          </div>
-          {bentoSide.map((post) => (
-            <div key={post.$id} className="lg:col-span-1">
-              <BentoSmall post={post} />
-            </div>
-          ))}
-        </div>
+        <BentoGrid posts={posts.slice(0, 3)} />
 
-        {/* rest of posts — uniform 3-col grid */}
         {gridPosts.length > 0 && (
           <div>
             <div className="flex items-center gap-3 mb-6">
@@ -442,54 +134,11 @@ const Home = () => {
 
   return (
     <div className="page-root">
-      {/* Slim header — title left, search right */}
-      <div className="flex items-center justify-between gap-6 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Blog Desk</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Ideas worth sharing</p>
-        </div>
-        <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2 shadow-sm focus-within:ring-2 focus-within:ring-foreground/20 transition-all w-full max-w-xs">
-          <Search className="h-4 w-4 text-muted-foreground shrink-0" />
-          <Input
-            type="search"
-            placeholder="Search posts…"
-            className="border-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-auto py-0 text-sm bg-transparent"
-            value={searchTerm}
-            onChange={handleSearchChange}
-          />
-        </div>
-      </div>
-
-      {/* Category pills */}
-      <div className="flex items-center gap-2 flex-wrap mb-8">
-        <button
-          onClick={() => activeCategory && handleCategoryChange(activeCategory)}
-          className={`inline-flex items-center rounded-full px-3.5 py-1.5 text-xs font-semibold border transition-all duration-200 ${
-            !activeCategory
-              ? 'bg-foreground text-background border-foreground'
-              : 'border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground bg-card'
-          }`}
-        >
-          All
-        </button>
-        {CATEGORIES.map((cat) => {
-          const isActive = activeCategory === cat;
-          return (
-            <button
-              key={cat}
-              onClick={() => handleCategoryChange(cat)}
-              className={`rounded-full px-3.5 py-1.5 text-xs font-semibold border transition-all duration-200 ${
-                isActive
-                  ? 'bg-foreground text-background border-foreground'
-                  : 'border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground bg-card'
-              }`}
-            >
-              {cat}
-            </button>
-          );
-        })}
-      </div>
-
+      <HomeHeader searchTerm={searchTerm} onSearchChange={handleSearchChange} />
+      <HomeCategoryFilters
+        activeCategory={activeCategory}
+        onCategoryChange={handleCategoryChange}
+      />
       {renderContent()}
     </div>
   );

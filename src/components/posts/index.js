@@ -1,3 +1,4 @@
+export { default as BentoGrid } from './BentoGrid';
 export { default as PostCard } from './PostCard';
 export { default as FeaturedPost } from './FeaturedPost';
 export { default as PostForm } from './PostForm';
