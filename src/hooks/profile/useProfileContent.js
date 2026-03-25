@@ -48,7 +48,9 @@ export const useProfileContent = (profileId, activeTab, isOwner) => {
     const fetchLiked = async () => {
       setLikesFetchStatus('loading');
       try {
-        const liked = await likeService.getUserLikedPosts(profileId);
+        const response = await likeService.getLikedPostsByUserId(profileId);
+        // Extract documents from response if it's an Appwrite response object
+        const liked = response.documents || response;
         if (!cancelled) {
           setLikedPosts(liked || []);
           setLikesFetchStatus('success');
