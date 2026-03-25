@@ -29,6 +29,32 @@ export const selectProfileError = createSelector(
   },
 );
 
+export const selectFollowerIds = createSelector(
+  [selectProfileState, (_, userId) => userId],
+  (profileState, userId) => {
+    if (!userId) return [];
+    return profileState.followersByUserId[String(userId)] || [];
+  },
+);
+
+export const selectFollowers = createSelector(
+  [selectFollowerIds, selectProfileState],
+  (ids, profileState) => ids.map((id) => profileState.byId[id]).filter(Boolean),
+);
+
+export const selectFollowingIds = createSelector(
+  [selectProfileState, (_, userId) => userId],
+  (profileState, userId) => {
+    if (!userId) return [];
+    return profileState.followingByUserId[String(userId)] || [];
+  },
+);
+
+export const selectFollowing = createSelector(
+  [selectFollowingIds, selectProfileState],
+  (ids, profileState) => ids.map((id) => profileState.byId[id]).filter(Boolean),
+);
+
 /* ========= Semantic Helpers ========= */
 
 export const selectIsProfileLoading = createSelector(
