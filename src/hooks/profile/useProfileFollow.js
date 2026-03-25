@@ -67,10 +67,10 @@ export const useProfileFollow = (profileId, authUserId, activeTab, isOwner) => {
         if (followerIds.length > 0) {
           const profiles = await profileService.getProfilesByIds(followerIds);
           if (!cancelled) {
-            dispatch(setFollowers({ userId: profileId, followers: profiles }));
+            dispatch(setFollowers({ userId: profileId, profiles }));
           }
         } else {
-          if (!cancelled) dispatch(setFollowers({ userId: profileId, followers: [] }));
+          if (!cancelled) dispatch(setFollowers({ userId: profileId, profiles: [] }));
         }
       } catch (err) {
         console.error('Failed to fetch followers:', err);
@@ -99,10 +99,10 @@ export const useProfileFollow = (profileId, authUserId, activeTab, isOwner) => {
         if (followingIds.length > 0) {
           const profiles = await profileService.getProfilesByIds(followingIds);
           if (!cancelled) {
-            dispatch(setFollowing({ userId: profileId, following: profiles }));
+            dispatch(setFollowing({ userId: profileId, profiles }));
           }
         } else {
-          if (!cancelled) dispatch(setFollowing({ userId: profileId, following: [] }));
+          if (!cancelled) dispatch(setFollowing({ userId: profileId, profiles: [] }));
         }
       } catch (err) {
         console.error('Failed to fetch following:', err);
