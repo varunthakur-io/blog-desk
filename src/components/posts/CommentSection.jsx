@@ -1,15 +1,14 @@
-import { useState, useEffect } from 'react';
+import React from 'react';
 import { Loader2, MessageSquare, Send, Trash2 } from 'lucide-react';
-import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 
-import { commentService } from '@/services/comments';
 import { ConfirmationDialog, EmptyState } from '@/components/common';
+import { useComments } from '@/hooks/posts';
 
-// ─── Sub-components ──────────────────────────────────────────────────
+// Sub-components
 
 const CommentItem = ({ comment, isMe, profile, currentUserName, onDeleteClick }) => {
   const name = profile?.name || (isMe ? currentUserName : 'Anonymous');
@@ -156,73 +155,23 @@ const CommentForm = ({
   );
 };
 
-// ─── Main Component ──────────────────────────────────────────────────
+// Main Component
 
 const CommentSection = ({ postId, authUserId, currentUserProfile, initialComments, profiles }) => {
-  const [comments, setComments] = useState(initialComments || []);
-  const [newComment, setNewComment] = useState('');
-  const [isCommenting, setIsCommenting] = useState(false);
-
-  // UI state for deletion
-  const [commentToDelete, setCommentToDelete] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  useEffect(() => {
-    setComments(initialComments || []);
-  }, [initialComments]);
+  const {
+    comments,
+    newComment,
+    setNewComment,
+    isCommenting,
+    isDeleting,
+    commentToDelete,
+    setCommentToDelete,
+    handleCommentSubmit,
+    handleKeyDown,
+    confirmDelete,
+  } = useComments(postId, initialComments, authUserId);
 
   const currentUserName = currentUserProfile?.name || 'You';
-
-  const handleCommentSubmit = async () => {
-    const content = newComment.trim();
-    if (!content || !postId || !authUserId) return;
-
-    setIsCommenting(true);
-    const tempId = 'temp-' + Date.now();
-    setComments((prev) => [
-      {
-        $id: tempId,
-        postId,
-        userId: authUserId,
-        content,
-        $createdAt: new Date().toISOString(),
-      },
-      ...prev,
-    ]);
-    setNewComment('');
-
-    try {
-      const created = await commentService.addComment({ postId, userId: authUserId, content });
-      setComments((prev) => prev.map((c) => (c.$id === tempId ? created : c)));
-      toast.success('Comment posted!');
-    } catch {
-      setComments((prev) => prev.filter((c) => c.$id !== tempId));
-      setNewComment(content);
-      toast.error('Failed to post comment');
-    } finally {
-      setIsCommenting(false);
-    }
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleCommentSubmit();
-  };
-
-  const onDeleteConfirm = async () => {
-    if (!commentToDelete || !postId) return;
-
-    setIsDeleting(true);
-    try {
-      await commentService.deleteComment(commentToDelete.$id, postId);
-      setComments((prev) => prev.filter((c) => c.$id !== commentToDelete.$id));
-      toast.success('Comment deleted!');
-    } catch {
-      toast.error('Failed to delete comment');
-    } finally {
-      setCommentToDelete(null);
-      setIsDeleting(false);
-    }
-  };
 
   return (
     <div className="space-y-8">
@@ -260,7 +209,7 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
       <ConfirmationDialog
         open={!!commentToDelete}
         onOpenChange={(open) => !open && !isDeleting && setCommentToDelete(null)}
-        onConfirm={onDeleteConfirm}
+        onConfirm={confirmDelete}
         isLoading={isDeleting}
         variant="destructive"
         title="Delete Comment"
