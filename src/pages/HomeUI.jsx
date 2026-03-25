@@ -58,7 +58,7 @@ export const HomeCategoryFilters = ({ activeCategory, onCategoryChange }) => (
 
 export const EmptyHomeState = ({ searchTerm, activeCategory, onClearFilters }) => {
   const isSearch = searchTerm || activeCategory;
-  
+
   return (
     <EmptyState
       animate
@@ -84,7 +84,10 @@ export const EmptyHomeState = ({ searchTerm, activeCategory, onClearFilters }) =
             <X className="h-3.5 w-3.5" /> Clear all filters
           </Button>
         ) : (
-          <Button asChild className="rounded-full px-6 mt-2 shadow-md hover:shadow-lg transition-all active:scale-95">
+          <Button
+            asChild
+            className="rounded-full px-6 mt-2 shadow-md hover:shadow-lg transition-all active:scale-95"
+          >
             <NavLink to="/create">
               Write First Post <ArrowRight className="ml-2 h-4 w-4" />
             </NavLink>

@@ -15,7 +15,7 @@ export const EmptyState = ({
       className={cn(
         'flex flex-col items-center justify-center py-16 text-center rounded-xl border border-dashed border-border bg-muted/5',
         animate && 'animate-in fade-in zoom-in-95 duration-500',
-        className
+        className,
       )}
     >
       {Icon && (
@@ -24,9 +24,7 @@ export const EmptyState = ({
         </div>
       )}
       <h3 className="text-sm font-semibold mb-1">{title}</h3>
-      <p className="text-xs text-muted-foreground max-w-xs leading-relaxed mb-4">
-        {description}
-      </p>
+      <p className="text-xs text-muted-foreground max-w-xs leading-relaxed mb-4">{description}</p>
       {action && <div>{action}</div>}
     </div>
   );
