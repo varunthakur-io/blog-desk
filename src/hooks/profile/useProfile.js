@@ -20,6 +20,9 @@ import {
   setUserProfile,
   setProfileError,
   setFollowers,
+  selectFollowers,
+  selectFollowing,
+  setFollowing,
 } from '@/store/profile';
 
 export const useProfile = () => {
@@ -278,27 +281,43 @@ export const useProfile = () => {
 
   const joinedDate = formatJoinedDate(profile?.$createdAt);
 
-  const [followersProfiles, setFollowersProfiles] = useState([]);
-  const [followingProfiles, setFollowingProfiles] = useState([]);
   const [isFollowersLoading, setIsFollowersLoading] = useState(false);
-  const [isFollowingLoading, setIsFollowingLoading] = useState(false);
+  const followersProfiles = useSelector((state) => selectFollowers(state, profileId));
 
   // 1. Fetch Followers List (Lazy loaded when tab opens)
   useEffect(() => {
     if (!profileId || activeTab !== 'followers') return;
 
     let cancelled = false;
+
     const fetchFollowers = async () => {
       setIsFollowersLoading(true);
+
       try {
         const followers = await followService.getFollowers(profileId);
         const followerIds = followers.map((f) => f.followerId);
 
         if (followerIds.length > 0) {
           const profiles = await profileService.getProfilesByIds(followerIds);
-          if (!cancelled) setFollowersProfiles(profiles);
+
+          if (!cancelled) {
+            dispatch(
+              setFollowers({
+                userId: profileId,
+                profiles,
+              }),
+            );
+          }
         } else {
-          if (!cancelled) setFollowersProfiles([]);
+          // store empty list in Redux (important)
+          if (!cancelled) {
+            dispatch(
+              setFollowers({
+                userId: profileId,
+                profiles: [],
+              }),
+            );
+          }
         }
       } catch (error) {
         console.error('Failed to fetch followers:', error);
@@ -308,27 +327,49 @@ export const useProfile = () => {
     };
 
     fetchFollowers();
+
     return () => {
       cancelled = true;
     };
-  }, [profileId, activeTab]);
+  }, [profileId, activeTab, dispatch]);
+
+  const [isFollowingLoading, setIsFollowingLoading] = useState(false);
+  const followingProfiles = useSelector((state) => selectFollowing(state, profileId));
 
   // 2. Fetch Following List (Lazy loaded when tab opens)
   useEffect(() => {
     if (!profileId || activeTab !== 'following') return;
 
     let cancelled = false;
+
     const fetchFollowing = async () => {
       setIsFollowingLoading(true);
+
       try {
         const following = await followService.getFollowing(profileId);
         const followingIds = following.map((f) => f.followingId);
 
         if (followingIds.length > 0) {
           const profiles = await profileService.getProfilesByIds(followingIds);
-          if (!cancelled) setFollowingProfiles(profiles);
+
+          if (!cancelled) {
+            dispatch(
+              setFollowing({
+                userId: profileId,
+                profiles,
+              }),
+            );
+          }
         } else {
-          if (!cancelled) setFollowingProfiles([]);
+          // IMPORTANT: clear stale data
+          if (!cancelled) {
+            dispatch(
+              setFollowing({
+                userId: profileId,
+                profiles: [],
+              }),
+            );
+          }
         }
       } catch (error) {
         console.error('Failed to fetch following:', error);
@@ -338,10 +379,11 @@ export const useProfile = () => {
     };
 
     fetchFollowing();
+
     return () => {
       cancelled = true;
     };
-  }, [profileId, activeTab]);
+  }, [profileId, activeTab, dispatch]);
 
   return {
     profileId,
