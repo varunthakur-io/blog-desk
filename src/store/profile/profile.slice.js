@@ -1,17 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { set } from 'react-hook-form';
 
 const initialState = {
-  byId: {}, // userId -> profile object
-  statusById: {}, // userId -> 'idle' | 'loading' | 'error' | 'success'
-  errorById: {}, // userId -> string | null
-  followersById: {}, // userId -> profile object
+  byId: {},
+  followersByUserId: {},
+  followingByUserId: {},
+  statusById: {},
+  errorById: {},
 };
 
 const profileSlice = createSlice({
   name: 'profile',
   initialState,
   reducers: {
+    // Sets the loading state for a specific profile
     setProfileLoading(state, action) {
       const userId = String(action.payload);
       state.statusById[userId] = 'loading';
@@ -39,18 +40,47 @@ const profileSlice = createSlice({
     // Removes the User Profile from cache
     clearUserProfile(state, action) {
       const id = String(action.payload);
+
       delete state.byId[id];
       delete state.statusById[id];
       delete state.errorById[id];
+
+      // optional: clean relationships
+      delete state.followersByUserId[id];
     },
+
     setFollowers(state, action) {
-      const followers = action.payload;
-      if (!followers) return;
-      followers.forEach((element) => {
-        const id = String(element.$id);
-        state.followersById[id] = {
-          ...element,
+      const { userId, profiles } = action.payload;
+      if (!userId || !profiles) return;
+
+      const uid = String(userId);
+
+      state.followersByUserId[uid] = profiles.map((profile) => {
+        const id = String(profile.$id);
+
+        // normalize into byId
+        state.byId[id] = {
+          ...(state.byId[id] || {}),
+          ...profile,
         };
+
+        return id;
+      });
+    },
+
+    setFollowing(state, action) {
+      const { userId, profiles } = action.payload;
+      if (!userId || !profiles) return;
+
+      const uid = String(userId);
+
+      state.followingByUserId[uid] = profiles.map((profile) => {
+        const id = String(profile.$id);
+        state.byId[id] = {
+          ...(state.byId[id] || {}),
+          ...profile,
+        };
+        return id;
       });
     },
   },
@@ -62,6 +92,7 @@ export const {
   setProfileError,
   clearUserProfile,
   setFollowers,
+  setFollowing,
 } = profileSlice.actions;
 
 export default profileSlice.reducer;
