@@ -3,6 +3,7 @@ import { storageService } from '../storage';
 import { commentService } from '../comments';
 import { likeService } from '../likes';
 import { authService } from '../auth';
+import { followService } from '../follows';
 import { Query } from 'appwrite';
 
 const generateSlug = (title) => {
@@ -70,6 +71,31 @@ class PostService {
     }
 
     return await postApi.listPosts(baseQueries);
+  }
+
+  async getFollowingFeed(userId, page = 1, skip = 6) {
+    if (!userId) throw new Error('getFollowingFeed: "userId" is required');
+
+    // 1. Get the list of people this user follows
+    const following = await followService.getFollowing(userId);
+    const followingIds = following.map((f) => f.followingId);
+
+    // 2. Handle empty following list
+    if (followingIds.length === 0) {
+      return { documents: [], total: 0 };
+    }
+
+    // 3. Fetch posts from those authors
+    const offset = (page - 1) * skip;
+    const queries = [
+      Query.limit(skip),
+      Query.offset(offset),
+      Query.equal('status', 'published'),
+      Query.equal('authorId', followingIds),
+      Query.orderDesc('$createdAt'),
+    ];
+
+    return await postApi.listPosts(queries);
   }
 
   async getPostsByUserId(
