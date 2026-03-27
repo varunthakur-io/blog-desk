@@ -9,13 +9,16 @@ import {
   selectHasMore,
   selectPage,
   selectActiveCategory,
+  selectFeedMode,
   setPostsStatus,
   setPostsError,
   setPostList,
   appendPostPage,
   setPostPagination,
   setActiveCategory,
+  setFeedMode,
 } from '@/store/posts';
+import { selectAuthUserId } from '@/store/auth';
 import { POSTS_PER_PAGE } from '@/constants';
 
 const LIMIT = POSTS_PER_PAGE;
@@ -29,11 +32,12 @@ export const useHome = () => {
   const hasMore = useSelector(selectHasMore);
   const page = useSelector(selectPage);
   const activeCategory = useSelector(selectActiveCategory);
+  const feedMode = useSelector(selectFeedMode);
+  const authUserId = useSelector(selectAuthUserId);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
 
-  // Ref to track loading state without triggering re-renders or effect loops
   const loadingRef = useRef(false);
 
   // 1. Debounce logic for search input
@@ -52,14 +56,21 @@ export const useHome = () => {
   };
 
   const loadPage = useCallback(
-    async (pageNum, category, search) => {
+    async (pageNum, category, search, mode) => {
       if (loadingRef.current) return;
 
       loadingRef.current = true;
       dispatch(setPostsStatus('loading'));
       try {
-        const postPage = await postService.getAllPosts(pageNum, LIMIT, category, search);
-        const pagePosts = postPage.documents ?? [];
+        let response;
+
+        if (mode === 'following' && authUserId) {
+          response = await postService.getFollowingFeed(authUserId, pageNum, LIMIT);
+        } else {
+          response = await postService.getAllPosts(pageNum, LIMIT, category, search);
+        }
+
+        const pagePosts = response.documents ?? [];
         const totalFetched = (pageNum === 1 ? 0 : (pageNum - 1) * LIMIT) + pagePosts.length;
 
         if (pageNum === 1) {
@@ -67,21 +78,20 @@ export const useHome = () => {
         } else {
           dispatch(appendPostPage(pagePosts));
         }
-        dispatch(setPostPagination({ page: pageNum, hasMore: totalFetched < postPage.total }));
+        dispatch(setPostPagination({ page: pageNum, hasMore: totalFetched < response.total }));
       } catch (error) {
         dispatch(setPostsError(error?.message ?? 'Failed to fetch posts'));
       } finally {
         loadingRef.current = false;
       }
     },
-    [dispatch],
+    [dispatch, authUserId],
   );
 
-  // 2. Initial load + reload when category OR debounced search changes
+  // 2. Reload when category, search, or feed mode changes
   useEffect(() => {
-    dispatch(setPostPagination({ page: 1, hasMore: true }));
-    loadPage(1, activeCategory, debouncedSearchTerm);
-  }, [activeCategory, debouncedSearchTerm, loadPage, dispatch]);
+    loadPage(1, activeCategory, debouncedSearchTerm, feedMode);
+  }, [activeCategory, debouncedSearchTerm, feedMode, loadPage]);
 
   // 3. Infinite scroll
   useEffect(() => {
@@ -92,13 +102,13 @@ export const useHome = () => {
       const { scrollTop, offsetHeight } = document.documentElement;
 
       if (innerHeight + scrollTop >= offsetHeight - 200) {
-        loadPage(page + 1, activeCategory, debouncedSearchTerm);
+        loadPage(page + 1, activeCategory, debouncedSearchTerm, feedMode);
       }
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [hasMore, page, loadPage, debouncedSearchTerm, activeCategory]);
+  }, [hasMore, page, loadPage, debouncedSearchTerm, activeCategory, feedMode]);
 
   const handleCategoryChange = useCallback(
     (category) => {
@@ -110,6 +120,15 @@ export const useHome = () => {
     [dispatch, activeCategory],
   );
 
+  const handleFeedModeChange = useCallback(
+    (mode) => {
+      setSearchTerm('');
+      setDebouncedSearchTerm('');
+      dispatch(setFeedMode(mode));
+    },
+    [dispatch],
+  );
+
   return {
     posts,
     postsLoading: isPostsLoading,
@@ -117,8 +136,11 @@ export const useHome = () => {
     hasMore,
     searchTerm,
     activeCategory,
+    feedMode,
+    authUserId,
     handleSearchChange,
     handleCategoryChange,
+    handleFeedModeChange,
     LIMIT,
   };
 };
