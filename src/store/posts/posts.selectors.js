@@ -55,3 +55,8 @@ export const selectActiveCategory = createSelector(
   [selectPostsState],
   (postsState) => postsState.activeCategory,
 );
+
+export const selectFeedMode = createSelector(
+  [selectPostsState],
+  (postsState) => postsState.feedMode,
+);

@@ -15,6 +15,9 @@ const initialState = {
 
   // Active category filter for the home feed (null = all)
   activeCategory: null,
+
+  // explore | following
+  feedMode: 'explore',
 };
 
 const postsSlice = createSlice({
@@ -97,6 +100,14 @@ const postsSlice = createSlice({
       state.pagination = { page: 1, hasMore: true, initialLoaded: false };
       state.status = 'idle';
     },
+    setFeedMode(state, action) {
+      state.feedMode = action.payload || 'explore';
+      state.activeCategory = null; // Reset category when switching modes
+      state.byId = {};
+      state.allIds = [];
+      state.pagination = { page: 1, hasMore: true, initialLoaded: false };
+      state.status = 'idle';
+    },
   },
 });
 
@@ -109,6 +120,7 @@ export const {
   clearPostRecord,
   setPostPagination,
   setActiveCategory,
+  setFeedMode,
 } = postsSlice.actions;
 
 export default postsSlice.reducer;
