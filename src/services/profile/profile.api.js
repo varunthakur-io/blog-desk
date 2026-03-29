@@ -40,6 +40,11 @@ class ProfileApi {
       Query.limit(userIds.length),
     ]);
   }
+
+  async searchProfiles(query) {
+    if (!query) return null;
+    return await databases.listDocuments(appwrite.databaseId, appwrite.profilesCollectionId, query);
+  }
 }
 
 export const profileApi = new ProfileApi();

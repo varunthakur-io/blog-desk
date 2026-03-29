@@ -1,5 +1,6 @@
 import { profileApi } from './profile.api';
 import { storageService } from '../storage';
+import { Query } from 'appwrite';
 
 class ProfileService {
   async getProfile(userId) {
@@ -72,6 +73,29 @@ class ProfileService {
       return await profileApi.clearProfile(userId);
     } catch {
       return false;
+    }
+  }
+
+  async searchProfiles(searchTerm) {
+    if (!searchTerm) return [];
+
+    // Trim whitespace
+    const cleanedsearchTerm = searchTerm.trim();
+    if (!searchTerm) return [];
+    const query = [
+      Query.or([
+        Query.contains('username', cleanedsearchTerm),
+        Query.contains('name', cleanedsearchTerm),
+      ]),
+      Query.limit(10),
+    ];
+
+    try {
+      const res = await profileApi.searchProfiles(query);
+      return res.documents || [];
+    } catch (error) {
+      console.error('Search failed:', error);
+      return [];
     }
   }
 }
