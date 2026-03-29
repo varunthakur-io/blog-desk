@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { FollowButton } from '@/components/common';
 
 const AuthorSidebar = ({
   authorProfile,
@@ -69,18 +70,24 @@ const AuthorSidebar = ({
             </div>
           </div>
 
-          {authorUsername && (
-            <Button
-              asChild
-              variant="outline"
-              size="sm"
-              className="w-full rounded-md text-xs gap-1.5 h-8"
-            >
-              <Link to={`/profile/${authorUsername}`}>
-                <User className="h-3.5 w-3.5" /> View Profile
-              </Link>
-            </Button>
-          )}
+          <div className="grid grid-cols-2 gap-2 mt-3">
+            {authorUsername && (
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="w-full rounded-md text-[11px] font-bold gap-1.5 h-8 px-2"
+              >
+                <Link to={`/profile/${authorUsername}`}>
+                  <User className="h-3.5 w-3.5" /> View
+                </Link>
+              </Button>
+            )}
+            <FollowButton 
+              userId={authorProfile?.$id} 
+              className="w-full rounded-md text-[11px] font-bold h-8 px-2" 
+            />
+          </div>
         </div>
       </div>
 

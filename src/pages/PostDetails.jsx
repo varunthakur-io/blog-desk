@@ -95,7 +95,6 @@ const PostDetails = () => {
             authUserId={authUserId}
             currentUserProfile={currentUserProfile}
             initialComments={comments}
-            profiles={profileCache}
           />
         </div>
       </div>

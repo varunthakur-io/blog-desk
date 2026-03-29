@@ -5,29 +5,34 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 
-import { ConfirmationDialog, EmptyState } from '@/components/common';
+import { ConfirmationDialog, EmptyState, FollowButton } from '@/components/common';
 import { useComments } from '@/hooks/posts';
+import { useProfile } from '@/hooks/profile';
 
 // Sub-components
 
-const CommentItem = ({ comment, isMe, profile, currentUserName, onDeleteClick }) => {
-  const name = profile?.name || (isMe ? currentUserName : 'Anonymous');
+const CommentItem = ({ comment, isMe, onDeleteClick }) => {
+  const { profile, displayName, avatarUrl } = useProfile(comment.userId);
 
   return (
     <div className="flex gap-3 group">
-      <Avatar className="h-8 w-8 border border-border shrink-0 mt-1">
-        <AvatarImage src={profile?.avatarUrl} alt={name} />
-        <AvatarFallback className="bg-muted text-muted-foreground font-medium text-xs">
-          {name.charAt(0).toUpperCase()}
-        </AvatarFallback>
-      </Avatar>
+      <Link to={`/profile/${profile?.username}`} className="mt-1 shrink-0">
+        <Avatar className="h-8 w-8 border border-border transition-transform hover:scale-105">
+          <AvatarImage src={avatarUrl} alt={displayName} />
+          <AvatarFallback className="bg-muted text-muted-foreground font-medium text-xs">
+            {displayName.charAt(0).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+      </Link>
 
       <div className="flex-1 min-w-0">
         <div className="rounded-2xl border border-border bg-card px-4 py-3 transition-colors hover:bg-muted/40 text-left">
           <div className="flex items-center justify-between gap-2 mb-1">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-foreground leading-none">{name}</span>
-              <time className="text-xs text-muted-foreground">
+              <Link to={`/profile/${profile?.username}`} className="text-sm font-semibold text-foreground hover:text-primary transition-colors leading-none">
+                {displayName}
+              </Link>
+              <time className="text-xs text-muted-foreground font-medium">
                 {comment.$createdAt
                   ? new Date(comment.$createdAt).toLocaleDateString('en-US', {
                       month: 'short',
@@ -35,6 +40,14 @@ const CommentItem = ({ comment, isMe, profile, currentUserName, onDeleteClick })
                     })
                   : 'Just now'}
               </time>
+              {!isMe && (
+                <FollowButton 
+                  userId={comment.userId} 
+                  variant="ghost" 
+                  size="xs" 
+                  className="h-5 px-2 text-[9px] uppercase tracking-tighter" 
+                />
+              )}
             </div>
 
             {isMe && (
@@ -62,9 +75,6 @@ const CommentItem = ({ comment, isMe, profile, currentUserName, onDeleteClick })
 const CommentList = ({
   comments,
   authUserId,
-  currentUserProfile,
-  profiles,
-  currentUserName,
   onDeleteClick,
 }) => {
   if (comments.length === 0) {
@@ -84,8 +94,6 @@ const CommentList = ({
           key={comment.$id}
           comment={comment}
           isMe={comment.userId === authUserId}
-          profile={comment.userId === authUserId ? currentUserProfile : profiles[comment.userId]}
-          currentUserName={currentUserName}
           onDeleteClick={() => onDeleteClick(comment)}
         />
       ))}
@@ -157,7 +165,7 @@ const CommentForm = ({
 
 // Main Component
 
-const CommentSection = ({ postId, authUserId, currentUserProfile, initialComments, profiles }) => {
+const CommentSection = ({ postId, authUserId, currentUserProfile, initialComments }) => {
   const {
     comments,
     newComment,
@@ -200,9 +208,6 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
       <CommentList
         comments={comments}
         authUserId={authUserId}
-        currentUserProfile={currentUserProfile}
-        profiles={profiles}
-        currentUserName={currentUserName}
         onDeleteClick={setCommentToDelete}
       />
 

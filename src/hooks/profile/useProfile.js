@@ -1,84 +1,55 @@
-import { useState } from 'react';
-import { useSelector } from 'react-redux';
-import { formatJoinedDate } from '@/utils/formatters';
-import { selectAuthEmail, selectIsAuthLoading } from '@/store/auth';
-
-import { useProfileIdentity } from './useProfileIdentity';
-import { useProfileContent } from './useProfileContent';
-import { useProfileFollow } from './useProfileFollow';
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { profileService } from '@/services/profile';
+import { selectProfileById, setUserProfile } from '@/store/profile';
 
 /**
- * Main Profile Orchestration Hook.
- * Combines identity, content, and social logic.
+ * Universal hook to fetch and manage a user's profile identity.
+ * Leverages Redux cache to avoid redundant network requests.
  */
-export const useProfile = () => {
-  const [activeTab, setActiveTab] = useState('posts');
+export const useProfile = (userId) => {
+  const dispatch = useDispatch();
+  const profile = useSelector((state) => selectProfileById(state, userId));
+  
+  const [isLoading, setIsLoading] = useState(!profile);
+  const [error, setError] = useState(null);
 
-  // 1. Core Identity Logic
-  const { profileId, profile, isOwner, usernameFetchStatus, usernameFetchError, authUserId } =
-    useProfileIdentity();
+  useEffect(() => {
+    // If we already have the profile in Redux, don't fetch again
+    if (profile || !userId) {
+      setIsLoading(false);
+      return;
+    }
 
-  // 2. Social / Follow Logic
-  const {
-    isFollowing,
-    isFollowLoading,
-    isFollowersLoading,
-    isFollowingLoading,
-    followersProfiles,
-    followingProfiles,
-    handleToggleFollow,
-  } = useProfileFollow(profileId, authUserId, activeTab, isOwner);
+    let cancelled = false;
+    const fetchProfile = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const data = await profileService.getProfile(userId);
+        if (!cancelled) {
+          dispatch(setUserProfile(data));
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err.message || 'Failed to fetch profile');
+        }
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    };
 
-  // 3. Content Logic (Posts & Likes)
-  const { userPosts, likedPosts, postsLoading, isLoadingLikes, postsError, likesError } =
-    useProfileContent(profileId, activeTab, isOwner);
-
-  // 4. Identity derived data
-  const authUserEmail = useSelector(selectAuthEmail);
-  const authLoading = useSelector(selectIsAuthLoading);
-
-  const displayName = profile?.name || 'Unnamed User';
-  const displayEmail = isOwner ? authUserEmail : '';
-  const displayBio = profile?.bio || '';
-  const avatarUrl = profile?.avatarUrl || null;
-  const joinedDate = formatJoinedDate(profile?.$createdAt);
+    fetchProfile();
+    return () => { cancelled = true; };
+  }, [userId, profile, dispatch]);
 
   return {
-    // Identity
-    profileId,
-    isOwner,
     profile,
-    profileLoading: usernameFetchStatus === 'loading',
-    profileError: usernameFetchError,
-    authUserId,
-    authLoading,
-    isFetchingUsername: usernameFetchStatus === 'loading',
-    usernameFetchError,
-
-    // Social
-    isFollowing,
-    isFollowLoading,
-    isFollowersLoading,
-    isFollowingLoading,
-    followersProfiles,
-    followingProfiles,
-    handleToggleFollow,
-
-    // Content
-    userPosts,
-    likedPosts,
-    postsLoading,
-    isLoadingLikes,
-    postsError,
-    likesError,
-    activeTab,
-    setActiveTab,
-
-    // Display
-    displayName,
-    displayEmail,
-    displayBio,
-    avatarUrl,
-    joinedDate,
+    isLoading,
+    error,
+    displayName: profile?.name || 'Anonymous',
+    avatarUrl: profile?.avatarUrl,
+    username: profile?.username,
+    bio: profile?.bio,
   };
 };
