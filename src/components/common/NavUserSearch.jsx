@@ -1,15 +1,13 @@
 import React, { useRef, useEffect } from 'react';
 import { Search, Loader2, User, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useUserSearch, useFollow } from '@/hooks/profile';
+import { useUserSearch } from '@/hooks/profile';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { FollowButton } from '@/components/common';
 import { cn } from '@/lib/utils';
 
 const SearchResultItem = ({ user, onSelect }) => {
-  const { isFollowing, toggleFollow, isLoading, isOwner } = useFollow(user.$id);
-
   return (
     <div className="flex items-center gap-3 w-full p-2.5 rounded-xl hover:bg-primary/5 transition-all group text-left relative">
       <button
@@ -32,23 +30,11 @@ const SearchResultItem = ({ user, onSelect }) => {
         </div>
       </button>
 
-      {!isOwner && (
-        <Button
-          size="sm"
-          variant={isFollowing ? 'outline' : 'default'}
-          onClick={toggleFollow}
-          disabled={isLoading}
-          className="h-7 px-3 text-[10px] font-bold rounded-full ml-auto"
-        >
-          {isLoading ? (
-            <Loader2 className="h-3 w-3 animate-spin" />
-          ) : isFollowing ? (
-            'Following'
-          ) : (
-            'Follow'
-          )}
-        </Button>
-      )}
+      <FollowButton 
+        userId={user.$id} 
+        size="sm" 
+        className="h-7 px-3 text-[10px] font-bold rounded-full ml-auto" 
+      />
     </div>
   );
 };
