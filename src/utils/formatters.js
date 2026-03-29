@@ -20,7 +20,7 @@ export const formatDate = (dateString, options = {}) => {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return '—';
     return date.toLocaleDateString('en-US', defaultOptions);
-  } catch (error) {
+  } catch {
     return '—';
   }
 };

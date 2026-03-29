@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
 import { Navigate, Outlet } from 'react-router-dom';
-import { selectAuthStatus, selectAuthUserId } from '@/store/auth';
+import { selectAuthStatus, selectAuthUserId } from '@/features/auth';
 
 const PrivateRoute = () => {
   const authStatus = useSelector(selectAuthStatus);

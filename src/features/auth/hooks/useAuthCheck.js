@@ -13,7 +13,7 @@ import { setUserProfile, selectProfileById } from '@/features/profile';
 import { authService } from '@/features/auth';
 import { profileService } from '@/features/profile';
 
-const useAuthCheck = () => {
+export const useAuthCheck = () => {
   const dispatch = useDispatch();
 
   // Redux Selectors
@@ -87,5 +87,3 @@ const useAuthCheck = () => {
 
   return isAuthChecked;
 };
-
-export default useAuthCheck;

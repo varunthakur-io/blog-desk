@@ -4,11 +4,11 @@ import { useSelector } from 'react-redux';
 import { selectAuthUserId } from '@/features/auth';
 import { 
   useProfileContent, 
-  useProfileFollow, 
-  useFollow 
+  useProfileFollow
 } from '@/features/profile';
-import { formatDate, formatJoinedDate } from '@/utils/formatters';
-import { useProfile as useProfileBasic } from './useProfileBasic';
+import { useFollow } from '@/features/follows';
+import { formatJoinedDate } from '@/utils/formatters';
+import { useProfileBasic } from './useProfileBasic';
 
 /**
  * MASTER HOOK: Coordinates all profile data for the Profile Page.

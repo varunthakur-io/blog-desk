@@ -1,9 +1,9 @@
 import { postApi } from './post.api';
-import { storageService } from '../storage';
-import { commentService } from '../comments';
-import { likeService } from '../likes';
-import { authService } from '../auth';
-import { followService } from '../follows';
+import { storageService } from './storage.service';
+import { commentService } from '@/features/comments';
+import { likeService } from '@/features/likes';
+import { authService } from '@/features/auth';
+import { followService } from '@/features/follows';
 import { Query } from 'appwrite';
 
 const generateSlug = (title) => {

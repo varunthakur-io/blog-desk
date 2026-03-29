@@ -1,6 +1,6 @@
 import { commentApi } from './comment.api';
-import { postService } from '../posts';
-import { profileService } from '../profile';
+import { postService } from '@/features/posts';
+import { profileService } from '@/features/profile';
 
 class CommentService {
   // Save the author's display name with each comment and update the denormalized comment counter best-effort.

@@ -5,14 +5,15 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 
-import { ConfirmationDialog, EmptyState, FollowButton } from '@/components/common';
+import { ConfirmationDialog, EmptyState } from '@/components/common';
+import { FollowButton } from '@/features/follows';
 import { useComments } from '@/features/comments';
-import { useProfile } from '@/features/profile';
+import { useProfileBasic } from '@/features/profile';
 
 // Sub-components
 
 const CommentItem = ({ comment, isMe, onDeleteClick }) => {
-  const { profile, displayName, avatarUrl } = useProfile(comment.userId);
+  const { profile, displayName, avatarUrl } = useProfileBasic({ userId: comment.userId });
 
   return (
     <div className="flex gap-3 group">

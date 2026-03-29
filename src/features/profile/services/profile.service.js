@@ -1,5 +1,5 @@
 import { profileApi } from './profile.api';
-import { storageService } from '../storage';
+import { storageService } from '@/features/posts';
 import { Query } from 'appwrite';
 
 class ProfileService {

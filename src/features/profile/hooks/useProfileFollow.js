@@ -1,10 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import toast from 'react-hot-toast';
 import { followService } from '@/features/follows';
 import { profileService } from '@/features/profile';
-import { parseApiError } from '@/lib/error-handler';
-import { useFollow } from './useFollow';
+import { useFollow } from '@/features/follows';
 import {
   selectFollowers,
   selectFollowing,

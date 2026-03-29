@@ -8,13 +8,12 @@ import {
   useAccountSettings,
   useNotificationSettings,
   usePrivacySettings,
-} from '@/hooks/settings';
-
-import ProfilePanel from '@/components/settings/ProfilePanel';
-import AccountPanel from '@/components/settings/AccountPanel';
-import AppearancePanel from '@/components/settings/AppearancePanel';
-import NotificationsPanel from '@/components/settings/NotificationsPanel';
-import PrivacyPanel from '@/components/settings/PrivacyPanel';
+  ProfilePanel,
+  AccountPanel,
+  AppearancePanel,
+  NotificationsPanel,
+  PrivacyPanel,
+} from '@/features/settings';
 
 const NAV = [
   { id: 'profile', label: 'Profile', icon: User },

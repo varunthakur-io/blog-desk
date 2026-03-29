@@ -6,9 +6,10 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   PostDetailsSkeleton,
   PostContent,
-  CommentSection,
   AuthorSidebar,
 } from '@/features/posts';
+
+import { CommentSection } from '@/features/comments';
 
 import { usePostDetails } from '@/features/posts';
 
@@ -16,7 +17,6 @@ const PostDetails = () => {
   const {
     authUserId,
     post,
-    profileCache,
     authorProfile,
     currentUserProfile,
     isPostLoading,

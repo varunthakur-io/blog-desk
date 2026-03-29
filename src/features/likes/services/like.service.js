@@ -1,5 +1,5 @@
 import { likeApi } from './like.api';
-import { postApi } from '../posts/post.api';
+import { postApi } from '@/features/posts';
 import { Query } from 'appwrite';
 
 // Cache the current user's like lookups to avoid refetching the same relation on every render.

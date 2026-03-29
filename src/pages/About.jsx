@@ -10,7 +10,7 @@ import {
   LayoutDashboard,
   PenLine,
 } from 'lucide-react';
-import { selectIsAuthenticated } from '@/store/auth/auth.selectors';
+import { selectIsAuthenticated } from '@/features/auth';
 
 const FeatureCard = ({ icon: Icon, title, description }) => (
   <div className="flex flex-col items-center text-center p-7 rounded-xl border border-border bg-card shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all duration-300">

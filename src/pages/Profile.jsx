@@ -1,5 +1,4 @@
-import { EditProfileDialog, ProfileTabs, ProfileUI as ProfileInfo } from '@/features/profile';
-import { ProfileSkeleton } from '@/features/posts'; // This was in posts/components/PostSkeletons originally, but let's check
+import { EditProfileDialog, ProfileTabs, ProfileInfo, ProfileSkeleton } from '@/features/profile';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { UserPlus, UserMinus, Loader2 } from 'lucide-react';

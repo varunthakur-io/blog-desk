@@ -1,5 +1,5 @@
 import { authApi } from './auth.api';
-import { profileService } from '../profile';
+import { profileService } from '@/features/profile';
 
 class AuthService {
   cacheUser(user) {

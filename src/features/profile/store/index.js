@@ -1,2 +1,2 @@
-export * from './profile.slice';
 export * from './profile.selectors';
+export * from './profile.slice';

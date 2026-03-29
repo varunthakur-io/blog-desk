@@ -1,7 +1,7 @@
 import React from 'react';
 import { Loader2, UserPlus, UserMinus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useFollow } from '@/features/profile';
+import { useFollow } from '../hooks/useFollow';
 import { cn } from '@/lib/utils';
 
 /**
@@ -14,7 +14,6 @@ const FollowButton = ({ userId, className, size = "sm", variant = "default" }) =
     toggleFollow, 
     isLoading, 
     isOwner, 
-    isAuthenticated 
   } = useFollow(userId);
 
   // Don't show follow button for the logged-in user themselves

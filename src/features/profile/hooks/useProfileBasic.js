@@ -8,7 +8,7 @@ import { selectProfileById, setUserProfile } from '@/features/profile';
  * Hook to fetch basic identity info for a user.
  * Supports resolving from username (URL) or direct userId.
  */
-export const useProfile = ({ userId = null, username = null } = {}) => {
+export const useProfileBasic = ({ userId = null, username = null } = {}) => {
   const dispatch = useDispatch();
   const authUserId = useSelector(selectAuthUserId);
 

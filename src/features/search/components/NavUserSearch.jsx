@@ -1,10 +1,10 @@
 import React, { useRef, useEffect } from 'react';
 import { Search, Loader2, User, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useUserSearch } from '@/features/profile';
+import { useUserSearch } from '../hooks/useUserSearch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
-import { FollowButton } from '@/components/common';
+import { FollowButton } from '@/features/follows';
 import { cn } from '@/lib/utils';
 
 const SearchResultItem = ({ user, onSelect }) => {

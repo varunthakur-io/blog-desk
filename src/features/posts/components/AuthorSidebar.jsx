@@ -12,8 +12,8 @@ import {
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { FollowButton } from '@/components/common';
-import { useProfile } from '@/features/profile';
+import { FollowButton } from '@/features/follows';
+import { useProfileBasic } from '@/features/profile';
 
 const AuthorSidebar = ({
   authorProfile: initialProfile,
@@ -30,7 +30,7 @@ const AuthorSidebar = ({
   authUserId,
   onBack,
 }) => {
-  const { profile: authorProfile } = useProfile({ userId: initialProfile?.$id });
+  const { profile: authorProfile } = useProfileBasic({ userId: initialProfile?.$id });
   
   const authorName = authorProfile?.name || 'Anonymous';
   const authorBio = authorProfile?.bio;

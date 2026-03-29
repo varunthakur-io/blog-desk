@@ -3,5 +3,4 @@ export * from './useDashboard';
 export * from './usePostDetails';
 export * from './useCreatePost';
 export * from './useEditPost';
-export * from './useComments';
 export * from './useLike';

@@ -1,5 +1,5 @@
 import { followApi } from './follow.api';
-import { profileService } from '../profile';
+import { profileService } from '@/features/profile';
 
 class FollowService {
   async isFollowing(followerId, followingId) {
