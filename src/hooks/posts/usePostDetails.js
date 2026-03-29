@@ -3,13 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import { postService } from '@/services/posts';
-import { likeService } from '@/services/likes';
 import { commentService } from '@/services/comments';
 import { profileService } from '@/services/profile';
 import { calculateReadTime } from '@/utils/formatters';
 import { selectPostById, setPostDetail } from '@/store/posts';
 import { selectAuthUserId } from '@/store/auth';
 import { selectProfileById, setUserProfile } from '@/store/profile';
+import { useLike } from './useLike';
 
 export const usePostDetails = () => {
   const { id } = useParams();
@@ -26,18 +26,21 @@ export const usePostDetails = () => {
   // Local UI States
   const [postFetchStatus, setPostFetchStatus] = useState(post ? 'success' : 'loading');
   const [postFetchError, setPostFetchError] = useState('');
-
-  const [likesCount, setLikesCount] = useState(post?.likesCount || 0);
-  const [isLiked, setIsLiked] = useState(false);
-  const [isLikedLoading, setIsLikedLoading] = useState(true);
-  const [isLiking, setIsLiking] = useState(false);
-
   const [comments, setComments] = useState([]);
+
+  // Like logic via shared hook
+  const {
+    likesCount,
+    isLiked,
+    isLikedLoading,
+    isLiking,
+    toggleLike,
+  } = useLike(post);
 
   // Read time calc
   const estimatedReadTime = calculateReadTime(post?.content);
 
-  // 1. Fetch Post & Author
+  // 1. Fetch Post & Author if not in cache
   useEffect(() => {
     if (!id) {
       setPostFetchError('No post ID provided.');
@@ -89,44 +92,16 @@ export const usePostDetails = () => {
     };
   }, [id, post, authorProfile, dispatch]);
 
-  // 2. Like Status Sync
-  useEffect(() => {
-    if (!post) return;
-    setLikesCount(post.likesCount || 0);
-
-    let cancelled = false;
-    const checkLike = async () => {
-      if (!authUserId) {
-        setIsLiked(false);
-        setIsLikedLoading(false);
-        return;
-      }
-      setIsLikedLoading(true);
-      try {
-        const liked = await likeService.hasUserLiked(post.$id, authUserId);
-        if (!cancelled) setIsLiked(!!liked);
-      } catch {
-        if (!cancelled) setIsLiked(false);
-      } finally {
-        if (!cancelled) setIsLikedLoading(false);
-      }
-    };
-    checkLike();
-    return () => {
-      cancelled = true;
-    };
-  }, [post, authUserId]);
-
-  // 3. Comments & Commenters
+  // 2. Fetch Comments
   useEffect(() => {
     if (!post?.$id) return;
     commentService.getCommentsByPost(post.$id).then(setComments).catch(console.error);
   }, [post?.$id]);
 
+  // 3. Sync commenter profiles
   useEffect(() => {
     if (comments.length === 0) return;
 
-    // Collect unique IDs of commenters who aren't in Redux cache yet.
     const missingUserIds = [
       ...new Set(comments.map((c) => c.userId).filter((uid) => uid && !profileCache[uid])),
     ];
@@ -134,7 +109,6 @@ export const usePostDetails = () => {
     if (missingUserIds.length === 0) return;
 
     let cancelled = false;
-
     const fetchCommenterProfiles = async () => {
       try {
         const fetchedProfiles = await profileService.getProfilesByIds(missingUserIds);
@@ -145,39 +119,12 @@ export const usePostDetails = () => {
         console.warn('Batch profile fetch failed:', error);
       }
     };
-
     fetchCommenterProfiles();
 
     return () => {
       cancelled = true;
     };
   }, [comments, profileCache, dispatch]);
-
-  // Handlers
-  const handleLike = useCallback(async () => {
-    if (!authUserId) return toast.error('Login to like!');
-    if (isLiking || isLikedLoading || !post?.$id) return;
-
-    setIsLiking(true);
-    const wasLiked = isLiked;
-    setIsLiked(!wasLiked);
-    setLikesCount((p) => Math.max(0, p + (wasLiked ? -1 : 1)));
-
-    try {
-      if (wasLiked) {
-        await likeService.unlikePost(post.$id, authUserId);
-      } else {
-        await likeService.likePost(post.$id, authUserId);
-      }
-    } catch {
-      // Revert optimistic update
-      setIsLiked(wasLiked);
-      setLikesCount((p) => Math.max(0, p + (wasLiked ? 1 : -1)));
-      toast.error('Like failed.');
-    } finally {
-      setIsLiking(false);
-    }
-  }, [authUserId, isLiking, isLikedLoading, post?.$id, isLiked]);
 
   const handleShare = useCallback(async () => {
     try {
@@ -189,32 +136,21 @@ export const usePostDetails = () => {
   }, []);
 
   return {
-    // routing / identity
     id,
     authUserId,
-
-    // cached entities
     post,
     profileCache,
     authorProfile,
     currentUserProfile,
-
-    // loading and errors
     isPostLoading: postFetchStatus === 'loading',
     postFetchError,
-
-    // interaction state
     likesCount,
     isLiked,
     isLikedLoading,
     isLiking,
-
-    // post content
     comments,
     estimatedReadTime,
-
-    // actions
-    handleLike,
+    handleLike: toggleLike,
     handleShare,
     navigate,
   };
