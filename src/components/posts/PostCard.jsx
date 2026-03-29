@@ -6,13 +6,14 @@ import { selectProfileById } from '@/store/profile';
 import { setActiveCategory } from '@/store/posts';
 import { useLike } from '@/hooks/posts';
 import { cn } from '@/lib/utils';
+import { formatDate, calculateReadTime } from '@/utils/formatters';
 
 const PostCard = ({ post }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const authorProfile = useSelector((state) => selectProfileById(state, post.authorId));
   const authorName = authorProfile?.name;
-  const readTime = Math.max(1, Math.ceil((post.content || '').split(' ').length / 200));
+  const readTime = calculateReadTime(post.content);
 
   const {
     likesCount,
@@ -123,13 +124,7 @@ const PostCard = ({ post }) => {
               <div className="flex items-center gap-1 text-[11px] text-muted-foreground/60">
                 <Calendar className="h-3 w-3 shrink-0" />
                 <time dateTime={post.$createdAt} className="truncate">
-                  {post.$createdAt
-                    ? new Date(post.$createdAt).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric',
-                      })
-                    : '—'}
+                  {formatDate(post.$createdAt)}
                 </time>
               </div>
             </div>
