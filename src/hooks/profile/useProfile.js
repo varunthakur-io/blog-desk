@@ -1,55 +1,104 @@
-import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { profileService } from '@/services/profile';
-import { selectProfileById, setUserProfile } from '@/store/profile';
+import { useState, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { selectAuthUserId } from '@/store/auth';
+import { 
+  useProfileContent, 
+  useProfileFollow, 
+  useFollow 
+} from '@/hooks/profile';
+import { formatDate, formatJoinedDate } from '@/utils/formatters';
+import { useProfile as useProfileBasic } from './useProfileBasic';
 
 /**
- * Universal hook to fetch and manage a user's profile identity.
- * Leverages Redux cache to avoid redundant network requests.
+ * MASTER HOOK: Coordinates all profile data for the Profile Page.
+ * Merges identity, content (posts/likes), and follow logic.
  */
-export const useProfile = (userId) => {
-  const dispatch = useDispatch();
-  const profile = useSelector((state) => selectProfileById(state, userId));
-  
-  const [isLoading, setIsLoading] = useState(!profile);
-  const [error, setError] = useState(null);
+export const useProfile = () => {
+  const { username } = useParams();
+  const authUserId = useSelector(selectAuthUserId);
+  const [activeTab, setActiveTab] = useState('posts');
 
-  useEffect(() => {
-    // If we already have the profile in Redux, don't fetch again
-    if (profile || !userId) {
-      setIsLoading(false);
-      return;
+  // 1. Basic Identity (Resolves username -> profileId)
+  const { 
+    profile, 
+    profileId, 
+    isOwner, 
+    isLoading: profileLoading, 
+    error: profileError 
+  } = useProfileBasic({ username });
+
+  // 2. Content (Posts, Liked Posts)
+  const {
+    userPosts,
+    likedPosts,
+    isLoading: postsLoading,
+    isLoadingLikes,
+    error: postsError,
+    likesError,
+  } = useProfileContent(profileId, activeTab);
+
+  // 3. Follow Lists & Relationship
+  const {
+    isFollowing,
+    isLoading: isFollowLoading,
+    toggleFollow,
+  } = useFollow(profileId);
+
+  const {
+    followersProfiles,
+    followingProfiles,
+    isFollowersLoading,
+    isFollowingLoading,
+  } = useProfileFollow(profileId, authUserId, activeTab, isOwner);
+
+  // Formatted View Data
+  const viewData = useMemo(() => ({
+    displayName: profile?.name || 'Anonymous',
+    displayEmail: profile?.email || '',
+    displayBio: profile?.bio || '',
+    avatarUrl: profile?.avatarUrl,
+    joinedDate: formatJoinedDate(profile?.$createdAt),
+    stats: {
+      posts: profile?.postsCount || 0,
+      followers: profile?.followersCount || 0,
+      following: profile?.followingCount || 0,
     }
-
-    let cancelled = false;
-    const fetchProfile = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const data = await profileService.getProfile(userId);
-        if (!cancelled) {
-          dispatch(setUserProfile(data));
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(err.message || 'Failed to fetch profile');
-        }
-      } finally {
-        if (!cancelled) setIsLoading(false);
-      }
-    };
-
-    fetchProfile();
-    return () => { cancelled = true; };
-  }, [userId, profile, dispatch]);
+  }), [profile]);
 
   return {
+    // states
+    authUserId,
+    profileId,
     profile,
-    isLoading,
-    error,
-    displayName: profile?.name || 'Anonymous',
-    avatarUrl: profile?.avatarUrl,
-    username: profile?.username,
-    bio: profile?.bio,
+    isOwner,
+    activeTab,
+    setActiveTab,
+
+    // view data
+    ...viewData,
+
+    // loading & errors
+    profileLoading,
+    postsLoading,
+    isLoadingLikes,
+    isFollowLoading,
+    isFollowersLoading,
+    isFollowingLoading,
+    profileError,
+    postsError,
+    likesError,
+    isFetchingUsername: profileLoading && !profileId, // Alias for legacy Profile.jsx
+    usernameFetchError: profileError, // Alias for legacy Profile.jsx
+
+    // content
+    userPosts,
+    likedPosts,
+
+    // follow
+    isFollowing,
+    handleToggleFollow: toggleFollow,
+    followersProfiles,
+    followingProfiles,
   };
 };
