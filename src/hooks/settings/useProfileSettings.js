@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
-import { authService } from '@/services/auth';
-import { profileService } from '@/services/profile';
-import { setAuthUser, selectAuthUser } from '@/store/auth';
-import { setUserProfile, selectProfileById } from '@/store/profile';
+import { authService } from '@/features/auth';
+import { profileService } from '@/features/profile';
+import { setAuthUser, selectAuthUser } from '@/features/auth';
+import { setUserProfile, selectProfileById } from '@/features/profile';
 
 export const useProfileSettings = () => {
   const dispatch = useDispatch();

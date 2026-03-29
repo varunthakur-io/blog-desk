@@ -5,7 +5,6 @@ import { Sun, Moon, Menu, X, LogOut, User, Settings, PenSquare } from 'lucide-re
 import toast from 'react-hot-toast';
 
 import { Button } from '@/components/ui/button';
-import { NavUserSearch } from './index';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,9 +21,10 @@ import {
   selectAuthEmail,
   selectIsAuthenticated,
   clearAuthUser,
-} from '@/store/auth';
-import { selectProfileById } from '@/store/profile';
-import { authService } from '@/services/auth';
+  authService,
+} from '@/features/auth';
+import { selectProfileById } from '@/features/profile';
+import { NavUserSearch } from '@/features/search';
 import useDarkMode from '@/hooks/common/useDarkMode';
 
 const Navbar = () => {

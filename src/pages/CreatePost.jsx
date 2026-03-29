@@ -1,5 +1,5 @@
-import { PostForm } from '@/components/posts';
-import { useCreatePost } from '@/hooks/posts';
+import { PostForm } from '@/features/posts';
+import { useCreatePost } from '@/features/posts';
 
 const CreatePost = () => {
   const { handleCreatePost, isPostCreating } = useCreatePost();

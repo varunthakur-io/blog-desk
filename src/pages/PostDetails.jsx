@@ -8,9 +8,9 @@ import {
   PostContent,
   CommentSection,
   AuthorSidebar,
-} from '@/components/posts';
+} from '@/features/posts';
 
-import { usePostDetails } from '@/hooks/posts/usePostDetails';
+import { usePostDetails } from '@/features/posts';
 
 const PostDetails = () => {
   const {

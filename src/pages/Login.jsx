@@ -4,7 +4,7 @@ import { Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useLogin } from '@/hooks/auth';
+import { useLogin } from '@/features/auth';
 
 const Login = () => {
   const {

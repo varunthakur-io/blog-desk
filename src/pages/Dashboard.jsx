@@ -7,11 +7,11 @@ import {
   DashboardFilters,
   DashboardTable,
   DashboardPagination,
-} from '@/components/posts';
+} from '@/features/posts';
 import { ConfirmationDialog, EmptyState } from '@/components/common';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
-import { useDashboard } from '@/hooks/posts';
+import { useDashboard } from '@/features/posts';
 
 export default function Dashboard() {
   const navigate = useNavigate();

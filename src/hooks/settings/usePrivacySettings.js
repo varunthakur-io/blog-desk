@@ -2,8 +2,8 @@ import { useState, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { authService } from '@/services/auth';
-import { clearAuthUser } from '@/store/auth';
+import { authService } from '@/features/auth';
+import { clearAuthUser } from '@/features/auth';
 
 export const usePrivacySettings = () => {
   const dispatch = useDispatch();

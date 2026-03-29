@@ -1,7 +1,7 @@
 import { Loader2, X } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { PostCard, PostCardSkeleton, BentoGrid } from '@/components/posts';
-import { useHome } from '@/hooks/posts';
+import { PostCard, PostCardSkeleton, BentoGrid } from '@/features/posts';
+import { useHome } from '@/features/posts';
 import { HomeHeader, HomeTabs, HomeCategoryFilters, EmptyHomeState } from './HomeUI';
 
 const Home = () => {

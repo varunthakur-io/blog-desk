@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
-import { authService } from '@/services/auth';
-import { setAuthUser, selectAuthUser } from '@/store/auth';
+import { authService } from '@/features/auth';
+import { setAuthUser, selectAuthUser } from '@/features/auth';
 
 export const useAccountSettings = () => {
   const dispatch = useDispatch();

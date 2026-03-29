@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
-import { authService } from '@/services/auth';
+import { authService } from '@/features/auth';
 
 export const useNotificationSettings = () => {
   const [isPrefsLoading, setIsPrefsLoading] = useState(true);

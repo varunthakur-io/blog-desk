@@ -1,13 +1,13 @@
-import { EditProfileDialog, ProfileTabs, ProfileSkeleton, ProfileInfo } from '@/components/profile';
+import { EditProfileDialog, ProfileTabs, ProfileUI as ProfileInfo } from '@/features/profile';
+import { ProfileSkeleton } from '@/features/posts'; // This was in posts/components/PostSkeletons originally, but let's check
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { UserPlus, UserMinus, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useProfile } from '@/hooks/profile';
+import { useProfile } from '@/features/profile';
 
 export default function Profile() {
   const {
-    authLoading,
     profileLoading,
     postsLoading,
     isFetchingUsername,
@@ -48,7 +48,7 @@ export default function Profile() {
     return (
       <div className="py-20 text-center text-sm text-muted-foreground">Profile not found.</div>
     );
-  if (authLoading || profileLoading) return <ProfileSkeleton />;
+  if (profileLoading) return <ProfileSkeleton />;
   if (!profile && profileError)
     return <div className="py-20 text-center text-sm text-destructive">{profileError}</div>;
 

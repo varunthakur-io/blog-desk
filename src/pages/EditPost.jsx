@@ -1,13 +1,13 @@
 import { ArrowLeft } from 'lucide-react';
 
 // UI Components
-import { FormSkeleton, PostForm } from '@/components/posts';
+import { FormSkeleton, PostForm } from '@/features/posts';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 // Hooks
-import { useEditPost } from '@/hooks/posts';
+import { useEditPost } from '@/features/posts';
 
 export default function EditPost() {
   const { formData, isPostLoading, isPostUpdating, postFetchError, handleUpdate, navigate } =
