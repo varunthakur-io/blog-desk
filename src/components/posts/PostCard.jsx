@@ -1,9 +1,11 @@
 import DOMPurify from 'dompurify';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowUpRight, Calendar, Clock, MessageSquare, Heart } from 'lucide-react';
+import { ArrowUpRight, Calendar, Clock, MessageSquare, Heart, Loader2 } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectProfileById } from '@/store/profile';
 import { setActiveCategory } from '@/store/posts';
+import { useLike } from '@/hooks/posts';
+import { cn } from '@/lib/utils';
 
 const PostCard = ({ post }) => {
   const dispatch = useDispatch();
@@ -11,6 +13,13 @@ const PostCard = ({ post }) => {
   const authorProfile = useSelector((state) => selectProfileById(state, post.authorId));
   const authorName = authorProfile?.name;
   const readTime = Math.max(1, Math.ceil((post.content || '').split(' ').length / 200));
+
+  const {
+    likesCount,
+    isLiked,
+    isLiking,
+    toggleLike,
+  } = useLike(post);
 
   const plainContent = DOMPurify.sanitize(post.content || '', {
     USE_PROFILES: { html: false },
@@ -63,10 +72,21 @@ const PostCard = ({ post }) => {
               <MessageSquare className="h-3 w-3" />
               {post.commentsCount || 0}
             </span>
-            <span className="flex items-center gap-1 text-[11px]">
-              <Heart className="h-3 w-3" />
-              {post.likesCount || 0}
-            </span>
+            <button
+              onClick={toggleLike}
+              disabled={isLiking}
+              className={cn(
+                "flex items-center gap-1 text-[11px] transition-all duration-200 active:scale-125",
+                isLiked ? "text-red-500 font-bold" : "hover:text-red-400"
+              )}
+            >
+              {isLiking ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <Heart className={cn("h-3 w-3 transition-colors", isLiked ? "fill-current" : "")} />
+              )}
+              {likesCount}
+            </button>
             <span className="flex items-center gap-1 text-[11px]">
               <Clock className="h-3 w-3" />
               {readTime}m
