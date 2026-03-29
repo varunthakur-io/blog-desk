@@ -1,10 +1,57 @@
 import React, { useRef, useEffect } from 'react';
 import { Search, Loader2, User, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useUserSearch } from '@/hooks/profile';
+import { useUserSearch, useFollow } from '@/hooks/profile';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+
+const SearchResultItem = ({ user, onSelect }) => {
+  const { isFollowing, toggleFollow, isLoading, isOwner } = useFollow(user.$id);
+
+  return (
+    <div className="flex items-center gap-3 w-full p-2.5 rounded-xl hover:bg-primary/5 transition-all group text-left relative">
+      <button
+        onClick={() => onSelect(user.username)}
+        className="flex flex-1 items-center gap-3 min-w-0"
+      >
+        <Avatar className="h-9 w-9 border border-border/50 group-hover:border-primary/30 transition-colors">
+          <AvatarImage src={user.avatarUrl} alt={user.name} className="object-cover" />
+          <AvatarFallback className="text-xs bg-muted">
+            {user.name?.charAt(0).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex flex-col min-w-0">
+          <span className="text-sm font-semibold truncate group-hover:text-primary transition-colors">
+            {user.name}
+          </span>
+          <span className="text-xs text-muted-foreground truncate">
+            @{user.username}
+          </span>
+        </div>
+      </button>
+
+      {!isOwner && (
+        <Button
+          size="sm"
+          variant={isFollowing ? 'outline' : 'default'}
+          onClick={toggleFollow}
+          disabled={isLoading}
+          className="h-7 px-3 text-[10px] font-bold rounded-full ml-auto"
+        >
+          {isLoading ? (
+            <Loader2 className="h-3 w-3 animate-spin" />
+          ) : isFollowing ? (
+            'Following'
+          ) : (
+            'Follow'
+          )}
+        </Button>
+      )}
+    </div>
+  );
+};
 
 const NavUserSearch = ({ isMobile }) => {
   const navigate = useNavigate();
@@ -84,26 +131,11 @@ const NavUserSearch = ({ isMobile }) => {
                   Authors Found
                 </p>
                 {results.map((user) => (
-                  <button
+                  <SearchResultItem
                     key={user.$id}
-                    onClick={() => handleUserClick(user.username)}
-                    className="flex items-center gap-3 w-full p-2.5 rounded-xl hover:bg-primary/5 transition-all group text-left"
-                  >
-                    <Avatar className="h-9 w-9 border border-border/50 group-hover:border-primary/30 transition-colors">
-                      <AvatarImage src={user.avatarUrl} alt={user.name} className="object-cover" />
-                      <AvatarFallback className="text-xs bg-muted">
-                        {user.name?.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col min-w-0">
-                      <span className="text-sm font-semibold truncate group-hover:text-primary transition-colors">
-                        {user.name}
-                      </span>
-                      <span className="text-xs text-muted-foreground truncate">
-                        @{user.username}
-                      </span>
-                    </div>
-                  </button>
+                    user={user}
+                    onSelect={handleUserClick}
+                  />
                 ))}
               </div>
             ) : (
