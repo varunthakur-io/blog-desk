@@ -3,7 +3,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import { debounce } from '@/lib/utils';
 import { postService } from '@/services/posts';
+import { profileService } from '@/services/profile';
 import { selectAuthUserId } from '@/store/auth';
+import { setUserProfile } from '@/store/profile';
 import {
   selectIsPostsLoading,
   selectPostsError,
@@ -58,8 +60,6 @@ export const useDashboard = () => {
     try {
       dispatch(setPostsStatus('loading'));
 
-      // Dashboard data is isolated from the shared home feed so filters and pagination
-      // do not overwrite the public posts cache.
       const postPage = await postService.getPostsByUserId(
         authUserId,
         filters.page,
@@ -70,6 +70,17 @@ export const useDashboard = () => {
       );
 
       const pagePosts = Array.isArray(postPage.documents) ? postPage.documents : [];
+      
+      // Batch prefetch profiles for the dashboard list
+      if (pagePosts.length > 0) {
+        const authorIds = [...new Set(pagePosts.map(p => p.authorId))].filter(Boolean);
+        profileService.getProfilesByIds(authorIds)
+          .then(profiles => {
+            profiles.forEach(p => dispatch(setUserProfile(p)));
+          })
+          .catch(err => console.warn('Dashboard: Profile prefetch failed', err));
+      }
+
       setDashboardPosts(pagePosts);
       setTotalPosts(postPage.total);
       setTotalPages(Math.ceil(postPage.total / LIMIT));
@@ -95,7 +106,6 @@ export const useDashboard = () => {
     try {
       await postService.clearPostById(postToDelete.$id);
       dispatch(clearPostRecord(postToDelete.$id));
-      // Update local list immediately so the dialog feels responsive without waiting for a refetch.
       setDashboardPosts((prev) => prev.filter((post) => post.$id !== postToDelete.$id));
       setTotalPosts((prev) => Math.max(0, prev - 1));
       toast.success('Post deleted successfully!');
@@ -109,12 +119,9 @@ export const useDashboard = () => {
   }, [postToDelete, dispatch]);
 
   return {
-    // list state
     posts: dashboardPosts,
     postsLoading,
     postsError,
-
-    // filters and pagination
     page: filters.page,
     setPage: (valueOrUpdater) =>
       setFilters((prev) => ({
@@ -129,8 +136,6 @@ export const useDashboard = () => {
     setSortBy: (sortBy) => setFilters((prev) => ({ ...prev, sortBy, page: 1 })),
     totalPages,
     totalPosts,
-
-    // delete flow
     isDeleting,
     postToDelete,
     isDeleteDialogOpen,
