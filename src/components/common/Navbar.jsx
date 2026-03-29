@@ -5,6 +5,7 @@ import { Sun, Moon, Menu, X, LogOut, User, Settings, PenSquare } from 'lucide-re
 import toast from 'react-hot-toast';
 
 import { Button } from '@/components/ui/button';
+import { NavUserSearch } from './index';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -99,6 +100,8 @@ const Navbar = () => {
             )}
           </nav>
         </div>
+
+        <NavUserSearch />
 
         {/* Right Actions */}
         <div className="flex items-center gap-1.5 md:gap-2">
@@ -195,6 +198,7 @@ const Navbar = () => {
       {isMobileMenuOpen && (
         <div className="md:hidden fixed inset-x-0 top-16 bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-xl animate-in slide-in-from-top-3 duration-200 z-40">
           <nav className="grid gap-1 p-3">
+            <NavUserSearch isMobile />
             {navItems.map(
               (item) =>
                 (!item.requiresAuth || isAuthenticated) && (
