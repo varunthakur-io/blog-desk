@@ -1,5 +1,6 @@
 import { likeApi } from './like.api';
 import { postApi } from '@/features/posts';
+import { notificationService } from '@/features/notifications/services/notification.service';
 import { Query } from 'appwrite';
 
 // Cache the current user's like lookups to avoid refetching the same relation on every render.
@@ -46,6 +47,17 @@ class LikeService {
       await likeApi.createLike(postId, userId);
       await this._updateLikesCount(postId, 1);
       likedCache.set(key, true);
+
+      // Trigger Notification
+      const post = await postApi.getPostById(postId);
+      if (post && post.authorId !== userId) {
+        await notificationService.notify({
+          recipientId: post.authorId,
+          senderId: userId,
+          type: 'like',
+          postId: postId
+        });
+      }
     } catch (error) {
       console.error('LikeService :: likePost()', error);
       throw error;

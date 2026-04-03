@@ -1,5 +1,6 @@
 import { followApi } from './follow.api';
 import { profileService } from '@/features/profile';
+import { notificationService } from '@/features/notifications/services/notification.service';
 
 class FollowService {
   async isFollowing(followerId, followingId) {
@@ -29,6 +30,13 @@ class FollowService {
 
     await profileService.updateProfile(followingId, {
       followersCount: (followingProfile.followersCount || 0) + 1,
+    });
+
+    // Trigger Notification
+    await notificationService.notify({
+      recipientId: followingId,
+      senderId: followerId,
+      type: 'follow',
     });
 
     return follow;

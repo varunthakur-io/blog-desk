@@ -1,6 +1,7 @@
 import { commentApi } from './comment.api';
 import { postService } from '@/features/posts';
 import { profileService } from '@/features/profile';
+import { notificationService } from '@/features/notifications/services/notification.service';
 
 class CommentService {
   // Save the author's display name with each comment and update the denormalized comment counter best-effort.
@@ -21,6 +22,17 @@ class CommentService {
         await postService.updatePost(postId, {
           commentsCount: currentCount + 1,
         });
+
+        // Trigger Notification to Post Author
+        if (post && post.authorId !== userId) {
+          await notificationService.notify({
+            recipientId: post.authorId,
+            senderId: userId,
+            type: 'comment',
+            postId: postId,
+            commentId: createdComment.$id
+          });
+        }
       } catch (postError) {
         console.warn('CommentService :: Failed to update post comment count', postError);
       }
