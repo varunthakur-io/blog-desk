@@ -25,6 +25,7 @@ export const config = {
       likes: getEnvVar('VITE_APPWRITE_LIKES_COLLECTION_ID'),
       comments: getEnvVar('VITE_APPWRITE_COMMENTS_COLLECTION_ID'),
       follows: getEnvVar('VITE_APPWRITE_FOLLOWS_COLLECTION_ID'),
+      notifications: getEnvVar('VITE_APPWRITE_NOTIFICATIONS_COLLECTION_ID'),
     },
 
     // Storage (Buckets)
