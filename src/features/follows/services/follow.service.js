@@ -59,6 +59,9 @@ class FollowService {
     await profileService.updateProfile(followingId, {
       followersCount: Math.max(0, (followingProfile.followersCount || 0) - 1),
     });
+
+    // Cleanup associated follow notification
+    await notificationService.deleteFollowNotification(followerId, followingId);
   }
 
   async getFollowers(userId) {

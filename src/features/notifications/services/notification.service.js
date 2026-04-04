@@ -1,3 +1,4 @@
+import { Query } from 'appwrite';
 import { notificationApi } from './notification.api';
 
 class NotificationService {
@@ -29,7 +30,12 @@ class NotificationService {
    */
   async getNotifications(userId) {
     try {
-      const res = await notificationApi.listNotifications(userId);
+      const queries = [
+        Query.equal('recipientId', userId),
+        Query.orderDesc('$createdAt'),
+        Query.limit(20),
+      ];
+      const res = await notificationApi.listNotifications(queries);
       return res.documents || [];
     } catch (error) {
       console.error('NotificationService :: getNotifications() failed:', error);
@@ -54,8 +60,9 @@ class NotificationService {
    */
   async markAllAsRead(userId) {
     try {
-      const unread = await notificationApi.listNotifications(userId, 100);
-      const unreadIds = unread.documents.filter((n) => !n.isRead).map((n) => n.$id);
+      const unreadQueries = [Query.equal('recipientId', userId), Query.equal('isRead', false)];
+      const unread = await notificationApi.listNotifications(unreadQueries);
+      const unreadIds = unread.documents.map((n) => n.$id);
 
       const promises = unreadIds.map((id) => this.markAsRead(id));
       await Promise.all(promises);
@@ -77,12 +84,35 @@ class NotificationService {
       if (res.documents.length === 0) return;
 
       const deletePromises = res.documents.map((doc) =>
-        notificationApi.deleteNotification(doc.$id)
+        notificationApi.deleteNotification(doc.$id),
       );
 
       await Promise.all(deletePromises);
     } catch (error) {
       console.error('NotificationService :: deleteNotificationByCommentId() failed:', error);
+    }
+  }
+
+  /**
+   * Delete a follow notification.
+   * Useful when a user unfollows someone.
+   */
+  async deleteFollowNotification(senderId, recipientId) {
+    try {
+      const queries = [
+        Query.equal('senderId', senderId),
+        Query.equal('recipientId', recipientId),
+        Query.equal('type', 'follow'),
+      ];
+
+      const res = await notificationApi.listNotifications(queries);
+
+      if (res.documents.length === 0) return;
+
+      const deletePromises = res.documents.map((doc) => notificationApi.deleteNotification(doc.$id));
+      await Promise.all(deletePromises);
+    } catch (error) {
+      console.error('NotificationService :: deleteFollowNotification() failed:', error);
     }
   }
 }

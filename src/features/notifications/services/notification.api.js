@@ -16,14 +16,10 @@ export const notificationApi = {
   },
 
   /**
-   * List notifications for a specific recipient.
+   * List notifications based on custom queries.
    */
-  async listNotifications(recipientId, limit = 20) {
-    return await databases.listDocuments(databaseId, collections.notifications, [
-      Query.equal('recipientId', recipientId),
-      Query.orderDesc('$createdAt'),
-      Query.limit(limit),
-    ]);
+  async listNotifications(queries = []) {
+    return await databases.listDocuments(databaseId, collections.notifications, queries);
   },
 
   /**
