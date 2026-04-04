@@ -55,7 +55,7 @@ class LikeService {
           recipientId: post.authorId,
           senderId: userId,
           type: 'like',
-          postId: postId
+          postId: postId,
         });
       }
     } catch (error) {
@@ -72,6 +72,12 @@ class LikeService {
         await likeApi.deleteLike(like.$id);
         await this._updateLikesCount(postId, -1);
         likedCache.set(key, false);
+
+        // Cleanup associated notifications
+        const post = await postApi.getPostById(postId);
+        if (post) {
+          await notificationService.deleteLikeNotification(userId, post.authorId, postId);
+        }
       }
     } catch (error) {
       console.error('LikeService :: unlikePost()', error);

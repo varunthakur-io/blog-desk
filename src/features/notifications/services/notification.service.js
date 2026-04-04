@@ -109,10 +109,32 @@ class NotificationService {
 
       if (res.documents.length === 0) return;
 
-      const deletePromises = res.documents.map((doc) => notificationApi.deleteNotification(doc.$id));
+      const deletePromises = res.documents.map((doc) =>
+        notificationApi.deleteNotification(doc.$id),
+      );
       await Promise.all(deletePromises);
     } catch (error) {
       console.error('NotificationService :: deleteFollowNotification() failed:', error);
+    }
+  }
+
+  async deleteLikeNotification(senderId, recipientId, postId) {
+    try {
+      const queries = [
+        Query.equal('senderId', senderId),
+        Query.equal('recipientId', recipientId),
+        Query.equal('postId', postId),
+        Query.equal('type', 'like'),
+      ];
+
+      const res = await notificationApi.listNotifications(queries);
+      if (res.documents.length === 0) return;
+      const deletePromises = res.documents.map((doc) =>
+        notificationApi.deleteNotification(doc.$id),
+      );
+      await Promise.all(deletePromises);
+    } catch (error) {
+      console.error('NotificationService :: deleteLikeNotification() failed:', error);
     }
   }
 }
