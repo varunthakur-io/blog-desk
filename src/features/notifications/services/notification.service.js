@@ -55,9 +55,7 @@ class NotificationService {
   async markAllAsRead(userId) {
     try {
       const unread = await notificationApi.listNotifications(userId, 100);
-      const unreadIds = unread.documents
-        .filter((n) => !n.isRead)
-        .map((n) => n.$id);
+      const unreadIds = unread.documents.filter((n) => !n.isRead).map((n) => n.$id);
 
       const promises = unreadIds.map((id) => this.markAsRead(id));
       await Promise.all(promises);
@@ -65,6 +63,26 @@ class NotificationService {
     } catch (error) {
       console.error('NotificationService :: markAllAsRead() failed:', error);
       return false;
+    }
+  }
+
+  /**
+   * Delete notifications associated with a specific comment.
+   * Useful when a comment is deleted.
+   */
+  async deleteNotificationByCommentId(commentId) {
+    try {
+      const res = await notificationApi.listNotificationsByCommentId(commentId);
+
+      if (res.documents.length === 0) return;
+
+      const deletePromises = res.documents.map((doc) =>
+        notificationApi.deleteNotification(doc.$id)
+      );
+
+      await Promise.all(deletePromises);
+    } catch (error) {
+      console.error('NotificationService :: deleteNotificationByCommentId() failed:', error);
     }
   }
 }

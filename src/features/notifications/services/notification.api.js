@@ -9,30 +9,30 @@ export const notificationApi = {
    * Create a new notification record.
    */
   async createNotification(data) {
-    return await databases.createDocument(
-      databaseId,
-      collections.notifications,
-      ID.unique(),
-      {
-        ...data,
-        isRead: false,
-      }
-    );
+    return await databases.createDocument(databaseId, collections.notifications, ID.unique(), {
+      ...data,
+      isRead: false,
+    });
   },
 
   /**
    * List notifications for a specific recipient.
    */
   async listNotifications(recipientId, limit = 20) {
-    return await databases.listDocuments(
-      databaseId,
-      collections.notifications,
-      [
-        Query.equal('recipientId', recipientId),
-        Query.orderDesc('$createdAt'),
-        Query.limit(limit),
-      ]
-    );
+    return await databases.listDocuments(databaseId, collections.notifications, [
+      Query.equal('recipientId', recipientId),
+      Query.orderDesc('$createdAt'),
+      Query.limit(limit),
+    ]);
+  },
+
+  /**
+   * List notifications for a specific comment.
+   */
+  async listNotificationsByCommentId(commentId) {
+    return await databases.listDocuments(databaseId, collections.notifications, [
+      Query.equal('commentId', commentId),
+    ]);
   },
 
   /**
@@ -43,7 +43,7 @@ export const notificationApi = {
       databaseId,
       collections.notifications,
       notificationId,
-      data
+      data,
     );
   },
 
@@ -51,10 +51,6 @@ export const notificationApi = {
    * Delete a notification.
    */
   async deleteNotification(notificationId) {
-    return await databases.deleteDocument(
-      databaseId,
-      collections.notifications,
-      notificationId
-    );
-  }
+    return await databases.deleteDocument(databaseId, collections.notifications, notificationId);
+  },
 };
