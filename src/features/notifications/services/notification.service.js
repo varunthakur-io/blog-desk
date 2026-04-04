@@ -137,6 +137,26 @@ class NotificationService {
       console.error('NotificationService :: deleteLikeNotification() failed:', error);
     }
   }
+
+  /**
+   * Delete all notifications related to a specific post.
+   * Useful when a post is deleted.
+   */
+  async deleteNotificationsByPostId(postId) {
+    try {
+      const queries = [Query.equal('postId', postId)];
+      const res = await notificationApi.listNotifications(queries);
+
+      if (res.documents.length === 0) return;
+
+      const deletePromises = res.documents.map((doc) =>
+        notificationApi.deleteNotification(doc.$id),
+      );
+      await Promise.all(deletePromises);
+    } catch (error) {
+      console.error('NotificationService :: deleteNotificationsByPostId() failed:', error);
+    }
+  }
 }
 
 export const notificationService = new NotificationService();

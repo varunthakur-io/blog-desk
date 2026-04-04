@@ -5,6 +5,7 @@ import { likeService } from '@/features/likes';
 import { authService } from '@/features/auth';
 import { followService } from '@/features/follows';
 import { Query } from 'appwrite';
+import { notificationService } from '../../notifications/services/notification.service';
 
 const generateSlug = (title) => {
   return title
@@ -127,6 +128,7 @@ class PostService {
     if (!postId) throw new Error('clearPostById: "postId" is required');
     await likeService.deleteLikesByPostId(postId);
     await commentService.deleteCommentsByPostId(postId);
+    await notificationService.deleteNotificationsByPostId(postId);
     await postApi.clearPost(postId);
     return true;
   }
