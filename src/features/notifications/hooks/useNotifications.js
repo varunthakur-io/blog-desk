@@ -6,6 +6,7 @@ import { notificationService } from '../services/notification.service';
 import {
   setNotifications,
   addNotification,
+  removeNotification,
   setNotificationsStatus,
   setNotificationsError,
   selectUnreadNotificationsCount,
@@ -47,6 +48,7 @@ export const useNotifications = () => {
       // Check if the event is a new document and belongs to the current user
       const { events, payload } = response;
 
+      // Handle Creation
       if (events.some((e) => e.includes('.create')) && payload.recipientId === authUserId) {
         dispatch(addNotification(payload));
 
@@ -58,6 +60,11 @@ export const useNotifications = () => {
             duration: 4000,
           });
         }
+      }
+
+      // Handle Deletion
+      if (events.some((e) => e.includes('.delete'))) {
+        dispatch(removeNotification(payload.$id));
       }
     });
 
