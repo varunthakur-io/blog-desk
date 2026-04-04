@@ -30,7 +30,7 @@ class CommentService {
             senderId: userId,
             type: 'comment',
             postId: postId,
-            commentId: createdComment.$id
+            commentId: createdComment.$id,
           });
         }
       } catch (postError) {
@@ -80,6 +80,9 @@ class CommentService {
         await postService.updatePost(postId, {
           commentsCount: Math.max(0, currentCount - 1),
         });
+
+        // Cleanup associated notifications
+        await notificationService.deleteNotificationByCommentId(commentId);
       } catch (postError) {
         console.warn('CommentService :: Failed to decrement post comment count', postError);
       }
