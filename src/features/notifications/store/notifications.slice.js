@@ -37,6 +37,16 @@ const notificationsSlice = createSlice({
       });
       state.unreadCount = 0;
     },
+    removeNotification(state, action) {
+      const id = action.payload;
+      const item = state.items.find((n) => n.$id === id);
+      if (item) {
+        if (!item.isRead) {
+          state.unreadCount = Math.max(0, state.unreadCount - 1);
+        }
+        state.items = state.items.filter((n) => n.$id !== id);
+      }
+    },
     setNotificationsStatus(state, action) {
       state.status = action.payload || 'idle';
     },
@@ -52,6 +62,7 @@ export const {
   addNotification,
   markAsRead,
   markAllAsRead,
+  removeNotification,
   setNotificationsStatus,
   setNotificationsError,
 } = notificationsSlice.actions;
