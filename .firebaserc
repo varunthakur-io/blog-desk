@@ -1,5 +1,18 @@
 {
   "projects": {
     "default": "blog-desk"
-  }
+  },
+  "targets": {
+    "blog-desk": {
+      "hosting": {
+        "prod": [
+          "blog-desk"
+        ],
+        "dev": [
+          "blog-desk-dev"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

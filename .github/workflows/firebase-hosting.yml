@@ -107,14 +107,22 @@ jobs:
         with:
           node-version: '20'
 
-      # push dist/ to Firebase Hosting
-      # - main branch → deploys to 'live' channel (blog-desk.web.app)
-      # - dev branch  → deploys to 'dev' preview channel (for testing before going live)
-      # FIREBASE_SERVICE_ACCOUNT and FIREBASE_PROJECT_ID are stored in: repo → Settings → Secrets
-      - name: Deploy to Firebase Hosting
+      # ── MAIN → PRODUCTION ─────────────────────────────
+      - name: Deploy to Firebase (PROD)
+        if: github.ref == 'refs/heads/main'
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
           projectId: '${{ secrets.FIREBASE_PROJECT_ID }}'
-          channelId: ${{ github.ref == 'refs/heads/main' && 'live' || github.ref == 'refs/heads/dev' && 'dev' || 'dev' }}
+          target: prod
+
+      # ── DEV → DEV SITE (STABLE URL) ───────────────────
+      - name: Deploy to Firebase (DEV)
+        if: github.ref == 'refs/heads/dev'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          projectId: '${{ secrets.FIREBASE_PROJECT_ID }}'
+          target: dev
