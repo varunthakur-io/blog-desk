@@ -34,36 +34,23 @@ export const useAuthCheck = () => {
 
   useEffect(() => {
     const checkUser = async () => {
-      // Avoid flicker if already authenticated
-      if (authStatus !== 'authenticated') {
-        dispatch(setAuthStatus('loading'));
-      }
-
       try {
-        let currentUserData = null;
-
-        // 1. Fetch from Appwrite session
         const currentUser = await authService.getAccount();
         if (!mountedRef.current) return;
 
         if (currentUser) {
-          currentUserData = currentUser;
           dispatch(setAuthUser(currentUser));
-        } else {
-          dispatch(clearAuthUser());
-          return;
-        }
-
-        // 2. Fetch profile if missing
-        if (currentUserData && !hasProfile) {
-          const profileDoc = await profileService.getProfile(currentUserData.$id);
+          
+          const profileDoc = await profileService.getProfile(currentUser.$id);
           if (mountedRef.current && profileDoc) {
             dispatch(setUserProfile(profileDoc));
           }
+        } else {
+          dispatch(clearAuthUser());
         }
       } catch (error) {
         if (mountedRef.current) {
-          dispatch(setAuthError(error?.message));
+          dispatch(clearAuthUser()); 
         }
       } finally {
         if (mountedRef.current) {
@@ -72,18 +59,14 @@ export const useAuthCheck = () => {
       }
     };
 
-    // Optimization: Skip check if data is already in store
     if (authStatus === 'authenticated' && hasProfile) {
-      if (!isAuthChecked) setIsAuthChecked(true);
-      return;
-    }
-
-    if (authStatus === 'guest' && isAuthChecked) {
+      setIsAuthChecked(true);
       return;
     }
 
     checkUser();
-  }, [dispatch, authStatus, authUserId, hasProfile, isAuthChecked]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch]); // Stabilized dependency array
 
   return isAuthChecked;
 };

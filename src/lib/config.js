@@ -20,7 +20,7 @@ export const config = {
 
     // Collections (Database Tables)
     collections: {
-      profiles: getEnvVar('VITE_APPWRITE_PROFILE_COLLECTION_ID'),
+      profiles: getEnvVar('VITE_APPWRITE_PROFILE_COLLECTION_ID', 'profiles'),
       posts: getEnvVar('VITE_APPWRITE_POSTS_COLLECTION_ID'),
       likes: getEnvVar('VITE_APPWRITE_LIKES_COLLECTION_ID'),
       comments: getEnvVar('VITE_APPWRITE_COMMENTS_COLLECTION_ID'),
