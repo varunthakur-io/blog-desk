@@ -16,6 +16,7 @@ export const appwriteConfig = {
   likesCollectionId: config.appwrite.collections.likes,
   commentsCollectionId: config.appwrite.collections.comments,
   followsCollectionId: config.appwrite.collections.follows,
+  notificationsCollectionId: config.appwrite.collections.notifications,
 
   // Functions (Serverless)
   deleteAccountFunctionId: config.appwrite.functions.deleteAccount,
