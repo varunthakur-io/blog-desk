@@ -3,6 +3,7 @@ import authReducer from '@/features/auth/store/auth.slice';
 import postReducer from '@/features/posts/store/posts.slice';
 import profileReducer from '@/features/profile/store/profile.slice';
 import notificationsReducer from '@/features/notifications/store/notifications.slice';
+import bookmarksReducer from '@/features/bookmarks/store/bookmarks.slice';
 
 export const store = configureStore({
   reducer: {
@@ -10,5 +11,6 @@ export const store = configureStore({
     posts: postReducer,
     profile: profileReducer,
     notifications: notificationsReducer,
+    bookmarks: bookmarksReducer,
   },
 });
