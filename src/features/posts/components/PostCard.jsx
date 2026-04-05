@@ -2,6 +2,7 @@ import DOMPurify from 'dompurify';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowUpRight, Calendar, Clock, MessageSquare, Heart, Loader2 } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
+import { BookmarkButton, useBookmark } from '@/features/bookmarks';
 import { selectProfileById } from '@/features/profile';
 import { setActiveCategory } from '@/features/posts';
 import { useLike } from '@/features/posts';
@@ -21,6 +22,12 @@ const PostCard = ({ post }) => {
     isLiking,
     toggleLike,
   } = useLike(post);
+
+  const {
+    isBookmarked,
+    isLoading: isBookmarkLoading,
+    toggleBookmark,
+  } = useBookmark(post);
 
   const plainContent = DOMPurify.sanitize(post.content || '', {
     USE_PROFILES: { html: false },
@@ -130,13 +137,20 @@ const PostCard = ({ post }) => {
             </div>
           </div>
 
-          <Link
-            to={`/posts/${post.$id}`}
-            className="shrink-0 flex items-center gap-1 text-[11px] font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 ml-2 group/link"
-          >
-            Read
-            <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />
-          </Link>
+          <div className="flex items-center gap-2">
+            <BookmarkButton 
+              isBookmarked={isBookmarked} 
+              onClick={toggleBookmark} 
+              isLoading={isBookmarkLoading}
+            />
+            <Link
+              to={`/posts/${post.$id}`}
+              className="shrink-0 flex items-center gap-1 text-[11px] font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 ml-1 group/link"
+            >
+              Read
+              <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />
+            </Link>
+          </div>
         </div>
       </div>
     </div>

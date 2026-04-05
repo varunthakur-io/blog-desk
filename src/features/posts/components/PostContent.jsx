@@ -3,6 +3,7 @@ import DOMPurify from 'dompurify';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setActiveCategory } from '@/features/posts';
+import { BookmarkButton, useBookmark } from '@/features/bookmarks';
 
 // extracts all h2/h3 headings from html string for the TOC
 const extractHeadings = (html) => {
@@ -26,10 +27,16 @@ const injectHeadingIds = (html) => {
   return div.innerHTML;
 };
 
-const PostContent = ({ title, content, coverImageUrl, category, onHeadingsReady }) => {
+const PostContent = ({ id, title, content, coverImageUrl, category, onHeadingsReady }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const articleRef = useRef(null);
+
+  const {
+    isBookmarked,
+    isLoading: isBookmarkLoading,
+    toggleBookmark,
+  } = useBookmark({ $id: id, title, content, coverImageUrl, category });
 
   // reading progress bar
   const [progress, setProgress] = useState(0);
@@ -71,15 +78,26 @@ const PostContent = ({ title, content, coverImageUrl, category, onHeadingsReady 
       </div>
 
       <div className="space-y-6">
-        {/* category */}
-        {category && (
-          <button
-            onClick={handleCategoryClick}
-            className="inline-flex items-center rounded-full border border-border bg-muted px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground hover:bg-foreground hover:text-background hover:border-foreground transition-colors duration-200"
-          >
-            {category}
-          </button>
-        )}
+        {/* category & bookmark action */}
+        <div className="flex items-center justify-between gap-4 pt-1">
+          {category ? (
+            <button
+              onClick={handleCategoryClick}
+              className="inline-flex items-center rounded-full border border-border bg-muted px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground hover:bg-foreground hover:text-background hover:border-foreground transition-colors duration-200"
+            >
+              {category}
+            </button>
+          ) : (
+            <div /> // Spacer
+          )}
+          
+          <BookmarkButton 
+            isBookmarked={isBookmarked} 
+            onClick={toggleBookmark} 
+            isLoading={isBookmarkLoading}
+            className="h-9 w-9 border border-border bg-background shadow-sm"
+          />
+        </div>
 
         {/* title */}
         <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-[1.15] text-foreground">

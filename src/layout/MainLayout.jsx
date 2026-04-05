@@ -1,7 +1,10 @@
 import { Outlet } from 'react-router-dom';
 import Navbar from '@/components/common/Navbar';
+import { useBookmarksInit } from '@/features/bookmarks';
 
 const MainLayout = () => {
+  useBookmarksInit();
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       {/* Subtle top-of-page dot grid accent */}

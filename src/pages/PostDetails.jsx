@@ -82,6 +82,7 @@ const PostDetails = () => {
         {/* ── Right — scrollable content column ── */}
         <div className="min-w-0 pb-10">
           <PostContent
+            id={post.$id}
             title={post.title}
             content={post.content}
             coverImageUrl={post.coverImageUrl}
