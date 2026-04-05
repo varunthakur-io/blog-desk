@@ -11,7 +11,7 @@ export const appwriteConfig = {
   databaseId: config.appwrite.databaseId,
 
   // Collections (Database Tables)
-  profilesCollectionId: config.appwrite.collections.profiles,
+  profilesCollectionId: config.appwrite.collections.profiles || 'profiles',
   postsCollectionId: config.appwrite.collections.posts,
   likesCollectionId: config.appwrite.collections.likes,
   commentsCollectionId: config.appwrite.collections.comments,
