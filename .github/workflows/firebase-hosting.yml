@@ -116,6 +116,7 @@ jobs:
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
           projectId: '${{ secrets.FIREBASE_PROJECT_ID }}'
           target: prod
+          channelId: live
 
       # ── DEV → DEV SITE (STABLE URL) ───────────────────
       - name: Deploy to Firebase (DEV)
@@ -126,3 +127,4 @@ jobs:
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
           projectId: '${{ secrets.FIREBASE_PROJECT_ID }}'
           target: dev
+          channelId: live
