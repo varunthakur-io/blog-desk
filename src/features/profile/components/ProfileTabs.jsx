@@ -2,7 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
-import { Edit, Mail, CalendarDays, Heart, Users } from 'lucide-react';
+import { Edit, Mail, CalendarDays, Heart, Users, Bookmark } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { PostCard, PostCardSkeleton } from '@/features/posts';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -54,6 +54,9 @@ const ProfileTabs = ({
   likedPosts,
   isLoadingLikes,
   likesError,
+  savedPosts = [],
+  isSavedLoading = false,
+  savedError = null,
   displayBio,
   displayEmail,
   joinedDate,
@@ -70,9 +73,14 @@ const ProfileTabs = ({
             Posts
           </TabsTrigger>
           {isOwner && (
-            <TabsTrigger value="likes" className="rounded-md text-xs px-4 font-medium">
-              Liked
-            </TabsTrigger>
+            <>
+              <TabsTrigger value="likes" className="rounded-md text-xs px-4 font-medium">
+                Liked
+              </TabsTrigger>
+              <TabsTrigger value="saved" className="rounded-md text-xs px-4 font-medium">
+                Saved
+              </TabsTrigger>
+            </>
           )}
           <TabsTrigger value="followers" className="rounded-md text-xs px-4 font-medium">
             Followers
@@ -151,6 +159,37 @@ const ProfileTabs = ({
             icon={Heart}
             title="No liked posts"
             description="Posts you like will appear here."
+          />
+        )}
+      </TabsContent>
+
+      {/* Saved Tab */}
+      <TabsContent value="saved" className="mt-0 outline-none">
+        {!isOwner ? (
+          <div className="py-12 text-center text-sm text-muted-foreground">
+            Saved posts are private.
+          </div>
+        ) : isSavedLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[...Array(3)].map((_, i) => (
+              <PostCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : savedError ? (
+          <Alert variant="destructive" className="rounded-xl">
+            <AlertDescription>{savedError}</AlertDescription>
+          </Alert>
+        ) : savedPosts.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {savedPosts.map((post) => (
+              <PostCard key={post.$id} post={post} />
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            icon={Bookmark}
+            title="No saved articles"
+            description="Articles you bookmark will appear here."
           />
         )}
       </TabsContent>

@@ -1,17 +1,21 @@
 import { useState, useEffect } from 'react';
 import { postService } from '@/features/posts';
 import { likeService } from '@/features/likes';
+import { bookmarkService } from '@/features/bookmarks/services/bookmark.service';
 
 /**
- * Hook to manage user posts and liked posts based on tab selection.
+ * Hook to manage user posts, liked posts, and saved posts based on tab selection.
  */
 export const useProfileContent = (profileId, activeTab, isOwner) => {
   const [userPosts, setUserPosts] = useState([]);
   const [likedPosts, setLikedPosts] = useState([]);
+  const [savedPosts, setSavedPosts] = useState([]);
   const [postsFetchStatus, setPostsFetchStatus] = useState('idle');
   const [likesFetchStatus, setLikesFetchStatus] = useState('idle');
+  const [savedFetchStatus, setSavedFetchStatus] = useState('idle');
   const [postsError, setPostsError] = useState('');
   const [likesError, setLikesError] = useState('');
+  const [savedError, setSavedError] = useState('');
 
   // 1. Fetch user's own posts
   useEffect(() => {
@@ -69,12 +73,43 @@ export const useProfileContent = (profileId, activeTab, isOwner) => {
     };
   }, [profileId, activeTab, isOwner]);
 
+  // 3. Fetch user's saved posts (if owner)
+  useEffect(() => {
+    if (!profileId || activeTab !== 'saved' || !isOwner) return;
+
+    let cancelled = false;
+    const fetchSaved = async () => {
+      setSavedFetchStatus('loading');
+      try {
+        const response = await bookmarkService.getBookmarkedPostsByUserId(profileId);
+        const saved = response.documents || response;
+        if (!cancelled) {
+          setSavedPosts(saved || []);
+          setSavedFetchStatus('success');
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setSavedError(err?.message || 'Failed to load saved posts.');
+          setSavedFetchStatus('error');
+        }
+      }
+    };
+
+    fetchSaved();
+    return () => {
+      cancelled = true;
+    };
+  }, [profileId, activeTab, isOwner]);
+
   return {
     userPosts,
     likedPosts,
+    savedPosts,
     postsLoading: postsFetchStatus === 'loading',
     isLoadingLikes: likesFetchStatus === 'loading',
+    isSavedLoading: savedFetchStatus === 'loading',
     postsError,
     likesError,
+    savedError,
   };
 };

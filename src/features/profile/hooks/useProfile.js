@@ -28,15 +28,18 @@ export const useProfile = () => {
     error: profileError 
   } = useProfileBasic({ username });
 
-  // 2. Content (Posts, Liked Posts)
+  // 2. Content (Posts, Liked Posts, Saved Posts)
   const {
     userPosts,
     likedPosts,
+    savedPosts,
     isLoading: postsLoading,
     isLoadingLikes,
+    isSavedLoading,
     error: postsError,
     likesError,
-  } = useProfileContent(profileId, activeTab);
+    savedError,
+  } = useProfileContent(profileId, activeTab, isOwner);
 
   // 3. Follow Lists & Relationship
   const {
@@ -82,18 +85,21 @@ export const useProfile = () => {
     profileLoading,
     postsLoading,
     isLoadingLikes,
+    isSavedLoading,
     isFollowLoading,
     isFollowersLoading,
     isFollowingLoading,
     profileError,
     postsError,
     likesError,
+    savedError,
     isFetchingUsername: profileLoading && !profileId, // Alias for legacy Profile.jsx
     usernameFetchError: profileError, // Alias for legacy Profile.jsx
 
     // content
     userPosts,
     likedPosts,
+    savedPosts,
 
     // follow
     isFollowing,

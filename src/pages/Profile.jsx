@@ -25,6 +25,7 @@ export default function Profile() {
     isOwner,
     userPosts,
     likedPosts,
+    savedPosts,
     activeTab,
     setActiveTab,
 
@@ -38,6 +39,8 @@ export default function Profile() {
     followingProfiles,
     isFollowersLoading,
     isFollowingLoading,
+    isSavedLoading,
+    savedError,
   } = useProfile();
 
   if (isFetchingUsername) return <ProfileSkeleton />;
@@ -114,6 +117,9 @@ export default function Profile() {
         likedPosts={likedPosts}
         isLoadingLikes={isLoadingLikes}
         likesError={likesError}
+        savedPosts={savedPosts}
+        isSavedLoading={isSavedLoading}
+        savedError={savedError}
         displayBio={displayBio}
         displayEmail={displayEmail}
         joinedDate={joinedDate}
