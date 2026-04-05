@@ -51,7 +51,7 @@ jobs:
           export VITE_APPWRITE_DATABASE_ID=$(node -p "require('./appwrite.json').databaseId")
 
           # Collections
-          export VITE_APPWRITE_PROFILE_COLLECTION_ID=$(node -p "require('./appwrite.json').profileCollectionId")
+          export VITE_APPWRITE_PROFILES_COLLECTION_ID=$(node -p "require('./appwrite.json').profilesCollectionId")
           export VITE_APPWRITE_POSTS_COLLECTION_ID=$(node -p "require('./appwrite.json').postsCollectionId")
           export VITE_APPWRITE_LIKES_COLLECTION_ID=$(node -p "require('./appwrite.json').likesCollectionId")
           export VITE_APPWRITE_COMMENTS_COLLECTION_ID=$(node -p "require('./appwrite.json').commentsCollectionId")
