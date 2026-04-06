@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { authService } from '../features/auth/services/auth.service';
-import { Loader2, CheckCircle2, XCircle, Mail } from 'lucide-react';
+import { useDispatch } from 'react-redux';
+import { authService, setAuthUser } from '@/features/auth';
+import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const VerifyEmail = () => {
   const [searchParams] = useSearchParams();
+  const dispatch = useDispatch();
   const secret = searchParams.get('secret');
   const userId = searchParams.get('userId');
   
@@ -21,7 +23,13 @@ const VerifyEmail = () => {
       }
 
       try {
-        await authService.verifyUser(userId, secret);
+        const updatedUser = await authService.verifyUser(userId, secret);
+        
+        // Handle Redux dispatch here instead of in the service
+        if (updatedUser) {
+          dispatch(setAuthUser(updatedUser));
+        }
+        
         setStatus('success');
       } catch (err) {
         setStatus('error');
@@ -30,7 +38,7 @@ const VerifyEmail = () => {
     };
 
     performVerification();
-  }, [secret, userId]);
+  }, [secret, userId, dispatch]);
 
   return (
     <div className="page-root flex items-center justify-center min-h-[60vh]">
