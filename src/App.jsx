@@ -20,6 +20,7 @@ const Signup = lazy(() => import('./pages/Signup'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Settings = lazy(() => import('./pages/Settings'));
 const About = lazy(() => import('./pages/About'));
+const VerifyEmail = lazy(() => import('./pages/VerifyEmail'));
 
 function App() {
   const isAuthChecked = useAuthCheck();
@@ -47,9 +48,10 @@ function App() {
             <Route path="/settings" element={<Settings />} />
           </Route>
 
-          {/* Public route for viewing articles */}
+          {/* Public routes */}
           <Route path="/posts/:id" element={<PostDetails />} />
           <Route path="/profile/:username" element={<Profile />} />
+          <Route path="/verify" element={<VerifyEmail />} />
         </Route>
 
         {/* Auth pages (no layout) */}
