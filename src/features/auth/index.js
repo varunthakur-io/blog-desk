@@ -1,3 +1,4 @@
+export { default as VerificationBanner } from './components/VerificationBanner';
 export * from './hooks';
 export * from './services';
 export * from './store';
