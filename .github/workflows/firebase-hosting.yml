@@ -45,6 +45,9 @@ jobs:
           # save the JSON to a temp file so Node can read it
           echo "$APPWRITE_CONFIG" > appwrite.json
 
+          # App Configuration
+          export VITE_APP_URL=${{ github.ref == 'refs/heads/main' && 'https://blog-desk.web.app' || 'https://blog-desk-dev.web.app' }}
+
           # Core Appwrite Setup
           export VITE_APPWRITE_ENDPOINT=$(node -p "require('./appwrite.json').url")
           export VITE_APPWRITE_PROJECT_ID=$(node -p "require('./appwrite.json').projectId")
