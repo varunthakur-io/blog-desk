@@ -12,6 +12,9 @@ const getEnvVar = (key, fallback = undefined) => {
 };
 
 export const config = {
+  app: {
+    url: getEnvVar('VITE_APP_URL', 'http://localhost:5173'),
+  },
   appwrite: {
     // Core Appwrite Setup
     endpoint: getEnvVar('VITE_APPWRITE_ENDPOINT'),

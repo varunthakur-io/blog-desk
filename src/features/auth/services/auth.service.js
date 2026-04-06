@@ -1,5 +1,6 @@
 import { authApi } from './auth.api';
 import { profileService } from '@/features/profile';
+import { config } from '@/lib/config';
 
 class AuthService {
   cacheUser(user) {
@@ -37,7 +38,16 @@ class AuthService {
       throw new Error('Signup failed: could not create profile. Please try again.');
     }
 
-    return await this.loginUser({ email, password });
+    const user = await this.loginUser({ email, password });
+
+    // Send verification email AFTER signup
+    try {
+      await this.createVerification();
+    } catch (error) {
+      console.warn('Initial verification email failed:', error);
+    }
+
+    return user;
   }
 
   async loginUser({ email, password }) {
@@ -126,6 +136,28 @@ class AuthService {
     }
     this.clearCachedUser();
     return true;
+  }
+
+  async createVerification() {
+    const baseUrl = config.app.url.trim();
+    const url = `${baseUrl}/verify`;
+    console.log('AuthService :: Verification URL generated:', url);
+    return await authApi.createVerification(url);
+  }
+
+  async verifyUser(userId, secret) {
+    try {
+      await authApi.updateVerification(userId, secret);
+      const updatedUser = await authApi.getAccount();
+
+      const cached = this.getCachedUser() || {};
+      this.cacheUser({ ...cached, ...updatedUser });
+
+      return updatedUser;
+    } catch (error) {
+      console.error('Verification failed:', error);
+      throw error;
+    }
   }
 }
 

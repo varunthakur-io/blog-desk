@@ -55,6 +55,14 @@ class AuthApi {
       { 'content-type': 'application/json' },
     );
   }
+
+  async createVerification(url) {
+    return await account.createVerification(url);
+  }
+
+  async updateVerification(userId, secret) {
+    return await account.updateVerification(userId, secret);
+  }
 }
 
 export const authApi = new AuthApi();
