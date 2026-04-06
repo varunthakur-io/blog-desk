@@ -139,9 +139,7 @@ class AuthService {
   }
 
   async createVerification() {
-    const baseUrl = config.app.url.trim();
-    const url = `${baseUrl}/verify`;
-    console.log('AuthService :: Verification URL generated:', url);
+    const url = `${config.app.url}/verify`;
     return await authApi.createVerification(url);
   }
 
