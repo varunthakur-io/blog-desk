@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -8,9 +9,11 @@ import { PostDetailsSkeleton, PostContent, AuthorSidebar } from '@/features/post
 import { CommentSection } from '@/features/comments';
 
 import { usePostDetails } from '@/features/posts';
-import SEO from '../components/common/SEO';
+import { SEO, ShareDialog } from '@/components/common';
 
 const PostDetails = () => {
+  const [isShareOpen, setIsShareOpen] = useState(false);
+
   const {
     authUserId,
     post,
@@ -25,7 +28,6 @@ const PostDetails = () => {
     comments,
     estimatedReadTime,
     handleLike,
-    handleShare,
     navigate,
   } = usePostDetails();
 
@@ -61,6 +63,14 @@ const PostDetails = () => {
         publishedTime={post.$createdAt}
         category={post.category}
       />
+
+      <ShareDialog
+        open={isShareOpen}
+        onOpenChange={setIsShareOpen}
+        url={`/posts/${post.slug}`}
+        title={post.title}
+      />
+
       {/* 2-column grid — left sidebar fixed, right content scrolls independently */}
       <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-0 lg:gap-8 xl:gap-12">
         {/* ── Left sidebar — fixed height, doesn't scroll ── */}
@@ -77,7 +87,7 @@ const PostDetails = () => {
               isLikedLoading={isLikedLoading}
               isLiking={isLiking}
               handleLike={handleLike}
-              handleShare={handleShare}
+              handleShare={() => setIsShareOpen(true)}
               category={post.category}
               commentsCount={comments.length}
               authUserId={authUserId}
@@ -126,7 +136,7 @@ const PostDetails = () => {
             {likesCount}
           </Button>
           <Button
-            onClick={handleShare}
+            onClick={() => setIsShareOpen(true)}
             variant="outline"
             size="sm"
             className="gap-1.5 rounded-full text-xs px-3"
