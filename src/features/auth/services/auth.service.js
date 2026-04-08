@@ -157,6 +157,15 @@ class AuthService {
       throw error;
     }
   }
+
+  async createRecovery(email) {
+    const url = `${config.app.url}/reset-password`;
+    return await authApi.createRecovery(email, url);
+  }
+
+  async resetPassword(userId, secret, password) {
+    return await authApi.updateRecovery(userId, secret, password);
+  }
 }
 
 export const authService = new AuthService();
