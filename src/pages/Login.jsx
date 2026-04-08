@@ -31,7 +31,7 @@ const Login = () => {
         </div>
 
         {/* Card */}
-        <div className="rounded-2xl border border-border bg-card p-8 space-y-6">
+        <div className="rounded-2xl border border-border bg-card p-8 space-y-6 shadow-sm">
           <div className="space-y-1 text-center">
             <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
             <p className="text-muted-foreground text-sm">Sign in to continue to your account</p>
@@ -60,9 +60,17 @@ const Login = () => {
 
             {/* Password */}
             <div className="space-y-1.5">
-              <Label htmlFor="password" className="text-sm font-medium">
-                Password
-              </Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password" name="password" className="text-sm font-medium">
+                  Password
+                </Label>
+                <Link
+                  to="/forgot-password"
+                  className="text-xs font-semibold text-primary hover:underline transition-colors"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <div className="relative">
                 <Input
                   id="password"
@@ -110,11 +118,11 @@ const Login = () => {
             </Button>
           </form>
 
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="text-center text-sm text-muted-foreground pt-2">
             Don&apos;t have an account?{' '}
             <Link
               to="/signup"
-              className="font-semibold text-foreground underline underline-offset-4 hover:opacity-70"
+              className="font-bold text-primary hover:underline"
             >
               Sign up for free
             </Link>
