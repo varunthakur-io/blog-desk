@@ -3,15 +3,12 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
-import {
-  PostDetailsSkeleton,
-  PostContent,
-  AuthorSidebar,
-} from '@/features/posts';
+import { PostDetailsSkeleton, PostContent, AuthorSidebar } from '@/features/posts';
 
 import { CommentSection } from '@/features/comments';
 
 import { usePostDetails } from '@/features/posts';
+import SEO from '../components/common/SEO';
 
 const PostDetails = () => {
   const {
@@ -54,6 +51,16 @@ const PostDetails = () => {
 
   return (
     <div className="page-root">
+      <SEO
+        title={post.title}
+        description={post.content?.substring(0, 160).replace(/<[^>]*>/g, '')}
+        image={post.coverImageUrl}
+        url={`/posts/${post.$id}`}
+        type="article"
+        author={authorProfile?.name}
+        publishedTime={post.$createdAt}
+        category={post.category}
+      />
       {/* 2-column grid — left sidebar fixed, right content scrolls independently */}
       <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-0 lg:gap-8 xl:gap-12">
         {/* ── Left sidebar — fixed height, doesn't scroll ── */}
