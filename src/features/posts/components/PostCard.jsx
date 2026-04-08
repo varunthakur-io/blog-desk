@@ -1,33 +1,28 @@
 import DOMPurify from 'dompurify';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowUpRight, Calendar, Clock, MessageSquare, Heart, Loader2 } from 'lucide-react';
+import { ArrowUpRight, Calendar, Clock, MessageSquare, Heart, Loader2, Share2 } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import { BookmarkButton, useBookmark } from '@/features/bookmarks';
 import { selectProfileById } from '@/features/profile';
 import { setActiveCategory } from '@/features/posts';
 import { useLike } from '@/features/posts';
+import { ShareDialog } from '@/components/common';
 import { cn } from '@/lib/utils';
 import { formatDate, calculateReadTime } from '@/utils/formatters';
 
 const PostCard = ({ post }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [isShareOpen, setIsShareOpen] = useState(false);
+
   const authorProfile = useSelector((state) => selectProfileById(state, post.authorId));
   const authorName = authorProfile?.name;
   const readTime = calculateReadTime(post.content);
 
-  const {
-    likesCount,
-    isLiked,
-    isLiking,
-    toggleLike,
-  } = useLike(post);
+  const { likesCount, isLiked, isLiking, toggleLike } = useLike(post);
 
-  const {
-    isBookmarked,
-    isLoading: isBookmarkLoading,
-    toggleBookmark,
-  } = useBookmark(post);
+  const { isBookmarked, isLoading: isBookmarkLoading, toggleBookmark } = useBookmark(post);
 
   const plainContent = DOMPurify.sanitize(post.content || '', {
     USE_PROFILES: { html: false },
@@ -43,9 +38,22 @@ const PostCard = ({ post }) => {
     navigate('/');
   };
 
+  const handleShareClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsShareOpen(true);
+  };
+
   return (
     // h-full makes the card stretch to fill the grid row height — all cards in a row stay same height
-    <div className="group flex flex-col h-full overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+    <div className="group flex flex-col h-full overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md relative">
+      <ShareDialog
+        open={isShareOpen}
+        onOpenChange={setIsShareOpen}
+        url={`/posts/${post.slug}`}
+        title={post.title}
+      />
+
       {/* Cover Image — fixed aspect ratio so cards with/without images don't cause height jumps */}
       {coverImageUrl && (
         <div className="aspect-[16/9] w-full overflow-hidden bg-muted shrink-0">
@@ -84,14 +92,14 @@ const PostCard = ({ post }) => {
               onClick={toggleLike}
               disabled={isLiking}
               className={cn(
-                "flex items-center gap-1 text-[11px] transition-all duration-200 active:scale-125",
-                isLiked ? "text-red-500 font-bold" : "hover:text-red-400"
+                'flex items-center gap-1 text-[11px] transition-all duration-200 active:scale-125',
+                isLiked ? 'text-red-500 font-bold' : 'hover:text-red-400',
               )}
             >
               {isLiking ? (
                 <Loader2 className="h-3 w-3 animate-spin" />
               ) : (
-                <Heart className={cn("h-3 w-3 transition-colors", isLiked ? "fill-current" : "")} />
+                <Heart className={cn('h-3 w-3 transition-colors', isLiked ? 'fill-current' : '')} />
               )}
               {likesCount}
             </button>
@@ -137,15 +145,24 @@ const PostCard = ({ post }) => {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <BookmarkButton 
-              isBookmarked={isBookmarked} 
-              onClick={toggleBookmark} 
+          <div className="flex items-center gap-1">
+            <button
+              onClick={handleShareClick}
+              className="h-8 w-8 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200 active:scale-90"
+              title="Share post"
+            >
+              <Share2 className="h-[1.1rem] w-[1.1rem]" />
+            </button>
+
+            <BookmarkButton
+              isBookmarked={isBookmarked}
+              onClick={toggleBookmark}
               isLoading={isBookmarkLoading}
             />
+
             <Link
               to={`/posts/${post.$id}`}
-              className="shrink-0 flex items-center gap-1 text-[11px] font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 ml-1 group/link"
+              className="flex items-center gap-1 text-[11px] font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 ml-1 group/link"
             >
               Read
               <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />
