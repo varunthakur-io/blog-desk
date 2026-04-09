@@ -23,6 +23,7 @@ const About = lazy(() => import('./pages/About'));
 const VerifyEmail = lazy(() => import('./pages/VerifyEmail'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 function App() {
   const isAuthChecked = useAuthCheck();
@@ -54,6 +55,9 @@ function App() {
           <Route path="/posts/:id" element={<PostDetails />} />
           <Route path="/profile/:username" element={<Profile />} />
           <Route path="/verify" element={<VerifyEmail />} />
+
+          {/* 404 Catch-all */}
+          <Route path="*" element={<NotFound />} />
         </Route>
 
         {/* Auth pages (no layout) */}
