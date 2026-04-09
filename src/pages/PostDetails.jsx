@@ -10,6 +10,7 @@ import { CommentSection } from '@/features/comments';
 
 import { usePostDetails } from '@/features/posts';
 import { SEO, ShareDialog } from '@/components/common';
+import NotFound from './NotFound';
 
 const PostDetails = () => {
   const [isShareOpen, setIsShareOpen] = useState(false);
@@ -33,11 +34,21 @@ const PostDetails = () => {
 
   if (isPostLoading) return <PostDetailsSkeleton />;
 
+  // Senior UX: If post is not found or deleted, show the branded NotFound page
+  const isNotFound =
+    postFetchError?.toLowerCase().includes('not found') ||
+    postFetchError?.toLowerCase().includes('404') ||
+    (!post && !isPostLoading);
+
+  if (isNotFound) {
+    return <NotFound />;
+  }
+
   const isAuthorized = post?.status === 'published' || post?.authorId === authUserId;
 
   if (postFetchError || !post || !isAuthorized) {
     return (
-      <div className="py-20 flex flex-col items-center gap-4 text-center max-w-md mx-auto">
+      <div className="py-20 flex flex-col items-center gap-4 text-center max-w-md mx-auto px-4">
         <Alert variant="destructive" className="rounded-xl">
           <AlertDescription>
             {postFetchError ||
