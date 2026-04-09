@@ -67,7 +67,7 @@ class PostService {
 
     if (searchQuery) {
       baseQueries.push(
-        Query.or([Query.contains('title', searchQuery), Query.contains('content', searchQuery)]),
+        Query.or([Query.search('title', searchQuery), Query.search('content', searchQuery)]),
       );
     }
 
