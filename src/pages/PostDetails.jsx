@@ -12,6 +12,48 @@ import { usePostDetails } from '@/features/posts';
 import { SEO, ShareDialog } from '@/components/common';
 import NotFound from './NotFound';
 
+const MobilePostActions = ({
+  authorName,
+  readTime,
+  likesCount,
+  isLiked,
+  isLikedLoading,
+  isLiking,
+  authUserId,
+  onLike,
+  onShare,
+}) => (
+  <>
+    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/95 backdrop-blur-sm px-4 py-3 flex items-center justify-between gap-3">
+      <div className="text-sm text-muted-foreground">
+        By <span className="font-medium text-foreground">{authorName || 'Anonymous'}</span>
+        {' · '}
+        {readTime} min read
+      </div>
+      <div className="flex items-center gap-2">
+        <Button
+          onClick={onLike}
+          variant={isLiked ? 'default' : 'outline'}
+          size="sm"
+          className={`gap-1.5 rounded-full text-xs px-3 ${isLiked ? 'bg-rose-500 hover:bg-rose-600 text-white border-rose-500' : ''}`}
+          disabled={isLikedLoading || isLiking || !authUserId}
+        >
+          {likesCount}
+        </Button>
+        <Button
+          onClick={onShare}
+          variant="outline"
+          size="sm"
+          className="gap-1.5 rounded-full text-xs px-3"
+        >
+          Share
+        </Button>
+      </div>
+    </div>
+    <div className="lg:hidden h-20" />
+  </>
+);
+
 const PostDetails = () => {
   const [isShareOpen, setIsShareOpen] = useState(false);
 
@@ -128,35 +170,17 @@ const PostDetails = () => {
         </div>
       </div>
 
-      {/* mobile: like + share bar fixed at bottom */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/95 backdrop-blur-sm px-4 py-3 flex items-center justify-between gap-3">
-        <div className="text-sm text-muted-foreground">
-          By{' '}
-          <span className="font-medium text-foreground">{authorProfile?.name || 'Anonymous'}</span>
-          {' · '}
-          {estimatedReadTime} min read
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            onClick={handleLike}
-            variant={isLiked ? 'default' : 'outline'}
-            size="sm"
-            className={`gap-1.5 rounded-full text-xs px-3 ${isLiked ? 'bg-rose-500 hover:bg-rose-600 text-white border-rose-500' : ''}`}
-            disabled={isLikedLoading || isLiking || !authUserId}
-          >
-            {likesCount}
-          </Button>
-          <Button
-            onClick={() => setIsShareOpen(true)}
-            variant="outline"
-            size="sm"
-            className="gap-1.5 rounded-full text-xs px-3"
-          >
-            Share
-          </Button>
-        </div>
-      </div>
-      <div className="lg:hidden h-20" />
+      <MobilePostActions
+        authorName={authorProfile?.name}
+        readTime={estimatedReadTime}
+        likesCount={likesCount}
+        isLiked={isLiked}
+        isLikedLoading={isLikedLoading}
+        isLiking={isLiking}
+        authUserId={authUserId}
+        onLike={handleLike}
+        onShare={() => setIsShareOpen(true)}
+      />
     </div>
   );
 };
