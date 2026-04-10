@@ -3,8 +3,6 @@ import DOMPurify from 'dompurify';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setActiveCategory } from '@/features/posts';
-import BookmarkButton from '@/features/bookmarks/components/BookmarkButton';
-import { useBookmark } from '@/features/bookmarks/hooks/useBookmark';
 
 // extracts all h2/h3 headings from html string for the TOC
 const extractHeadings = (html) => {
@@ -28,16 +26,8 @@ const injectHeadingIds = (html) => {
   return div.innerHTML;
 };
 
-const PostContent = ({ id, title, content, coverImageUrl, category, onHeadingsReady }) => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+const PostContent = ({ title, content, coverImageUrl, onHeadingsReady }) => {
   const articleRef = useRef(null);
-
-  const {
-    isBookmarked,
-    isLoading: isBookmarkLoading,
-    toggleBookmark,
-  } = useBookmark({ $id: id, title, content, coverImageUrl, category });
 
   // reading progress bar
   const [progress, setProgress] = useState(0);
@@ -59,18 +49,11 @@ const PostContent = ({ id, title, content, coverImageUrl, category, onHeadingsRe
     }
   }, [content, onHeadingsReady]);
 
-  const handleCategoryClick = () => {
-    if (category) {
-      dispatch(setActiveCategory(category));
-      navigate('/');
-    }
-  };
-
   const processedContent = content ? injectHeadingIds(content) : '';
 
   return (
     <>
-      {/* reading progress bar — outside space-y wrapper so it doesn't add layout margin */}
+      {/* reading progress bar */}
       <div className="fixed top-0 left-0 right-0 z-50 h-0.5 bg-border/50">
         <div
           className="h-full bg-foreground transition-all duration-75 ease-out"
@@ -78,52 +61,31 @@ const PostContent = ({ id, title, content, coverImageUrl, category, onHeadingsRe
         />
       </div>
 
-      <div className="space-y-6">
-        {/* category & bookmark action */}
-        <div className="flex items-center justify-between gap-4 pt-1">
-          {category ? (
-            <button
-              onClick={handleCategoryClick}
-              className="inline-flex items-center rounded-full border border-border bg-muted px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground hover:bg-foreground hover:text-background hover:border-foreground transition-colors duration-200"
-            >
-              {category}
-            </button>
-          ) : (
-            <div /> // Spacer
-          )}
-          
-          <BookmarkButton 
-            isBookmarked={isBookmarked} 
-            onClick={toggleBookmark} 
-            isLoading={isBookmarkLoading}
-            className="h-9 w-9 border border-border bg-background shadow-sm"
-          />
-        </div>
-
+      <div className="space-y-8">
         {/* title */}
-        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-[1.15] text-foreground">
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-[1.1] text-foreground">
           {title}
         </h1>
 
-        {/* cover image — max height capped so it doesn't dominate the page */}
+        {/* cover image */}
         {coverImageUrl && (
           <div
-            className="relative w-full rounded-xl overflow-hidden bg-muted border border-border"
-            style={{ maxHeight: '360px' }}
+            className="relative w-full rounded-2xl overflow-hidden bg-muted border border-border shadow-sm"
+            style={{ maxHeight: '500px' }}
           >
             <img
               src={coverImageUrl}
               alt={title}
               className="w-full h-full object-cover"
-              style={{ maxHeight: '360px' }}
+              style={{ maxHeight: '500px' }}
             />
           </div>
         )}
 
-        {/* article body — headings have injected ids for TOC scrollspy */}
+        {/* article body */}
         <article
           ref={articleRef}
-          className="prose prose-base lg:prose-lg dark:prose-invert max-w-none
+          className="prose prose-base lg:prose-lg dark:prose-invert w-full max-w-full
             prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground
             prose-headings:border-b prose-headings:border-border prose-headings:pb-2 prose-headings:mb-4
             prose-p:text-foreground/85 prose-p:leading-relaxed
