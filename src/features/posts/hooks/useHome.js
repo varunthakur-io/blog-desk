@@ -1,7 +1,6 @@
 import { useEffect, useCallback, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { postService } from '@/features/posts';
-import { profileService } from '@/features/profile';
 import { debounce } from '@/lib/utils';
 import {
   selectAllPosts,
@@ -19,9 +18,9 @@ import {
   setActiveCategory,
   setFeedMode,
 } from '@/features/posts';
-import { setUserProfile } from '@/features/profile';
 import { selectAuthUserId } from '@/features/auth';
 import { POSTS_PER_PAGE } from '@/constants';
+import { getUniqueProfileIds, prefetchProfiles } from '@/features/profile/utils/prefetchProfiles';
 
 const LIMIT = POSTS_PER_PAGE;
 
@@ -74,16 +73,8 @@ export const useHome = () => {
 
         const pagePosts = response.documents ?? [];
 
-        // --- Senior Dev Move: Batch Prefetch Profiles ---
-        if (pagePosts.length > 0) {
-          const authorIds = [...new Set(pagePosts.map(p => p.authorId))].filter(Boolean);
-          profileService.getProfilesByIds(authorIds)
-            .then(profiles => {
-              profiles.forEach(p => dispatch(setUserProfile(p)));
-            })
-            .catch(err => console.warn('Home Feed: Batch profile prefetch failed', err));
-        }
-        // -----------------------------------------------
+        const authorIds = getUniqueProfileIds(pagePosts, (post) => post.authorId);
+        prefetchProfiles(dispatch, authorIds, 'Home feed profile prefetch');
 
         const totalFetched = (pageNum === 1 ? 0 : (pageNum - 1) * LIMIT) + pagePosts.length;
 

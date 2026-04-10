@@ -3,9 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import { debounce } from '@/lib/utils';
 import { postService } from '@/features/posts';
-import { profileService } from '@/features/profile';
 import { selectAuthUserId } from '@/features/auth';
-import { setUserProfile } from '@/features/profile';
 import {
   selectIsPostsLoading,
   selectPostsError,
@@ -14,6 +12,7 @@ import {
   clearPostRecord,
 } from '@/features/posts';
 import { DASHBOARD_POSTS_PER_PAGE } from '@/constants';
+import { getUniqueProfileIds, prefetchProfiles } from '@/features/profile/utils/prefetchProfiles';
 
 export const useDashboard = () => {
   const dispatch = useDispatch();
@@ -70,16 +69,8 @@ export const useDashboard = () => {
       );
 
       const pagePosts = Array.isArray(postPage.documents) ? postPage.documents : [];
-      
-      // Batch prefetch profiles for the dashboard list
-      if (pagePosts.length > 0) {
-        const authorIds = [...new Set(pagePosts.map(p => p.authorId))].filter(Boolean);
-        profileService.getProfilesByIds(authorIds)
-          .then(profiles => {
-            profiles.forEach(p => dispatch(setUserProfile(p)));
-          })
-          .catch(err => console.warn('Dashboard: Profile prefetch failed', err));
-      }
+      const authorIds = getUniqueProfileIds(pagePosts, (post) => post.authorId);
+      prefetchProfiles(dispatch, authorIds, 'Dashboard profile prefetch');
 
       setDashboardPosts(pagePosts);
       setTotalPosts(postPage.total);
