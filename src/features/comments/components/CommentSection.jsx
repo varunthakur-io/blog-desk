@@ -1,111 +1,90 @@
 import React from 'react';
-import { Loader2, MessageSquare, Send, Trash2 } from 'lucide-react';
+import { Trash2, Loader2, Send } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 
-import { ConfirmationDialog, EmptyState } from '@/components/common';
+import { ConfirmationDialog } from '@/components/common';
 import { FollowButton } from '@/features/follows';
 import { useComments } from '@/features/comments';
 import { useProfileIdentity } from '@/features/profile';
+import { formatDate } from '@/utils/formatters';
 
-// Sub-components
+/* ───────────────────────────────────────────── */
+/* Comment Item */
+/* ───────────────────────────────────────────── */
 
 const CommentItem = ({ comment, isMe, onDeleteClick }) => {
   const { profile, displayName, avatarUrl } = useProfileIdentity({ userId: comment.userId });
 
   return (
-    <div className="flex gap-3 group">
-      <Link to={`/profile/${profile?.username}`} className="mt-1 shrink-0">
-        <Avatar className="h-8 w-8 border border-border transition-transform hover:scale-105">
-          <AvatarImage src={avatarUrl} alt={displayName} />
-          <AvatarFallback className="bg-muted text-muted-foreground font-medium text-xs">
-            {displayName.charAt(0).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
-      </Link>
+    <div className="py-8 first:pt-0 border-b border-border/40 last:border-0 group">
+      <div className="flex gap-3 mb-3">
+        <Link to={`/profile/${profile?.username}`} className="shrink-0 transition-opacity hover:opacity-80">
+          <Avatar className="h-8 w-8 border border-border/60 shadow-sm">
+            {avatarUrl && <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" />}
+            <AvatarFallback className="text-[10px] font-bold uppercase">
+              {displayName.charAt(0)}
+            </AvatarFallback>
+          </Avatar>
+        </Link>
 
-      <div className="flex-1 min-w-0">
-        <div className="rounded-2xl border border-border bg-card px-4 py-3 transition-colors hover:bg-muted/40 text-left">
-          <div className="flex items-center justify-between gap-2 mb-1">
-            <div className="flex items-center gap-2">
-              <Link to={`/profile/${profile?.username}`} className="text-sm font-semibold text-foreground hover:text-primary transition-colors leading-none">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2 min-w-0">
+              <Link
+                to={`/profile/${profile?.username}`}
+                className="font-bold text-[13px] text-foreground hover:underline truncate"
+              >
                 {displayName}
               </Link>
-              <time className="text-xs text-muted-foreground font-medium">
-                {comment.$createdAt
-                  ? new Date(comment.$createdAt).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                    })
-                  : 'Just now'}
+              <span className="text-muted-foreground/40 text-[10px]">•</span>
+              <time className="text-[12px] text-muted-foreground whitespace-nowrap">
+                {formatDate(comment.$createdAt)}
               </time>
+
               {!isMe && (
-                <FollowButton 
-                  userId={comment.userId} 
-                  variant="ghost" 
-                  size="xs" 
-                  className="h-5 px-2 text-[9px] uppercase tracking-tighter" 
+                <FollowButton
+                  userId={comment.userId}
+                  variant="ghost"
+                  size="xs"
+                  className="h-5 px-2 text-[10px] font-bold text-primary hover:bg-primary/5 rounded-full ml-1"
                 />
               )}
             </div>
 
             {isMe && (
-              <Button
-                variant="ghost"
-                size="sm"
+              <Button 
+                variant="ghost" 
+                size="sm" 
                 onClick={onDeleteClick}
-                className="h-7 px-2 gap-1.5 text-xs font-medium text-destructive/70 opacity-60 group-hover:opacity-100 transition-all duration-200 hover:text-destructive hover:bg-destructive/10 rounded-md"
+                className="h-7 px-2 text-destructive/70 hover:text-destructive hover:bg-destructive/10 rounded-md gap-1.5 font-medium text-xs opacity-0 group-hover:opacity-100 transition-opacity"
               >
                 <Trash2 className="h-3.5 w-3.5" />
-                Delete
+                <span>Delete</span>
               </Button>
             )}
           </div>
-
-          <p className="text-sm leading-relaxed text-foreground/80 whitespace-pre-wrap">
-            {comment.content}
-          </p>
         </div>
+      </div>
+
+      <div className="pl-11">
+        <p className="text-[15px] leading-relaxed whitespace-pre-wrap text-foreground/90">
+          {comment.content}
+        </p>
       </div>
     </div>
   );
 };
 
-const CommentList = ({
-  comments,
-  authUserId,
-  onDeleteClick,
-}) => {
-  if (comments.length === 0) {
-    return (
-      <EmptyState
-        icon={MessageSquare}
-        title="No comments yet"
-        description="Be the first to share your thoughts."
-      />
-    );
-  }
-
-  return (
-    <div className="space-y-3">
-      {comments.map((comment) => (
-        <CommentItem
-          key={comment.$id}
-          comment={comment}
-          isMe={comment.userId === authUserId}
-          onDeleteClick={() => onDeleteClick(comment)}
-        />
-      ))}
-    </div>
-  );
-};
+/* ───────────────────────────────────────────── */
+/* Comment Form */
+/* ───────────────────────────────────────────── */
 
 const CommentForm = ({
   authUserId,
   currentUserProfile,
-  currentUserName,
   newComment,
   setNewComment,
   isCommenting,
@@ -114,57 +93,59 @@ const CommentForm = ({
 }) => {
   if (!authUserId) {
     return (
-      <EmptyState
-        icon={MessageSquare}
-        title="Sign in to comment"
-        description="Join the discussion by signing in or creating an account."
-        action={
-          <Button asChild size="sm" className="rounded-full px-6">
-            <Link to="/login">Sign In</Link>
-          </Button>
-        }
-      />
+      <div className="py-10 text-center rounded-2xl border border-border bg-muted/10 mb-12">
+        <p className="text-sm text-muted-foreground mb-4 font-medium">Sign in to join the conversation</p>
+        <Button asChild size="sm" className="rounded-full px-8 shadow-sm h-9">
+          <Link to="/login">Sign In</Link>
+        </Button>
+      </div>
     );
   }
 
+  const currentUserName = currentUserProfile?.name || 'You';
+
   return (
-    <div className="flex gap-3">
-      <Avatar className="h-8 w-8 border border-border shrink-0 mt-1">
-        {currentUserProfile?.avatarUrl && <AvatarImage src={currentUserProfile.avatarUrl} />}
-        <AvatarFallback className="bg-muted text-muted-foreground font-semibold text-xs">
-          {currentUserName.charAt(0).toUpperCase()}
-        </AvatarFallback>
-      </Avatar>
-      <div className="flex-1 space-y-2">
+    <div className="bg-card border border-border rounded-2xl p-4 mb-12 shadow-sm focus-within:shadow-md transition-shadow">
+      <div className="flex gap-3">
+        <Avatar className="h-8 w-8 border border-border/50 shrink-0 shadow-sm">
+          {currentUserProfile?.avatarUrl && <AvatarImage src={currentUserProfile.avatarUrl} className="object-cover" />}
+          <AvatarFallback className="bg-muted text-muted-foreground font-bold text-[10px] uppercase">
+            {currentUserName.charAt(0)}
+          </AvatarFallback>
+        </Avatar>
         <Textarea
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
           onKeyDown={onKeyDown}
-          placeholder="Share your thoughts…"
-          className="min-h-[80px] bg-background border-border resize-none focus-visible:ring-1 text-sm rounded-lg"
+          placeholder="What are your thoughts?"
+          className="min-h-[60px] w-full bg-transparent border-0 shadow-none resize-none focus-visible:ring-0 p-0 text-[15px] leading-relaxed placeholder:text-muted-foreground/40 mt-1"
         />
-        <div className="flex items-center justify-between">
-          <p className="text-[11px] text-muted-foreground">Ctrl+Enter to post</p>
-          <Button
-            onClick={onSubmit}
-            disabled={isCommenting || !newComment.trim()}
-            size="sm"
-            className="gap-2 rounded-full text-xs px-4"
-          >
-            {isCommenting ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Send className="h-3.5 w-3.5" />
-            )}
-            {isCommenting ? 'Posting…' : 'Post'}
-          </Button>
-        </div>
+      </div>
+      <div className="flex items-center justify-between pt-3 mt-3 border-t border-border/40">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40">
+          Press Ctrl + Enter to post
+        </p>
+        <Button
+          onClick={onSubmit}
+          disabled={isCommenting || !newComment.trim()}
+          size="sm"
+          className="gap-2 rounded-full text-xs font-bold px-6 h-8 shadow-sm transition-all active:scale-95"
+        >
+          {isCommenting ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Send className="h-3.5 w-3.5" />
+          )}
+          Comment
+        </Button>
       </div>
     </div>
   );
 };
 
-// Main Component
+/* ───────────────────────────────────────────── */
+/* Comment Section */
+/* ───────────────────────────────────────────── */
 
 const CommentSection = ({ postId, authUserId, currentUserProfile, initialComments }) => {
   const {
@@ -180,25 +161,19 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
     confirmDelete,
   } = useComments(postId, initialComments, authUserId);
 
-  const currentUserName = currentUserProfile?.name || 'You';
-
   return (
-    <div className="space-y-8">
-      {/* header */}
-      <div className="flex items-center gap-3">
-        <h3 className="text-base font-semibold tracking-tight">Discussion</h3>
-        {comments.length > 0 && (
-          <span className="text-xs font-semibold text-muted-foreground bg-muted rounded-full px-2 py-0.5">
-            {comments.length}
-          </span>
-        )}
-        <div className="flex-1 h-px bg-border" />
+    <div className="w-full">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-10">
+        <h3 className="text-xl font-extrabold tracking-tight">Comments</h3>
+        <span className="text-sm font-bold text-muted-foreground opacity-50">
+          ({comments.length})
+        </span>
       </div>
 
       <CommentForm
         authUserId={authUserId}
         currentUserProfile={currentUserProfile}
-        currentUserName={currentUserName}
         newComment={newComment}
         setNewComment={setNewComment}
         isCommenting={isCommenting}
@@ -206,11 +181,27 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
         onKeyDown={handleKeyDown}
       />
 
-      <CommentList
-        comments={comments}
-        authUserId={authUserId}
-        onDeleteClick={setCommentToDelete}
-      />
+      {/* Comments List */}
+      {comments.length === 0 ? (
+        <div className="py-12 border-t border-border/40">
+          <p className="text-sm text-center text-muted-foreground font-medium">
+            No comments yet. Start the conversation.
+          </p>
+        </div>
+      ) : (
+        <div className="divide-y divide-border/10">
+          <div className="flex flex-col animate-in fade-in duration-700">
+            {comments.map((comment) => (
+              <CommentItem
+                key={comment.$id}
+                comment={comment}
+                isMe={comment.userId === authUserId}
+                onDeleteClick={() => setCommentToDelete(comment)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
       <ConfirmationDialog
         open={!!commentToDelete}
@@ -219,7 +210,7 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
         isLoading={isDeleting}
         variant="destructive"
         title="Delete Comment"
-        description="Are you sure you want to delete this comment? This action cannot be undone."
+        description="Are you sure you want to delete this comment? This cannot be undone."
         confirmText="Delete"
         cancelText="Cancel"
       />
