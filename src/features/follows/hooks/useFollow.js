@@ -13,7 +13,7 @@ import { setUserProfile } from '@/features/profile';
 export const useFollow = (targetProfileId) => {
   const dispatch = useDispatch();
   const authUserId = useSelector(selectAuthUserId);
-  
+
   const [isFollowing, setIsFollowing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isStatusLoading, setIsStatusLoading] = useState(true);
@@ -43,45 +43,49 @@ export const useFollow = (targetProfileId) => {
     };
 
     checkStatus();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [authUserId, targetProfileId, isOwner]);
 
   // 2. Toggle Follow Action
-  const toggleFollow = useCallback(async (e) => {
-    if (e && e.stopPropagation) e.stopPropagation();
-    if (e && e.preventDefault) e.preventDefault();
+  const toggleFollow = useCallback(
+    async (e) => {
+      if (e && e.stopPropagation) e.stopPropagation();
+      if (e && e.preventDefault) e.preventDefault();
 
-    if (!authUserId) return toast.error('Please login to follow authors');
-    if (isOwner) return toast.error("You can't follow yourself");
-    if (isLoading || isStatusLoading) return;
+      if (!authUserId) return toast.error('Please login to follow authors');
+      if (isOwner) return toast.error("You can't follow yourself");
+      if (isLoading || isStatusLoading) return;
 
-    const wasFollowing = isFollowing;
-    setIsLoading(true);
-    
-    // Optimistic Update
-    setIsFollowing(!wasFollowing);
+      const wasFollowing = isFollowing;
+      setIsLoading(true);
 
-    try {
-      if (wasFollowing) {
-        await followService.unfollowUser(authUserId, targetProfileId);
-        toast.success('Unfollowed');
-      } else {
-        await followService.followUser(authUserId, targetProfileId);
-        toast.success('Following');
+      // Optimistic Update
+      setIsFollowing(!wasFollowing);
+
+      try {
+        if (wasFollowing) {
+          await followService.unfollowUser(authUserId, targetProfileId);
+          toast.success('Unfollowed');
+        } else {
+          await followService.followUser(authUserId, targetProfileId);
+          toast.success('Following');
+        }
+
+        // Sync the target profile's counts (followersCount, etc.) in Redux
+        const updatedProfile = await profileService.getProfile(targetProfileId);
+        dispatch(setUserProfile(updatedProfile));
+      } catch (error) {
+        // Rollback on failure
+        setIsFollowing(wasFollowing);
+        toast.error(error.message || 'Failed to update follow status');
+      } finally {
+        setIsLoading(false);
       }
-
-      // Sync the target profile's counts (followersCount, etc.) in Redux
-      const updatedProfile = await profileService.getProfile(targetProfileId);
-      dispatch(setUserProfile(updatedProfile));
-      
-    } catch (error) {
-      // Rollback on failure
-      setIsFollowing(wasFollowing);
-      toast.error(error.message || 'Failed to update follow status');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [authUserId, targetProfileId, isFollowing, isLoading, isStatusLoading, isOwner, dispatch]);
+    },
+    [authUserId, targetProfileId, isFollowing, isLoading, isStatusLoading, isOwner, dispatch],
+  );
 
   return {
     isFollowing,
@@ -89,6 +93,6 @@ export const useFollow = (targetProfileId) => {
     isStatusLoading,
     toggleFollow,
     isOwner,
-    isAuthenticated: !!authUserId
+    isAuthenticated: !!authUserId,
   };
 };
