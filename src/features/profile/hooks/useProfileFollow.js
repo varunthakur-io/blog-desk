@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { followService } from '@/features/follows';
 import { profileService } from '@/features/profile';
-import { useFollow } from '@/features/follows';
 import {
   selectFollowers,
   selectFollowing,
@@ -12,16 +11,9 @@ import {
 
 /**
  * Hook to manage followers and following lists for a profile.
- * Leverages useFollow for the relationship between the auth user and this profile.
  */
-export const useProfileFollow = (profileId, authUserId, activeTab, isOwner) => {
+export const useProfileFollow = (profileId, activeTab) => {
   const dispatch = useDispatch();
-
-  const {
-    isFollowing,
-    isLoading: isFollowLoading,
-    toggleFollow,
-  } = useFollow(profileId);
 
   const [isFollowersLoading, setIsFollowersLoading] = useState(false);
   const [isFollowingLoading, setIsFollowingLoading] = useState(false);
@@ -95,12 +87,9 @@ export const useProfileFollow = (profileId, authUserId, activeTab, isOwner) => {
   }, [profileId, activeTab, dispatch]);
 
   return {
-    isFollowing,
-    isFollowLoading,
     isFollowersLoading,
     isFollowingLoading,
     followersProfiles,
     followingProfiles,
-    handleToggleFollow: toggleFollow,
   };
 };

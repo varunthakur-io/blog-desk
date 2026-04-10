@@ -2,10 +2,7 @@ import { useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { selectAuthUserId } from '@/features/auth';
-import { 
-  useProfileContent, 
-  useProfileFollow
-} from '@/features/profile';
+import { useProfileContent, useProfileFollow } from '@/features/profile';
 import { useFollow } from '@/features/follows';
 import { formatJoinedDate } from '@/utils/formatters';
 import { useProfileBasic } from './useProfileBasic';
@@ -20,12 +17,12 @@ export const useProfile = () => {
   const [activeTab, setActiveTab] = useState('posts');
 
   // 1. Basic Identity (Resolves username -> profileId)
-  const { 
-    profile, 
-    profileId, 
-    isOwner, 
-    isLoading: profileLoading, 
-    error: profileError 
+  const {
+    profile,
+    profileId,
+    isOwner,
+    isLoading: profileLoading,
+    error: profileError,
   } = useProfileBasic({ username });
 
   // 2. Content (Posts, Liked Posts, Saved Posts)
@@ -42,32 +39,27 @@ export const useProfile = () => {
   } = useProfileContent(profileId, activeTab, isOwner);
 
   // 3. Follow Lists & Relationship
-  const {
-    isFollowing,
-    isLoading: isFollowLoading,
-    toggleFollow,
-  } = useFollow(profileId);
+  const { isFollowing, isLoading: isFollowLoading, toggleFollow } = useFollow(profileId);
 
-  const {
-    followersProfiles,
-    followingProfiles,
-    isFollowersLoading,
-    isFollowingLoading,
-  } = useProfileFollow(profileId, authUserId, activeTab, isOwner);
+  const { followersProfiles, followingProfiles, isFollowersLoading, isFollowingLoading } =
+    useProfileFollow(profileId, activeTab);
 
   // Formatted View Data
-  const viewData = useMemo(() => ({
-    displayName: profile?.name || 'Anonymous',
-    displayEmail: profile?.email || '',
-    displayBio: profile?.bio || '',
-    avatarUrl: profile?.avatarUrl,
-    joinedDate: formatJoinedDate(profile?.$createdAt),
-    stats: {
-      posts: profile?.postsCount || 0,
-      followers: profile?.followersCount || 0,
-      following: profile?.followingCount || 0,
-    }
-  }), [profile]);
+  const viewData = useMemo(
+    () => ({
+      displayName: profile?.name || 'Anonymous',
+      displayEmail: profile?.email || '',
+      displayBio: profile?.bio || '',
+      avatarUrl: profile?.avatarUrl,
+      joinedDate: formatJoinedDate(profile?.$createdAt),
+      stats: {
+        posts: profile?.postsCount || 0,
+        followers: profile?.followersCount || 0,
+        following: profile?.followingCount || 0,
+      },
+    }),
+    [profile],
+  );
 
   return {
     // states
