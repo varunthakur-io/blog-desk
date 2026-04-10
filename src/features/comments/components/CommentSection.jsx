@@ -8,12 +8,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { ConfirmationDialog, EmptyState } from '@/components/common';
 import { FollowButton } from '@/features/follows';
 import { useComments } from '@/features/comments';
-import { useProfileBasic } from '@/features/profile';
+import { useProfileIdentity } from '@/features/profile';
 
 // Sub-components
 
 const CommentItem = ({ comment, isMe, onDeleteClick }) => {
-  const { profile, displayName, avatarUrl } = useProfileBasic({ userId: comment.userId });
+  const { profile, displayName, avatarUrl } = useProfileIdentity({ userId: comment.userId });
 
   return (
     <div className="flex gap-3 group">

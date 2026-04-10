@@ -2,10 +2,10 @@ import { useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { selectAuthUserId } from '@/features/auth';
-import { useProfileContent, useProfileFollow } from '@/features/profile';
+import { useProfileConnections, useProfileTabsContent } from '@/features/profile';
 import { useFollow } from '@/features/follows';
 import { formatJoinedDate } from '@/utils/formatters';
-import { useProfileBasic } from './useProfileBasic';
+import { useProfileIdentity } from './useProfileIdentity';
 
 /**
  * MASTER HOOK: Coordinates all profile data for the Profile Page.
@@ -23,7 +23,7 @@ export const useProfile = () => {
     isOwner,
     isLoading: profileLoading,
     error: profileError,
-  } = useProfileBasic({ username });
+  } = useProfileIdentity({ username });
 
   // 2. Content (Posts, Liked Posts, Saved Posts)
   const {
@@ -36,13 +36,13 @@ export const useProfile = () => {
     error: postsError,
     likesError,
     savedError,
-  } = useProfileContent(profileId, activeTab, isOwner);
+  } = useProfileTabsContent(profileId, activeTab, isOwner);
 
   // 3. Follow Lists & Relationship
   const { isFollowing, isLoading: isFollowLoading, toggleFollow } = useFollow(profileId);
 
   const { followersProfiles, followingProfiles, isFollowersLoading, isFollowingLoading } =
-    useProfileFollow(profileId, activeTab);
+    useProfileConnections(profileId, activeTab);
 
   // Formatted View Data
   const viewData = useMemo(
