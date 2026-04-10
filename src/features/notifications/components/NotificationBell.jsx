@@ -18,7 +18,7 @@ import {
 } from '../store';
 import { notificationService } from '../services/notification.service';
 import { useNotifications } from '../hooks/useNotifications';
-import { useProfile } from '@/features/profile';
+import { useProfileBasic } from '@/features/profile';
 import { formatDate } from '@/utils/formatters';
 import { cn } from '@/lib/utils';
 
@@ -28,7 +28,7 @@ import { cn } from '@/lib/utils';
 const NotificationItem = ({ notification, onClose }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { profile, avatarUrl, displayName } = useProfile({ userId: notification.senderId });
+  const { profile, avatarUrl, displayName } = useProfileBasic({ userId: notification.senderId });
 
   const handleItemClick = async () => {
     if (!notification.isRead) {
