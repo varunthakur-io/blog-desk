@@ -44,6 +44,50 @@ const UserListSkeleton = () => (
   </div>
 );
 
+const PostGridSkeleton = ({ count = 3 }) => (
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+    {[...Array(count)].map((_, i) => (
+      <PostCardSkeleton key={i} />
+    ))}
+  </div>
+);
+
+const PostGrid = ({ posts }) => (
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+    {posts.map((post) => (
+      <PostCard key={post.$id} post={post} />
+    ))}
+  </div>
+);
+
+const ErrorMessage = ({ message }) => (
+  <Alert variant="destructive" className="rounded-xl">
+    <AlertDescription>{message}</AlertDescription>
+  </Alert>
+);
+
+const PrivateTabMessage = ({ children }) => (
+  <div className="rounded-xl border border-dashed bg-muted/20 py-12 text-center text-sm text-muted-foreground">
+    {children}
+  </div>
+);
+
+const PostCollectionTab = ({
+  isPrivate,
+  privateMessage,
+  isLoading,
+  error,
+  posts,
+  skeletonCount = 3,
+  emptyState,
+}) => {
+  if (isPrivate) return <PrivateTabMessage>{privateMessage}</PrivateTabMessage>;
+  if (isLoading) return <PostGridSkeleton count={skeletonCount} />;
+  if (error) return <ErrorMessage message={error} />;
+  if (posts.length > 0) return <PostGrid posts={posts} />;
+  return emptyState;
+};
+
 const ProfileTabs = ({
   activeTab,
   setActiveTab,
@@ -96,102 +140,66 @@ const ProfileTabs = ({
 
       {/* Posts Tab */}
       <TabsContent value="posts" className="mt-0 outline-none">
-        {postsLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {[...Array(6)].map((_, i) => (
-              <PostCardSkeleton key={i} />
-            ))}
-          </div>
-        ) : postsError ? (
-          <Alert variant="destructive" className="rounded-xl">
-            <AlertDescription>{postsError}</AlertDescription>
-          </Alert>
-        ) : userPosts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {userPosts.map((post) => (
-              <PostCard key={post.$id} post={post} />
-            ))}
-          </div>
-        ) : (
-          <EmptyState
-            icon={Edit}
-            title="No posts yet"
-            description={
-              isOwner
-                ? 'Share your thoughts with the world.'
-                : "This user hasn't posted anything yet."
-            }
-            action={
-              isOwner && (
-                <Button asChild size="sm" className="rounded-full px-5 text-xs">
-                  <Link to="/create">Write a Post</Link>
-                </Button>
-              )
-            }
-          />
-        )}
+        <PostCollectionTab
+          isLoading={postsLoading}
+          error={postsError}
+          posts={userPosts}
+          skeletonCount={6}
+          emptyState={
+            <EmptyState
+              icon={Edit}
+              title="No posts yet"
+              description={
+                isOwner
+                  ? 'Share your thoughts with the world.'
+                  : "This user hasn't posted anything yet."
+              }
+              action={
+                isOwner && (
+                  <Button asChild size="sm" className="rounded-full px-5 text-xs">
+                    <Link to="/create">Write a Post</Link>
+                  </Button>
+                )
+              }
+            />
+          }
+        />
       </TabsContent>
 
       {/* Likes Tab */}
       <TabsContent value="likes" className="mt-0 outline-none">
-        {!isOwner ? (
-          <div className="py-12 text-center text-sm text-muted-foreground">
-            Liked posts are private.
-          </div>
-        ) : isLoadingLikes ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {[...Array(3)].map((_, i) => (
-              <PostCardSkeleton key={i} />
-            ))}
-          </div>
-        ) : likesError ? (
-          <Alert variant="destructive" className="rounded-xl">
-            <AlertDescription>{likesError}</AlertDescription>
-          </Alert>
-        ) : likedPosts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {likedPosts.map((post) => (
-              <PostCard key={post.$id} post={post} />
-            ))}
-          </div>
-        ) : (
-          <EmptyState
-            icon={Heart}
-            title="No liked posts"
-            description="Posts you like will appear here."
-          />
-        )}
+        <PostCollectionTab
+          isPrivate={!isOwner}
+          privateMessage="Liked posts are private."
+          isLoading={isLoadingLikes}
+          error={likesError}
+          posts={likedPosts}
+          emptyState={
+            <EmptyState
+              icon={Heart}
+              title="No liked posts"
+              description="Posts you like will appear here."
+            />
+          }
+        />
       </TabsContent>
 
       {/* Saved Tab */}
       <TabsContent value="saved" className="mt-0 outline-none">
-        {!isOwner ? (
-          <div className="py-12 text-center text-sm text-muted-foreground">
-            Saved posts are private.
-          </div>
-        ) : isSavedLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {[...Array(3)].map((_, i) => (
-              <PostCardSkeleton key={i} />
-            ))}
-          </div>
-        ) : savedError ? (
-          <Alert variant="destructive" className="rounded-xl">
-            <AlertDescription>{savedError}</AlertDescription>
-          </Alert>
-        ) : savedPosts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {savedPosts.map((post) => (
-              <PostCard key={post.$id} post={post} />
-            ))}
-          </div>
-        ) : (
-          <EmptyState
-            icon={Bookmark}
-            title="No saved articles"
-            description="Articles you bookmark will appear here."
-          />
-        )}
+        <PostCollectionTab
+          isPrivate={!isOwner}
+          privateMessage="Saved posts are private."
+          isLoading={isSavedLoading}
+          error={savedError}
+          posts={savedPosts}
+          emptyState={
+            <EmptyState
+              icon={Bookmark}
+              title="No saved articles"
+              description="Articles you bookmark will appear here."
+            />
+          }
+        />
       </TabsContent>
 
       {/* Followers Tab */}

@@ -3,6 +3,33 @@ import { postService } from '@/features/posts';
 import { likeService } from '@/features/likes';
 import { bookmarkService } from '@/features/bookmarks/services/bookmark.service';
 
+const toDocuments = (response) => response?.documents || response || [];
+
+const fetchContent = async ({
+  setStatus,
+  setError,
+  request,
+  onSuccess,
+  fallbackError,
+  isCancelled,
+}) => {
+  setStatus('loading');
+  setError('');
+
+  try {
+    const response = await request();
+    if (isCancelled()) return;
+
+    onSuccess(toDocuments(response));
+    setStatus('success');
+  } catch (err) {
+    if (isCancelled()) return;
+
+    setError(err?.message || fallbackError);
+    setStatus('error');
+  }
+};
+
 /**
  * Hook to manage user posts, liked posts, and saved posts based on tab selection.
  */
@@ -17,85 +44,55 @@ export const useProfileContent = (profileId, activeTab, isOwner) => {
   const [likesError, setLikesError] = useState('');
   const [savedError, setSavedError] = useState('');
 
-  // 1. Fetch user's own posts
   useEffect(() => {
     if (!profileId || activeTab !== 'posts') return;
 
     let cancelled = false;
-    const fetchPosts = async () => {
-      setPostsFetchStatus('loading');
-      try {
-        const posts = await postService.getPostsByUserId(profileId, 1, 50);
-        if (!cancelled) {
-          setUserPosts(posts.documents || []);
-          setPostsFetchStatus('success');
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setPostsError(err?.message || 'Failed to load posts.');
-          setPostsFetchStatus('error');
-        }
-      }
-    };
+    fetchContent({
+      setStatus: setPostsFetchStatus,
+      setError: setPostsError,
+      request: () => postService.getPostsByUserId(profileId, 1, 50),
+      onSuccess: setUserPosts,
+      fallbackError: 'Failed to load posts.',
+      isCancelled: () => cancelled,
+    });
 
-    fetchPosts();
     return () => {
       cancelled = true;
     };
   }, [profileId, activeTab]);
 
-  // 2. Fetch user's liked posts (if owner)
   useEffect(() => {
     if (!profileId || activeTab !== 'likes' || !isOwner) return;
 
     let cancelled = false;
-    const fetchLiked = async () => {
-      setLikesFetchStatus('loading');
-      try {
-        const response = await likeService.getLikedPostsByUserId(profileId);
-        // Extract documents from response if it's an Appwrite response object
-        const liked = response.documents || response;
-        if (!cancelled) {
-          setLikedPosts(liked || []);
-          setLikesFetchStatus('success');
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setLikesError(err?.message || 'Failed to load likes.');
-          setLikesFetchStatus('error');
-        }
-      }
-    };
+    fetchContent({
+      setStatus: setLikesFetchStatus,
+      setError: setLikesError,
+      request: () => likeService.getLikedPostsByUserId(profileId),
+      onSuccess: setLikedPosts,
+      fallbackError: 'Failed to load likes.',
+      isCancelled: () => cancelled,
+    });
 
-    fetchLiked();
     return () => {
       cancelled = true;
     };
   }, [profileId, activeTab, isOwner]);
 
-  // 3. Fetch user's saved posts (if owner)
   useEffect(() => {
     if (!profileId || activeTab !== 'saved' || !isOwner) return;
 
     let cancelled = false;
-    const fetchSaved = async () => {
-      setSavedFetchStatus('loading');
-      try {
-        const response = await bookmarkService.getBookmarkedPostsByUserId(profileId);
-        const saved = response.documents || response;
-        if (!cancelled) {
-          setSavedPosts(saved || []);
-          setSavedFetchStatus('success');
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setSavedError(err?.message || 'Failed to load saved posts.');
-          setSavedFetchStatus('error');
-        }
-      }
-    };
+    fetchContent({
+      setStatus: setSavedFetchStatus,
+      setError: setSavedError,
+      request: () => bookmarkService.getBookmarkedPostsByUserId(profileId),
+      onSuccess: setSavedPosts,
+      fallbackError: 'Failed to load saved posts.',
+      isCancelled: () => cancelled,
+    });
 
-    fetchSaved();
     return () => {
       cancelled = true;
     };
