@@ -3,7 +3,8 @@ import DOMPurify from 'dompurify';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setActiveCategory } from '@/features/posts';
-import { BookmarkButton, useBookmark } from '@/features/bookmarks';
+import BookmarkButton from '@/features/bookmarks/components/BookmarkButton';
+import { useBookmark } from '@/features/bookmarks/hooks/useBookmark';
 
 // extracts all h2/h3 headings from html string for the TOC
 const extractHeadings = (html) => {
