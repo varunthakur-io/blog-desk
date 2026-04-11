@@ -1,53 +1,78 @@
 import { profileApi } from './profile.api';
 import { storageService } from '@/features/posts';
 import { Query } from 'appwrite';
+import { parseApiError } from '@/lib/error-handler';
 
 class ProfileService {
   async getProfile(userId) {
-    return await profileApi.getProfile(userId);
+    try {
+      return await profileApi.getProfile(userId);
+    } catch (error) {
+      throw new Error(parseApiError(error));
+    }
   }
 
   async getProfileByUsername(username) {
-    return await profileApi.getProfileByUsername(username);
+    try {
+      return await profileApi.getProfileByUsername(username);
+    } catch (error) {
+      throw new Error(parseApiError(error));
+    }
   }
 
   // Keep profile docs keyed by auth user id so the auth/profile relationship stays 1:1 across the app.
   async createProfile(user, username) {
-    if (!user || !user.$id) {
-      throw new Error('ProfileService :: createProfile() Invalid user');
-    }
+    try {
+      if (!user || !user.$id) {
+        throw new Error('ProfileService :: createProfile() Invalid user');
+      }
 
-    // Profile docs intentionally share the auth user id so auth/profile lookups stay 1:1.
-    return await profileApi.createProfile(user.$id, {
-      name: user.name || 'Anonymous',
-      username: username,
-      followersCount: 0,
-      followingCount: 0,
-      postsCount: 0,
-    });
+      // Profile docs intentionally share the auth user id so auth/profile lookups stay 1:1.
+      return await profileApi.createProfile(user.$id, {
+        name: user.name || 'Anonymous',
+        username: username,
+        followersCount: 0,
+        followingCount: 0,
+        postsCount: 0,
+      });
+    } catch (error) {
+      throw new Error(parseApiError(error));
+    }
   }
 
   async updateProfile(userId, profileData) {
-    return await profileApi.updateProfile(userId, profileData);
+    try {
+      return await profileApi.updateProfile(userId, profileData);
+    } catch (error) {
+      throw new Error(parseApiError(error));
+    }
   }
 
   async updateBio(userId, bio) {
-    await profileApi.updateProfile(userId, { bio });
-    return true;
+    try {
+      await profileApi.updateProfile(userId, { bio });
+      return true;
+    } catch (error) {
+      throw new Error(parseApiError(error));
+    }
   }
 
   // Replace the old avatar before updating the profile so the stored file reference is always valid.
   async updateAvatar(userId, currentAvatarFileId, file) {
-    // Upload replacement first so the profile only points at files that definitely exist.
-    const { fileId, fileUrl } = await storageService.uploadFileWithReplacement(
-      file,
-      currentAvatarFileId,
-    );
+    try {
+      // Upload replacement first so the profile only points at files that definitely exist.
+      const { fileId, fileUrl } = await storageService.uploadFileWithReplacement(
+        file,
+        currentAvatarFileId,
+      );
 
-    return await this.updateProfile(userId, {
-      avatarId: fileId,
-      avatarUrl: fileUrl,
-    });
+      return await this.updateProfile(userId, {
+        avatarId: fileId,
+        avatarUrl: fileUrl,
+      });
+    } catch (error) {
+      throw new Error(parseApiError(error));
+    }
   }
 
   async isUsernameAvailable(username) {
@@ -81,7 +106,7 @@ class ProfileService {
 
     // Trim whitespace
     const cleanedsearchTerm = searchTerm.trim();
-    if (!searchTerm) return [];
+    if (!cleanedsearchTerm) return [];
     const query = [
       Query.or([
         Query.contains('username', cleanedsearchTerm),
