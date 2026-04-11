@@ -5,7 +5,6 @@ import toast from 'react-hot-toast';
 import { debounce } from '@/lib/utils';
 import { authService } from '@/features/auth';
 import { profileService } from '@/features/profile';
-import { parseApiError } from '@/lib/error-handler';
 import { setAuthStatus, setAuthUser, setAuthError } from '@/features/auth';
 import { setUserProfile } from '@/features/profile';
 
@@ -138,7 +137,7 @@ export const useSignup = () => {
       navigate('/');
     } catch (error) {
       setSignupStatus('error');
-      const message = parseApiError(error, 'Signup failed. Please try again.');
+      const message = error.message || 'Signup failed. Please try again.';
       dispatch(setAuthError(message));
       toast.error(message);
     } finally {
