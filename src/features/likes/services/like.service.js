@@ -2,6 +2,7 @@ import { likeApi } from './like.api';
 import { postApi } from '@/features/posts';
 import { notificationService } from '@/features/notifications/services/notification.service';
 import { Query } from 'appwrite';
+import { parseApiError } from '@/lib/error-handler';
 
 // Cache the current user's like lookups to avoid refetching the same relation on every render.
 const likedCache = new Map();
@@ -14,8 +15,7 @@ class LikeService {
       const next = Math.max(0, current + increment);
       await postApi.updatePost(postId, { likesCount: next });
     } catch (error) {
-      console.error('LikeService :: _updateLikesCount()', error);
-      throw error;
+      throw new Error(parseApiError(error));
     }
   }
 
@@ -30,8 +30,7 @@ class LikeService {
       const liked = !!like;
       likedCache.set(key, liked);
       return liked;
-    } catch (error) {
-      console.error('LikeService :: hasUserLiked()', error);
+    } catch {
       return false;
     }
   }
@@ -59,8 +58,7 @@ class LikeService {
         });
       }
     } catch (error) {
-      console.error('LikeService :: likePost()', error);
-      throw error;
+      throw new Error(parseApiError(error));
     }
   }
 
@@ -80,8 +78,7 @@ class LikeService {
         }
       }
     } catch (error) {
-      console.error('LikeService :: unlikePost()', error);
-      throw error;
+      throw new Error(parseApiError(error));
     }
   }
 
@@ -98,8 +95,7 @@ class LikeService {
 
       return await postApi.listPosts([Query.equal('$id', postIds), Query.orderDesc('$createdAt')]);
     } catch (error) {
-      console.error('LikeService :: getLikedPostsByUserId()', error);
-      throw error;
+      throw new Error(parseApiError(error));
     }
   }
 
@@ -110,8 +106,7 @@ class LikeService {
       const deletePromises = likesList.documents.map((like) => likeApi.deleteLike(like.$id));
       await Promise.all(deletePromises);
     } catch (error) {
-      console.error('LikeService :: deleteLikesByPostId()', error);
-      throw error;
+      throw new Error(parseApiError(error));
     }
   }
 }

@@ -2,6 +2,7 @@ import { commentApi } from './comment.api';
 import { postService } from '@/features/posts';
 import { profileService } from '@/features/profile';
 import { notificationService } from '@/features/notifications/services/notification.service';
+import { parseApiError } from '@/lib/error-handler';
 
 class CommentService {
   // Save the author's display name with each comment and update the denormalized comment counter best-effort.
@@ -39,8 +40,7 @@ class CommentService {
 
       return createdComment;
     } catch (error) {
-      console.error('CommentService :: addComment()', error);
-      throw error;
+      throw new Error(parseApiError(error));
     }
   }
 
@@ -64,8 +64,7 @@ class CommentService {
       );
       await Promise.all(deletePromises);
     } catch (error) {
-      console.error('CommentService :: deleteCommentsByPostId()', error);
-      throw error;
+      throw new Error(parseApiError(error));
     }
   }
 
@@ -89,8 +88,7 @@ class CommentService {
 
       return true;
     } catch (error) {
-      console.error('CommentService :: deleteComment()', error);
-      throw error;
+      throw new Error(parseApiError(error));
     }
   }
 }
