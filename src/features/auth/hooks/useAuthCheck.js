@@ -2,9 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
-  setAuthStatus,
   setAuthUser,
-  setAuthError,
   clearAuthUser,
   selectAuthStatus,
   selectAuthUserId,
@@ -48,7 +46,7 @@ export const useAuthCheck = () => {
         } else {
           dispatch(clearAuthUser());
         }
-      } catch (error) {
+      } catch {
         if (mountedRef.current) {
           dispatch(clearAuthUser()); 
         }

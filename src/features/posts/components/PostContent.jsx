@@ -1,8 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
 import DOMPurify from 'dompurify';
-import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { setActiveCategory } from '@/features/posts';
 
 // extracts all h2/h3 headings from html string for the TOC
 const extractHeadings = (html) => {

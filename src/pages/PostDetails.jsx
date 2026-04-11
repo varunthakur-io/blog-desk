@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, MessageSquare, Heart, Share2, Calendar, Clock, Loader2, Tag, Pencil } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Heart, Share2, Calendar, Clock, Loader2, Pencil } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { Button } from '@/components/ui/button';

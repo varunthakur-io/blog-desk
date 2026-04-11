@@ -60,7 +60,7 @@ export const useBookmark = (post) => {
     } finally {
       setIsLoading(false);
     }
-  }, [dispatch, userId, isBookmarked, post, post.$id]);
+  }, [dispatch, userId, isBookmarked, post]);
 
   return {
     isBookmarked,

@@ -25,7 +25,7 @@ const ShareDialog = ({ open, onOpenChange, url, title }) => {
       setCopied(true);
       toast.success('Link copied to clipboard!');
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
+    } catch {
       toast.error('Failed to copy link');
     }
   };
