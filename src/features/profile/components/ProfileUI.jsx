@@ -3,128 +3,170 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CalendarDays, Mail } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
-// ─── Profile Info ────────────────────────────────────────────────────
+// ─── Profile Info ───────────────────────────────────────────
 
-export const ProfileInfo = ({
-  displayName,
-  displayEmail,
-  displayBio,
-  avatarUrl,
-  joinedDate,
-  isOwner,
-  postsCount,
-  followersCount,
-  followingCount,
+export const ProfileInfo = ({ 
+  profile, 
+  isOwner, 
   actionButton,
+  onFollowersClick,
+  onFollowingClick 
 }) => {
-  return (
-    <div className="flex flex-col sm:flex-row gap-6 items-start w-full text-left">
-      <Avatar className="w-24 h-24 border-4 border-background shadow-md shrink-0">
-        <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" />
-        <AvatarFallback className="text-3xl font-bold bg-muted text-foreground">
-          {displayName?.charAt(0).toUpperCase()}
-        </AvatarFallback>
-      </Avatar>
+  const name = profile?.name || 'Anonymous';
+  const username = profile?.username;
+  const bio = profile?.bio;
+  const avatarUrl = profile?.avatarUrl;
+  const followersCount = profile?.followersCount || 0;
+  const followingCount = profile?.followingCount || 0;
+  const postsCount = profile?.postsCount || 0;
 
-      <div className="flex-1 space-y-4 min-w-0">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-              {displayName}
-            </h1>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground text-sm">
-              {isOwner && displayEmail && (
-                <span className="flex items-center gap-1.5">
-                  <Mail className="w-3.5 h-3.5" /> {displayEmail}
-                </span>
-              )}
-              <span className="flex items-center gap-1.5">
-                <CalendarDays className="w-3.5 h-3.5" /> Joined {joinedDate}
-              </span>
+  return (
+    <div className="flex flex-col md:flex-row items-start gap-8 mb-12 animate-in fade-in slide-in-from-left-4 duration-500">
+      {/* Left: Large Avatar */}
+      <div className="shrink-0 mx-auto md:mx-0">
+        <div className="relative group">
+          <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-primary/5 rounded-full blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
+          <Avatar className="h-32 w-32 md:h-40 md:w-40 border-4 border-background shadow-xl relative">
+            {avatarUrl && <AvatarImage src={avatarUrl} alt={name} className="object-cover" />}
+            <AvatarFallback className="bg-muted text-4xl font-black text-muted-foreground uppercase">
+              {name.charAt(0)}
+            </AvatarFallback>
+          </Avatar>
+        </div>
+      </div>
+
+      {/* Right: Details Container */}
+      <div className="flex-1 space-y-6 w-full text-center md:text-left">
+        <div className="space-y-2">
+          <div className="flex flex-col md:flex-row md:items-center gap-4 justify-between">
+            <div className="min-w-0">
+              <h1 className="text-3xl font-black tracking-tight text-foreground truncate">
+                {name}
+              </h1>
+              <p className="text-primary font-bold text-sm tracking-wide uppercase">@{username}</p>
+            </div>
+            <div className="flex justify-center md:justify-end gap-2">
+              {actionButton}
             </div>
           </div>
-          <div className="shrink-0">{actionButton}</div>
+          
+          {bio ? (
+            <p className="text-[15px] text-foreground/80 leading-relaxed max-w-2xl whitespace-pre-wrap">
+              {bio}
+            </p>
+          ) : (
+            <p className="text-sm text-muted-foreground italic">No bio provided yet.</p>
+          )}
         </div>
 
-        {displayBio && (
-          <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl whitespace-pre-wrap">
-            {displayBio}
-          </p>
-        )}
+        {/* Stats Row */}
+        <div className="flex flex-wrap items-center justify-center md:justify-start gap-8 pt-2">
+          <div className="text-center md:text-left">
+            <span className="block text-xl font-black text-foreground">{postsCount}</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Posts</span>
+          </div>
+          
+          <button 
+            onClick={onFollowersClick}
+            className="text-center md:text-left group transition-all active:scale-95"
+          >
+            <span className="block text-xl font-black text-foreground group-hover:text-primary transition-colors">
+              {followersCount}
+            </span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground group-hover:text-primary/70 transition-colors">
+              Followers
+            </span>
+          </button>
 
-        <div className="flex gap-6 border-t border-border/40 pt-4 w-fit">
-          {[
-            { label: 'posts', value: postsCount },
-            { label: 'followers', value: followersCount },
-            { label: 'following', value: followingCount },
-          ].map(({ label, value }) => (
-            <div key={label} className="text-sm">
-              <span className="font-bold text-foreground">{value}</span>{' '}
-              <span className="text-muted-foreground text-xs">{label}</span>
+          <button 
+            onClick={onFollowingClick}
+            className="text-center md:text-left group transition-all active:scale-95"
+          >
+            <span className="block text-xl font-black text-foreground group-hover:text-primary transition-colors">
+              {followingCount}
+            </span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground group-hover:text-primary/70 transition-colors">
+              Following
+            </span>
+          </button>
+        </div>
+
+        {/* Metadata Badges */}
+        <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-2">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground bg-muted/50 px-3 py-1 rounded-full border border-border/50">
+            <CalendarDays className="h-3.5 w-3.5" />
+            Joined {new Date(profile?.$createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+          </div>
+          {isOwner && profile?.userId && (
+            <div className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground bg-muted/50 px-3 py-1 rounded-full border border-border/50">
+              <Mail className="h-3.5 w-3.5" />
+              Verified Author
             </div>
-          ))}
+          )}
         </div>
       </div>
     </div>
   );
 };
 
-// ─── Profile Skeleton ────────────────────────────────────────────────
+// ─── Profile Skeleton ───────────────────────────────────────
 
 export const ProfileSkeleton = () => {
   return (
-    <div className="min-h-screen bg-background text-foreground text-left">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="flex flex-col md:flex-row items-center md:items-end gap-6 mb-8">
-          <div className="flex items-center gap-6 w-full md:w-auto">
-            <Skeleton className="h-28 w-28 rounded-full" />
-            <div className="flex-1 min-w-0 space-y-3">
-              <Skeleton className="h-8 w-48" />
-              <Skeleton className="h-5 w-40" />
+    <div className="page-wrapper py-10 space-y-12">
+      {/* Info Section */}
+      <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
+        <Skeleton className="h-32 w-32 md:h-40 md:w-40 rounded-full shrink-0 shadow-lg" />
+        <div className="flex-1 space-y-6 w-full py-2">
+          <div className="flex flex-col md:flex-row justify-between gap-4">
+            <div className="space-y-2 flex flex-col items-center md:items-start">
+              <Skeleton className="h-10 w-64" />
+              <Skeleton className="h-4 w-32" />
             </div>
+            <Skeleton className="h-10 w-32 rounded-full" />
           </div>
-
-          <div className="ml-auto flex items-center gap-4 w-full md:w-auto mt-4 md:mt-0">
-            <div className="hidden md:flex items-center gap-4">
-              <Skeleton className="h-10 w-20 rounded-full" />
-              <Skeleton className="h-10 w-20 rounded-full" />
-              <Skeleton className="h-10 w-20 rounded-full" />
-            </div>
-            <Skeleton className="h-10 w-24 rounded-md" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-2/3" />
           </div>
-        </div>
-
-        <div className="max-w-2xl mb-8 space-y-3">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-5/6" />
-          <Skeleton className="h-4 w-2/3" />
-        </div>
-
-        <div className="space-y-6">
-          <div className="flex items-center gap-4 border-b pb-4">
-            <Skeleton className="h-9 w-24 rounded-md" />
-            <Skeleton className="h-9 w-24 rounded-md" />
-          </div>
-
-          <div className="grid grid-cols-1 gap-6">
+          <div className="flex gap-8 justify-center md:justify-start">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="rounded-lg border border-border/50 bg-card/50 p-4">
-                <div className="space-y-3 mb-4">
-                  <Skeleton className="h-6 w-3/4" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-5/6" />
-                </div>
-
-                <div className="flex items-center justify-between mt-4">
-                  <div className="flex items-center gap-3">
-                    <Skeleton className="h-8 w-8 rounded-full" />
-                    <Skeleton className="h-4 w-24" />
-                  </div>
-                  <Skeleton className="h-8 w-20" />
-                </div>
+              <div key={i} className="space-y-2">
+                <Skeleton className="h-6 w-12" />
+                <Skeleton className="h-3 w-16" />
               </div>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* Tabs Section */}
+      <div className="space-y-8">
+        <div className="flex gap-2">
+          <Skeleton className="h-9 w-20 rounded-md" />
+          <Skeleton className="h-9 w-20 rounded-md" />
+          <Skeleton className="h-9 w-20 rounded-md" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="space-y-4 rounded-2xl border border-border p-4 bg-card/50">
+              <Skeleton className="aspect-video w-full rounded-xl" />
+              <div className="space-y-2">
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
+              <div className="flex justify-between pt-4">
+                <div className="flex gap-2">
+                  <Skeleton className="h-8 w-8 rounded-full" />
+                  <div className="space-y-1">
+                    <Skeleton className="h-3 w-20" />
+                    <Skeleton className="h-2 w-12" />
+                  </div>
+                </div>
+                <Skeleton className="h-8 w-16 rounded-full" />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

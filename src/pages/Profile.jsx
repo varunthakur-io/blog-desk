@@ -1,27 +1,17 @@
-import { EditProfileDialog, ProfileTabs, ProfileInfo, ProfileSkeleton } from '@/features/profile';
-import { Separator } from '@/components/ui/separator';
+import { useState } from 'react';
+import { EditProfileDialog, ProfileTabs, ProfileInfo, ProfileSkeleton, NetworkDialog } from '@/features/profile';
 import { Button } from '@/components/ui/button';
-import { UserPlus, UserMinus, Loader2 } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { UserPlus, UserMinus, Settings, Edit } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useProfile } from '@/features/profile';
 
 export default function Profile() {
+  const navigate = useNavigate();
+  const [isNetworkOpen, setIsNetworkOpen] = useState(false);
+  const [networkType, setNetworkType] = useState('followers'); // 'followers' | 'following'
+
   const {
-    profileLoading,
-    postsLoading,
-    isFetchingUsername,
-    isLoadingLikes,
-    profileError,
-    postsError,
-    likesError,
-    usernameFetchError,
-    profileId,
     profile,
-    displayName,
-    displayEmail,
-    displayBio,
-    avatarUrl,
-    joinedDate,
     isOwner,
     userPosts,
     likedPosts,
@@ -39,73 +29,79 @@ export default function Profile() {
     followingProfiles,
     isFollowersLoading,
     isFollowingLoading,
+    fetchFollowers,
+    fetchFollowing,
+
     isSavedLoading,
     savedError,
+    isFetchingUsername,
+    usernameFetchError,
+    postsLoading,
+    postsError,
+    isLoadingLikes,
+    likesError,
   } = useProfile();
 
   if (isFetchingUsername) return <ProfileSkeleton />;
   if (usernameFetchError)
     return <div className="py-20 text-center text-sm text-destructive">{usernameFetchError}</div>;
-  if (!profileId)
-    return (
-      <div className="py-20 text-center text-sm text-muted-foreground">Profile not found.</div>
-    );
-  if (profileLoading) return <ProfileSkeleton />;
-  if (!profile && profileError)
-    return <div className="py-20 text-center text-sm text-destructive">{profileError}</div>;
 
-  const onFollowClick = () => {
-    if (!authUserId) {
-      toast.error('Please login to follow users');
-      return;
-    }
-    handleToggleFollow();
+  const handleOpenNetwork = (type) => {
+    setNetworkType(type);
+    setIsNetworkOpen(true);
+    // Trigger lazy load
+    if (type === 'followers') fetchFollowers();
+    else fetchFollowing();
   };
 
   const actionButton = isOwner ? (
-    <EditProfileDialog profile={profile} profileId={profileId} isOwner={isOwner} />
+    <div className="flex gap-2">
+      <EditProfileDialog
+        profile={profile}
+        trigger={
+          <Button variant="outline" size="sm" className="rounded-full gap-2 font-bold px-5">
+            <Edit className="h-3.5 w-3.5" /> Edit Profile
+          </Button>
+        }
+      />
+      <Button 
+        variant="ghost" 
+        size="icon" 
+        onClick={() => navigate('/settings')}
+        className="rounded-full h-9 w-9 border border-border"
+      >
+        <Settings className="h-4 w-4" />
+      </Button>
+    </div>
   ) : (
     <Button
-      variant={isFollowing ? 'secondary' : 'default'}
+      onClick={handleToggleFollow}
+      variant={isFollowing ? 'outline' : 'default'}
       size="sm"
-      onClick={onFollowClick}
-      disabled={isFollowLoading}
-      className={`rounded-full px-6 font-medium transition-all ${
-        !isFollowing
-          ? 'shadow-sm active:scale-95'
-          : 'hover:bg-destructive hover:text-destructive-foreground hover:border-destructive'
-      }`}
+      className="rounded-full gap-2 font-bold px-8 shadow-md transition-all active:scale-95"
+      disabled={isFollowLoading || !authUserId}
     >
-      {isFollowLoading ? (
-        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-      ) : isFollowing ? (
-        <UserMinus className="h-4 w-4 mr-2" />
+      {isFollowing ? (
+        <>
+          <UserMinus className="h-3.5 w-3.5" /> Unfollow
+        </>
       ) : (
-        <UserPlus className="h-4 w-4 mr-2" />
+        <>
+          <UserPlus className="h-3.5 w-3.5" /> Follow
+        </>
       )}
-      {isFollowing ? 'Following' : 'Follow'}
     </Button>
   );
 
   return (
-    <div className="page-root">
-      {/* Header Area */}
-      <div className="mb-8">
-        <ProfileInfo
-          displayName={displayName}
-          displayEmail={displayEmail}
-          displayBio={displayBio}
-          avatarUrl={avatarUrl}
-          joinedDate={joinedDate}
-          isOwner={isOwner}
-          postsCount={postsLoading ? profile?.postsCount || 0 : userPosts.length}
-          followersCount={profile?.followersCount || 0}
-          followingCount={profile?.followingCount || 0}
-          actionButton={actionButton}
-        />
-      </div>
-
-      <Separator className="mb-8" />
+    <div className="page-wrapper py-10">
+      <ProfileInfo
+        profile={profile}
+        isOwner={isOwner}
+        actionButton={actionButton}
+        onFollowersClick={() => handleOpenNetwork('followers')}
+        onFollowingClick={() => handleOpenNetwork('following')}
+      />
 
       <ProfileTabs
         activeTab={activeTab}
@@ -120,13 +116,14 @@ export default function Profile() {
         savedPosts={savedPosts}
         isSavedLoading={isSavedLoading}
         savedError={savedError}
-        displayBio={displayBio}
-        displayEmail={displayEmail}
-        joinedDate={joinedDate}
-        followersProfiles={followersProfiles}
-        followingProfiles={followingProfiles}
-        isFollowersLoading={isFollowersLoading}
-        isFollowingLoading={isFollowingLoading}
+      />
+
+      <NetworkDialog 
+        isOpen={isNetworkOpen}
+        onOpenChange={setIsNetworkOpen}
+        title={networkType === 'followers' ? 'Followers' : 'Following'}
+        users={networkType === 'followers' ? followersProfiles : followingProfiles}
+        isLoading={networkType === 'followers' ? isFollowersLoading : isFollowingLoading}
       />
     </div>
   );
