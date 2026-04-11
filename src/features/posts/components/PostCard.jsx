@@ -1,7 +1,6 @@
-import DOMPurify from 'dompurify';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowUpRight, Calendar, Clock, MessageSquare, Heart, Loader2, Share2 } from 'lucide-react';
+import { ArrowUpRight, Clock, MessageSquare, Heart, Loader2, Share2 } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import BookmarkButton from '@/features/bookmarks/components/BookmarkButton';
 import { useBookmark } from '@/features/bookmarks/hooks/useBookmark';
@@ -10,7 +9,7 @@ import { setActiveCategory } from '@/features/posts';
 import { useLike } from '@/features/posts';
 import { ShareDialog } from '@/components/common';
 import { cn } from '@/lib/utils';
-import { formatDate, calculateReadTime } from '@/utils/formatters';
+import { calculateReadTime, generateExcerpt } from '@/utils/formatters';
 
 const PostCard = ({ post }) => {
   const dispatch = useDispatch();
@@ -22,12 +21,9 @@ const PostCard = ({ post }) => {
   const readTime = calculateReadTime(post.content);
 
   const { likesCount, isLiked, isLiking, toggleLike } = useLike(post);
-
   const { isBookmarked, isLoading: isBookmarkLoading, toggleBookmark } = useBookmark(post);
 
-  const plainContent = DOMPurify.sanitize(post.content || '', {
-    USE_PROFILES: { html: false },
-  });
+  const excerpt = generateExcerpt(post.content, post.title);
 
   const coverImageUrl = post.coverImageUrl || null;
   const category = post.category || null;
@@ -46,8 +42,24 @@ const PostCard = ({ post }) => {
   };
 
   return (
-    // h-full makes the card stretch to fill the grid row height — all cards in a row stay same height
-    <div className="group flex flex-col h-full overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md relative">
+    <div className={cn(
+      "group relative flex flex-col h-full rounded-2xl overflow-hidden border transition-all duration-300",
+      coverImageUrl 
+        ? "border-transparent shadow-lg text-white" 
+        : "border-border bg-card shadow-sm hover:-translate-y-1 hover:shadow-md text-foreground"
+    )}>
+      {/* BACKGROUND IMAGE (Only if it exists) */}
+      {coverImageUrl && (
+        <>
+          <div
+            className="absolute inset-0 opacity-[0.8] bg-cover bg-center transition-opacity duration-500 group-hover:opacity-[0.50]"
+            style={{ backgroundImage: `url(${coverImageUrl})` }}
+          />
+          {/* DARK OVERLAY - Only for background images to ensure readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/70 to-black/90 z-0" />
+        </>
+      )}
+
       <ShareDialog
         open={isShareOpen}
         onOpenChange={setIsShareOpen}
@@ -55,93 +67,92 @@ const PostCard = ({ post }) => {
         title={post.title}
       />
 
-      {/* Cover Image — fixed aspect ratio so cards with/without images don't cause height jumps */}
-      {coverImageUrl && (
-        <div className="aspect-[16/9] w-full overflow-hidden bg-muted shrink-0">
-          <img
-            src={coverImageUrl}
-            alt={post.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-          />
-        </div>
-      )}
-
-      {/* flex-1 so this section grows to fill remaining card height */}
-      <div className={`flex flex-col flex-1 ${coverImageUrl ? 'pt-4' : 'pt-5'} px-5 pb-5`}>
-        {/* Top meta row — category badge + stats */}
-        <div className="flex items-center justify-between mb-3">
-          {/* Clickable category badge — uses neutral secondary colors, no blue */}
+      {/* CONTENT */}
+      <div className={cn(
+        "relative z-10 flex flex-col flex-1 p-5",
+        coverImageUrl ? "text-white" : "text-foreground"
+      )}>
+        {/* HEADER BAR */}
+        <div className="flex items-center justify-between gap-4 mb-4">
           {category ? (
             <button
               onClick={handleCategoryClick}
-              className="text-[10px] font-semibold px-2 py-0.5 uppercase tracking-wider rounded-md bg-secondary text-secondary-foreground hover:bg-foreground hover:text-background transition-colors duration-200"
+              className={cn(
+                "text-[9px] font-bold px-2.5 py-0.5 uppercase tracking-widest rounded-md transition-all",
+                coverImageUrl 
+                  ? "bg-white/10 text-white border border-white/20 backdrop-blur-sm hover:bg-white hover:text-black" 
+                  : "bg-secondary text-secondary-foreground border border-transparent hover:bg-foreground hover:text-background"
+              )}
             >
               {category}
             </button>
           ) : (
-            <span className="text-[10px] font-semibold px-2 py-0.5 uppercase tracking-wider rounded-md bg-muted text-muted-foreground">
-              Article
-            </span>
+            <span className="text-[9px] font-bold opacity-50 uppercase tracking-widest">Article</span>
           )}
 
-          <div className="flex items-center gap-3 text-muted-foreground/60">
-            <span className="flex items-center gap-1 text-[11px]">
-              <MessageSquare className="h-3 w-3" />
-              {post.commentsCount || 0}
-            </span>
+          <div className={cn(
+            "flex items-center gap-3 text-[11px] font-medium",
+            coverImageUrl ? "text-white/60" : "text-muted-foreground/60"
+          )}>
             <button
               onClick={toggleLike}
               disabled={isLiking}
-              className={cn(
-                'flex items-center gap-1 text-[11px] transition-all duration-200 active:scale-125',
-                isLiked ? 'text-red-500 font-bold' : 'hover:text-red-400',
-              )}
+              className="flex items-center gap-1 transition-colors hover:opacity-80"
             >
               {isLiking ? (
                 <Loader2 className="h-3 w-3 animate-spin" />
               ) : (
-                <Heart className={cn('h-3 w-3 transition-colors', isLiked ? 'fill-current' : '')} />
+                <Heart className={cn('h-3.5 w-3.5', isLiked && 'fill-rose-500 text-rose-500')} />
               )}
               {likesCount}
             </button>
-            <span className="flex items-center gap-1 text-[11px]">
-              <Clock className="h-3 w-3" />
-              {readTime}m
+
+            <span className="flex items-center gap-1">
+              <MessageSquare className="h-3.5 w-3.5" />
+              {post.commentsCount || 0}
             </span>
           </div>
         </div>
 
-        {/* Title — always reserves exactly 2 lines of height so short titles don't shrink the card */}
-        <Link to={`/posts/${post.$id}`} className="block mb-3">
-          <h3
-            className="text-[0.975rem] font-bold leading-snug tracking-tight text-foreground line-clamp-2 group-hover:opacity-70 transition-opacity duration-200"
-            style={{ minHeight: '2.75rem' }} // 2 lines × line-height ~1.375rem each
-          >
+        {/* TITLE */}
+        <Link to={`/posts/${post.$id}`} className="block mb-2.5">
+          <h3 className={cn(
+            "text-[1rem] font-bold leading-snug line-clamp-2 min-h-[2.75rem] transition-colors",
+            coverImageUrl ? "group-hover:text-white/80" : "group-hover:text-primary"
+          )}>
             {post.title}
           </h3>
         </Link>
 
-        {/* Excerpt — flex-1 fills all available space, pushing footer to the bottom */}
-        <p className="text-muted-foreground text-[13px] line-clamp-3 leading-relaxed flex-1 mb-4">
-          {plainContent}
+        {/* EXCERPT */}
+        <p className={cn(
+          "text-[13px] line-clamp-3 leading-relaxed",
+          coverImageUrl ? "text-white/70" : "text-muted-foreground"
+        )}>
+          {excerpt}
         </p>
 
-        {/* Footer — always pinned to the bottom of the card */}
-        <div className="flex items-center justify-between pt-3 border-t border-border/40">
+        {/* FOOTER */}
+        <div className={cn(
+          "flex items-center justify-between pt-4 mt-auto border-t",
+          coverImageUrl ? "border-white/10" : "border-border/40"
+        )}>
           <div className="flex items-center gap-2.5 min-w-0">
-            {/* Author avatar — neutral muted bg instead of bg-accent which can have blue tint */}
-            <div className="h-7 w-7 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-xs font-bold shrink-0 ring-1 ring-border">
+            <div className={cn(
+              "h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-black shrink-0 ring-1",
+              coverImageUrl ? "bg-white/20 ring-white/10" : "bg-muted ring-border/50"
+            )}>
               {authorName?.charAt(0).toUpperCase() || 'A'}
             </div>
+
             <div className="min-w-0">
-              <p className="text-xs font-semibold text-foreground/80 truncate leading-none mb-0.5">
-                {authorName || 'Anonymous'}
-              </p>
-              <div className="flex items-center gap-1 text-[11px] text-muted-foreground/60">
-                <Calendar className="h-3 w-3 shrink-0" />
-                <time dateTime={post.$createdAt} className="truncate">
-                  {formatDate(post.$createdAt)}
-                </time>
+              <p className="text-[11px] font-bold truncate">{authorName || 'Anonymous'}</p>
+              <div className={cn(
+                "flex items-center gap-1 text-[10px]",
+                coverImageUrl ? "text-white/60" : "text-muted-foreground/60"
+              )}>
+                <Clock className="h-2.5 w-2.5" />
+                <span>{readTime}m read</span>
               </div>
             </div>
           </div>
@@ -149,24 +160,33 @@ const PostCard = ({ post }) => {
           <div className="flex items-center gap-1">
             <button
               onClick={handleShareClick}
-              className="h-8 w-8 rounded-full flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200 active:scale-90"
-              title="Share post"
+              className={cn(
+                "h-8 w-8 rounded-full flex items-center justify-center transition-all duration-200 active:scale-90",
+                coverImageUrl ? "hover:bg-white/10" : "hover:bg-muted"
+              )}
             >
-              <Share2 className="h-[1.1rem] w-[1.1rem]" />
+              <Share2 className="h-3.5 w-3.5" />
             </button>
 
             <BookmarkButton
               isBookmarked={isBookmarked}
               onClick={toggleBookmark}
               isLoading={isBookmarkLoading}
+              className={cn(
+                "h-8 w-8 rounded-full flex items-center justify-center transition-all duration-200 active:scale-90",
+                coverImageUrl ? "hover:bg-white/10" : "hover:bg-muted"
+              )}
             />
 
             <Link
               to={`/posts/${post.$id}`}
-              className="flex items-center gap-1 text-[11px] font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 ml-1 group/link"
+              className={cn(
+                "h-8 pl-3 pr-2 rounded-full flex items-center gap-1 text-[11px] font-bold transition-all duration-300 ml-1",
+                coverImageUrl ? "text-white hover:bg-white/10" : "text-foreground hover:bg-muted"
+              )}
             >
               Read
-              <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />
+              <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />       
             </Link>
           </div>
         </div>

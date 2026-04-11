@@ -83,7 +83,7 @@ const Home = () => {
               </button>
             </div>
           )}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 items-start">
             {posts.map((post) => (
               <PostCard key={post.$id} post={post} />
             ))}
@@ -112,7 +112,7 @@ const Home = () => {
               </h2>
               <div className="flex-1 h-px bg-gradient-to-r from-border via-border/40 to-transparent" />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 items-start">
               {gridPosts.map((post) => (
                 <PostCard key={post.$id} post={post} />
               ))}
