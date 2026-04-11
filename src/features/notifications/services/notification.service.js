@@ -1,5 +1,6 @@
 import { Query } from 'appwrite';
 import { notificationApi } from './notification.api';
+import { parseApiError } from '@/lib/error-handler';
 
 class NotificationService {
   /**
@@ -38,8 +39,7 @@ class NotificationService {
       const res = await notificationApi.listNotifications(queries);
       return res.documents || [];
     } catch (error) {
-      console.error('NotificationService :: getNotifications() failed:', error);
-      return [];
+      throw new Error(parseApiError(error));
     }
   }
 
@@ -50,8 +50,7 @@ class NotificationService {
     try {
       return await notificationApi.updateNotification(notificationId, { isRead: true });
     } catch (error) {
-      console.error('NotificationService :: markAsRead() failed:', error);
-      throw error;
+      throw new Error(parseApiError(error));
     }
   }
 
@@ -68,8 +67,7 @@ class NotificationService {
       await Promise.all(promises);
       return true;
     } catch (error) {
-      console.error('NotificationService :: markAllAsRead() failed:', error);
-      return false;
+      throw new Error(parseApiError(error));
     }
   }
 
@@ -89,7 +87,7 @@ class NotificationService {
 
       await Promise.all(deletePromises);
     } catch (error) {
-      console.error('NotificationService :: deleteNotificationByCommentId() failed:', error);
+      throw new Error(parseApiError(error));
     }
   }
 
@@ -114,7 +112,7 @@ class NotificationService {
       );
       await Promise.all(deletePromises);
     } catch (error) {
-      console.error('NotificationService :: deleteFollowNotification() failed:', error);
+      throw new Error(parseApiError(error));
     }
   }
 
@@ -134,7 +132,7 @@ class NotificationService {
       );
       await Promise.all(deletePromises);
     } catch (error) {
-      console.error('NotificationService :: deleteLikeNotification() failed:', error);
+      throw new Error(parseApiError(error));
     }
   }
 
@@ -154,7 +152,7 @@ class NotificationService {
       );
       await Promise.all(deletePromises);
     } catch (error) {
-      console.error('NotificationService :: deleteNotificationsByPostId() failed:', error);
+      throw new Error(parseApiError(error));
     }
   }
 }

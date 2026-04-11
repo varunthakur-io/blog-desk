@@ -1,6 +1,7 @@
 import { bookmarkApi } from './bookmark.api';
 import { postApi } from '@/features/posts';
 import { Query } from 'appwrite';
+import { parseApiError } from '@/lib/error-handler';
 
 class BookmarkService {
   async toggleBookmark(userId, postId) {
@@ -16,8 +17,7 @@ class BookmarkService {
         return true; // bookmarked
       }
     } catch (error) {
-      console.error('BookmarkService :: toggleBookmark()', error);
-      throw error;
+      throw new Error(parseApiError(error));
     }
   }
 
@@ -26,8 +26,7 @@ class BookmarkService {
     try {
       const bookmark = await bookmarkApi.getBookmark(userId, postId);
       return !!bookmark;
-    } catch (error) {
-      console.error('BookmarkService :: isBookmarked()', error);
+    } catch {
       return false;
     }
   }
@@ -42,12 +41,11 @@ class BookmarkService {
 
       const postsRes = await postApi.listPosts([
         Query.equal('$id', postIds),
-        Query.orderDesc('$createdAt')
+        Query.orderDesc('$createdAt'),
       ]);
       return postsRes.documents || [];
     } catch (error) {
-      console.error('BookmarkService :: getBookmarkedPostsByUserId()', error);
-      throw error;
+      throw new Error(parseApiError(error));
     }
   }
 }
