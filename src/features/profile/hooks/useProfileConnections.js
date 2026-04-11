@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { followService } from '@/features/follows';
 import { profileService } from '@/features/profile';
@@ -11,8 +11,9 @@ import {
 
 /**
  * Hook to manage followers and following lists for a profile.
+ * Optimized to fetch only when requested.
  */
-export const useProfileConnections = (profileId, activeTab) => {
+export const useProfileConnections = (profileId) => {
   const dispatch = useDispatch();
 
   const [isFollowersLoading, setIsFollowersLoading] = useState(false);
@@ -22,74 +23,54 @@ export const useProfileConnections = (profileId, activeTab) => {
   const followersProfiles = useSelector((state) => selectFollowers(state, profileId));
   const followingProfiles = useSelector((state) => selectFollowing(state, profileId));
 
-  // 1. Fetch Followers List
-  useEffect(() => {
-    if (!profileId || activeTab !== 'followers') return;
+  const fetchFollowers = useCallback(async () => {
+    if (!profileId || followersProfiles.length > 0) return;
 
-    let cancelled = false;
-    const fetchFollowers = async () => {
-      setIsFollowersLoading(true);
-      try {
-        const followers = await followService.getFollowers(profileId);
-        const followerIds = followers.map((f) => f.followerId);
+    setIsFollowersLoading(true);
+    try {
+      const followers = await followService.getFollowers(profileId);
+      const followerIds = followers.map((f) => f.followerId);
 
-        if (followerIds.length > 0) {
-          const profiles = await profileService.getProfilesByIds(followerIds);
-          if (!cancelled) {
-            dispatch(setFollowers({ userId: profileId, profiles }));
-          }
-        } else {
-          if (!cancelled) dispatch(setFollowers({ userId: profileId, profiles: [] }));
-        }
-      } catch (err) {
-        console.error('Failed to fetch followers:', err);
-      } finally {
-        if (!cancelled) setIsFollowersLoading(false);
+      if (followerIds.length > 0) {
+        const profiles = await profileService.getProfilesByIds(followerIds);
+        dispatch(setFollowers({ userId: profileId, profiles }));
+      } else {
+        dispatch(setFollowers({ userId: profileId, profiles: [] }));
       }
-    };
+    } catch (err) {
+      console.error('Failed to fetch followers:', err);
+    } finally {
+      setIsFollowersLoading(false);
+    }
+  }, [profileId, followersProfiles.length, dispatch]);
 
-    fetchFollowers();
-    return () => {
-      cancelled = true;
-    };
-  }, [profileId, activeTab, dispatch]);
+  const fetchFollowing = useCallback(async () => {
+    if (!profileId || followingProfiles.length > 0) return;
 
-  // 3. Fetch Following List
-  useEffect(() => {
-    if (!profileId || activeTab !== 'following') return;
+    setIsFollowingLoading(true);
+    try {
+      const following = await followService.getFollowing(profileId);
+      const followingIds = following.map((f) => f.followingId);
 
-    let cancelled = false;
-    const fetchFollowing = async () => {
-      setIsFollowingLoading(true);
-      try {
-        const following = await followService.getFollowing(profileId);
-        const followingIds = following.map((f) => f.followingId);
-
-        if (followingIds.length > 0) {
-          const profiles = await profileService.getProfilesByIds(followingIds);
-          if (!cancelled) {
-            dispatch(setFollowing({ userId: profileId, profiles }));
-          }
-        } else {
-          if (!cancelled) dispatch(setFollowing({ userId: profileId, profiles: [] }));
-        }
-      } catch (err) {
-        console.error('Failed to fetch following:', err);
-      } finally {
-        if (!cancelled) setIsFollowingLoading(false);
+      if (followingIds.length > 0) {
+        const profiles = await profileService.getProfilesByIds(followingIds);
+        dispatch(setFollowing({ userId: profileId, profiles }));
+      } else {
+        dispatch(setFollowing({ userId: profileId, profiles: [] }));
       }
-    };
-
-    fetchFollowing();
-    return () => {
-      cancelled = true;
-    };
-  }, [profileId, activeTab, dispatch]);
+    } catch (err) {
+      console.error('Failed to fetch following:', err);
+    } finally {
+      setIsFollowingLoading(false);
+    }
+  }, [profileId, followingProfiles.length, dispatch]);
 
   return {
     isFollowersLoading,
     isFollowingLoading,
     followersProfiles,
     followingProfiles,
+    fetchFollowers,
+    fetchFollowing,
   };
 };

@@ -41,8 +41,14 @@ export const useProfile = () => {
   // 3. Follow Lists & Relationship
   const { isFollowing, isLoading: isFollowLoading, toggleFollow } = useFollow(profileId);
 
-  const { followersProfiles, followingProfiles, isFollowersLoading, isFollowingLoading } =
-    useProfileConnections(profileId, activeTab);
+  const { 
+    followersProfiles, 
+    followingProfiles, 
+    isFollowersLoading, 
+    isFollowingLoading,
+    fetchFollowers,
+    fetchFollowing
+  } = useProfileConnections(profileId);
 
   // Formatted View Data
   const viewData = useMemo(
@@ -98,5 +104,7 @@ export const useProfile = () => {
     handleToggleFollow: toggleFollow,
     followersProfiles,
     followingProfiles,
+    fetchFollowers,
+    fetchFollowing,
   };
 };
