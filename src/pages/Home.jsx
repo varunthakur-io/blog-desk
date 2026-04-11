@@ -1,10 +1,11 @@
 import { Loader2, X } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { PostCard, PostCardSkeleton, BentoGrid } from '@/features/posts';
+import { PostCard, PostCardSkeleton, BentoGrid, useCategories } from '@/features/posts';
 import { useHome } from '@/features/posts';
 import { HomeHeader, HomeTabs, HomeCategoryFilters, EmptyHomeState } from './HomeUI';
 
 const Home = () => {
+  const { categories } = useCategories();
   const {
     posts,
     postsLoading,
@@ -141,6 +142,7 @@ const Home = () => {
         />
         <div className="hidden md:block">
           <HomeCategoryFilters
+            categories={categories}
             activeCategory={activeCategory}
             onCategoryChange={handleCategoryChange}
           />
@@ -149,6 +151,7 @@ const Home = () => {
 
       <div className="md:hidden mb-8">
         <HomeCategoryFilters
+          categories={categories}
           activeCategory={activeCategory}
           onCategoryChange={handleCategoryChange}
         />

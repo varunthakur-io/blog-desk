@@ -3,7 +3,6 @@ import { NavLink } from 'react-router-dom';
 import { Search, BookOpen, ArrowRight, X, Compass, Users } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { CATEGORIES } from '@/constants';
 import { EmptyState } from '@/components/common';
 import { cn } from '@/lib/utils';
 
@@ -63,29 +62,29 @@ export const HomeTabs = ({ activeMode, onModeChange, isAuthenticated }) => {
   );
 };
 
-export const HomeCategoryFilters = ({ activeCategory, onCategoryChange }) => (
-  <div className="flex items-center gap-2 overflow-x-auto scrollbar-none no-scrollbar">
+export const HomeCategoryFilters = ({ categories = [], activeCategory, onCategoryChange }) => (
+  <div className="flex items-center gap-2 overflow-x-auto py-1 no-scrollbar [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
     <button
       onClick={() => activeCategory && onCategoryChange(null)}
       className={cn(
-        'inline-flex items-center rounded-full px-4 py-1.5 text-xs font-bold border transition-all duration-200 shrink-0',
+        'inline-flex items-center rounded-md px-4 h-8 text-[10px] font-black uppercase tracking-widest border transition-all duration-200 shrink-0',
         !activeCategory
-          ? 'bg-primary text-primary-foreground border-primary shadow-md'
+          ? 'bg-primary text-primary-foreground border-primary shadow-sm'
           : 'bg-card border-border text-muted-foreground hover:border-primary/30 hover:text-primary'
       )}
     >
       All Feed
     </button>
-    {CATEGORIES.map((cat) => {
+    {categories.map((cat) => {
       const isActive = activeCategory === cat;
       return (
         <button
           key={cat}
           onClick={() => onCategoryChange(cat)}
           className={cn(
-            'rounded-full px-4 py-1.5 text-xs font-bold border transition-all duration-200 shrink-0',
+            'rounded-full px-4 h-8 text-[10px] font-black uppercase tracking-widest border transition-all duration-200 shrink-0',
             isActive
-              ? 'bg-primary text-primary-foreground border-primary shadow-md'
+              ? 'bg-primary text-primary-foreground border-primary shadow-sm'
               : 'bg-card border-border text-muted-foreground hover:border-primary/30 hover:text-primary'
           )}
         >
