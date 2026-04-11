@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { authService } from '@/features/auth';
-import { parseApiError } from '@/lib/error-handler';
 import {
   selectAuthUserId,
   selectAuthStatus,
@@ -83,24 +82,26 @@ export const useLogin = () => {
     if (loginStatus === 'loading' || isAuthLoading) return;
 
     setLoginStatus('loading');
-    dispatch(setAuthStatus('loading'));
-
+    
     try {
       const { user, profile } = await authService.loginUser(credentials);
 
       // Populate global store with full identity and domain data
       dispatch(setAuthUser(user));
       dispatch(setUserProfile(profile));
+      dispatch(setAuthStatus('authenticated'));
 
       toast.success(`Welcome back, ${user.name || 'friend'}!`);
+      // No manual navigate needed if the useEffect redirect is working, but it's safer to keep it.
       navigate('/', { replace: true });
     } catch (error) {
       setLoginStatus('error');
-      const message = parseApiError(error, 'Invalid email or password');
+      dispatch(setAuthStatus('guest'));
+      const message = error.message || 'Invalid email or password';
       dispatch(setAuthError(message));
       toast.error(message);
     } finally {
-      setLoginStatus((current) => (current === 'loading' ? 'idle' : current));
+      setLoginStatus('idle');
     }
   };
 
@@ -115,7 +116,7 @@ export const useLogin = () => {
     showPassword,
 
     // loading states
-    isLoginLoading: loginStatus === 'loading' || isAuthLoading,
+    isLoginLoading: loginStatus === 'loading',
 
     // form actions
     handleChange,
@@ -124,6 +125,6 @@ export const useLogin = () => {
 
     // derived UI state
     isSubmitDisabled:
-      loginStatus === 'loading' || isAuthLoading || !credentials.email || !credentials.password,
+      loginStatus === 'loading' || !credentials.email || !credentials.password,
   };
 };
