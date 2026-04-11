@@ -1,3 +1,5 @@
+import DOMPurify from 'dompurify';
+
 /**
  * Utility functions for consistent data formatting across the application.
  */
@@ -59,4 +61,25 @@ export const calculateReadTime = (content) => {
   const plainText = content.replace(/<[^>]*>?/gm, '');
   const words = plainText.trim().split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.ceil(words / 200));
+};
+
+/**
+ * Generates a clean plain-text excerpt from HTML content.
+ * Uses DOMPurify for security and strips title repetition.
+ */
+export const generateExcerpt = (content, title = '', maxLength = 160) => {
+  if (!content) return '';
+
+  // 1. Sanitize and strip all HTML tags using DOMPurify
+  const cleanHtml = DOMPurify.sanitize(content, { ALLOWED_TAGS: [] });
+  
+  // 2. Remove title repetition if it exists at the start
+  let plainText = cleanHtml.replace(/\s+/g, ' ').trim();
+  if (title && plainText.toLowerCase().startsWith(title.toLowerCase())) {
+    plainText = plainText.substring(title.length).trim();
+  }
+
+  // 3. Truncate
+  if (plainText.length <= maxLength) return plainText;
+  return plainText.substring(0, maxLength).trim() + '...';
 };
