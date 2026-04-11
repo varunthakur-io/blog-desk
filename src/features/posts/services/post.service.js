@@ -170,6 +170,26 @@ class PostService {
       throw new Error(parseApiError(error));
     }
   }
+
+  /**
+   * Fetches unique categories from published posts.
+   */
+  async getUsedCategories() {
+    try {
+      const queries = [
+        Query.equal('status', 'published'),
+        Query.limit(100),
+        Query.select(['category'])
+      ];
+
+      const res = await postApi.listPosts(queries);
+      const categories = [...new Set(res.documents.map(p => p.category).filter(Boolean))];
+      return categories.sort();
+    } catch (error) {
+      console.warn('PostService :: getUsedCategories failed:', error);
+      return [];
+    }
+  }
 }
 
 export const postService = new PostService();
