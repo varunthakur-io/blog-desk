@@ -1,22 +1,31 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import Link from '@tiptap/extension-link';
+import TiptapLink from '@tiptap/extension-link';
 import { postService } from '@/features/posts';
 import toast from 'react-hot-toast';
-import { Loader2, Save, ArrowLeft, Settings2 } from 'lucide-react';
+import { Loader2, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
 import { getRandomPostData } from '@/utils/fakePostData';
+import { CATEGORIES } from '@/constants';
 
 // UI Helpers
 import {
   PostEditorToolbar,
   PostPreviewDialog,
-  PostSettingsSidebar,
-  PostMobileOptions,
+  FeaturedImageUpload,
 } from './PostFormUI';
 
 const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBackClick }) => {
@@ -37,6 +46,16 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
   const [saveStateLabel, setSaveStateLabel] = useState(mode === 'edit' ? 'Saved' : 'Unsaved');
   const isEdit = mode === 'edit';
 
+  const titleRef = useRef(null);
+
+  // Auto-resize title textarea on mount and change
+  useEffect(() => {
+    if (titleRef.current) {
+      titleRef.current.style.height = 'auto';
+      titleRef.current.style.height = `${titleRef.current.scrollHeight}px`;
+    }
+  }, [formData.title]);
+
   const saveStateLabelRef = useRef(saveStateLabel);
   useEffect(() => {
     saveStateLabelRef.current = saveStateLabel;
@@ -56,7 +75,7 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
         // Disable link in starter kit to avoid duplication with standalone Link extension
         link: false,
       }),
-      Link.configure({ openOnClick: false }),
+      TiptapLink.configure({ openOnClick: false }),
     ],
     content: formData.content,
     onUpdate: ({ editor }) => {
@@ -66,7 +85,7 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
     editorProps: {
       attributes: {
         class:
-          'prose dark:prose-invert max-w-none focus:outline-none min-h-[calc(100vh-20rem)] py-2 text-base leading-relaxed prose-headings:font-bold prose-headings:tracking-tight prose-code:bg-muted prose-code:rounded prose-code:px-1.5 prose-code:text-sm prose-code:before:content-none prose-code:after:content-none prose-pre:bg-muted prose-pre:border prose-pre:border-border prose-pre:rounded-xl prose-blockquote:border-l-2 prose-blockquote:border-border prose-blockquote:text-muted-foreground prose-blockquote:not-italic',
+          'prose dark:prose-invert max-w-none focus:outline-none min-h-[500px] py-2 text-base leading-relaxed prose-headings:font-bold prose-headings:tracking-tight prose-code:bg-muted prose-code:rounded prose-code:px-1.5 prose-code:text-sm prose-code:before:content-none prose-code:after:content-none prose-pre:bg-muted prose-pre:border prose-pre:border-border prose-pre:rounded-xl prose-blockquote:border-l-2 prose-blockquote:border-border prose-blockquote:text-muted-foreground prose-blockquote:not-italic',
       },
     },
   });
@@ -127,96 +146,143 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
     );
 
   return (
-    <div className="page-root flex gap-8">
-      <PostSettingsSidebar
-        isEdit={isEdit}
-        onBackClick={onBackClick || (() => navigate('/dashboard'))}
-        saveStateLabel={saveStateLabel}
-        status={formData.status}
-        onStatusChange={(val) => setFormData((p) => ({ ...p, status: val }))}
-        category={formData.category}
-        onCategoryChange={(val) => setFormData((p) => ({ ...p, category: val }))}
-        imagePreview={postImagePreview}
-        onImageUpload={handleFeaturedImageUpload}
-        onImageRemove={removeFeaturedImage}
-        onPreviewClick={() => setIsPreviewOpen(true)}
-        onRandomData={handleRandomData}
-        onDiscard={() => navigate('/dashboard')}
-        onSubmit={handleSubmit}
-        isSubmitting={isSubmitting}
-      />
-
-      <main className="flex-1 min-w-0">
-        {/* mobile top bar */}
-        <div className="md:hidden flex items-center justify-between gap-2 mb-4">
-          <div className="flex items-center gap-2 text-left">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={onBackClick || (() => navigate('/dashboard'))}
-              className="h-8 w-8 rounded-full"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <span className="text-sm font-semibold">{isEdit ? 'Edit Post' : 'New Post'}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setMobileOptionsOpen((v) => !v)}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground border border-border rounded-full px-3 py-1.5 transition-colors"
-            >
-              <Settings2 className="h-3.5 w-3.5" />
-              Options
-            </button>
-            <Button
-              type="button"
-              size="sm"
-              className="gap-1.5 rounded-full"
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Save className="h-3.5 w-3.5" />
-              )}
-              {isEdit ? 'Update' : 'Publish'}
-            </Button>
-          </div>
-        </div>
-
-        {mobileOptionsOpen && (
-          <PostMobileOptions
-            status={formData.status}
-            onStatusChange={(val) => setFormData((p) => ({ ...p, status: val }))}
-            category={formData.category}
-            onCategoryChange={(val) => setFormData((p) => ({ ...p, category: val }))}
-            imagePreview={postImagePreview}
-            onImageUpload={handleFeaturedImageUpload}
-            onImageRemove={removeFeaturedImage}
-            onPreviewClick={() => setIsPreviewOpen(true)}
-            onDiscard={() => navigate('/dashboard')}
-          />
-        )}
-
-        <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+    <div className="flex-1 flex flex-col h-full bg-background overflow-hidden animate-in fade-in duration-700">
+      {/* Editor Header (Fixed at the top of this component) */}
+      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b border-border/40 px-4 sm:px-6 lg:px-10 h-14 flex items-center justify-between shadow-sm shrink-0">
+        {/* Integrated Toolbar (Left aligned) */}
+        <div className="flex items-center gap-4 overflow-x-auto no-scrollbar">
           <PostEditorToolbar editor={editor} />
-          <div className="p-6 md:p-8">
-            <Input
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              placeholder="Post title…"
-              className="text-2xl md:text-3xl font-bold border-none shadow-none px-0 py-1 h-auto focus-visible:ring-0 placeholder:text-muted-foreground/30 bg-transparent leading-snug mb-4"
-              autoFocus
-            />
-            <Separator className="mb-4" />
-            <EditorContent editor={editor} />
-          </div>
         </div>
-      </main>
+
+        <div className="flex items-center gap-3 shrink-0">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => setIsPreviewOpen(true)}
+            className="rounded-full text-[10px] font-bold text-muted-foreground hover:text-foreground h-8 px-4 uppercase tracking-wider transition-all hidden sm:flex"
+          >
+            Preview
+          </Button>
+          
+          <Button
+            type="button"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className="rounded-full px-6 font-bold text-[10px] bg-[#1a8917] hover:bg-[#156d12] text-white h-8 shadow-sm active:scale-95 transition-all gap-2 border-none uppercase tracking-wider"
+          >
+            {isSubmitting ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : null}
+            {isEdit ? 'Update' : 'Publish'}
+          </Button>
+        </div>
+      </div>
+
+      {/* Main Content Area (Scrollable internally) */}
+      <div className="flex-1 overflow-y-auto no-scrollbar">
+        <div className="max-w-screen-2xl mx-auto flex flex-col lg:flex-row gap-16 xl:gap-32 items-start px-6">
+          {/* Main Writing Area */}
+          <div className="flex-1 w-full max-w-[820px] mx-auto lg:mx-0 pt-8 pb-32">
+            <div className="space-y-6">
+              <textarea
+                ref={titleRef}
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                placeholder="Title"
+                rows={1}
+                className="w-full text-3xl md:text-4xl lg:text-5xl font-serif font-bold border-none shadow-none px-0 py-0 focus:outline-none placeholder:text-muted-foreground/20 bg-transparent leading-tight resize-none overflow-hidden min-h-[1.2em]"
+                autoFocus
+              />
+              
+              <Separator className="opacity-20" />
+              
+              <div className="relative pt-4">
+                <EditorContent 
+                  editor={editor} 
+                  className="prose-lg font-serif prose-headings:font-serif prose-p:text-foreground/90 leading-relaxed"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar Settings */}
+          <aside className="w-full lg:w-[320px] shrink-0 space-y-16 pb-20 pt-16 lg:sticky lg:top-0 h-fit">
+            <div className="space-y-12">
+              <div className="space-y-8">
+                <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 border-b border-border/40 pb-3">Story Settings</h3>
+                
+                <div className="space-y-8 px-1">
+                  <div className="space-y-3">
+                    <Label className="text-[12px] font-bold text-foreground/80">Category</Label>
+                    <Select
+                      value={formData.category || '__none__'}
+                      onValueChange={(val) => setFormData(p => ({ ...p, category: val === '__none__' ? null : val }))}
+                    >
+                      <SelectTrigger className="h-11 rounded-xl bg-muted/20 border-border/40 text-xs font-bold hover:bg-muted/40 transition-all">
+                        <SelectValue placeholder="Add category" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl shadow-2xl border-border/40">
+                        <SelectItem value="__none__" className="text-xs font-bold">Uncategorised</SelectItem>
+                        {CATEGORIES.map((cat) => (
+                          <SelectItem key={cat} value={cat} className="text-xs font-bold">{cat}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-[11px] text-muted-foreground/60 font-medium leading-relaxed italic px-1">Helping readers find your story.</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label className="text-[12px] font-bold text-foreground/80">Visibility</Label>
+                    <Select 
+                      value={formData.status} 
+                      onValueChange={(val) => setFormData(p => ({ ...p, status: val }))}
+                    >
+                      <SelectTrigger className="h-11 rounded-xl bg-muted/20 border-border/40 text-xs font-bold hover:bg-muted/40 transition-all">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl shadow-2xl border-border/40">
+                        <SelectItem value="published" className="text-xs font-bold">Public (Visible to all)</SelectItem>
+                        <SelectItem value="draft" className="text-xs font-bold">Draft (Only you)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-8">
+                <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 border-b border-border/40 pb-3">Cover Image</h3>
+                <div className="px-1 space-y-5">
+                  <div className="rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 ring-1 ring-border/40">
+                    <FeaturedImageUpload
+                      imagePreview={postImagePreview}
+                      onUpload={handleFeaturedImageUpload}
+                      onRemove={removeFeaturedImage}
+                    />
+                  </div>
+                  <p className="text-[11px] text-muted-foreground/60 leading-relaxed font-medium italic px-1">
+                    High-quality images capture more readers.
+                  </p>
+                </div>
+              </div>
+
+              {!isEdit && import.meta.env.DEV && (
+                <div className="pt-10 border-t border-border/40">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={handleRandomData}
+                    className="w-full justify-start gap-4 text-muted-foreground/60 hover:text-primary transition-all text-[10px] font-black uppercase tracking-widest h-12 rounded-2xl px-4 hover:bg-primary/5"
+                  >
+                    <span className="flex items-center justify-center size-6 rounded-lg bg-primary/10 text-primary shadow-sm">✨</span>
+                    Generate Content
+                  </Button>
+                </div>
+              )}
+            </div>
+          </aside>
+        </div>
+      </div>
 
       <PostPreviewDialog
         isOpen={isPreviewOpen}

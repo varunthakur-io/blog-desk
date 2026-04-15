@@ -36,38 +36,34 @@ import { CATEGORIES } from '@/constants';
 
 export const FeaturedImageUpload = ({ imagePreview, onUpload, onRemove }) => {
   return (
-    <div className="rounded-xl border border-border bg-card p-5 space-y-3">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-        Featured Image
-      </p>
-
+    <div className="space-y-3">
       {imagePreview ? (
-        <div className="relative rounded-lg overflow-hidden border border-border aspect-video group">
+        <div className="relative rounded-2xl overflow-hidden border border-border/60 aspect-video group shadow-sm">
           <img
             src={imagePreview}
             alt="Featured"
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
           />
-          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center backdrop-blur-[2px]">
             <Button
               type="button"
               variant="destructive"
               size="sm"
               onClick={onRemove}
-              className="gap-1.5 text-xs rounded-lg"
+              className="gap-2 text-xs font-bold rounded-full px-4 shadow-xl active:scale-95"
             >
-              <X className="h-3.5 w-3.5" /> Remove
+              <X className="h-3.5 w-3.5" /> Remove Image
             </Button>
           </div>
         </div>
       ) : (
-        <label className="relative flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer min-h-32 p-4 text-center">
-          <div className="p-2 rounded-full bg-muted">
-            <Upload className="h-4 w-4 text-muted-foreground" />
+        <label className="relative flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-border/60 bg-background/50 hover:bg-muted/30 hover:border-primary/30 transition-all cursor-pointer min-h-40 p-6 text-center group">
+          <div className="p-3 rounded-full bg-muted group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+            <Upload className="h-5 w-5" />
           </div>
-          <div>
-            <p className="text-xs font-medium text-foreground">Click to upload</p>
-            <p className="text-[11px] text-muted-foreground mt-0.5">PNG, JPG, WebP up to 5MB</p>
+          <div className="space-y-1">
+            <p className="text-xs font-bold text-foreground">Click to upload header image</p>
+            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-tight">PNG, JPG, WebP · Max 5MB</p>
           </div>
           <input
             type="file"
@@ -142,7 +138,7 @@ export const PostEditorToolbar = ({ editor }) => {
   if (!editor) return null;
 
   return (
-    <div className="border-b border-border bg-muted/30 px-3 py-2 flex items-center gap-0.5 flex-wrap">
+    <div className="flex items-center gap-0.5 flex-wrap">
       <ToolbarButton
         onClick={() => editor.chain().focus().toggleBold().run()}
         isActive={editor.isActive('bold')}
@@ -165,7 +161,7 @@ export const PostEditorToolbar = ({ editor }) => {
         <Code className="h-3.5 w-3.5" />
       </ToolbarButton>
 
-      <Separator orientation="vertical" className="h-5 mx-1.5" />
+      <Separator orientation="vertical" className="h-4 mx-1 opacity-50" />
 
       <ToolbarButton
         onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
@@ -182,7 +178,7 @@ export const PostEditorToolbar = ({ editor }) => {
         <Heading2 className="h-3.5 w-3.5" />
       </ToolbarButton>
 
-      <Separator orientation="vertical" className="h-5 mx-1.5" />
+      <Separator orientation="vertical" className="h-4 mx-1 opacity-50" />
 
       <ToolbarButton
         onClick={() => editor.chain().focus().toggleBulletList().run()}
@@ -205,15 +201,8 @@ export const PostEditorToolbar = ({ editor }) => {
       >
         <Quote className="h-3.5 w-3.5" />
       </ToolbarButton>
-      <ToolbarButton
-        onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-        isActive={editor.isActive('codeBlock')}
-        title="Code block"
-      >
-        <CodeSquare className="h-3.5 w-3.5" />
-      </ToolbarButton>
 
-      <Separator orientation="vertical" className="h-5 mx-1.5" />
+      <Separator orientation="vertical" className="h-4 mx-1 opacity-50" />
 
       <ToolbarButton
         onClick={() => editor.chain().focus().undo().run()}
