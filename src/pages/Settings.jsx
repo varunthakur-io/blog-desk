@@ -8,19 +8,20 @@ import {
   useAccountSettings,
   useNotificationSettings,
   usePrivacySettings,
-  ProfilePanel,
-  AccountPanel,
-  AppearancePanel,
-  NotificationsPanel,
-  PrivacyPanel,
-} from '@/features/settings';
+} from '@/features/settings/hooks';
+
+import ProfilePanel from '@/features/settings/components/ProfilePanel';
+import AccountPanel from '@/features/settings/components/AccountPanel';
+import AppearancePanel from '@/features/settings/components/AppearancePanel';
+import NotificationsPanel from '@/features/settings/components/NotificationsPanel';
+import PrivacyPanel from '@/features/settings/components/PrivacyPanel';
 
 const NAV = [
   { id: 'profile', label: 'Profile', icon: User },
   { id: 'account', label: 'Account', icon: Lock },
   { id: 'appearance', label: 'Appearance', icon: Palette },
   { id: 'notifications', label: 'Notifications', icon: Bell },
-  { id: 'privacy', label: 'Privacy', icon: Shield },
+  { id: 'privacy', label: 'Privacy & Security', icon: Shield },
 ];
 
 export default function Settings() {
@@ -98,60 +99,41 @@ export default function Settings() {
   };
 
   return (
-    <div className="page-root flex gap-8 min-h-[70vh]">
-      {/* Sidebar — desktop */}
-      <aside className="hidden md:block w-48 shrink-0">
-        <div className="sticky top-24 pr-6 min-h-[calc(100vh-6rem)]">
-          <div className="absolute top-0 right-0 w-px h-full bg-gradient-to-b from-transparent via-border to-transparent hidden lg:block" />
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-3">
-            Settings
-          </p>
-          <nav className="space-y-0.5">
-            {NAV.map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                onClick={() => setActive(id)}
-                className={cn(
-                  'flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors text-left',
-                  active === id
-                    ? 'bg-secondary text-secondary-foreground'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50',
-                )}
-              >
-                <Icon className="h-4 w-4 shrink-0" />
-                {label}
-              </button>
-            ))}
-          </nav>
-        </div>
-      </aside>
+    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="mb-10 space-y-2">
+        <h1 className="text-4xl font-black tracking-tight text-foreground lg:text-5xl">
+          Settings
+        </h1>
+        <p className="text-lg text-muted-foreground font-medium">
+          Manage your account settings and preferences.
+        </p>
+      </div>
 
-      {/* Mobile tabs */}
-      <div className="md:hidden w-full">
-        <div className="flex gap-1 overflow-x-auto pb-3 mb-4 scrollbar-none">
+      <div className="flex flex-col gap-8">
+        {/* Modern Tabs Navigation */}
+        <div className="flex items-center gap-6 overflow-x-auto pb-px border-b border-border/50 no-scrollbar">
           {NAV.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               onClick={() => setActive(id)}
               className={cn(
-                'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap border transition-colors shrink-0',
+                'flex items-center gap-2 pb-4 text-sm font-bold transition-all relative whitespace-nowrap',
                 active === id
-                  ? 'bg-foreground text-background border-foreground'
-                  : 'border-border text-muted-foreground hover:text-foreground',
+                  ? 'text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
               )}
             >
-              <Icon className="h-3 w-3" />
+              <Icon className="h-4 w-4" />
               {label}
             </button>
           ))}
         </div>
-        <div className="max-w-2xl">{renderPanel()}</div>
-      </div>
 
-      {/* Main Content */}
-      <main className="flex-1 min-w-0 hidden md:block">
-        <div className="max-w-2xl">{renderPanel()}</div>
-      </main>
+        {/* Active Panel Content */}
+        <div className="max-w-2xl py-2">
+          {renderPanel()}
+        </div>
+      </div>
     </div>
   );
 }
