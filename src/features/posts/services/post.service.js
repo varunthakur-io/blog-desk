@@ -190,6 +190,31 @@ class PostService {
       return [];
     }
   }
+
+  async getStaffPicks(limit = 3) {
+    try {
+      // First try to get most liked posts
+      let res = await postApi.listPosts([
+        Query.equal('status', 'published'),
+        Query.limit(limit),
+        Query.orderDesc('likesCount'),
+      ]);
+
+      // If no posts have likes (total is 0 or all counts are 0), just get latest
+      if (res.total === 0 || (res.documents.length > 0 && res.documents[0].likesCount === 0)) {
+        res = await postApi.listPosts([
+          Query.equal('status', 'published'),
+          Query.limit(limit),
+          Query.orderDesc('$createdAt'),
+        ]);
+      }
+      
+      return res;
+    } catch (error) {
+      console.warn('PostService :: getStaffPicks failed:', error);
+      return { documents: [] };
+    }
+  }
 }
 
 export const postService = new PostService();

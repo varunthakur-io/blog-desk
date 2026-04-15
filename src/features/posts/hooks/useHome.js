@@ -1,5 +1,6 @@
 import { useEffect, useCallback, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useSearchParams } from 'react-router-dom';
 import { postService } from '@/features/posts';
 import { debounce } from '@/lib/utils';
 import {
@@ -26,6 +27,7 @@ const LIMIT = POSTS_PER_PAGE;
 
 export const useHome = () => {
   const dispatch = useDispatch();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const posts = useSelector(selectAllPosts);
   const isPostsLoading = useSelector(selectIsPostsLoading);
@@ -40,6 +42,21 @@ export const useHome = () => {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
 
   const loadingRef = useRef(false);
+
+  // Sync feedMode with URL query param
+  useEffect(() => {
+    const feed = searchParams.get('feed');
+    if (feed === 'following') {
+      if (feedMode !== 'following') dispatch(setFeedMode('following'));
+    } else {
+      // Default to explore if not specified or 'explore'
+      if (feedMode !== 'explore' && !feed) {
+         // only reset if there is no query param at all
+      } else if (feed === 'explore' && feedMode !== 'explore') {
+         dispatch(setFeedMode('explore'));
+      }
+    }
+  }, [searchParams, feedMode, dispatch]);
 
   // 1. Debounce logic for search input
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -129,9 +146,10 @@ export const useHome = () => {
     (mode) => {
       setSearchTerm('');
       setDebouncedSearchTerm('');
+      setSearchParams({ feed: mode });
       dispatch(setFeedMode(mode));
     },
-    [dispatch],
+    [dispatch, setSearchParams],
   );
 
   return {

@@ -1,11 +1,26 @@
-import { Loader2, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { PostCard, PostCardSkeleton, BentoGrid, useCategories } from '@/features/posts';
+import { PostCard, PostCardSkeleton, useCategories, postService } from '@/features/posts';
 import { useHome } from '@/features/posts';
-import { HomeHeader, HomeTabs, HomeCategoryFilters, EmptyHomeState } from './HomeUI';
+import { profileService } from '@/features/profile';
+import { selectAuthUser } from '@/features/auth';
+import { 
+  HomeHeader, 
+  HomeTabs, 
+  HomeCategoryFilters, 
+  EmptyHomeState, 
+  RecommendedSidebar 
+} from './HomeUI';
 
 const Home = () => {
   const { categories } = useCategories();
+  const [recommendedAuthors, setRecommendedAuthors] = useState([]);
+  const [isAuthorsLoading, setIsAuthorsLoading] = useState(false);
+  const [staffPicks, setStaffPicks] = useState([]);
+  const [isStaffPicksLoading, setIsStaffPicksLoading] = useState(false);
+
   const {
     posts,
     postsLoading,
@@ -20,22 +35,68 @@ const Home = () => {
     handleFeedModeChange,
   } = useHome();
 
+  const user = useSelector(selectAuthUser);
+  const isEmailVerified = user?.emailVerification;
+
+  // Fetch some interesting authors for the sidebar
+  useEffect(() => {
+    const fetchAuthors = async () => {
+      setIsAuthorsLoading(true);
+      try {
+        // Just fetch some recent profiles as a placeholder for recommendations
+        const authors = await profileService.searchProfiles(' '); 
+        setRecommendedAuthors(authors.filter(a => a.$id !== authUserId));
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsAuthorsLoading(false);
+      }
+    };
+    fetchAuthors();
+  }, [authUserId]);
+
+  // Fetch staff picks
+  useEffect(() => {
+    const fetchStaffPicks = async () => {
+      setIsStaffPicksLoading(true);
+      try {
+        const res = await postService.getStaffPicks(3);
+        const posts = res.documents;
+        
+        // Fetch profiles for these authors
+        const authorIds = [...new Set(posts.map(p => p.authorId))];
+        const profiles = await profileService.getProfilesByIds(authorIds);
+        
+        // Map profiles back to posts
+        const enrichedPosts = posts.map(post => {
+          const authorProfile = profiles.find(p => p.userId === post.authorId);
+          return {
+            ...post,
+            author: {
+              ...authorProfile,
+              name: authorProfile?.name || post.authorName || 'Member',
+              username: authorProfile?.username || post.authorId
+            }
+          };
+        });
+        
+        setStaffPicks(enrichedPosts);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsStaffPicksLoading(false);
+      }
+    };
+    fetchStaffPicks();
+  }, []);
+
   const renderContent = () => {
     if (postsLoading && posts.length === 0) {
       return (
-        <div className="space-y-8 animate-in fade-in duration-500">
-          {feedMode === 'explore' && !activeCategory && !searchTerm && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-              <div className="lg:col-span-2 lg:row-span-2 rounded-2xl bg-muted animate-pulse min-h-[420px]" />
-              <div className="rounded-2xl bg-muted animate-pulse min-h-[196px]" />
-              <div className="rounded-2xl bg-muted animate-pulse min-h-[196px]" />
-            </div>
-          )}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <PostCardSkeleton key={i} />
-            ))}
-          </div>
+        <div className="space-y-10 animate-in fade-in duration-500">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <PostCardSkeleton key={i} />
+          ))}
         </div>
       );
     }
@@ -65,64 +126,16 @@ const Home = () => {
       );
     }
 
-    // search/filter view OR Following Feed — plain grid
-    if (searchTerm || activeCategory || feedMode === 'following') {
-      return (
-        <div className="space-y-6 animate-in fade-in duration-500">
-          {(searchTerm || activeCategory) && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap mb-4 bg-muted/20 w-fit px-3 py-1.5 rounded-lg border border-border/40">
-              <span className="font-medium">
-                Showing <span className="text-foreground">{posts.length}</span> results
-                {activeCategory && <> in <span className="text-primary">{activeCategory}</span></>}
-                {searchTerm && <> for &ldquo;{searchTerm}&rdquo;</>}
-              </span>
-              <button
-                onClick={() => handleCategoryChange(null)}
-                className="ml-1 inline-flex items-center gap-1 text-xs hover:text-foreground transition-colors font-bold text-primary/70"
-              >
-                <X className="h-3 w-3" /> Clear
-              </button>
-            </div>
-          )}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 items-start">
-            {posts.map((post) => (
-              <PostCard key={post.$id} post={post} />
-            ))}
-          </div>
-          {postsLoading && hasMore && (
-            <div className="flex justify-center pt-10">
-              <Loader2 className="h-6 w-6 animate-spin text-primary/40" />
-            </div>
-          )}
-        </div>
-      );
-    }
-
-    // normal explore view — bento grid top
-    const gridPosts = posts.slice(3);
-
     return (
-      <div className="space-y-12 animate-in fade-in duration-700">
-        <BentoGrid posts={posts.slice(0, 3)} />
-
-        {gridPosts.length > 0 && (
-          <div className="space-y-8">
-            <div className="flex items-center gap-4">
-              <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-[0.2em] whitespace-nowrap">
-                Latest Updates
-              </h2>
-              <div className="flex-1 h-px bg-gradient-to-r from-border via-border/40 to-transparent" />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 items-start">
-              {gridPosts.map((post) => (
-                <PostCard key={post.$id} post={post} />
-              ))}
-            </div>
-          </div>
-        )}
+      <div className="space-y-2 animate-in fade-in duration-700">
+        <div className="flex flex-col">
+          {posts.map((post) => (
+            <PostCard key={post.$id} post={post} />
+          ))}
+        </div>
 
         {postsLoading && hasMore && (
-          <div className="flex justify-center pt-4">
+          <div className="flex justify-center pt-10">
             <Loader2 className="h-6 w-6 animate-spin text-primary/40" />
           </div>
         )}
@@ -131,35 +144,38 @@ const Home = () => {
   };
 
   return (
-    <div className="page-root max-w-7xl mx-auto px-4 sm:px-6">
-      <HomeHeader searchTerm={searchTerm} onSearchChange={handleSearchChange} />
-      
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/40 mb-10 pb-4">
+    <div className="w-full flex flex-col xl:flex-row gap-0">
+      {/* ── Main Feed Column ── */}
+      <div className="flex-1 min-w-0 max-w-4xl xl:pr-16">
+        <HomeHeader searchTerm={searchTerm} onSearchChange={handleSearchChange} />
+        
         <HomeTabs 
           activeMode={feedMode} 
           onModeChange={handleFeedModeChange} 
           isAuthenticated={!!authUserId} 
+          searchTerm={searchTerm}
+          onSearchChange={handleSearchChange}
         />
-        <div className="hidden md:block">
-          <HomeCategoryFilters
-            categories={categories}
-            activeCategory={activeCategory}
-            onCategoryChange={handleCategoryChange}
-          />
-        </div>
-      </div>
 
-      <div className="md:hidden mb-8">
         <HomeCategoryFilters
           categories={categories}
           activeCategory={activeCategory}
           onCategoryChange={handleCategoryChange}
         />
+
+        <main className="pb-20 mt-4">
+          {renderContent()}
+        </main>
       </div>
 
-      <main className="pb-20">
-        {renderContent()}
-      </main>
+      {/* ── Right Sidebar ── */}
+      <RecommendedSidebar 
+        authors={recommendedAuthors} 
+        isLoading={isAuthorsLoading}
+        staffPicks={staffPicks}
+        isStaffPicksLoading={isStaffPicksLoading}
+        isEmailVerified={isEmailVerified}
+      />
     </div>
   );
 };
