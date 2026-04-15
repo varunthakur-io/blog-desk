@@ -1,7 +1,9 @@
 export { default as Navbar } from './Navbar';
+export { default as SideNav } from './SideNav';
 export { default as PrivateRoute } from './PrivateRoute';
 export { default as AppSkeleton } from './AppSkeleton';
 export { default as ConfirmationDialog } from './ConfirmationDialog';
 export { default as EmptyState } from './EmptyState';
 export { default as ShareDialog } from './ShareDialog';
 export { default as SEO } from './SEO';
+export { default as VerificationBanner } from '@/features/auth/components/VerificationBanner';

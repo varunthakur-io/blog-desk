@@ -40,6 +40,9 @@ function App() {
         {/* Routes with layout */}
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
+          <Route path="/explore" element={<Home />} />
+          <Route path="/following" element={<Home />} />
+          <Route path="/bookmarks" element={<Home />} />
           <Route path="/about" element={<About />} />
 
           {/* 🔒 Protected Routes */}
