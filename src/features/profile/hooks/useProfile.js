@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { selectAuthUserId } from '@/features/auth';
 import { useProfileConnections, useProfileTabsContent } from '@/features/profile';
@@ -14,7 +14,19 @@ import { useProfileIdentity } from './useProfileIdentity';
 export const useProfile = () => {
   const { username } = useParams();
   const authUserId = useSelector(selectAuthUserId);
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('posts');
+
+  // Sync state if URL search params change
+  useEffect(() => {
+    const tab = searchParams.get('tab') || 'posts';
+    setActiveTab(tab);
+  }, [searchParams]);
+
+  // Sync URL if state changes
+  const handleTabChange = (newTab) => {
+    setSearchParams({ tab: newTab });
+  };
 
   // 1. Basic Identity (Resolves username -> profileId)
   const {
@@ -74,7 +86,7 @@ export const useProfile = () => {
     profile,
     isOwner,
     activeTab,
-    setActiveTab,
+    setActiveTab: handleTabChange,
 
     // view data
     ...viewData,
