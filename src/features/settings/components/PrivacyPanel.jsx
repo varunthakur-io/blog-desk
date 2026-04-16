@@ -14,7 +14,7 @@ const PrivacyPanel = ({
   handleDeleteAccount,
 }) => {
   return (
-    <div className="space-y-10 max-w-2xl">
+    <div className="space-y-10">
       <div className="pb-4 border-b border-border/50">
         <h2 className="text-xl font-bold tracking-tight">Privacy & Security</h2>
         <p className="text-muted-foreground text-sm mt-1">

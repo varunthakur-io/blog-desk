@@ -5,7 +5,7 @@ import { Separator } from '@/components/ui/separator';
 
 const NotificationsPanel = ({ prefs, isPrefsLoading, handlePrefChange }) => {
   return (
-    <div className="space-y-8 max-w-2xl">
+    <div className="space-y-8">
       <div className="pb-4 border-b border-border/50">
         <h2 className="text-xl font-bold tracking-tight">Notifications</h2>
         <p className="text-muted-foreground text-sm mt-1">

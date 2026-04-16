@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { User, Shield, Bell, Palette, Lock } from 'lucide-react';
+import { User, Shield, Bell, Palette, Lock, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 import useDarkMode from '@/hooks/common/useDarkMode';
@@ -17,13 +17,17 @@ import NotificationsPanel from '@/features/settings/components/NotificationsPane
 import PrivacyPanel from '@/features/settings/components/PrivacyPanel';
 
 const NAV = [
-  { id: 'profile', label: 'Profile', icon: User },
-  { id: 'account', label: 'Account', icon: Lock },
-  { id: 'appearance', label: 'Appearance', icon: Palette },
-  { id: 'notifications', label: 'Notifications', icon: Bell },
-  { id: 'privacy', label: 'Privacy & Security', icon: Shield },
+  { id: 'profile', label: 'Profile', icon: User, description: 'Personal information' },
+  { id: 'account', label: 'Account', icon: Lock, description: 'Email and security' },
+  { id: 'appearance', label: 'Appearance', icon: Palette, description: 'Theme and visuals' },
+  { id: 'notifications', label: 'Notifications', icon: Bell, description: 'Alert preferences' },
+  { id: 'privacy', label: 'Privacy', icon: Shield, description: 'Safety and visibility' },
 ];
 
+/**
+ * User Settings page.
+ * Uses a premium TWO-COLUMN layout for professional account management.
+ */
 export default function Settings() {
   const [active, setActive] = useState('profile');
   const [isDarkMode, setDarkMode] = useDarkMode();
@@ -99,41 +103,57 @@ export default function Settings() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="mb-10 space-y-2">
-        <h1 className="text-4xl font-black tracking-tight text-foreground lg:text-5xl">
-          Settings
-        </h1>
-        <p className="text-lg text-muted-foreground font-medium">
-          Manage your account settings and preferences.
-        </p>
-      </div>
+    <article className="animate-in fade-in duration-700">
+      <header className="py-5 border-b border-border/20 mb-6 px-4 -mx-4">
+        <h1 className="text-2xl font-black tracking-tighter text-foreground">Settings</h1>
+        <p className="text-muted-foreground text-[12px] font-medium opacity-60">Account management and preferences.</p>
+      </header>
 
-      <div className="flex flex-col gap-8">
-        {/* Modern Tabs Navigation */}
-        <div className="flex items-center gap-6 overflow-x-auto pb-px border-b border-border/50 no-scrollbar">
-          {NAV.map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              onClick={() => setActive(id)}
-              className={cn(
-                'flex items-center gap-2 pb-4 text-sm font-bold transition-all relative whitespace-nowrap',
-                active === id
-                  ? 'text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-foreground'
-                  : 'text-muted-foreground hover:text-foreground'
-              )}
-            >
-              <Icon className="h-4 w-4" />
-              {label}
-            </button>
-          ))}
-        </div>
+      <div className="flex flex-col lg:flex-row items-start gap-12 lg:gap-16">
+        {/* Left Column (Vertical Sub-nav) */}
+        <aside className="w-full lg:w-64 shrink-0 lg:sticky lg:top-24">
+          <nav 
+            className="flex flex-col gap-1"
+            aria-label="Settings categories"
+          >
+            {NAV.map(({ id, label, icon: Icon, description }) => (
+              <button
+                key={id}
+                onClick={() => setActive(id)}
+                className={cn(
+                  'group flex items-center justify-between px-3 py-2.5 rounded-md transition-all duration-200',
+                  active === id
+                    ? 'bg-muted text-foreground'
+                    : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                )}
+                aria-current={active === id ? 'page' : undefined}
+              >
+                <div className="flex items-center gap-3">
+                  <Icon className={cn(
+                    "size-4 shrink-0 transition-colors",
+                    active === id ? "text-foreground" : "text-muted-foreground/60"
+                  )} />
+                  <div className="flex flex-col items-start leading-none gap-1">
+                    <span className="text-[13px] font-bold tracking-tight">{label}</span>
+                    {/* Optional description for premium feel */}
+                    <span className="hidden lg:block text-[10px] font-medium opacity-50">{description}</span>
+                  </div>
+                </div>
+                {active === id && (
+                  <ChevronRight className="size-3 text-muted-foreground/30 hidden lg:block" />
+                )}
+              </button>
+            ))}
+          </nav>
+        </aside>
 
-        {/* Active Panel Content */}
-        <div className="max-w-2xl py-2">
-          {renderPanel()}
-        </div>
+        {/* Right Column (Panel Content) */}
+        <main className="flex-1 w-full max-w-2xl px-4 -mx-4 lg:px-0 lg:mx-0">
+          <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+            {renderPanel()}
+          </div>
+        </main>
       </div>
-    </div>
+    </article>
   );
 }
