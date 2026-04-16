@@ -5,12 +5,12 @@ const Login = () => {
   return (
     <main className="flex min-h-screen bg-background">
       {/* ── Left Side: Editorial Canvas (hidden on mobile) ── */}
-      <section className="relative hidden w-1/2 overflow-hidden lg:block">
+      <section className="relative hidden w-1/2 overflow-hidden lg:block bg-zinc-950">
         <div className="absolute inset-0 z-10 bg-black/10" />
         <img 
           src="/auth_hero.png" 
           alt="Architectural Writing Studio" 
-          className="h-full w-full object-cover grayscale brightness-90 transition-transform duration-[10000ms] hover:scale-110" 
+          className="h-full w-full object-cover transition-transform duration-[10000ms] hover:scale-110" 
         />
         
         {/* Typographic Overlay */}
