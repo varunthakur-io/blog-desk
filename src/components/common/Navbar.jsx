@@ -1,7 +1,7 @@
-import { useState, useCallback } from 'react';
-import { NavLink, useNavigate, Link } from 'react-router-dom';
+import { useCallback } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Sun, Moon, Menu, X, LogOut, User, Settings, PenSquare, Search } from 'lucide-react';
+import { Sun, Moon, Menu, LogOut, User, Settings, PenSquare } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 import { Button } from '@/components/ui/button';
@@ -27,7 +27,6 @@ import { selectProfileById } from '@/features/profile';
 import { NavUserSearch } from '@/features/search';
 import { NotificationBell } from '@/features/notifications';
 import useDarkMode from '@/hooks/common/useDarkMode';
-import { cn } from '@/lib/utils';
 
 /**
  * Navbar component for global navigation and user actions.

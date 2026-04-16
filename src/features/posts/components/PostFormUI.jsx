@@ -4,6 +4,7 @@ import {
   Save,
   Loader2,
   Eye,
+  Code,
   Bold,
   Italic,
   List,
@@ -13,6 +14,8 @@ import {
   Quote,
   Undo,
   Redo,
+  X,
+  Upload,
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
