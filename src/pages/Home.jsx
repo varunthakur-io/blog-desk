@@ -73,7 +73,7 @@ const Home = () => {
             ...post,
             author: {
               ...authorProfile,
-              name: authorProfile?.name || post.authorName || 'Member',
+              name: authorProfile?.name || post.authorName || 'Anonymous',
               username: authorProfile?.username || post.authorId
             }
           };
@@ -174,7 +174,7 @@ const Home = () => {
             isLoading={isAuthorsLoading}
             staffPicks={staffPicks}
             isStaffPicksLoading={isStaffPicksLoading}
-            isEmailVerified={isEmailVerified}
+            isAuthenticated={!!user}
           />
         </div>
       </aside>

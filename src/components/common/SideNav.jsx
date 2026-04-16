@@ -18,7 +18,7 @@ import { selectAuthUser } from '@/features/auth';
 const SideNav = ({ isOpen }) => {
   const location = useLocation();
   const user = useSelector(selectAuthUser);
-  const userIdentifier = user?.username || user?.userId || user?.$id;
+  const isAuthenticated = !!user;
 
   const navItems = [
     { icon: Home, label: 'Home', path: '/' },
@@ -60,8 +60,9 @@ const SideNav = ({ isOpen }) => {
     <nav className="flex flex-col h-full pt-6 pb-0 overflow-x-hidden">
       {/* Main Content */}
       <div className="flex flex-col gap-6 flex-1 min-h-0">
-        {/* Write Button */}
-        {location.pathname !== '/create' && (
+        
+        {/* Write Button - ONLY AUTHENTICATED */}
+        {isAuthenticated && location.pathname !== '/create' && (
           <div className="px-3 pb-2 pt-2">
             <Button
               asChild
@@ -80,31 +81,35 @@ const SideNav = ({ isOpen }) => {
           <p className="px-2 text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 mb-4">
             Discovery
           </p>
-          {navItems.map(renderLink)}
+          {navItems
+            .filter(item => item.label !== 'Following' || isAuthenticated)
+            .map(renderLink)}
         </div>
 
-        {/* Library */}
-        <div className="space-y-1.5 px-3">
-          <p className="px-2 text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 mb-4 mt-2">
-            Library
-          </p>
-          {libraryItems.map(renderLink)}
+        {/* Library - ONLY AUTHENTICATED */}
+        {isAuthenticated && (
+          <div className="space-y-1.5 px-3">
+            <p className="px-2 text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 mb-4 mt-2">
+              Library
+            </p>
+            {libraryItems.map(renderLink)}
 
-          <NavLink
-            to="/settings"
-            className={({ isActive }) =>
-              cn(
-                'group flex items-center gap-3 px-3 py-2 rounded-md text-[13px] font-bold tracking-tight transition-all duration-300',
-                isActive
-                  ? 'bg-muted text-foreground'
-                  : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
-              )
-            }
-          >
-            <Settings className="h-4 w-4 shrink-0" />
-            Settings
-          </NavLink>
-        </div>
+            <NavLink
+              to="/settings"
+              className={({ isActive }) =>
+                cn(
+                  'group flex items-center gap-3 px-3 py-2 rounded-md text-[13px] font-bold tracking-tight transition-all duration-300',
+                  isActive
+                    ? 'bg-muted text-foreground'
+                    : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
+                )
+              }
+            >
+              <Settings className="h-4 w-4 shrink-0" />
+              Settings
+            </NavLink>
+          </div>
+        )}
       </div>
 
       {/* Footer */}

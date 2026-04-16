@@ -1,164 +1,144 @@
 import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
-import { Search, BookOpen, ArrowRight, X, Heart } from 'lucide-react';
+import { Search, BookOpen, ArrowRight, X, TrendingUp, Users } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { EmptyState } from '@/components/common';
 import { cn } from '@/lib/utils';
 
-// ─── Recommended Sidebar (Medium Style) ───────────────────────
+// ─── Recommended Sidebar (Premium Digest Style) ───────────────────────
 
 export const RecommendedSidebar = ({ 
   authors = [], 
   isLoading, 
   staffPicks = [], 
   isStaffPicksLoading,
+  isAuthenticated = false,
 }) => (
   <div className="flex flex-col min-h-[calc(100vh-10rem)]">
     <div className="flex-1 space-y-12">
-      {/* Trending Stories */}
-    <section className="space-y-6 text-foreground">
-      <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">Trending on blogdesk</h3>
-      <div className="space-y-6">
-        {isStaffPicksLoading ? (
-          Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="flex gap-4 animate-pulse">
-              <div className="size-8 rounded bg-muted" />
-              <div className="flex-1 space-y-2">
-                <div className="h-3 w-20 rounded bg-muted" />
-                <div className="h-4 w-full rounded bg-muted" />
-              </div>
-            </div>
-          ))
-        ) : staffPicks.length > 0 ? (
-          staffPicks.map((post, idx) => (
-            <article key={post.$id} className="group/item flex items-start gap-4">
-              <span className="pt-1 text-3xl font-black tabular-nums tracking-tighter text-muted-foreground/20 transition-colors group-hover/item:text-primary/40">
-                {String(idx + 1).padStart(2, '0')}
-              </span>
-              <div className="min-w-0 flex-1 space-y-2 mt-1">
-                <Link to={`/profile/${post.author?.username || post.authorId}`} className="flex items-center gap-2 transition-opacity hover:opacity-80">
-                  <Avatar className="size-5 border-none ring-1 ring-border/50">
-                    {post.author?.avatarUrl && <AvatarImage src={post.author.avatarUrl} />}
-                    <AvatarFallback className="bg-muted text-[10px] font-medium text-muted-foreground">
-                      {(post.author?.name || 'A').charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="truncate text-xs font-semibold">{post.author?.name || 'Anonymous'}</span>
-                </Link>
-                <Link to={`/posts/${post.$id}`}>
-                  <h4 className="line-clamp-2 text-sm font-bold leading-snug transition-colors hover:text-primary">
-                    {post.title}
-                  </h4>
-                </Link>
-                <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <Heart className="size-3 fill-current text-rose-500/60" />
-                    {post.likesCount || 0}
-                  </span>
-                  <span>·</span>
-                  <span>{new Date(post.$createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+      
+      {/* Digest: Staff Picks / Trending */}
+      <section className="space-y-6">
+        <div className="flex items-center justify-between pb-2 border-b border-border/10">
+          <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/50">Staff Picks</h3>
+          <TrendingUp className="size-3 text-foreground/20" />
+        </div>
+        
+        <div className="divide-y divide-border/10">
+          {isStaffPicksLoading ? (
+            Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="py-4 first:pt-0 flex gap-4 animate-pulse">
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 w-20 rounded bg-muted" />
+                  <div className="h-4 w-full rounded bg-muted" />
                 </div>
+                <div className="size-12 rounded bg-muted shrink-0" />
               </div>
-            </article>
-          ))
-        ) : (
-          <p className="text-xs font-medium italic text-muted-foreground">No trending stories found.</p>
-        )}
-      </div>
-      <Button variant="link" className="h-auto p-0 text-[11px] font-bold text-primary hover:no-underline group uppercase tracking-widest opacity-60 hover:opacity-100">
-        See the full list
-        <ArrowRight className="ml-1.5 size-3 transition-transform group-hover:translate-x-0.5" />
-      </Button>
-    </section>
+            ))
+          ) : staffPicks.length > 0 ? (
+            staffPicks.map((post) => (
+              <article key={post.$id} className="group py-3 first:pt-0 flex items-start gap-4 px-2 -mx-2 hover:bg-muted/30 transition-all duration-300 rounded-xl">
+                <div className="min-w-0 flex-1 space-y-2">
+                  <Link to={`/profile/${post.author?.username || post.authorId}`} className="flex items-center gap-2 transition-opacity hover:opacity-80">
+                    <Avatar className="size-4 border-none bg-muted">
+                      {post.author?.avatarUrl && <AvatarImage src={post.author.avatarUrl} className="object-cover" />}
+                      <AvatarFallback className="text-[7px] font-bold text-muted-foreground">
+                        {(post.author?.name || 'A').charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="truncate text-[10px] font-bold text-foreground/60">{post.author?.name || 'Anonymous'}</span>
+                  </Link>
+                  <Link to={`/posts/${post.$id}`} className="block">
+                    <h4 className="line-clamp-2 text-[13px] font-bold leading-snug tracking-tight text-foreground group-hover:text-primary transition-colors">
+                      {post.title}
+                    </h4>
+                  </Link>
+                </div>
+                {post.coverImageUrl && (
+                   <Link to={`/posts/${post.$id}`} className="shrink-0">
+                    <div className="size-12 rounded-md overflow-hidden bg-muted border border-border/10">
+                      <img src={post.coverImageUrl} className="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-500" />
+                    </div>
+                  </Link>
+                )}
+              </article>
+            ))
+          ) : (
+            <p className="py-4 text-[11px] font-medium italic text-muted-foreground/30">No recommendations available.</p>
+          )}
+        </div>
+      </section>
 
-    {/* Who to Follow */}
-    <section className="space-y-6 pt-2">
-      <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">Who to follow</h3>
-      <div className="space-y-5">
-        {isLoading ? (
-          Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-3 animate-pulse">
-              <div className="size-8 rounded-full bg-muted" />
-              <div className="flex-1 space-y-2">
-                <div className="h-3 w-24 rounded bg-muted" />
-                <div className="h-2 w-full rounded bg-muted" />
-              </div>
-            </div>
-          ))
-        ) : authors.length > 0 ? (
-          authors.slice(0, 3).map((author) => (
-            <div key={author.$id} className="group/author flex items-start justify-between gap-4 px-4 -mx-4 py-2 hover:bg-muted/30 transition-colors rounded-lg">
-              <Link to={`/profile/${author.username}`} className="flex min-w-0 items-start gap-3">
-                <Avatar className="size-8 border border-border/50 transition-all ring-primary/10 ring-offset-background group-hover/author:ring-2">
-                  {author.avatarUrl && <AvatarImage src={author.avatarUrl} />}
-                  <AvatarFallback className="bg-muted text-[10px] font-bold text-muted-foreground">{author.name?.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-bold text-foreground hover:underline">{author.name}</p>
-                  <p className="line-clamp-2 text-xs text-muted-foreground mt-0.5">
-                    {author.bio || 'Sharing thoughts and stories on blogdesk.'}
-                  </p>
+      {/* Digest: Creators */}
+      {isAuthenticated && (
+        <section className="space-y-6">
+           <div className="flex items-center justify-between pb-2 border-b border-border/10">
+            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/50">Who to follow</h3>
+            <Users className="size-3 text-foreground/20" />
+          </div>
+          
+          <div className="space-y-4">
+            {isLoading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-3 animate-pulse">
+                  <div className="size-10 rounded-md bg-muted" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-3 w-24 rounded bg-muted" />
+                    <div className="h-2 w-full rounded bg-muted" />
+                  </div>
                 </div>
-              </Link>
-              <Button variant="outline" size="sm" className="h-8 shrink-0 rounded-md px-4 text-xs font-bold transition-all active:scale-95">
-                Follow
-              </Button>
-            </div>
-          ))
-        ) : (
-          <p className="text-xs font-medium italic text-muted-foreground">No suggestions yet.</p>
-        )}
-      </div>
-      <Button variant="link" className="h-auto p-0 text-[11px] font-bold text-primary hover:no-underline group uppercase tracking-widest opacity-60 hover:opacity-100">
-        See more suggestions
-        <ArrowRight className="ml-1.5 size-3 transition-transform group-hover:translate-x-0.5" />
-      </Button>
-    </section>
+              ))
+            ) : authors.length > 0 ? (
+              authors.slice(0, 3).map((author) => (
+                <div key={author.$id} className="group/author flex items-center justify-between gap-4 py-1">
+                  <Link to={`/profile/${author.username}`} className="flex min-w-0 items-center gap-3">
+                    <Avatar className="size-10 border-none bg-muted ring-1 ring-border/20 transition-all group-hover/author:ring-primary/20">
+                      {author.avatarUrl && <AvatarImage src={author.avatarUrl} className="object-cover" />}
+                      <AvatarFallback className="bg-muted text-[11px] font-bold text-muted-foreground">{author.name?.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0">
+                      <p className="truncate text-[13px] font-bold text-foreground hover:text-primary transition-colors tracking-tight">{author.name}</p>
+                      <p className="truncate text-[11px] text-muted-foreground/40 font-medium tracking-tight">
+                        {author.bio?.substring(0, 30) || 'Verified Writer'}...
+                      </p>
+                    </div>
+                  </Link>
+                  <Button variant="outline" size="sm" className="h-7 rounded-md px-3 text-[10px] font-black bg-foreground text-background border-none hover:opacity-90 transition-all active:scale-95 uppercase tracking-tighter">
+                    Follow
+                  </Button>
+                </div>
+              ))
+            ) : (
+              <p className="text-[11px] font-medium italic text-muted-foreground/30">No suggestions found.</p>
+            )}
+          </div>
+        </section>
+      )}
 
     </div>
-    
-    {/* Footer Links */}
-    <footer className="border-t border-border/40 pt-10 mt-12 pb-6">
-      <nav className="flex flex-wrap gap-x-6 gap-y-2 mb-4">
-        {['About', 'Help', 'Terms', 'Privacy'].map(link => (
-          <Link
-            key={link}
-            to="/about"
-            className="text-[12px] font-medium text-muted-foreground/60 hover:text-foreground transition-colors"
-          >
-            {link}
-          </Link>
-        ))}
-      </nav>
-      <p className="text-[11px] font-medium text-muted-foreground/30 tabular-nums">
-        © {new Date().getFullYear()} blogdesk
-      </p>
-    </footer>
   </div>
 );
 
 export const HomeTabs = ({ activeMode, onModeChange, isAuthenticated, searchTerm, onSearchChange }) => {
   return (
-    <div className="sticky top-16 z-30 border-b border-border/40 bg-background/95 backdrop-blur-md mb-2 px-4 -mx-4">
+    <div className="sticky top-16 z-30 border-b border-border/20 bg-background/95 backdrop-blur-md mb-2 px-4 -mx-4">
       <div className="flex h-14 items-center justify-between gap-4">
         
         {/* Tabs - Align to the bottom of the container */}
         <div className="flex gap-8 h-full items-end">
-          {['explore', 'following'].map((mode) => (
+          {['explore', 'following']
+            .filter((mode) => mode !== 'following' || isAuthenticated)
+            .map((mode) => (
             <button
               key={mode}
-              onClick={() => {
-                if (mode === 'following' && !isAuthenticated) return;
-                onModeChange(mode);
-              }}
+              onClick={() => onModeChange(mode)}
               className={cn(
                 'pb-4 text-[14px] font-bold transition-all duration-300 relative tracking-tight',
                 activeMode === mode
                   ? 'text-foreground'
-                  : 'text-muted-foreground hover:text-foreground/70',
-                mode === 'following' && !isAuthenticated && 'opacity-40 cursor-not-allowed'
+                  : 'text-muted-foreground hover:text-foreground/70'
               )}
             >
               {mode === 'explore' ? 'For you' : 'Following'}
@@ -175,8 +155,8 @@ export const HomeTabs = ({ activeMode, onModeChange, isAuthenticated, searchTerm
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/50 group-focus-within:text-foreground transition-colors" />
             <Input
               type="search"
-              placeholder="Search feed..."
-              className="pl-9 h-8 text-[13px] w-full rounded-md bg-muted/40 border-none focus:bg-muted/60 transition-all ring-1 ring-border/40 focus:ring-ring shadow-none"
+              placeholder="Search stories..."
+              className="pl-9 h-8 text-[13px] w-full rounded-md bg-muted/20 border-border/10 focus:bg-muted/40 transition-all ring-foreground/10 focus:ring-ring shadow-none"
               value={searchTerm}
               onChange={onSearchChange}
             />
@@ -192,9 +172,9 @@ export const HomeCategoryFilters = ({ categories = [], activeCategory, onCategor
     <button
       onClick={() => activeCategory && onCategoryChange(null)}
       className={cn(
-        'h-8 shrink-0 rounded-full px-5 text-[12px] font-bold transition-all duration-300',
+        'h-8 shrink-0 rounded-md border border-border/20 px-4 text-[11px] font-bold transition-all duration-300',
         !activeCategory
-          ? 'bg-foreground text-background shadow-sm'
+          ? 'bg-foreground text-background shadow-sm border-none'
           : 'bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground'
       )}
     >
@@ -207,9 +187,9 @@ export const HomeCategoryFilters = ({ categories = [], activeCategory, onCategor
           key={cat}
           onClick={() => onCategoryChange(cat)}
           className={cn(
-            'h-8 shrink-0 rounded-full px-5 text-[12px] font-bold transition-all duration-300',
+            'h-8 shrink-0 rounded-md border border-border/20 px-4 text-[11px] font-bold transition-all duration-300',
             isActive
-              ? 'bg-foreground text-background shadow-sm'
+              ? 'bg-foreground text-background shadow-sm border-none'
               : 'bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground'
           )}
         >
@@ -243,12 +223,12 @@ export const EmptyHomeState = ({ searchTerm, activeCategory, onClearFilters }) =
               variant="outline"
               size="sm"
               onClick={onClearFilters}
-              className="rounded-full gap-2 px-5 font-bold text-xs hover:bg-muted"
+              className="rounded-md gap-2 px-5 font-bold text-xs hover:bg-muted border-border/40"
             >
               <X className="size-3.5" /> Clear all filters
             </Button>
           ) : (
-            <Button asChild className="mt-2 h-11 rounded-full bg-primary px-8 font-bold text-xs shadow-md transition-all hover:shadow-xl active:scale-95">
+            <Button asChild className="mt-2 h-11 rounded-md bg-foreground text-background px-8 font-bold text-xs shadow-md transition-all hover:opacity-90 active:scale-95">
               <NavLink to="/create">
                 Write First Post <ArrowRight className="ml-2 size-4" />
               </NavLink>
