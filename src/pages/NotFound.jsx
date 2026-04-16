@@ -8,17 +8,17 @@ import { Button } from '@/components/ui/button';
  */
 const NotFound = () => {
   return (
-    <div className="page-root flex flex-col items-center justify-center min-h-[70vh] text-center px-4 animate-in fade-in duration-500">
+    <div className="flex flex-col items-center justify-center py-20 text-center px-4 animate-in fade-in duration-500 space-y-8">
       {/* Visual Element */}
-      <div className="relative mb-8">
+      <div className="relative">
         <div className="absolute inset-0 bg-primary/10 blur-3xl rounded-full" />
-        <div className="relative h-24 w-24 bg-card border border-border rounded-3xl flex items-center justify-center shadow-sm">
+        <div className="relative h-24 w-24 bg-card border border-border rounded-3xl flex items-center justify-center shadow-sm mx-auto">
           <Ghost className="h-12 w-12 text-primary animate-bounce" />
         </div>
       </div>
 
       {/* Text Content */}
-      <div className="max-w-md space-y-3 mb-10">
+      <div className="max-w-md space-y-3">
         <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
           404
         </h1>
@@ -31,7 +31,7 @@ const NotFound = () => {
       </div>
 
       {/* Actions */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row gap-3 pt-4">
         <Button asChild variant="default" className="rounded-full px-8 h-11 gap-2 shadow-md">
           <Link to="/">
             <Home className="h-4 w-4" /> Return Home

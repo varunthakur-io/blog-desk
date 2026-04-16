@@ -41,8 +41,8 @@ const VerifyEmail = () => {
   }, [secret, userId, dispatch]);
 
   return (
-    <div className="page-root flex items-center justify-center min-h-[60vh]">
-      <div className="max-w-md w-full text-center space-y-6 p-8 rounded-2xl border border-border bg-card shadow-sm animate-in fade-in zoom-in duration-300">
+    <main className="page-container flex items-center justify-center min-h-[calc(100vh-4rem)]">
+      <section className="max-w-md w-full text-center space-y-8 p-8 rounded-2xl border border-border bg-card shadow-sm animate-in fade-in zoom-in duration-300">
         
         {/* ICON */}
         <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto ${
@@ -56,7 +56,7 @@ const VerifyEmail = () => {
         </div>
 
         {/* TEXT */}
-        <div className="space-y-2">
+        <header className="space-y-2">
           <h1 className="text-2xl font-bold tracking-tight">
             {status === 'loading' && 'Verifying your email...'}
             {status === 'success' && 'Email Verified!'}
@@ -67,7 +67,7 @@ const VerifyEmail = () => {
             {status === 'success' && 'Your account is now fully activated. You can now post and interact with others.'}
             {status === 'error' && error}
           </p>
-        </div>
+        </header>
 
         {/* ACTIONS */}
         <div className="pt-4">
@@ -87,8 +87,8 @@ const VerifyEmail = () => {
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };
 

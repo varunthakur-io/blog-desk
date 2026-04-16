@@ -1,135 +1,24 @@
 import { Link } from 'react-router-dom';
-import { Eye, EyeOff, ArrowRight } from 'lucide-react';
-
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useLogin } from '@/features/auth';
+import { LoginForm } from '@/features/auth';
 
 const Login = () => {
-  const {
-    credentials,
-    loginErrors,
-    showPassword,
-    isLoginLoading,
-    handleChange,
-    handleSubmit,
-    togglePasswordVisibility,
-  } = useLogin();
-
   return (
-    <div className="auth-container bg-background">
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="flex justify-center mb-8">
-          <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-bold text-lg shadow-sm">
+    <main className="page-container flex items-center justify-center min-h-[calc(100vh-4rem)]">
+      <div className="w-full max-w-md space-y-8 animate-in fade-in zoom-in-95 duration-500">
+        {/* Logo/Branding Header */}
+        <header className="flex justify-center">
+          <Link to="/" className="flex items-center gap-2.5 group transition-transform hover:scale-105 active:scale-95">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-primary text-lg font-black text-primary-foreground shadow-md ring-2 ring-primary/20">
               B
             </div>
-            <span className="font-bold text-xl tracking-tight">Blog Desk</span>
+            <span className="text-2xl font-black tracking-tight text-foreground">Blog Desk</span>
           </Link>
-        </div>
+        </header>
 
-        {/* Card */}
-        <div className="rounded-2xl border border-border bg-card p-8 space-y-6 shadow-sm">
-          <div className="space-y-1 text-center">
-            <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
-            <p className="text-muted-foreground text-sm">Sign in to continue to your account</p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-            {/* Email */}
-            <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-sm font-medium">
-                Email
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                name="email"
-                placeholder="you@example.com"
-                value={credentials.email}
-                onChange={handleChange}
-                required
-                disabled={isLoginLoading}
-                autoComplete="email"
-                className={`h-11 rounded-lg text-sm ${loginErrors.email ? 'border-destructive focus-visible:ring-destructive/40' : ''}`}
-              />
-              {loginErrors.email && <p className="text-xs text-destructive">{loginErrors.email}</p>}
-            </div>
-
-            {/* Password */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password" name="password" className="text-sm font-medium">
-                  Password
-                </Label>
-                <Link
-                  to="/forgot-password"
-                  className="text-xs font-semibold text-primary hover:underline transition-colors"
-                >
-                  Forgot password?
-                </Link>
-              </div>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  placeholder="Your password"
-                  value={credentials.password}
-                  onChange={handleChange}
-                  required
-                  disabled={isLoginLoading}
-                  autoComplete="current-password"
-                  className={`h-11 rounded-lg text-sm pr-10 ${loginErrors.password ? 'border-destructive focus-visible:ring-destructive/40' : ''}`}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                  onClick={togglePasswordVisibility}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                  )}
-                </Button>
-              </div>
-              {loginErrors.password && (
-                <p className="text-xs text-destructive">{loginErrors.password}</p>
-              )}
-            </div>
-
-            <Button
-              type="submit"
-              disabled={isLoginLoading}
-              className="w-full h-11 rounded-full font-semibold gap-2 text-sm mt-2"
-            >
-              {isLoginLoading ? (
-                'Signing in…'
-              ) : (
-                <>
-                  <span>Sign In</span> <ArrowRight className="h-4 w-4" />
-                </>
-              )}
-            </Button>
-          </form>
-
-          <p className="text-center text-sm text-muted-foreground pt-2">
-            Don&apos;t have an account?{' '}
-            <Link
-              to="/signup"
-              className="font-bold text-primary hover:underline"
-            >
-              Sign up for free
-            </Link>
-          </p>
-        </div>
+        {/* Feature Component */}
+        <LoginForm />
       </div>
-    </div>
+    </main>
   );
 };
 

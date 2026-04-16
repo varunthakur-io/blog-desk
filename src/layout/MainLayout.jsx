@@ -6,6 +6,10 @@ import { useBookmarksInit } from '@/features/bookmarks';
 import { selectAuthUser } from '@/features/auth';
 import { cn } from '@/lib/utils';
 
+/**
+ * MainLayout manages the overall application structure, including
+ * the global Navbar, SideNav, and main content area.
+ */
 const MainLayout = () => {
   useBookmarksInit();
   const user = useSelector(selectAuthUser);
@@ -17,37 +21,46 @@ const MainLayout = () => {
 
   return (
     <div className={cn(
-      "min-h-screen bg-background flex flex-col",
+      "relative flex min-h-screen flex-col bg-background",
       isEditorPage && "h-screen overflow-hidden"
     )}>
-      {/* Universal Top Navbar */}
+      {/* Global Navigation Header */}
       <Navbar onToggleSidebar={toggleSidebar} />
       
-      {/* Verification Banner */}
+      {/* Contextual Notifications */}
       <VerificationBanner user={user} />
 
-      <div className="flex-1 flex items-start">
-        {/* Global SideNav */}
-        <div className={cn(
-          "hidden md:block sticky top-16 h-[calc(100vh-64px)] transition-all duration-300 border-r border-border/50 bg-background z-40 shrink-0",
-          isSidebarOpen ? "w-64" : "w-0 border-none overflow-hidden"
-        )}>
+      <div className="flex flex-1 items-start">
+        {/* Navigation Sidebar: Managed via layout wrapper to decouple component logic from positioning */}
+        <aside 
+          className={cn(
+            "sticky top-16 hidden h-[calc(100vh-4rem)] shrink-0 border-r border-border/50 bg-background transition-all duration-500 md:block z-40",
+            isSidebarOpen ? "w-64" : "w-0 border-none overflow-hidden"
+          )}
+        >
           <div className="h-full overflow-y-auto no-scrollbar">
             <SideNav isOpen={isSidebarOpen} />
           </div>
-        </div>
+        </aside>
 
-        {/* Main Content Area */}
-        <div className="flex-1 flex flex-col min-w-0 bg-background relative">
-          {/* Subtle top-of-page dot grid accent */}
-          {!isEditorPage && <div className="fixed inset-0 bg-dot-grid opacity-[0.018] dark:opacity-[0.03] pointer-events-none -z-10" />}
+        {/* Primary Content Container */}
+        <div className="relative flex min-w-0 flex-1 flex-col bg-background">
+          {/* Aesthetic Background Grid */}
+          {!isEditorPage && (
+            <div 
+              className="pointer-events-none fixed inset-0 -z-10 bg-dot-grid opacity-[0.018] dark:opacity-[0.03]" 
+              aria-hidden="true" 
+            />
+          )}
           
-          <main className={cn(
-            "w-full mx-auto transition-all duration-300",
-            isEditorPage 
-              ? "max-w-none p-0 overflow-hidden flex flex-col h-[calc(100vh-64px)]" 
-              : "max-w-screen-2xl px-4 sm:px-6 lg:px-10 py-8"
-          )}>
+          <main 
+            className={cn(
+              "mx-auto w-full transition-all duration-300",
+              isEditorPage 
+                ? "flex h-[calc(100vh-4rem)] max-w-none flex-col overflow-hidden p-0" 
+                : "page-container"
+            )}
+          >
             <Outlet />
           </main>
         </div>

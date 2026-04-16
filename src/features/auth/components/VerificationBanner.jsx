@@ -28,7 +28,7 @@ const VerificationBanner = ({ user }) => {
 
   return (
     <div className="w-full bg-primary/5 border-b border-border/50 py-2.5 px-4 animate-in slide-in-from-top duration-500">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 min-w-0">
           <Mail className="h-4 w-4 text-primary shrink-0" />
           <p className="text-[13px] font-semibold text-foreground/90 truncate">

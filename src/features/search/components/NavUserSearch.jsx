@@ -70,7 +70,7 @@ const NavUserSearch = ({ isMobile }) => {
     <div 
       className={cn(
         "relative flex-1 transition-all duration-300",
-        isMobile ? "block mx-1 mb-4" : "hidden md:block max-w-md mx-4"
+        isMobile ? "block mx-1 mb-4" : "hidden md:block mx-4"
       )} 
       ref={dropdownRef}
     >
