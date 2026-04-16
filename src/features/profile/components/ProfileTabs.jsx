@@ -7,7 +7,7 @@ import { PostCard, PostCardSkeleton } from '@/features/posts';
 import { EmptyState } from '@/components/common';
 
 const PostListSkeleton = ({ count = 3 }) => (
-  <div className="flex flex-col gap-10">
+  <div className="flex flex-col gap-0 px-4 -mx-4">
     {[...Array(count)].map((_, i) => (
       <PostCardSkeleton key={i} />
     ))}
@@ -15,28 +15,28 @@ const PostListSkeleton = ({ count = 3 }) => (
 );
 
 const PostList = ({ posts }) => (
-  <div className="flex flex-col gap-2">
+  <section className="flex flex-col gap-0 px-4 -mx-4">
     {posts.map((post) => (
       <PostCard key={post.$id} post={post} />
     ))}
-  </div>
+  </section>
 );
 
 const ErrorMessage = ({ message }) => (
-  <Alert variant="destructive" className="rounded-xl border-destructive/20 bg-destructive/5">
+  <Alert variant="destructive" className="rounded-xl border-destructive/20 bg-destructive/5 mx-4">
     <AlertDescription className="font-bold text-xs uppercase tracking-widest">{message}</AlertDescription>
   </Alert>
 );
 
 const PrivateTabMessage = ({ children }) => (
-  <div className="rounded-2xl border border-dashed border-border/60 bg-muted/10 py-20 text-center">
+  <article className="rounded-2xl border border-dashed border-border/60 bg-muted/10 py-20 text-center mx-4">
     <div className="max-w-xs mx-auto space-y-3">
        <div className="size-12 rounded-full bg-muted flex items-center justify-center mx-auto opacity-50">
           <Bookmark className="size-5 text-muted-foreground" />
        </div>
        <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest">{children}</p>
     </div>
-  </div>
+  </article>
 );
 
 const PostCollectionTab = ({
@@ -71,11 +71,11 @@ const ProfileTabs = ({
 }) => {
   return (
     <Tabs value={activeTab} className="w-full" onValueChange={setActiveTab}>
-      <div className="flex items-center justify-between mb-10 border-b border-border/40">
-        <TabsList className="h-auto bg-transparent p-0 w-fit rounded-none border-none gap-8">
+      <div className="sticky top-16 z-30 border-b border-border/40 bg-background/95 backdrop-blur-md mb-4 px-4 -mx-4">
+        <TabsList className="h-12 bg-transparent p-0 w-fit rounded-none border-none gap-8 flex items-end">
           <TabsTrigger 
             value="posts" 
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none text-[13px] px-0 pb-4 font-bold uppercase tracking-widest text-muted-foreground data-[state=active]:text-foreground transition-all"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none text-[14px] px-0 pb-4 font-bold tracking-tight text-muted-foreground data-[state=active]:text-foreground transition-all duration-300"
           >
             Posts
           </TabsTrigger>
@@ -83,13 +83,13 @@ const ProfileTabs = ({
             <>
               <TabsTrigger 
                 value="likes" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none text-[13px] px-0 pb-4 font-bold uppercase tracking-widest text-muted-foreground data-[state=active]:text-foreground transition-all"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none text-[14px] px-0 pb-4 font-bold tracking-tight text-muted-foreground data-[state=active]:text-foreground transition-all duration-300"
               >
-                Liked
+                Likes
               </TabsTrigger>
               <TabsTrigger 
                 value="saved" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none text-[13px] px-0 pb-4 font-bold uppercase tracking-widest text-muted-foreground data-[state=active]:text-foreground transition-all"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none text-[14px] px-0 pb-4 font-bold tracking-tight text-muted-foreground data-[state=active]:text-foreground transition-all duration-300"
               >
                 Saved
               </TabsTrigger>
@@ -106,7 +106,7 @@ const ProfileTabs = ({
           posts={userPosts}
           skeletonCount={4}
           emptyState={
-            <div className="py-10">
+            <div className="py-10 px-4">
               <EmptyState
                 className="bg-transparent border-none"
                 icon={Edit}
@@ -118,7 +118,7 @@ const ProfileTabs = ({
                 }
                 action={
                   isOwner && (
-                    <Button asChild className="rounded-full px-8 shadow-md font-black text-xs uppercase tracking-widest h-11 bg-primary">
+                    <Button asChild className="rounded-md px-8 shadow-sm font-bold text-xs h-9 bg-foreground text-background transition-all hover:opacity-90">
                       <Link to="/create">Write First Post</Link>
                     </Button>
                   )
@@ -138,7 +138,7 @@ const ProfileTabs = ({
           error={likesError}
           posts={likedPosts}
           emptyState={
-            <div className="py-10">
+            <div className="py-10 px-4">
               <EmptyState
                 className="bg-transparent border-none"
                 icon={Heart}
@@ -159,7 +159,7 @@ const ProfileTabs = ({
           error={savedError}
           posts={savedPosts}
           emptyState={
-            <div className="py-10">
+            <div className="py-10 px-4">
               <EmptyState
                 className="bg-transparent border-none"
                 icon={Bookmark}

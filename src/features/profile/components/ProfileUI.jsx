@@ -21,7 +21,7 @@ export const ProfileInfo = ({
   const postsCount = profile?.postsCount || 0;
 
   return (
-    <div className="flex flex-col md:flex-row items-start gap-8 mb-12 animate-in fade-in slide-in-from-left-4 duration-500">
+    <div className="flex flex-col md:flex-row items-start gap-8 animate-in fade-in slide-in-from-left-4 duration-500">
       {/* Left: Large Avatar */}
       <div className="shrink-0 mx-auto md:mx-0">
         <div className="relative group">
@@ -109,66 +109,3 @@ export const ProfileInfo = ({
   );
 };
 
-// ─── Profile Skeleton ───────────────────────────────────────
-
-export const ProfileSkeleton = () => {
-  return (
-    <div className="page-wrapper py-10 space-y-12">
-      {/* Info Section */}
-      <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
-        <Skeleton className="h-32 w-32 md:h-40 md:w-40 rounded-full shrink-0 shadow-lg" />
-        <div className="flex-1 space-y-6 w-full py-2">
-          <div className="flex flex-col md:flex-row justify-between gap-4">
-            <div className="space-y-2 flex flex-col items-center md:items-start">
-              <Skeleton className="h-10 w-64" />
-              <Skeleton className="h-4 w-32" />
-            </div>
-            <Skeleton className="h-10 w-32 rounded-full" />
-          </div>
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-2/3" />
-          </div>
-          <div className="flex gap-8 justify-center md:justify-start">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="space-y-2">
-                <Skeleton className="h-6 w-12" />
-                <Skeleton className="h-3 w-16" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Tabs Section */}
-      <div className="space-y-8">
-        <div className="flex gap-2">
-          <Skeleton className="h-9 w-20 rounded-md" />
-          <Skeleton className="h-9 w-20 rounded-md" />
-          <Skeleton className="h-9 w-20 rounded-md" />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="space-y-4 rounded-2xl border border-border p-4 bg-card/50">
-              <Skeleton className="aspect-video w-full rounded-xl" />
-              <div className="space-y-2">
-                <Skeleton className="h-6 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
-              </div>
-              <div className="flex justify-between pt-4">
-                <div className="flex gap-2">
-                  <Skeleton className="h-8 w-8 rounded-full" />
-                  <div className="space-y-1">
-                    <Skeleton className="h-3 w-20" />
-                    <Skeleton className="h-2 w-12" />
-                  </div>
-                </div>
-                <Skeleton className="h-8 w-16 rounded-full" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
