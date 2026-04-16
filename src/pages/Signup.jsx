@@ -10,7 +10,7 @@ const Signup = () => {
         <div className="absolute inset-0 overflow-hidden select-none bg-zinc-950">
           <div 
             className="absolute -inset-4 transition-transform duration-[10000ms] ease-out hover:scale-110 transform-gpu [backface-visibility:hidden] will-change-transform bg-cover bg-center" 
-            style={{ backgroundImage: 'url("/auth_hero.png")' }}
+            style={{ backgroundImage: 'url("/auth_hero.jpg")' }}
             title="Architectural Writing Studio"
           />
         </div>
