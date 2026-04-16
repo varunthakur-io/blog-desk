@@ -51,48 +51,49 @@ const ResetPassword = () => {
   };
 
   return (
-    <main className="page-container flex items-center justify-center min-h-[calc(100vh-4rem)]">
-      <div className="w-full max-w-md space-y-8 animate-in fade-in zoom-in-95 duration-500">
-        <header className="flex justify-center">
-          <Link to="/" className="flex items-center gap-2.5 group transition-transform hover:scale-105 active:scale-95">
-            <div className="flex size-10 items-center justify-center rounded-xl bg-primary text-lg font-black text-primary-foreground shadow-md ring-2 ring-primary/20">
+    <main className="page-container flex items-center justify-center min-h-[calc(100vh-4rem)] bg-background">
+      <div className="w-full max-w-[400px] space-y-10 animate-in fade-in zoom-in-95 duration-700">
+        {/* Logo/Branding Header */}
+        <header className="flex flex-col items-center">
+          <Link to="/" className="group flex flex-col items-center gap-4 transition-all">
+            <div className="flex size-11 items-center justify-center rounded bg-foreground font-black text-xl text-background transition-all group-hover:opacity-90 active:scale-95 shadow-lg shadow-foreground/10">
               B
             </div>
-            <span className="text-2xl font-black tracking-tight text-foreground">Blog Desk</span>
+            <div className="flex flex-col items-center">
+              <span className="text-2xl font-black tracking-tighter text-foreground uppercase">blogdesk</span>
+              <div className="h-0.5 w-4 bg-primary/20 mt-0.5" />
+            </div>
           </Link>
         </header>
 
-        <section className="rounded-2xl border bg-card p-8 shadow-sm">
+        <section className="space-y-8">
           {status === 'success' ? (
-            <div className="text-center space-y-4 animate-in fade-in zoom-in duration-300">
-              <div className="w-16 h-16 bg-green-500/10 text-green-500 rounded-full flex items-center justify-center mx-auto">
+            <div className="text-center space-y-8 animate-in fade-in zoom-in duration-300">
+              <div className="w-16 h-16 bg-foreground text-background rounded-md flex items-center justify-center mx-auto shadow-xl shadow-foreground/10">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
               <header className="space-y-2">
-                <h1 className="text-2xl font-bold">Password Updated</h1>
-                <p className="text-sm text-muted-foreground">
-                  Your password has been changed successfully. Redirecting you to login...
+                <h1 className="text-2xl font-black tracking-tighter uppercase">Identity Verified</h1>
+                <p className="text-muted-foreground/60 text-[13px] font-medium tracking-tight">
+                  Your credentials have been updated. Redirecting to entry sequence...
                 </p>
               </header>
               <footer className="pt-2">
-                <Button asChild className="w-full rounded-full">
+                <Button asChild className="w-full h-12 rounded-md bg-foreground text-background font-black text-[12px] uppercase tracking-[0.2em] shadow-xl shadow-foreground/10">
                   <Link to="/login">Go to Login</Link>
                 </Button>
               </footer>
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-8">
               <header className="text-center space-y-2">
-                <div className="w-12 h-12 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-2">
-                  <Lock className="w-6 h-6" />
-                </div>
-                <h1 className="text-2xl font-bold tracking-tight">New Password</h1>
-                <p className="text-sm text-muted-foreground">Set a secure password for your account</p>
+                <h1 className="text-3xl font-black tracking-tighter text-foreground uppercase">New Credentials</h1>
+                <p className="text-muted-foreground/60 text-[13px] font-medium tracking-tight">Establish a secure secondary access key for your account.</p>
               </header>
 
-              <form onSubmit={handleReset} className="space-y-4">
+              <form onSubmit={handleReset} className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="password">New Password</Label>
+                  <Label htmlFor="password" className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">New security key</Label>
                   <Input
                     id="password"
                     type="password"
@@ -101,11 +102,12 @@ const ResetPassword = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     minLength={8}
+                    className="h-12 rounded-md bg-muted/20 border-border/40 text-[14px] font-medium transition-all focus:bg-background shadow-none"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirm Password</Label>
+                  <Label htmlFor="confirmPassword" className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">Confirm key</Label>
                   <Input
                     id="confirmPassword"
                     type="password"
@@ -113,19 +115,23 @@ const ResetPassword = () => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
+                    className="h-12 rounded-md bg-muted/20 border-border/40 text-[14px] font-medium transition-all focus:bg-background shadow-none"
                   />
                 </div>
 
-                <Button type="submit" className="w-full rounded-full" disabled={loading}>
+                <Button 
+                  type="submit" 
+                  className="w-full h-12 rounded-md bg-foreground text-background font-black text-[12px] uppercase tracking-[0.2em] gap-2 transition-all hover:opacity-90 active:scale-[0.98] shadow-xl shadow-foreground/10"
+                  disabled={loading}
+                >
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {loading ? 'Updating...' : 'Reset Password'}
+                  {loading ? 'Updating Identity...' : 'Update Credentials'}
                 </Button>
               </form>
 
-              <footer className="text-sm text-center text-muted-foreground">
-                Remember your password?{' '}
-                <Link to="/login" className="text-primary font-semibold hover:underline">
-                  Back to login
+              <footer className="text-center pt-4">
+                <Link to="/login" className="text-[11px] font-black uppercase tracking-widest text-primary/40 hover:text-primary transition-all">
+                  Back to entry
                 </Link>
               </footer>
             </div>

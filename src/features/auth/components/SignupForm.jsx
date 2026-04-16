@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useSignup } from '../hooks/useSignup';
+import { cn } from '@/lib/utils';
 
 export const SignupForm = () => {
   const {
@@ -17,11 +18,11 @@ export const SignupForm = () => {
   } = useSignup();
 
   const getUsernameMessage = () => {
-    if (usernameCheckStatus === 'checking') return { type: 'info', text: 'Checking availability…' };
+    if (usernameCheckStatus === 'checking') return { type: 'info', text: 'Verifying Availability…' };
     if (usernameCheckStatus === 'available')
-      return { type: 'success', text: 'Username is available!' };
+      return { type: 'success', text: 'Username Available' };
     if (usernameCheckStatus === 'taken')
-      return { type: 'error', text: 'Username is already taken.' };
+      return { type: 'error', text: 'Username Unavailable' };
     if (signupErrors.username) return { type: 'error', text: signupErrors.username };
     return null;
   };
@@ -29,17 +30,17 @@ export const SignupForm = () => {
   const usernameMessage = getUsernameMessage();
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">
-      <header className="space-y-1 text-center mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">Create your account</h1>
-        <p className="text-muted-foreground text-sm">Join Blog Desk and start writing today</p>
+    <div className="space-y-8">
+      <header className="space-y-2 text-center">
+        <h1 className="text-3xl font-black tracking-tighter text-foreground uppercase">Create an identity</h1>
+        <p className="text-muted-foreground/60 text-[13px] font-medium tracking-tight">Join the network and start sharing your perspective</p>
       </header>
 
-      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+      <form onSubmit={handleSubmit} className="space-y-5" noValidate>
         {/* Name */}
-        <div className="space-y-1.5">
-          <Label htmlFor="name" className="text-sm font-medium">
-            Full Name
+        <div className="space-y-2">
+          <Label htmlFor="name" className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
+            Legal Name
           </Label>
           <Input
             id="name"
@@ -50,15 +51,18 @@ export const SignupForm = () => {
             onChange={handleChange}
             required
             disabled={isSignupLoading}
-            className={`h-11 rounded-lg text-sm ${signupErrors.name ? 'border-destructive' : ''}`}
+            className={cn(
+              "h-12 rounded-md bg-muted/20 border-border/40 text-[14px] font-medium transition-all focus:bg-background shadow-none",
+              signupErrors.name && "border-destructive focus-visible:ring-destructive/20"
+            )}
           />
-          {signupErrors.name && <p className="text-xs text-destructive">{signupErrors.name}</p>}
+          {signupErrors.name && <p className="text-[11px] font-bold text-destructive tracking-tight">{signupErrors.name}</p>}
         </div>
 
         {/* Username */}
-        <div className="space-y-1.5">
-          <Label htmlFor="username" className="text-sm font-medium">
-            Username
+        <div className="space-y-2">
+          <Label htmlFor="username" className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
+            Unique Handle
           </Label>
           <Input
             id="username"
@@ -69,21 +73,18 @@ export const SignupForm = () => {
             onChange={handleChange}
             required
             disabled={isSignupLoading}
-            className={`h-11 rounded-lg text-sm ${
-              signupErrors.username || usernameCheckStatus === 'taken'
-                ? 'border-destructive'
-                : ''
-            }`}
+            className={cn(
+              "h-12 rounded-md bg-muted/20 border-border/40 text-[14px] font-medium transition-all focus:bg-background shadow-none",
+              (signupErrors.username || usernameCheckStatus === 'taken') && "border-destructive focus-visible:ring-destructive/20"
+            )}
           />
           {usernameMessage && (
             <p
-              className={`text-xs font-medium mt-1.5 ${
-                usernameMessage.type === 'success'
-                  ? 'text-green-600 dark:text-green-400'
-                  : usernameMessage.type === 'info'
-                    ? 'text-blue-500'
-                    : 'text-destructive'
-              }`}
+              className={cn(
+                "text-[10px] font-black uppercase tracking-widest mt-1.5",
+                usernameMessage.type === 'success' ? 'text-green-600 dark:text-green-400' : 
+                usernameMessage.type === 'info' ? 'text-blue-500' : 'text-destructive'
+              )}
             >
               {usernameMessage.text}
             </p>
@@ -91,72 +92,80 @@ export const SignupForm = () => {
         </div>
 
         {/* Email */}
-        <div className="space-y-1.5">
-          <Label htmlFor="email" className="text-sm font-medium">
-            Email
+        <div className="space-y-2">
+          <Label htmlFor="email" className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
+            Email Path
           </Label>
           <Input
             id="email"
             type="email"
             name="email"
-            placeholder="you@example.com"
+            placeholder="name@email.com"
             value={formData.email}
             onChange={handleChange}
             required
             disabled={isSignupLoading}
             autoComplete="email"
-            className={`h-11 rounded-lg text-sm ${signupErrors.email ? 'border-destructive' : ''}`}
+            className={cn(
+              "h-12 rounded-md bg-muted/20 border-border/40 text-[14px] font-medium transition-all focus:bg-background shadow-none",
+              signupErrors.email && "border-destructive focus-visible:ring-destructive/20"
+            )}
           />
           {signupErrors.email && (
-            <p className="text-xs text-destructive">{signupErrors.email}</p>
+            <p className="text-[11px] font-bold text-destructive tracking-tight">{signupErrors.email}</p>
           )}
         </div>
 
         {/* Password */}
-        <div className="space-y-1.5">
-          <Label htmlFor="password" className="text-sm font-medium">
-            Password
+        <div className="space-y-2">
+          <Label htmlFor="password" className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
+            Security Phrase
           </Label>
           <Input
             id="password"
             type="password"
             name="password"
-            placeholder="Create a secure password"
+            placeholder="Create a phrase..."
             value={formData.password}
             onChange={handleChange}
             required
             disabled={isSignupLoading}
             autoComplete="new-password"
-            className={`h-11 rounded-lg text-sm ${signupErrors.password ? 'border-destructive' : ''}`}
+            className={cn(
+              "h-12 rounded-md bg-muted/20 border-border/40 text-[14px] font-medium transition-all focus:bg-background shadow-none",
+              signupErrors.password && "border-destructive focus-visible:ring-destructive/20"
+            )}
           />
           {signupErrors.password && (
-            <p className="text-xs text-destructive">{signupErrors.password}</p>
+            <p className="text-[11px] font-bold text-destructive tracking-tight">{signupErrors.password}</p>
           )}
         </div>
 
         <Button
           type="submit"
-          className="w-full h-11 rounded-full font-semibold gap-2 text-sm mt-2 focus-visible:ring-offset-1"
+          className="w-full h-12 rounded-md bg-foreground text-background font-black text-[12px] uppercase tracking-[0.2em] gap-2 transition-all hover:opacity-90 active:scale-[0.98] shadow-xl shadow-foreground/10"
           disabled={isSignupLoading || isSubmitDisabled}
         >
           {isSignupLoading ? (
-            'Creating account…'
+            'Initializing Account…'
           ) : (
             <>
-              <span>Create Account</span> <ArrowRight className="h-4 w-4" />
+              Generate Identity <ArrowRight className="h-4 w-4" />
             </>
           )}
         </Button>
       </form>
 
-      <footer className="text-center text-sm text-muted-foreground pt-6">
-        Already have an account?{' '}
-        <Link
-          to="/login"
-          className="font-bold text-primary hover:underline focus-visible:rounded focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-        >
-          Sign in
-        </Link>
+      <footer className="text-center pt-4">
+        <p className="text-[13px] font-medium text-muted-foreground/40 tracking-tight">
+          Already registered?{' '}
+          <Link
+            to="/login"
+            className="font-black text-foreground hover:text-primary transition-all underline decoration-primary/20 underline-offset-4"
+          >
+            Sign in to access
+          </Link>
+        </p>
       </footer>
     </div>
   );
