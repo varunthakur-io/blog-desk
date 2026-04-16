@@ -5,7 +5,6 @@ import { Sun, Moon, Menu, X, LogOut, User, Settings, PenSquare, Search } from 'l
 import toast from 'react-hot-toast';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,7 +27,12 @@ import { selectProfileById } from '@/features/profile';
 import { NavUserSearch } from '@/features/search';
 import { NotificationBell } from '@/features/notifications';
 import useDarkMode from '@/hooks/common/useDarkMode';
+import { cn } from '@/lib/utils';
 
+/**
+ * Navbar component for global navigation and user actions.
+ * Layout (position, z-index, background) is handled internally as a sticky header.
+ */
 const Navbar = ({ onToggleSidebar }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -54,52 +58,58 @@ const Navbar = ({ onToggleSidebar }) => {
   }, [dispatch, navigate]);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/85 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70 h-16 flex items-center shrink-0">
-      <div className="w-full px-4 sm:px-6 flex items-center justify-between gap-4">
-        {/* LEFT: Brand & Toggle */}
+    <header className="sticky top-0 z-50 flex h-16 w-full shrink-0 items-center border-b border-border/40 bg-background/60 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/40 transition-all duration-500">
+      <div className="flex w-full items-center justify-between gap-4 px-4 sm:px-6">
+        
+        {/* Branding & Sidebar Toggle */}
         <div className="flex items-center gap-4">
           <Button 
             variant="ghost" 
             size="icon" 
             onClick={onToggleSidebar}
-            className="hidden md:flex rounded-full text-muted-foreground hover:text-foreground"
+            className="hidden rounded-md text-muted-foreground hover:text-foreground md:flex shrink-0 transition-all hover:bg-muted"
+            aria-label="Toggle Sidebar"
           >
             <Menu className="h-5 w-5" />
           </Button>
 
-          <Link to="/" className="flex items-center gap-2.5 group shrink-0">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-black text-base shadow-sm ring-1 ring-primary/20 transition-transform group-hover:scale-105">
+          <Link to="/" className="group flex shrink-0 items-center gap-2">
+            <div className="flex size-7 items-center justify-center rounded bg-foreground font-black text-[15px] text-background transition-all group-hover:opacity-90">
               B
             </div>
-            <span className="font-bold text-lg tracking-tight hidden lg:inline-block">
-              Blog Desk
+            <span className="hidden font-sans font-bold tracking-tight text-[17px] text-foreground sm:inline-block">
+              blogdesk
             </span>
           </Link>
         </div>
 
-        {/* CENTER: Global Search */}
-        <div className="flex-1 max-w-2xl hidden sm:block">
+        {/* Search: Layout-decoupled through flex-1 */}
+        <div className="hidden max-w-2xl flex-1 sm:block">
           <NavUserSearch />
         </div>
 
-        {/* RIGHT: Actions */}
+        {/* User Actions */}
         <div className="flex items-center gap-1 sm:gap-2">
+          {/* Dark Mode Toggle */}
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setDarkMode(!isDarkMode)}
-            className="text-muted-foreground hover:text-foreground rounded-full h-9 w-9 flex"
+            className="h-9 w-9 rounded-md text-muted-foreground hover:text-foreground shrink-0"
+            aria-label="Toggle theme"
           >
-            <Sun className="h-4.5 w-4.5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute h-4.5 w-4.5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <Sun className="h-4 w-4 scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+            <Moon className="absolute h-4 w-4 scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
           </Button>
 
-          {isAuthenticated && (
+          {isAuthenticated ? (
             <div className="flex items-center gap-1 sm:gap-2">
-              <Link to="/create" className="hidden md:flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors mr-2">
-                <PenSquare className="h-4.5 w-4.5" />
-                Write
-              </Link>
+              <Button variant="ghost" className="hidden h-9 px-4 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground md:flex shrink-0" asChild>
+                <Link to="/create" className="flex items-center gap-2">
+                  <PenSquare className="h-4 w-4" />
+                  Write
+                </Link>
+              </Button>
               
               <NotificationBell />
 
@@ -107,52 +117,50 @@ const Navbar = ({ onToggleSidebar }) => {
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="relative h-9 w-9 rounded-full ring-1 ring-border hover:ring-primary/30 transition-all p-0"
+                    className="relative h-9 w-9 p-0 rounded-full ring-1 ring-border transition-colors hover:bg-accent shrink-0"
                   >
                     <Avatar className="h-8 w-8">
                       {profile?.avatarUrl && <AvatarImage src={profile.avatarUrl} className="object-cover" />}
-                      <AvatarFallback className="bg-muted text-foreground font-semibold text-xs">
+                      <AvatarFallback className="bg-muted text-xs font-medium">
                         {userName?.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56 shadow-lg border-border/60" align="end">
-                  <DropdownMenuLabel className="font-normal py-2.5 text-xs">
+                <DropdownMenuContent className="w-56 border-border/60 shadow-lg" align="end">
+                  <DropdownMenuLabel className="py-2.5 text-xs font-normal">
                     <div className="flex flex-col gap-0.5">
                       <p className="font-bold leading-none">{userName}</p>
-                      <p className="leading-none text-muted-foreground truncate mt-1">{userEmail}</p>
+                      <p className="mt-1 truncate leading-none text-muted-foreground">{userEmail}</p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild className="cursor-pointer gap-2 py-2">
                     <Link to="/profile">
-                      <User className="h-4 w-4" /> Profile
+                      <User className="size-4" /> Profile
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild className="cursor-pointer gap-2 py-2">
                     <Link to="/settings">
-                      <Settings className="h-4 w-4" /> Settings
+                      <Settings className="size-4" /> Settings
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={handleLogout}
-                    className="text-destructive focus:text-destructive cursor-pointer gap-2 py-2"
+                    className="cursor-pointer gap-2 py-2 text-destructive focus:text-destructive"
                   >
-                    <LogOut className="h-4 w-4" /> Log out
+                    <LogOut className="size-4" /> Log out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-          )}
-
-          {!isAuthenticated && (
+          ) : (
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" asChild className="hidden sm:flex text-xs font-bold rounded-full">
+              <Button variant="ghost" size="sm" asChild className="hidden rounded-md text-sm font-medium sm:flex">
                 <Link to="/login">Sign In</Link>
               </Button>
-              <Button size="sm" asChild className="text-xs font-bold rounded-full px-5 h-9">
+              <Button size="sm" asChild className="h-9 rounded-md px-4 text-sm font-medium shadow-sm">
                 <Link to="/signup">Get Started</Link>
               </Button>
             </div>
