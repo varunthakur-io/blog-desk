@@ -3,24 +3,49 @@ import { SignupForm } from '@/features/auth';
 
 const Signup = () => {
   return (
-    <main className="page-container flex items-center justify-center min-h-[calc(100vh-4rem)] bg-background">
-      <div className="w-full max-w-[400px] space-y-10 animate-in fade-in zoom-in-95 duration-700">
-        {/* Logo/Branding Header */}
-        <header className="flex flex-col items-center">
-          <Link to="/" className="group flex flex-col items-center gap-4 transition-all">
-            <div className="flex size-11 items-center justify-center rounded bg-foreground font-black text-xl text-background transition-all group-hover:opacity-90 active:scale-95 shadow-lg shadow-foreground/10">
-              B
-            </div>
-            <div className="flex flex-col items-center">
-              <span className="text-2xl font-black tracking-tighter text-foreground uppercase">blogdesk</span>
-              <div className="h-0.5 w-4 bg-primary/20 mt-0.5" />
-            </div>
-          </Link>
-        </header>
+    <main className="flex min-h-screen bg-background">
+      {/* ── Left Side: Editorial Canvas (hidden on mobile) ── */}
+      <section className="relative hidden w-1/2 overflow-hidden lg:block">
+        <div className="absolute inset-0 z-10 bg-black/10" />
+        <img 
+          src="/auth_hero.png" 
+          alt="Architectural Writing Studio" 
+          className="h-full w-full object-cover grayscale brightness-90 transition-transform duration-[10000ms] hover:scale-110" 
+        />
+        
+        {/* Typographic Overlay */}
+        <div className="absolute inset-0 z-20 flex flex-col justify-end p-20 text-white">
+          <div className="max-w-md space-y-6">
+            <h2 className="text-5xl font-black tracking-tighter leading-tight italic grayscale opacity-90">
+              "Every story begins with a single intention."
+            </h2>
+            <div className="h-1 w-12 bg-white/40" />
+            <p className="text-sm font-bold uppercase tracking-[0.3em] text-white/60">
+              Identity Protocol // BlogDesk
+            </p>
+          </div>
+        </div>
+      </section>
 
-        {/* Feature Component */}
-        <SignupForm />
-      </div>
+      {/* ── Right Side: Entry Interface ── */}
+      <section className="flex w-full flex-col items-center justify-center p-8 lg:w-1/2 lg:p-20">
+        <div className="w-full max-w-[400px] animate-in fade-in slide-in-from-right-10 duration-1000">
+          {/* Logo/Branding */}
+          <div className="mb-12 flex justify-center lg:justify-start">
+            <Link to="/" className="group flex items-center gap-4 transition-all">
+              <div className="flex size-11 items-center justify-center rounded bg-foreground font-black text-xl text-background transition-all group-hover:opacity-90 active:scale-95 shadow-lg shadow-foreground/10">
+                B
+              </div>
+              <div className="flex flex-col">
+                <span className="text-2xl font-black tracking-tighter text-foreground uppercase">blogdesk</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground/40 -mt-1">Digital Magazine</span>
+              </div>
+            </Link>
+          </div>
+
+          <SignupForm />
+        </div>
+      </section>
     </main>
   );
 };

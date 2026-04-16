@@ -38,7 +38,7 @@ export const SignupForm = () => {
 
       <form onSubmit={handleSubmit} className="space-y-5" noValidate>
         {/* Name */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <Label htmlFor="name" className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
             Legal Name
           </Label>
@@ -60,7 +60,7 @@ export const SignupForm = () => {
         </div>
 
         {/* Username */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <Label htmlFor="username" className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
             Unique Handle
           </Label>
@@ -92,7 +92,7 @@ export const SignupForm = () => {
         </div>
 
         {/* Email */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <Label htmlFor="email" className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
             Email Path
           </Label>
@@ -117,9 +117,9 @@ export const SignupForm = () => {
         </div>
 
         {/* Password */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <Label htmlFor="password" className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
-            Security Phrase
+            Password
           </Label>
           <Input
             id="password"

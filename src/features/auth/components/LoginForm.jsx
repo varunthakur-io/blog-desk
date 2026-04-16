@@ -26,7 +26,7 @@ export const LoginForm = () => {
 
       <form onSubmit={handleSubmit} className="space-y-5" noValidate>
         {/* Email */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <Label htmlFor="email" className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
             Email Address
           </Label>
@@ -49,10 +49,10 @@ export const LoginForm = () => {
         </div>
 
         {/* Password */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Label htmlFor="password" name="password" className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
-              Security Key
+              Password
             </Label>
             <Link
               to="/forgot-password"
