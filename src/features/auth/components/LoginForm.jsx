@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
-import { Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLogin } from '../hooks/useLogin';
 import { cn } from '@/lib/utils';
 
@@ -18,108 +19,112 @@ export const LoginForm = () => {
   } = useLogin();
 
   return (
-    <div className="space-y-8">
-      <header className="space-y-2 text-center">
-        <h1 className="text-3xl font-black tracking-tighter text-foreground uppercase">Welcome back</h1>
-        <p className="text-muted-foreground/60 text-[13px] font-medium tracking-tight">Enter your credentials to access your workspace</p>
-      </header>
+    <Card className="border-0 shadow-none bg-transparent">
+      <CardHeader className="space-y-1 px-0 text-center lg:text-left">
+        <CardTitle className="text-2xl font-bold tracking-tight">Welcome back</CardTitle>
+        <CardDescription>Enter your credentials to access your workspace</CardDescription>
+      </CardHeader>
 
-      <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-        {/* Email */}
-        <div className="space-y-3">
-          <Label htmlFor="email" className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
-            Email Address
-          </Label>
-          <Input
-            id="email"
-            type="email"
-            name="email"
-            placeholder="name@email.com"
-            value={credentials.email}
-            onChange={handleChange}
-            required
-            disabled={isLoginLoading}
-            autoComplete="email"
-            className={cn(
-              "h-12 rounded-md bg-muted/20 border-border/40 text-[14px] font-medium transition-all focus:bg-background shadow-none",
-              loginErrors.email && "border-destructive focus-visible:ring-destructive/20"
-            )}
-          />
-          {loginErrors.email && <p className="text-[11px] font-bold text-destructive tracking-tight">{loginErrors.email}</p>}
-        </div>
-
-        {/* Password */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="password" name="password" className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
-              Password
-            </Label>
-            <Link
-              to="/forgot-password"
-              className="text-[11px] font-black uppercase tracking-widest text-primary/40 hover:text-primary transition-all"
-            >
-              Lost Access?
-            </Link>
-          </div>
-          <div className="relative">
+      <CardContent className="px-0">
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+          {/* Email */}
+          <div>
+            <Label htmlFor="email" className="mb-2 block">Email</Label>
             <Input
-              id="password"
-              type={showPassword ? 'text' : 'password'}
-              name="password"
-              placeholder="••••••••"
-              value={credentials.password}
+              id="email"
+              type="email"
+              name="email"
+              placeholder="name@example.com"
+              value={credentials.email}
               onChange={handleChange}
               required
               disabled={isLoginLoading}
-              autoComplete="current-password"
+              autoComplete="email"
               className={cn(
-                "h-12 rounded-md bg-muted/20 border-border/40 text-[14px] font-medium pr-12 transition-all focus:bg-background shadow-none",
-                loginErrors.password && "border-destructive focus-visible:ring-destructive/20"
+                loginErrors.email && "border-destructive focus-visible:ring-destructive"
               )}
             />
-            <button
-              type="button"
-              className="absolute right-0 top-0 h-full px-4 text-muted-foreground/40 hover:text-foreground transition-colors outline-none"
-              onClick={togglePasswordVisibility}
-            >
-              {showPassword ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
-                <Eye className="h-4 w-4" />
-              )}
-            </button>
+            {loginErrors.email && (
+              <p className="text-sm text-destructive">{loginErrors.email}</p>
+            )}
           </div>
-          {loginErrors.password && (
-            <p className="text-[11px] font-bold text-destructive tracking-tight">{loginErrors.password}</p>
-          )}
-        </div>
 
-        <Button
-          type="submit"
-          disabled={isLoginLoading}
-          className="w-full h-12 rounded-md bg-foreground text-background font-black text-[12px] uppercase tracking-[0.2em] gap-2 transition-all hover:opacity-90 active:scale-[0.98] shadow-xl shadow-foreground/10"
-        >
-          {isLoginLoading ? (
-            'Verifying Identity…'
-          ) : (
-            <>
-              Sign In <ArrowRight className="h-4 w-4" />
-            </>
-          )}
-        </Button>
-      </form>
+          {/* Password */}
+          <div>
+            <div className="flex items-baseline justify-between mb-2">
+              <Label htmlFor="password">Password</Label>
+              <Link
+                to="/forgot-password"
+                className="text-sm leading-none text-muted-foreground hover:text-primary transition-colors underline-offset-4 hover:underline"
+              >
+                Forgot password?
+              </Link>
+            </div>
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                placeholder="••••••••"
+                value={credentials.password}
+                onChange={handleChange}
+                required
+                disabled={isLoginLoading}
+                autoComplete="current-password"
+                className={cn(
+                  "pr-10",
+                  loginErrors.password && "border-destructive focus-visible:ring-destructive"
+                )}
+              />
+              <button
+                type="button"
+                className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground transition-colors"
+                onClick={togglePasswordVisibility}
+                tabIndex={-1}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
+            {loginErrors.password && (
+              <p className="text-sm text-destructive">{loginErrors.password}</p>
+            )}
+          </div>
 
-      <footer className="text-center pt-4">
-        <p className="text-[13px] font-medium text-muted-foreground/40 tracking-tight">
-          New here?{' '}
+          <Button
+            type="submit"
+            disabled={isLoginLoading}
+            className="w-full"
+            size="lg"
+          >
+            {isLoginLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Signing in...
+              </>
+            ) : (
+              <>
+                Sign In <ArrowRight className="h-4 w-4" />
+              </>
+            )}
+          </Button>
+        </form>
+      </CardContent>
+
+      <CardFooter className="px-0 justify-center">
+        <p className="text-sm text-muted-foreground">
+          Don&apos;t have an account?{' '}
           <Link
             to="/signup"
-            className="font-black text-foreground hover:text-primary transition-all underline decoration-primary/20 underline-offset-4"
+            className="font-medium text-primary hover:underline underline-offset-4"
           >
-            Create an identity
+            Sign up
           </Link>
         </p>
-      </footer>
-    </div>
+      </CardFooter>
+    </Card>
   );
 };

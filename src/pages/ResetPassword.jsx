@@ -4,7 +4,8 @@ import { authService } from '@/features/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, CheckCircle2, Lock } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Loader2, CheckCircle2, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const ResetPassword = () => {
@@ -51,48 +52,52 @@ const ResetPassword = () => {
   };
 
   return (
-    <main className="page-container flex items-center justify-center min-h-[calc(100vh-4rem)] bg-background">
-      <div className="w-full max-w-[400px] space-y-10 animate-in fade-in zoom-in-95 duration-700">
-        <header className="flex flex-col items-center">
-          <Link to="/" className="group flex items-center gap-4 transition-all">
-            <div className="flex size-11 items-center justify-center rounded bg-foreground font-black text-xl text-background transition-all group-hover:opacity-90 active:scale-95 shadow-lg shadow-foreground/10">
+    <main className="flex items-center justify-center min-h-screen bg-background p-6">
+      <div className="w-full max-w-sm space-y-8">
+        {/* Branding */}
+        <div className="flex justify-center">
+          <Link to="/" className="flex items-center gap-3">
+            <div className="flex size-9 items-center justify-center rounded-lg bg-primary font-bold text-sm text-primary-foreground">
               B
             </div>
             <div className="flex flex-col">
-              <span className="text-2xl font-black tracking-tighter text-foreground uppercase">blogdesk</span>
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground/40 -mt-1">Digital Magazine</span>
+              <span className="text-lg font-bold tracking-tight text-foreground">BlogDesk</span>
+              <span className="text-[10px] font-medium text-muted-foreground -mt-0.5">Digital Magazine</span>
             </div>
           </Link>
-        </header>
+        </div>
 
-        <section className="space-y-8">
-          {status === 'success' ? (
-            <div className="text-center space-y-8 animate-in fade-in zoom-in duration-300">
-              <div className="w-16 h-16 bg-foreground text-background rounded-md flex items-center justify-center mx-auto shadow-xl shadow-foreground/10">
-                <CheckCircle2 className="w-8 h-8" />
+        {status === 'success' ? (
+          <Card className="border-0 shadow-none bg-transparent">
+            <CardHeader className="space-y-4 px-0 text-center">
+              <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-primary/10">
+                <CheckCircle2 className="h-6 w-6 text-primary" />
               </div>
-              <header className="space-y-2">
-                <h1 className="text-2xl font-black tracking-tighter uppercase">Identity Verified</h1>
-                <p className="text-muted-foreground/60 text-[13px] font-medium tracking-tight">
-                  Your credentials have been updated. Redirecting to entry sequence...
-                </p>
-              </header>
-              <footer className="pt-2">
-                <Button asChild className="w-full h-12 rounded-md bg-foreground text-background font-black text-[12px] uppercase tracking-[0.2em] shadow-xl shadow-foreground/10">
-                  <Link to="/login">Go to Login</Link>
-                </Button>
-              </footer>
-            </div>
-          ) : (
-            <div className="space-y-8">
-              <header className="text-center space-y-2">
-                <h1 className="text-3xl font-black tracking-tighter text-foreground uppercase">New Credentials</h1>
-                <p className="text-muted-foreground/60 text-[13px] font-medium tracking-tight">Establish a secure secondary access key for your account.</p>
-              </header>
+              <div className="space-y-1">
+                <CardTitle className="text-2xl font-bold tracking-tight">Password updated</CardTitle>
+                <CardDescription>
+                  Your password has been reset successfully. Redirecting to sign in...
+                </CardDescription>
+              </div>
+            </CardHeader>
 
-              <form onSubmit={handleReset} className="space-y-8">
-                <div className="space-y-3">
-                  <Label htmlFor="password" className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">New Password</Label>
+            <CardContent className="px-0">
+              <Button asChild className="w-full" size="lg">
+                <Link to="/login">Back to sign in</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="border-0 shadow-none bg-transparent">
+            <CardHeader className="space-y-1 px-0 text-center">
+              <CardTitle className="text-2xl font-bold tracking-tight">Reset password</CardTitle>
+              <CardDescription>Enter your new password below</CardDescription>
+            </CardHeader>
+
+            <CardContent className="px-0">
+              <form onSubmit={handleReset} className="space-y-4" noValidate>
+                <div>
+                  <Label htmlFor="password" className="mb-2 block">New password</Label>
                   <Input
                     id="password"
                     type="password"
@@ -101,12 +106,12 @@ const ResetPassword = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     minLength={8}
-                    className="h-12 rounded-md bg-muted/20 border-border/40 text-[14px] font-medium transition-all focus:bg-background shadow-none"
+                    disabled={loading}
                   />
                 </div>
 
-                <div className="space-y-3">
-                  <Label htmlFor="confirmPassword" className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">Confirm Password</Label>
+                <div>
+                  <Label htmlFor="confirmPassword" className="mb-2 block">Confirm password</Label>
                   <Input
                     id="confirmPassword"
                     type="password"
@@ -114,28 +119,34 @@ const ResetPassword = () => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
-                    className="h-12 rounded-md bg-muted/20 border-border/40 text-[14px] font-medium transition-all focus:bg-background shadow-none"
+                    disabled={loading}
                   />
                 </div>
 
-                <Button 
-                  type="submit" 
-                  className="w-full h-12 rounded-md bg-foreground text-background font-black text-[12px] uppercase tracking-[0.2em] gap-2 transition-all hover:opacity-90 active:scale-[0.98] shadow-xl shadow-foreground/10"
-                  disabled={loading}
-                >
-                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {loading ? 'Updating Identity...' : 'Update Credentials'}
+                <Button type="submit" className="w-full" size="lg" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Resetting...
+                    </>
+                  ) : (
+                    'Reset password'
+                  )}
                 </Button>
               </form>
+            </CardContent>
 
-              <footer className="text-center pt-4">
-                <Link to="/login" className="text-[11px] font-black uppercase tracking-widest text-primary/40 hover:text-primary transition-all">
-                  Back to entry
-                </Link>
-              </footer>
-            </div>
-          )}
-        </section>
+            <CardFooter className="px-0 justify-center">
+              <Link
+                to="/login"
+                className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                <ArrowLeft className="h-3 w-3" />
+                Back to sign in
+              </Link>
+            </CardFooter>
+          </Card>
+        )}
       </div>
     </main>
   );

@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Mail, Loader2, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Loader2, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { authService } from '@/features/auth';
 import toast from 'react-hot-toast';
-import { cn } from '@/lib/utils';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -30,95 +30,98 @@ const ForgotPassword = () => {
   };
 
   return (
-    <main className="page-container flex items-center justify-center min-h-[calc(100vh-4rem)] bg-background">
-      <div className="w-full max-w-[400px] space-y-10 animate-in fade-in zoom-in-95 duration-700">
-        <header className="flex flex-col items-center">
-          <Link to="/" className="group flex items-center gap-4 transition-all">
-            <div className="flex size-11 items-center justify-center rounded bg-foreground font-black text-xl text-background transition-all group-hover:opacity-90 active:scale-95 shadow-lg shadow-foreground/10">
+    <main className="flex items-center justify-center min-h-screen bg-background p-6">
+      <div className="w-full max-w-sm space-y-8">
+        {/* Branding */}
+        <div className="flex justify-center">
+          <Link to="/" className="flex items-center gap-3">
+            <div className="flex size-9 items-center justify-center rounded-lg bg-primary font-bold text-sm text-primary-foreground">
               B
             </div>
             <div className="flex flex-col">
-              <span className="text-2xl font-black tracking-tighter text-foreground uppercase">blogdesk</span>
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground/40 -mt-1">Digital Magazine</span>
+              <span className="text-lg font-bold tracking-tight text-foreground">BlogDesk</span>
+              <span className="text-[10px] font-medium text-muted-foreground -mt-0.5">Digital Magazine</span>
             </div>
           </Link>
-        </header>
+        </div>
 
-        <section className="space-y-8">
-          {!submitted ? (
-            <div className="space-y-8">
-              <header className="text-center space-y-2">
-                <h1 className="text-3xl font-black tracking-tighter text-foreground uppercase">Access Recovery</h1>
-                <p className="text-muted-foreground/60 text-[13px] font-medium tracking-tight">
-                  Enter your email address to receive a secure identity reset link.
-                </p>
-              </header>
+        {!submitted ? (
+          <Card className="border-0 shadow-none bg-transparent">
+            <CardHeader className="space-y-1 px-0 text-center">
+              <CardTitle className="text-2xl font-bold tracking-tight">Forgot password?</CardTitle>
+              <CardDescription>Enter your email and we&apos;ll send you a reset link</CardDescription>
+            </CardHeader>
 
-              <form onSubmit={handleSubmit} className="space-y-8">
-                <div className="space-y-3">
-                  <Label htmlFor="email" className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
-                    Email Repository
-                  </Label>
+            <CardContent className="px-0">
+              <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+                <div>
+                  <Label htmlFor="email" className="mb-2 block">Email</Label>
                   <Input
                     id="email"
                     type="email"
-                    placeholder="name@email.com"
+                    placeholder="name@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="h-12 rounded-md bg-muted/20 border-border/40 text-[14px] font-medium transition-all focus:bg-background shadow-none"
+                    disabled={loading}
+                    autoComplete="email"
                   />
                 </div>
 
-                <Button 
-                  type="submit" 
-                  className="w-full h-12 rounded-md bg-foreground text-background font-black text-[12px] uppercase tracking-[0.2em] gap-2 transition-all hover:opacity-90 active:scale-[0.98] shadow-xl shadow-foreground/10"
-                  disabled={loading}
-                >
+                <Button type="submit" className="w-full" size="lg" disabled={loading}>
                   {loading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Sending...
+                    </>
                   ) : (
                     <>
-                      Send Recovery Link
-                      <ArrowRight className="h-4 w-4" />
+                      Send reset link <ArrowRight className="h-4 w-4" />
                     </>
                   )}
                 </Button>
               </form>
+            </CardContent>
 
-              <footer className="text-center pt-4">
-                <Link to="/login" className="text-[11px] font-black uppercase tracking-widest text-primary/40 hover:text-primary transition-all">
-                  Return to entry
-                </Link>
-              </footer>
-            </div>
-          ) : (
-            <div className="text-center space-y-8 animate-in fade-in zoom-in duration-300">
-              <div className="w-16 h-16 bg-foreground text-background rounded-md flex items-center justify-center mx-auto shadow-xl shadow-foreground/10">
-                <CheckCircle2 className="w-8 h-8" />
+            <CardFooter className="px-0 justify-center">
+              <Link
+                to="/login"
+                className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                <ArrowLeft className="h-3 w-3" />
+                Back to sign in
+              </Link>
+            </CardFooter>
+          </Card>
+        ) : (
+          <Card className="border-0 shadow-none bg-transparent">
+            <CardHeader className="space-y-4 px-0 text-center">
+              <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-primary/10">
+                <CheckCircle2 className="h-6 w-6 text-primary" />
               </div>
-              <header className="space-y-2">
-                <h2 className="text-2xl font-black tracking-tighter uppercase">Identity Link Sent</h2>
-                <p className="text-muted-foreground/60 text-[13px] font-medium tracking-tight">
-                  We have dispatched a secure recovery sequence to <br/>
-                  <span className="font-bold text-foreground">{email}</span>
-                </p>
-              </header>
+              <div className="space-y-1">
+                <CardTitle className="text-2xl font-bold tracking-tight">Check your email</CardTitle>
+                <CardDescription>
+                  We sent a password reset link to <br />
+                  <span className="font-medium text-foreground">{email}</span>
+                </CardDescription>
+              </div>
+            </CardHeader>
 
-              <footer className="pt-4 space-y-4">
-                <Button asChild className="w-full h-12 rounded-md bg-foreground text-background font-black text-[12px] uppercase tracking-[0.2em] shadow-xl shadow-foreground/10">
-                  <Link to="/login">Proceed to Login</Link>
-                </Button>
-                <button 
-                  onClick={() => setSubmitted(false)}
-                  className="text-[11px] font-black uppercase tracking-widest text-primary/40 hover:text-primary transition-all"
-                >
-                  Request New Sequence
-                </button>
-              </footer>
-            </div>
-          )}
-        </section>
+            <CardContent className="px-0 space-y-3">
+              <Button asChild className="w-full" size="lg">
+                <Link to="/login">Back to sign in</Link>
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full"
+                onClick={() => setSubmitted(false)}
+              >
+                Didn&apos;t receive it? Try again
+              </Button>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </main>
   );
