@@ -7,9 +7,9 @@ const Signup = () => {
       {/* ── Left Side: Editorial Canvas (Architectural Build) ── */}
       <section className="relative hidden w-1/2 lg:block bg-zinc-950">
         {/* Layer 0: Isolated Clipping Container */}
-        <div className="absolute inset-0 overflow-hidden select-none">
+        <div className="absolute inset-0 overflow-hidden select-none bg-zinc-950">
           <div 
-            className="h-full w-full transition-transform duration-[10000ms] ease-out hover:scale-110 transform-gpu [backface-visibility:hidden] will-change-transform bg-cover bg-center" 
+            className="absolute -inset-4 transition-transform duration-[10000ms] ease-out hover:scale-110 transform-gpu [backface-visibility:hidden] will-change-transform bg-cover bg-center" 
             style={{ backgroundImage: 'url("/auth_hero.png")' }}
             title="Architectural Writing Studio"
           />
