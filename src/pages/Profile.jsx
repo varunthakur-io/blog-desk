@@ -229,7 +229,7 @@ export default function Profile() {
                   </dd>
                 </div>
                 <div className="flex items-center justify-between text-[13px] font-bold">
-                  <dt className="text-muted-foreground">Member Since</dt>
+                  <dt className="text-muted-foreground">Joined</dt>
                   <dd className="flex items-center gap-1.5 text-foreground">
                     <CalendarDays className="size-3.5 opacity-50" />
                     {profile?.$createdAt ? new Date(profile.$createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Recently'}
