@@ -16,12 +16,12 @@ const Signup = () => {
         </div>
         
         {/* Layer 1: Darkening Overlay */}
-        <div className="absolute inset-0 z-10 bg-gradient-to-r from-black/70 via-black/40 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 z-10 bg-gradient-to-r from-black/70 via-black/40 to-black/0 pointer-events-none" />
         
         {/* Layer 2: Typographic Overlay */}
         <div className="absolute inset-0 z-20 flex flex-col justify-end p-20 text-white pointer-events-none">
           <div className="max-w-md space-y-6">
-            <h2 className="text-5xl font-black tracking-tighter leading-tight italic opacity-80 drop-shadow-lg">
+            <h2 className="text-5xl font-black tracking-tighter leading-tight italic text-white/80 drop-shadow-lg">
               "Every story begins with a single intention."
             </h2>
             <div className="h-1 w-12 bg-white/40" />
