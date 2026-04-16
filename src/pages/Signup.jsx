@@ -10,7 +10,7 @@ const Signup = () => {
         <img 
           src="/auth_hero.png" 
           alt="Architectural Writing Studio" 
-          className="h-full w-full object-cover transition-transform duration-[10000ms] hover:scale-110" 
+          className="h-full w-full object-cover transition-transform duration-[10000ms] hover:scale-110 [backface-visibility:hidden] [transform:translateZ(0)]" 
         />
         
         {/* Typographic Overlay */}
