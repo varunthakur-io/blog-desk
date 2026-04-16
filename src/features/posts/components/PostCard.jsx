@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Clock, MessageSquare, Heart, Share2, MoreHorizontal, ArrowUpRight, Bookmark } from 'lucide-react';
+import { Heart, Share2 } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import BookmarkButton from '@/features/bookmarks/components/BookmarkButton';
 import { useBookmark } from '@/features/bookmarks/hooks/useBookmark';
@@ -40,7 +40,7 @@ const PostCard = ({ post }) => {
   };
 
   return (
-    <article className="group relative border-b border-border/40 py-10 last:border-0 hover:bg-muted/30 px-4 -mx-4 transition-all duration-300 first:pt-0 overflow-hidden">
+    <article className="group relative border-b border-border/40 py-10 last:border-0 hover:bg-muted/30 px-4 -mx-4 transition-all duration-500 first:pt-0 overflow-hidden hover:rounded-2xl">
       <ShareDialog
         open={isShareOpen}
         onOpenChange={setIsShareOpen}
