@@ -8,10 +8,10 @@ const Signup = () => {
       <section className="relative hidden w-1/2 lg:block bg-zinc-950">
         {/* Layer 0: Isolated Clipping Container */}
         <div className="absolute inset-0 overflow-hidden select-none">
-          <img 
-            src="/auth_hero.png" 
-            alt="Architectural Writing Studio" 
-            className="h-full w-full object-cover transition-transform duration-[10000ms] ease-out hover:scale-110 transform-gpu [backface-visibility:hidden]" 
+          <div 
+            className="h-full w-full transition-transform duration-[10000ms] ease-out hover:scale-110 transform-gpu [backface-visibility:hidden] will-change-transform bg-cover bg-center" 
+            style={{ backgroundImage: 'url("/auth_hero.png")' }}
+            title="Architectural Writing Studio"
           />
         </div>
         
