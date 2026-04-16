@@ -8,10 +8,10 @@ const Signup = () => {
       <section className="relative hidden w-1/2 lg:block isolate">
         {/* Layer 0: Isolated Clipping Container */}
         <div className="absolute inset-0 overflow-hidden select-none">
-          <div 
-            className="absolute inset-0 transition-transform duration-[10000ms] ease-out hover:scale-110 transform-gpu [backface-visibility:hidden] will-change-transform bg-cover bg-center" 
-            style={{ backgroundImage: 'url("/auth_hero.webp")' }}
-            title="Architectural Writing Studio"
+          <img 
+            src="/auth_hero.webp"
+            alt="Architectural Writing Studio"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-[10000ms] ease-out hover:scale-110 transform-gpu [backface-visibility:hidden]"
           />
         </div>
         
