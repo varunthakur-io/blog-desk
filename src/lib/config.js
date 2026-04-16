@@ -12,6 +12,9 @@ const getEnvVar = (key, fallback = undefined) => {
 };
 
 export const config = {
+  app: {
+    url: getEnvVar('VITE_APP_URL', 'http://localhost:5173'),
+  },
   appwrite: {
     // Core Appwrite Setup
     endpoint: getEnvVar('VITE_APPWRITE_ENDPOINT'),
@@ -20,11 +23,12 @@ export const config = {
 
     // Collections (Database Tables)
     collections: {
-      profiles: getEnvVar('VITE_APPWRITE_PROFILE_COLLECTION_ID'),
+      profiles: getEnvVar('VITE_APPWRITE_PROFILES_COLLECTION_ID'),
       posts: getEnvVar('VITE_APPWRITE_POSTS_COLLECTION_ID'),
       likes: getEnvVar('VITE_APPWRITE_LIKES_COLLECTION_ID'),
       comments: getEnvVar('VITE_APPWRITE_COMMENTS_COLLECTION_ID'),
       follows: getEnvVar('VITE_APPWRITE_FOLLOWS_COLLECTION_ID'),
+      bookmarks: getEnvVar('VITE_APPWRITE_BOOKMARKS_COLLECTION_ID'),
       notifications: getEnvVar('VITE_APPWRITE_NOTIFICATIONS_COLLECTION_ID'),
     },
 

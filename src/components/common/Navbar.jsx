@@ -1,7 +1,7 @@
-import { useState, useCallback } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useCallback } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Sun, Moon, Menu, X, LogOut, User, Settings, PenSquare } from 'lucide-react';
+import { Sun, Moon, Menu, LogOut, User, Settings, PenSquare } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 import { Button } from '@/components/ui/button';
@@ -28,7 +28,11 @@ import { NavUserSearch } from '@/features/search';
 import { NotificationBell } from '@/features/notifications';
 import useDarkMode from '@/hooks/common/useDarkMode';
 
-const Navbar = () => {
+/**
+ * Navbar component for global navigation and user actions.
+ * Layout (position, z-index, background) is handled internally as a sticky header.
+ */
+const Navbar = ({ onToggleSidebar }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -39,201 +43,129 @@ const Navbar = () => {
   const profile = useSelector((state) => selectProfileById(state, userId));
 
   const [isDarkMode, setDarkMode] = useDarkMode();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = useCallback(async () => {
     try {
       await authService.logout();
       dispatch(clearAuthUser());
-      toast.success('Logged out successfully!');
+      toast.success('Logged out');
       navigate('/login');
-    } catch (error) {
+    } catch {
       dispatch(clearAuthUser());
-      toast.error(error.message || 'Session ended with errors.');
+      navigate('/login');
     }
   }, [dispatch, navigate]);
 
-  const closeMobileMenu = useCallback(() => setIsMobileMenuOpen(false), []);
-
-  const navItems = [
-    { name: 'Home', slug: '/', requiresAuth: false },
-    { name: 'Dashboard', slug: '/dashboard', requiresAuth: true },
-    { name: 'Write', slug: '/create', requiresAuth: true },
-    { name: 'About', slug: '/about', requiresAuth: false },
-  ];
-
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/85 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70">
-      <div className="page-wrapper flex h-16 items-center justify-between">
-        {/* Logo */}
-        <div className="flex items-center gap-8">
-          <NavLink
-            to="/"
-            className="flex items-center space-x-2.5 group transition-opacity hover:opacity-90"
+    <header className="sticky top-0 z-50 flex h-16 w-full shrink-0 items-center border-b border-border/40 bg-background/60 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/40 transition-all duration-500">
+      <div className="flex w-full items-center justify-between gap-4 px-4 sm:px-6">
+        
+        {/* Branding & Sidebar Toggle */}
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={onToggleSidebar}
+            className="hidden rounded-md text-muted-foreground hover:text-foreground md:flex shrink-0 transition-all hover:bg-muted"
+            aria-label="Toggle Sidebar"
           >
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-base shadow-sm ring-1 ring-primary/20">
+            <Menu className="h-5 w-5" />
+          </Button>
+
+          <Link to="/" className="group flex shrink-0 items-center gap-2">
+            <div className="flex size-7 items-center justify-center rounded bg-foreground font-black text-[15px] text-background transition-all group-hover:opacity-90">
               B
             </div>
-            <span className="font-bold text-lg tracking-tight hidden sm:inline-block">
-              Blog Desk
+            <span className="hidden font-sans font-bold tracking-tight text-[17px] text-foreground sm:inline-block">
+              blogdesk
             </span>
-          </NavLink>
-
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-1 text-sm font-medium">
-            {navItems.map(
-              (item) =>
-                (!item.requiresAuth || isAuthenticated) && (
-                  <NavLink
-                    key={item.name}
-                    to={item.slug}
-                    className={({ isActive }) =>
-                      `px-3 py-1.5 rounded-md transition-colors ${
-                        isActive
-                          ? 'text-foreground bg-muted font-semibold'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                      }`
-                    }
-                  >
-                    {item.name}
-                  </NavLink>
-                ),
-            )}
-          </nav>
+          </Link>
         </div>
 
-        <NavUserSearch />
+        {/* Search: Layout-decoupled through flex-1 */}
+        <div className="hidden max-w-2xl flex-1 sm:block">
+          <NavUserSearch />
+        </div>
 
-        {/* Right Actions */}
-        <div className="flex items-center gap-1.5 md:gap-2">
+        {/* User Actions */}
+        <div className="flex items-center gap-1 sm:gap-2">
+          {/* Dark Mode Toggle */}
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setDarkMode(!isDarkMode)}
-            className="text-muted-foreground hover:text-foreground rounded-full h-9 w-9"
+            className="h-9 w-9 rounded-md text-muted-foreground hover:text-foreground shrink-0"
             aria-label="Toggle theme"
           >
-            <Sun className="h-4.5 w-4.5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute h-4.5 w-4.5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <Sun className="h-4 w-4 scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+            <Moon className="absolute h-4 w-4 scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
           </Button>
 
-          {isAuthenticated && <NotificationBell />}
-
           {isAuthenticated ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="relative h-9 w-9 rounded-full ring-1 ring-border hover:ring-primary/30 transition-all"
-                >
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={profile?.avatarUrl} alt={userName} className="object-cover" />
-                    <AvatarFallback className="bg-muted text-foreground font-semibold text-sm">
-                      {userName?.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="w-56 shadow-lg border-border/60"
-                align="end"
-                forceMount
-              >
-                <DropdownMenuLabel className="font-normal py-2.5">
-                  <div className="flex flex-col gap-0.5">
-                    <p className="text-sm font-semibold leading-none">{userName}</p>
-                    <p className="text-xs leading-none text-muted-foreground truncate mt-1">
-                      {userEmail}
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild className="cursor-pointer gap-2">
-                  <NavLink to="/profile">
-                    <User className="h-4 w-4" /> Profile
-                  </NavLink>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild className="cursor-pointer gap-2">
-                  <NavLink to="/create">
-                    <PenSquare className="h-4 w-4" /> Write Post
-                  </NavLink>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild className="cursor-pointer gap-2">
-                  <NavLink to="/settings">
-                    <Settings className="h-4 w-4" /> Settings
-                  </NavLink>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={handleLogout}
-                  className="text-destructive focus:text-destructive cursor-pointer gap-2"
-                >
-                  <LogOut className="h-4 w-4" /> Log out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className="flex items-center gap-1 sm:gap-2">
+              <Button variant="ghost" className="hidden h-9 px-4 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground md:flex shrink-0" asChild>
+                <Link to="/create" className="flex items-center gap-2">
+                  <PenSquare className="h-4 w-4" />
+                  Write
+                </Link>
+              </Button>
+              
+              <NotificationBell />
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="relative h-9 w-9 p-0 rounded-full ring-1 ring-border transition-colors hover:bg-accent shrink-0"
+                  >
+                    <Avatar className="h-8 w-8">
+                      {profile?.avatarUrl && <AvatarImage src={profile.avatarUrl} className="object-cover" />}
+                      <AvatarFallback className="bg-muted text-xs font-medium">
+                        {userName?.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56 border-border/60 shadow-lg" align="end">
+                  <DropdownMenuLabel className="py-2.5 text-xs font-normal">
+                    <div className="flex flex-col gap-0.5">
+                      <p className="font-bold leading-none">{userName}</p>
+                      <p className="mt-1 truncate leading-none text-muted-foreground">{userEmail}</p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild className="cursor-pointer gap-2 py-2">
+                    <Link to="/profile">
+                      <User className="size-4" /> Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="cursor-pointer gap-2 py-2">
+                    <Link to="/settings">
+                      <Settings className="size-4" /> Settings
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="cursor-pointer gap-2 py-2 text-destructive focus:text-destructive"
+                  >
+                    <LogOut className="size-4" /> Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           ) : (
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" asChild className="hidden sm:flex text-sm">
-                <NavLink to="/login">Log in</NavLink>
+              <Button variant="ghost" size="sm" asChild className="hidden rounded-md text-sm font-medium sm:flex">
+                <Link to="/login">Sign In</Link>
               </Button>
-              <Button size="sm" asChild className="text-sm rounded-full px-4">
-                <NavLink to="/signup">Sign up</NavLink>
+              <Button size="sm" asChild className="h-9 rounded-md px-4 text-sm font-medium shadow-sm">
+                <Link to="/signup">Get Started</Link>
               </Button>
             </div>
           )}
-
-          <div className="md:hidden">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="h-9 w-9 rounded-full"
-              aria-label="Toggle menu"
-            >
-              {isMobileMenuOpen ? <X className="h-4.5 w-4.5" /> : <Menu className="h-4.5 w-4.5" />}
-            </Button>
-          </div>
         </div>
       </div>
-
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-x-0 top-16 bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-xl animate-in slide-in-from-top-3 duration-200 z-40">
-          <nav className="grid gap-1 p-3">
-            <NavUserSearch isMobile />
-            {navItems.map(
-              (item) =>
-                (!item.requiresAuth || isAuthenticated) && (
-                  <NavLink
-                    key={item.name}
-                    to={item.slug}
-                    onClick={closeMobileMenu}
-                    className={({ isActive }) =>
-                      `flex items-center rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
-                        isActive
-                          ? 'bg-muted text-foreground font-semibold'
-                          : 'hover:bg-muted text-foreground/70 hover:text-foreground'
-                      }`
-                    }
-                  >
-                    {item.name}
-                  </NavLink>
-                ),
-            )}
-            {!isAuthenticated && (
-              <div className="grid grid-cols-2 gap-2 mt-2 px-1">
-                <Button variant="outline" size="sm" asChild onClick={closeMobileMenu}>
-                  <NavLink to="/login">Log in</NavLink>
-                </Button>
-                <Button size="sm" asChild onClick={closeMobileMenu}>
-                  <NavLink to="/signup">Sign up</NavLink>
-                </Button>
-              </div>
-            )}
-          </nav>
-        </div>
-      )}
     </header>
   );
 };

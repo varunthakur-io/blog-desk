@@ -4,3 +4,4 @@ export * from './usePostDetails';
 export * from './useCreatePost';
 export * from './useEditPost';
 export * from './useLike';
+export * from './useCategories';

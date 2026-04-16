@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
  * A universal Follow/Unfollow button.
  * Handles its own state, optimistic updates, and loading logic.
  */
-const FollowButton = ({ userId, className, size = "sm", variant = "default" }) => {
+const FollowButton = ({ userId, className, size = "sm", variant = "default", showIcon = true }) => {
   const { 
     isFollowing, 
     toggleFollow, 
@@ -32,14 +32,16 @@ const FollowButton = ({ userId, className, size = "sm", variant = "default" }) =
       )}
     >
       {isLoading ? (
-        <Loader2 className="h-3.5 w-3.5 animate-spin mr-2" />
-      ) : isFollowing ? (
-        <UserMinus className="h-3.5 w-3.5 mr-2" />
-      ) : (
-        <UserPlus className="h-3.5 w-3.5 mr-2" />
-      )}
+        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+      ) : showIcon ? (
+        isFollowing ? (
+          <UserMinus className="h-3.5 w-3.5" />
+        ) : (
+          <UserPlus className="h-3.5 w-3.5" />
+        )
+      ) : null}
       
-      {isFollowing ? 'Following' : 'Follow'}
+      <span>{isFollowing ? 'Following' : 'Follow'}</span>
     </Button>
   );
 };

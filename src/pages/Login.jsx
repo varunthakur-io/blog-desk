@@ -1,127 +1,56 @@
 import { Link } from 'react-router-dom';
-import { Eye, EyeOff, ArrowRight } from 'lucide-react';
-
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useLogin } from '@/features/auth';
+import { LoginForm } from '@/features/auth';
 
 const Login = () => {
-  const {
-    credentials,
-    loginErrors,
-    showPassword,
-    isLoginLoading,
-    handleChange,
-    handleSubmit,
-    togglePasswordVisibility,
-  } = useLogin();
-
   return (
-    <div className="auth-container bg-background">
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="flex justify-center mb-8">
-          <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-bold text-lg shadow-sm">
-              B
-            </div>
-            <span className="font-bold text-xl tracking-tight">Blog Desk</span>
-          </Link>
+    <main className="flex min-h-screen">
+      {/* ── Left Side: Editorial Canvas ── */}
+      <section className="relative hidden w-1/2 lg:block isolate">
+        {/* Layer 0: Isolated Clipping Container */}
+        <div className="absolute inset-0 overflow-hidden select-none">
+          <img 
+            src="/auth_hero.webp"
+            alt="Architectural Writing Studio"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-10000 ease-out hover:scale-110 transform-gpu backface-hidden"
+          />
         </div>
+        
+        {/* Layer 1: Darkening Overlay */}
+        <div className="absolute inset-0 z-10 bg-linear-to-r from-black/70 via-black/40 to-black/0 pointer-events-none" />
+        
+        {/* Layer 2: Typographic Overlay */}
+        <div className="absolute inset-0 z-20 flex flex-col justify-end p-12 lg:p-16 xl:p-20 text-white pointer-events-none">
+          <div className="max-w-md space-y-4">
+            <h2 className="text-4xl xl:text-5xl font-bold tracking-tight leading-tight text-white/90">
+              The space where words find their gravity.
+            </h2>
+            <div className="h-px w-10 bg-white/30" />
+            <p className="text-sm font-medium text-white/50">
+              BlogDesk — Digital Magazine
+            </p>
+          </div>
+        </div>
+      </section>
 
-        {/* Card */}
-        <div className="rounded-2xl border border-border bg-card p-8 space-y-6">
-          <div className="space-y-1 text-center">
-            <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
-            <p className="text-muted-foreground text-sm">Sign in to continue to your account</p>
+      {/* ── Right Side: Entry Interface ── */}
+      <section className="flex w-full flex-col items-center justify-center p-6 sm:p-8 lg:w-1/2 lg:p-12 xl:p-20 bg-background">
+        <div className="w-full max-w-sm">
+          <div className="mb-8 flex justify-center lg:justify-start">
+            <Link to="/" className="flex items-center gap-3 group">
+              <div className="flex size-9 items-center justify-center rounded-lg bg-primary font-bold text-sm text-primary-foreground">
+                B
+              </div>
+              <div className="flex flex-col">
+                <span className="text-lg font-bold tracking-tight text-foreground">BlogDesk</span>
+                <span className="text-[10px] font-medium text-muted-foreground -mt-0.5">Digital Magazine</span>
+              </div>
+            </Link>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-            {/* Email */}
-            <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-sm font-medium">
-                Email
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                name="email"
-                placeholder="you@example.com"
-                value={credentials.email}
-                onChange={handleChange}
-                required
-                disabled={isLoginLoading}
-                autoComplete="email"
-                className={`h-11 rounded-lg text-sm ${loginErrors.email ? 'border-destructive focus-visible:ring-destructive/40' : ''}`}
-              />
-              {loginErrors.email && <p className="text-xs text-destructive">{loginErrors.email}</p>}
-            </div>
-
-            {/* Password */}
-            <div className="space-y-1.5">
-              <Label htmlFor="password" className="text-sm font-medium">
-                Password
-              </Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  placeholder="Your password"
-                  value={credentials.password}
-                  onChange={handleChange}
-                  required
-                  disabled={isLoginLoading}
-                  autoComplete="current-password"
-                  className={`h-11 rounded-lg text-sm pr-10 ${loginErrors.password ? 'border-destructive focus-visible:ring-destructive/40' : ''}`}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                  onClick={togglePasswordVisibility}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                  )}
-                </Button>
-              </div>
-              {loginErrors.password && (
-                <p className="text-xs text-destructive">{loginErrors.password}</p>
-              )}
-            </div>
-
-            <Button
-              type="submit"
-              disabled={isLoginLoading}
-              className="w-full h-11 rounded-full font-semibold gap-2 text-sm mt-2"
-            >
-              {isLoginLoading ? (
-                'Signing in…'
-              ) : (
-                <>
-                  <span>Sign In</span> <ArrowRight className="h-4 w-4" />
-                </>
-              )}
-            </Button>
-          </form>
-
-          <p className="text-center text-sm text-muted-foreground">
-            Don&apos;t have an account?{' '}
-            <Link
-              to="/signup"
-              className="font-semibold text-foreground underline underline-offset-4 hover:opacity-70"
-            >
-              Sign up for free
-            </Link>
-          </p>
+          <LoginForm />
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };
 

@@ -13,7 +13,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { FollowButton } from '@/features/follows';
-import { useProfileBasic } from '@/features/profile';
+import { useProfileIdentity } from '@/features/profile';
 
 const AuthorSidebar = ({
   authorProfile: initialProfile,
@@ -30,7 +30,7 @@ const AuthorSidebar = ({
   authUserId,
   onBack,
 }) => {
-  const { profile: authorProfile } = useProfileBasic({ userId: initialProfile?.$id });
+  const { profile: authorProfile } = useProfileIdentity({ userId: initialProfile?.$id });
   
   const authorName = authorProfile?.name || 'Anonymous';
   const authorBio = authorProfile?.bio;

@@ -1,8 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
 import DOMPurify from 'dompurify';
-import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { setActiveCategory } from '@/features/posts';
 
 // extracts all h2/h3 headings from html string for the TOC
 const extractHeadings = (html) => {
@@ -26,9 +23,7 @@ const injectHeadingIds = (html) => {
   return div.innerHTML;
 };
 
-const PostContent = ({ title, content, coverImageUrl, category, onHeadingsReady }) => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+const PostContent = ({ title, content, coverImageUrl, onHeadingsReady }) => {
   const articleRef = useRef(null);
 
   // reading progress bar
@@ -51,71 +46,43 @@ const PostContent = ({ title, content, coverImageUrl, category, onHeadingsReady 
     }
   }, [content, onHeadingsReady]);
 
-  const handleCategoryClick = () => {
-    if (category) {
-      dispatch(setActiveCategory(category));
-      navigate('/');
-    }
-  };
-
   const processedContent = content ? injectHeadingIds(content) : '';
 
   return (
     <>
-      {/* reading progress bar — outside space-y wrapper so it doesn't add layout margin */}
-      <div className="fixed top-0 left-0 right-0 z-50 h-0.5 bg-border/50">
+      {/* premium minimalist progress bar */}
+      <div className="fixed top-0 left-0 right-0 z-[100] h-0.5 bg-muted/20">
         <div
-          className="h-full bg-foreground transition-all duration-75 ease-out"
+          className="h-full bg-foreground transition-all duration-150 ease-out shadow-[0_0_10px_rgba(0,0,0,0.2)]"
           style={{ width: `${progress}%` }}
         />
       </div>
 
-      <div className="space-y-6">
-        {/* category */}
-        {category && (
-          <button
-            onClick={handleCategoryClick}
-            className="inline-flex items-center rounded-full border border-border bg-muted px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground hover:bg-foreground hover:text-background hover:border-foreground transition-colors duration-200"
-          >
-            {category}
-          </button>
-        )}
-
-        {/* title */}
-        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-[1.15] text-foreground">
-          {title}
-        </h1>
-
-        {/* cover image — max height capped so it doesn't dominate the page */}
+      <div className="space-y-8">
+        {/* cover image - strictly geometric rounded-md */}
         {coverImageUrl && (
-          <div
-            className="relative w-full rounded-xl overflow-hidden bg-muted border border-border"
-            style={{ maxHeight: '360px' }}
-          >
+          <div className="relative w-full rounded-md overflow-hidden bg-muted border border-border/40">
             <img
               src={coverImageUrl}
-              alt={title}
-              className="w-full h-full object-cover"
-              style={{ maxHeight: '360px' }}
+              className="w-full h-auto object-cover max-h-[600px] hover:scale-[1.01] transition-transform duration-700"
             />
           </div>
         )}
 
-        {/* article body — headings have injected ids for TOC scrollspy */}
+        {/* article body - premium editorial typography */}
         <article
           ref={articleRef}
-          className="prose prose-base lg:prose-lg dark:prose-invert max-w-none
-            prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground
-            prose-headings:border-b prose-headings:border-border prose-headings:pb-2 prose-headings:mb-4
-            prose-p:text-foreground/85 prose-p:leading-relaxed
-            prose-a:text-foreground prose-a:underline prose-a:underline-offset-4 hover:prose-a:opacity-70
-            prose-strong:text-foreground
-            prose-code:bg-muted prose-code:rounded prose-code:px-1.5 prose-code:py-0.5 prose-code:text-sm prose-code:font-mono prose-code:before:content-none prose-code:after:content-none
-            prose-pre:bg-muted prose-pre:border prose-pre:border-border prose-pre:rounded-xl prose-pre:text-sm
-            prose-blockquote:border-l-2 prose-blockquote:border-border prose-blockquote:text-muted-foreground prose-blockquote:not-italic
-            prose-img:rounded-xl prose-img:border prose-img:border-border
-            prose-hr:border-border
-            prose-li:text-foreground/85"
+          className="prose prose-lg dark:prose-invert w-full max-w-none 
+            prose-headings:font-sans prose-headings:font-black prose-headings:tracking-tighter prose-headings:text-foreground
+            prose-p:font-serif prose-p:text-foreground/90 prose-p:leading-[1.8] prose-p:mb-8 prose-p:text-[18px]
+            prose-a:text-foreground prose-a:underline prose-a:underline-offset-4 hover:prose-a:opacity-70 transition-all
+            prose-strong:text-foreground prose-strong:font-bold
+            prose-code:bg-muted prose-code:rounded-md prose-code:px-1.5 prose-code:py-0.5 prose-code:text-sm prose-code:font-mono prose-code:before:content-none prose-code:after:content-none
+            prose-pre:bg-muted prose-pre:border prose-pre:border-border/40 prose-pre:rounded-md prose-pre:p-6
+            prose-blockquote:border-l-2 prose-blockquote:border-border prose-blockquote:bg-muted/5 prose-blockquote:py-2 prose-blockquote:px-8 prose-blockquote:text-xl prose-blockquote:font-serif prose-blockquote:font-medium prose-blockquote:italic prose-blockquote:text-foreground/80
+            prose-img:rounded-md prose-img:border prose-img:border-border/40
+            prose-hr:border-border/20
+            prose-li:text-foreground/90 prose-li:leading-relaxed"
           dangerouslySetInnerHTML={{ __html: processedContent }}
         />
       </div>

@@ -1,6 +1,62 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Outfit:wght@100..900&display=swap');
+@import "tailwindcss";
+
+
+@plugin "tailwindcss-animate";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  /* Default Spacing Scale (preserving your page spacing tokens) */
+  --spacing-page-top: 0.5rem;
+  --spacing-page-gap: 1.5rem;
+
+  /* Border Radii */
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  /* Colors mapped to your CSS variables */
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  /* Animations & Keyframes */
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from { height: 0; }
+    to { height: var(--radix-accordion-content-height); }
+  }
+  @keyframes accordion-up {
+    from { height: var(--radix-accordion-content-height); }
+    to { height: 0; }
+  }
+}
 
 @layer base {
   :root {
@@ -51,84 +107,42 @@
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border font-sans transition-[background-color,color,border-color,box-shadow,backdrop-filter] duration-500 ease-in-out;
   }
   body {
-    @apply bg-background text-foreground antialiased;
-    font-feature-settings:
-      'rlig' 1,
-      'calt' 1;
+    @apply bg-background text-foreground font-sans antialiased selection:bg-primary/10;
   }
-  ::selection {
-    @apply bg-foreground/10 text-foreground;
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-sans font-bold tracking-tight;
+  }
+}
+
+@layer utilities {
+  .font-sans {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+  .font-display {
+    font-family: 'Outfit', sans-serif;
   }
 }
 
 @layer components {
-  /* Layout */
-  .page-wrapper {
-    @apply container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1200px];
-  }
-  .section-spacing {
-    @apply py-6 md:py-8;
+  /* Semantic Page structure */
+  .page-container {
+    @apply w-full mx-auto px-4 sm:px-6 lg:px-10 max-w-screen-2xl;
   }
 
-  /*
-   * PAGE SPACING TOKENS — change here to update every page at once
-   *
-   * .page-root   : outermost div of every page (animation + top padding)
-   * .page-content: flex-col gap between major sections inside a page
-   */
-  .page-root {
-    @apply animate-in fade-in duration-500;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-  }
-  .page-content {
-    @apply flex flex-col gap-page-gap;
+  .page-py {
+    @apply py-8;
   }
 
-  .form-container {
-    @apply max-w-3xl mx-auto;
-  }
-  .auth-container {
-    @apply min-h-screen grid place-items-center p-4 sm:p-8 md:p-12;
+  .page-section {
+    @apply space-y-page-gap;
   }
 
-  /* Surface treatments */
-  .surface-card {
-    @apply bg-card border border-border rounded-xl shadow-sm;
-  }
-  .surface-glass {
-    @apply backdrop-blur-xl bg-background/80 border border-border shadow-lg;
-  }
-
-  /* Page header */
-  .page-header-title {
-    @apply text-2xl sm:text-3xl font-bold tracking-tight;
-  }
-  .page-header-subtitle {
-    @apply text-muted-foreground mt-1 text-sm sm:text-base;
-  }
-
-  /* Gradient — neutral/subtle, no blue */
-  .gradient-brand {
-    @apply bg-gradient-to-r from-foreground via-foreground/80 to-foreground/60 bg-clip-text text-transparent;
-  }
-
-  /* Dot-grid texture */
   .bg-dot-grid {
     background-image: radial-gradient(circle, hsl(var(--border)) 1px, transparent 1px);
     background-size: 28px 28px;
-  }
-
-  /* Hover lift */
-  .card-hover {
-    @apply transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:border-border;
-  }
-
-  /* Ink-line bottom reveal */
-  .ink-line {
-    @apply relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-foreground after:transition-all after:duration-500 hover:after:w-full;
   }
 }

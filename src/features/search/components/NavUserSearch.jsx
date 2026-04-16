@@ -70,7 +70,7 @@ const NavUserSearch = ({ isMobile }) => {
     <div 
       className={cn(
         "relative flex-1 transition-all duration-300",
-        isMobile ? "block mx-1 mb-4" : "hidden md:block max-w-md mx-4"
+        isMobile ? "block mx-1 mb-4" : "hidden md:block mx-4"
       )} 
       ref={dropdownRef}
     >
@@ -83,10 +83,10 @@ const NavUserSearch = ({ isMobile }) => {
         />
         <Input
           type="text"
-          placeholder="Search authors..."
+          placeholder="Search authors... (⌘K)"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10 pr-10 h-9 bg-muted/40 border-border/50 rounded-full focus-visible:ring-primary/20 focus-visible:bg-background transition-all duration-300 w-full"
+          className="pl-10 pr-10 h-9 bg-muted/40 border-border/50 rounded-full focus-visible:ring-primary/20 focus-visible:bg-background transition-all duration-300 w-full text-xs font-medium"
         />
         {searchTerm && (
           <button

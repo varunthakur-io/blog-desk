@@ -1,14 +1,11 @@
-import { useState, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { selectAuthUserId } from '@/features/auth';
-import { 
-  useProfileContent, 
-  useProfileFollow
-} from '@/features/profile';
+import { useProfileConnections, useProfileTabsContent } from '@/features/profile';
 import { useFollow } from '@/features/follows';
 import { formatJoinedDate } from '@/utils/formatters';
-import { useProfileBasic } from './useProfileBasic';
+import { useProfileIdentity } from './useProfileIdentity';
 
 /**
  * MASTER HOOK: Coordinates all profile data for the Profile Page.
@@ -17,54 +14,70 @@ import { useProfileBasic } from './useProfileBasic';
 export const useProfile = () => {
   const { username } = useParams();
   const authUserId = useSelector(selectAuthUserId);
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('posts');
 
-  // 1. Basic Identity (Resolves username -> profileId)
-  const { 
-    profile, 
-    profileId, 
-    isOwner, 
-    isLoading: profileLoading, 
-    error: profileError 
-  } = useProfileBasic({ username });
+  // Sync state if URL search params change
+  useEffect(() => {
+    const tab = searchParams.get('tab') || 'posts';
+    setActiveTab(tab);
+  }, [searchParams]);
 
-  // 2. Content (Posts, Liked Posts)
+  // Sync URL if state changes
+  const handleTabChange = (newTab) => {
+    setSearchParams({ tab: newTab });
+  };
+
+  // 1. Basic Identity (Resolves username -> profileId)
+  const {
+    profile,
+    profileId,
+    isOwner,
+    isLoading: profileLoading,
+    error: profileError,
+  } = useProfileIdentity({ username });
+
+  // 2. Content (Posts, Liked Posts, Saved Posts)
   const {
     userPosts,
     likedPosts,
+    savedPosts,
     isLoading: postsLoading,
     isLoadingLikes,
+    isSavedLoading,
     error: postsError,
     likesError,
-  } = useProfileContent(profileId, activeTab);
+    savedError,
+  } = useProfileTabsContent(profileId, activeTab, isOwner);
 
   // 3. Follow Lists & Relationship
-  const {
-    isFollowing,
-    isLoading: isFollowLoading,
-    toggleFollow,
-  } = useFollow(profileId);
+  const { isFollowing, isLoading: isFollowLoading, toggleFollow } = useFollow(profileId);
 
-  const {
-    followersProfiles,
-    followingProfiles,
-    isFollowersLoading,
+  const { 
+    followersProfiles, 
+    followingProfiles, 
+    isFollowersLoading, 
     isFollowingLoading,
-  } = useProfileFollow(profileId, authUserId, activeTab, isOwner);
+    fetchFollowers,
+    fetchFollowing
+  } = useProfileConnections(profileId);
 
   // Formatted View Data
-  const viewData = useMemo(() => ({
-    displayName: profile?.name || 'Anonymous',
-    displayEmail: profile?.email || '',
-    displayBio: profile?.bio || '',
-    avatarUrl: profile?.avatarUrl,
-    joinedDate: formatJoinedDate(profile?.$createdAt),
-    stats: {
-      posts: profile?.postsCount || 0,
-      followers: profile?.followersCount || 0,
-      following: profile?.followingCount || 0,
-    }
-  }), [profile]);
+  const viewData = useMemo(
+    () => ({
+      displayName: profile?.name || 'Anonymous',
+      displayEmail: profile?.email || '',
+      displayBio: profile?.bio || '',
+      avatarUrl: profile?.avatarUrl,
+      joinedDate: formatJoinedDate(profile?.$createdAt),
+      stats: {
+        posts: profile?.postsCount || 0,
+        followers: profile?.followersCount || 0,
+        following: profile?.followingCount || 0,
+      },
+    }),
+    [profile],
+  );
 
   return {
     // states
@@ -73,7 +86,7 @@ export const useProfile = () => {
     profile,
     isOwner,
     activeTab,
-    setActiveTab,
+    setActiveTab: handleTabChange,
 
     // view data
     ...viewData,
@@ -82,23 +95,28 @@ export const useProfile = () => {
     profileLoading,
     postsLoading,
     isLoadingLikes,
+    isSavedLoading,
     isFollowLoading,
     isFollowersLoading,
     isFollowingLoading,
     profileError,
     postsError,
     likesError,
+    savedError,
     isFetchingUsername: profileLoading && !profileId, // Alias for legacy Profile.jsx
     usernameFetchError: profileError, // Alias for legacy Profile.jsx
 
     // content
     userPosts,
     likedPosts,
+    savedPosts,
 
     // follow
     isFollowing,
     handleToggleFollow: toggleFollow,
     followersProfiles,
     followingProfiles,
+    fetchFollowers,
+    fetchFollowing,
   };
 };

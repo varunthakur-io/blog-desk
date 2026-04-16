@@ -1,0 +1,20 @@
+# Allow all search engines
+User-agent: *
+
+# Block access to private and administrative pages
+Disallow: /dashboard
+Disallow: /create
+Disallow: /edit/
+Disallow: /settings
+Disallow: /verify
+Disallow: /reset-password
+Disallow: /forgot-password
+
+# Allow indexing of all public content
+Allow: /
+Allow: /posts/
+Allow: /profile/
+Allow: /about
+
+# Host configuration
+Host: https://blog-desk.web.app

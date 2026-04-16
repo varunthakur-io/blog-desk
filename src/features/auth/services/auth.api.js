@@ -55,6 +55,22 @@ class AuthApi {
       { 'content-type': 'application/json' },
     );
   }
+
+  async createVerification(url) {
+    return await account.createVerification(url);
+  }
+
+  async updateVerification(userId, secret) {
+    return await account.updateVerification(userId, secret);
+  }
+
+  async createRecovery(email, url) {
+    return await account.createRecovery(email, url);
+  }
+
+  async updateRecovery(userId, secret, password) {
+    return await account.updateRecovery(userId, secret, password);
+  }
 }
 
 export const authApi = new AuthApi();

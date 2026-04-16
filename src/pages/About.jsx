@@ -13,23 +13,23 @@ import {
 import { selectIsAuthenticated } from '@/features/auth';
 
 const FeatureCard = ({ icon: Icon, title, description }) => (
-  <div className="flex flex-col items-center text-center p-7 rounded-xl border border-border bg-card shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all duration-300">
-    <div className="p-3 rounded-xl bg-muted mb-4">
-      <Icon className="h-6 w-6 text-foreground" />
+  <article className="transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:border-border flex flex-col items-center rounded-xl border border-border bg-card p-7 text-center shadow-sm">
+    <div className="mb-4 rounded-xl bg-muted p-3">
+      <Icon className="size-6 text-foreground" aria-hidden="true" />
     </div>
-    <h3 className="font-bold text-base mb-1.5">{title}</h3>
-    <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
-  </div>
+    <h3 className="mb-1.5 text-base font-bold">{title}</h3>
+    <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
+  </article>
 );
 
 const WhyItem = ({ icon: Icon, title, description }) => (
   <div className="flex items-start gap-5">
-    <div className="p-2.5 rounded-xl bg-muted shrink-0 mt-0.5">
-      <Icon className="h-5 w-5 text-foreground" />
+    <div className="mt-0.5 shrink-0 rounded-xl bg-muted p-2.5">
+      <Icon className="size-5 text-foreground" aria-hidden="true" />
     </div>
     <div>
-      <h3 className="font-bold text-base mb-1">{title}</h3>
-      <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
+      <h3 className="mb-1 text-base font-bold">{title}</h3>
+      <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
     </div>
   </div>
 );
@@ -38,47 +38,47 @@ const About = () => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
 
   return (
-    <div className="page-root">
+    <div className="animate-in fade-in page-py space-y-16 duration-500">
       {/* Hero */}
-      <section className="text-center mb-20 max-w-3xl mx-auto space-y-5">
-        <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
-          <Zap className="h-3 w-3" />
+      <section className="mx-auto max-w-3xl space-y-6 pt-8 text-center">
+        <div className="mx-auto inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
+          <Zap className="size-3" />
           About Blog Desk
         </div>
-        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight">
-          Crafting Stories, <span className="gradient-brand">Empowering Voices.</span>
+        <h1 className="text-4xl font-extrabold leading-tight tracking-tight md:text-6xl">
+          Crafting Stories, <span className="bg-gradient-to-r from-foreground via-foreground/80 to-foreground/60 bg-clip-text text-transparent">Empowering Voices.</span>
         </h1>
-        <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+        <p className="mx-auto max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
           Blog Desk is built for creators, developers, and thinkers who want to share their
           perspectives with the world — without the noise.
         </p>
-        <div className="flex items-center justify-center gap-3 pt-2">
+        <div className="flex justify-center gap-3 pt-2">
           {isAuthenticated ? (
             <>
               <Link
                 to="/create"
-                className="inline-flex items-center gap-2 bg-foreground text-background text-sm font-semibold rounded-full px-5 py-2.5 hover:opacity-80 transition-opacity shadow-sm"
+                className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-background shadow-sm transition-opacity hover:opacity-80"
               >
-                <PenLine className="h-4 w-4" /> Start Writing
+                <PenLine className="size-4" /> Start Writing
               </Link>
               <Link
                 to="/dashboard"
-                className="inline-flex items-center gap-2 border border-border text-sm font-semibold rounded-full px-5 py-2.5 hover:bg-muted transition-colors"
+                className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-semibold transition-colors hover:bg-muted"
               >
-                <LayoutDashboard className="h-4 w-4" /> Dashboard
+                <LayoutDashboard className="size-4" /> Dashboard
               </Link>
             </>
           ) : (
             <>
               <Link
                 to="/signup"
-                className="inline-flex items-center gap-2 bg-foreground text-background text-sm font-semibold rounded-full px-5 py-2.5 hover:opacity-80 transition-opacity shadow-sm"
+                className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-background shadow-sm transition-opacity hover:opacity-80"
               >
-                Get Started <ArrowRight className="h-4 w-4" />
+                Get Started <ArrowRight className="size-4" />
               </Link>
               <Link
                 to="/"
-                className="inline-flex items-center gap-2 border border-border text-sm font-semibold rounded-full px-5 py-2.5 hover:bg-muted transition-colors"
+                className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-semibold transition-colors hover:bg-muted"
               >
                 Browse Posts
               </Link>
@@ -88,7 +88,7 @@ const About = () => {
       </section>
 
       {/* Mission / Vision / Community */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-20">
+      <section className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <FeatureCard
           icon={BookOpen}
           title="Our Mission"
@@ -107,26 +107,26 @@ const About = () => {
       </section>
 
       {/* Why Blog Desk */}
-      <section className="max-w-3xl mx-auto mb-20">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl font-extrabold tracking-tight mb-2">Why Blog Desk?</h2>
-          <p className="text-muted-foreground text-sm">
+      <section className="mx-auto max-w-3xl space-y-10">
+        <header className="space-y-2 text-center">
+          <h2 className="text-3xl font-extrabold tracking-tight">Why Blog Desk?</h2>
+          <p className="text-sm text-muted-foreground">
             Built with modern tools and real attention to detail.
           </p>
-        </div>
-        <div className="space-y-7 p-8 rounded-2xl border border-border bg-card shadow-sm">
+        </header>
+        <div className="space-y-7 rounded-2xl border border-border bg-card p-8 shadow-sm">
           <WhyItem
             icon={Code2}
             title="Built for Performance"
             description="Leveraging React 19, Vite, and Appwrite — Blog Desk delivers blazing-fast load times and a highly responsive interface so your content always shines."
           />
-          <div className="border-t border-border" />
+          <div className="border-t border-border" aria-hidden="true" />
           <WhyItem
             icon={BookOpen}
             title="Intuitive Authoring"
             description="Our rich-text editor powered by Tiptap gives you a comfortable, distraction-free writing environment. Focus on your words — we handle the rest."
           />
-          <div className="border-t border-border" />
+          <div className="border-t border-border" aria-hidden="true" />
           <WhyItem
             icon={Lightbulb}
             title="Engaging Reader Experience"
@@ -136,41 +136,41 @@ const About = () => {
       </section>
 
       {/* Bottom CTA */}
-      <section className="text-center max-w-lg mx-auto py-10 px-8 rounded-2xl border border-border bg-muted/40">
+      <section className="mb-20 mx-auto max-w-lg rounded-2xl border border-border bg-muted/40 px-8 py-10 text-center">
         {isAuthenticated ? (
           <>
-            <h2 className="text-2xl font-extrabold tracking-tight mb-2">
+            <h2 className="mb-2 text-2xl font-extrabold tracking-tight">
               What will you write today?
             </h2>
-            <p className="text-muted-foreground text-sm mb-6 leading-relaxed">
+            <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
               Head to your dashboard to manage posts or start a new one.
             </p>
-            <div className="flex items-center justify-center gap-3">
+            <div className="flex justify-center gap-3">
               <Link
                 to="/create"
-                className="inline-flex items-center gap-2 bg-foreground text-background text-sm font-semibold rounded-full px-6 py-2.5 hover:opacity-80 transition-opacity shadow-sm"
+                className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-2.5 text-sm font-semibold text-background shadow-sm transition-opacity hover:opacity-80"
               >
-                <PenLine className="h-4 w-4" /> New Post
+                <PenLine className="size-4" /> New Post
               </Link>
               <Link
                 to="/dashboard"
-                className="inline-flex items-center gap-2 border border-border text-sm font-semibold rounded-full px-6 py-2.5 hover:bg-muted transition-colors"
+                className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-2.5 text-sm font-semibold transition-colors hover:bg-muted"
               >
-                <LayoutDashboard className="h-4 w-4" /> Dashboard
+                <LayoutDashboard className="size-4" /> Dashboard
               </Link>
             </div>
           </>
         ) : (
           <>
-            <h2 className="text-2xl font-extrabold tracking-tight mb-2">Ready to start writing?</h2>
-            <p className="text-muted-foreground text-sm mb-6 leading-relaxed">
+            <h2 className="mb-2 text-2xl font-extrabold tracking-tight">Ready to start writing?</h2>
+            <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
               Join Blog Desk today and turn your ideas into stories that matter.
             </p>
             <Link
               to="/signup"
-              className="inline-flex items-center gap-2 bg-foreground text-background text-sm font-semibold rounded-full px-6 py-2.5 hover:opacity-80 transition-opacity shadow-sm"
+              className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-2.5 text-sm font-semibold text-background shadow-sm transition-opacity hover:opacity-80"
             >
-              Create Free Account <ArrowRight className="h-4 w-4" />
+              Create Free Account <ArrowRight className="size-4" />
             </Link>
           </>
         )}

@@ -1,7 +1,7 @@
 import { useEffect, useCallback, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useSearchParams } from 'react-router-dom';
 import { postService } from '@/features/posts';
-import { profileService } from '@/features/profile';
 import { debounce } from '@/lib/utils';
 import {
   selectAllPosts,
@@ -19,14 +19,15 @@ import {
   setActiveCategory,
   setFeedMode,
 } from '@/features/posts';
-import { setUserProfile } from '@/features/profile';
 import { selectAuthUserId } from '@/features/auth';
 import { POSTS_PER_PAGE } from '@/constants';
+import { getUniqueProfileIds, prefetchProfiles } from '@/features/profile/utils/prefetchProfiles';
 
 const LIMIT = POSTS_PER_PAGE;
 
 export const useHome = () => {
   const dispatch = useDispatch();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const posts = useSelector(selectAllPosts);
   const isPostsLoading = useSelector(selectIsPostsLoading);
@@ -41,6 +42,21 @@ export const useHome = () => {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
 
   const loadingRef = useRef(false);
+
+  // Sync feedMode with URL query param
+  useEffect(() => {
+    const feed = searchParams.get('feed');
+    if (feed === 'following') {
+      if (feedMode !== 'following') dispatch(setFeedMode('following'));
+    } else {
+      // Default to explore if not specified or 'explore'
+      if (feedMode !== 'explore' && !feed) {
+         // only reset if there is no query param at all
+      } else if (feed === 'explore' && feedMode !== 'explore') {
+         dispatch(setFeedMode('explore'));
+      }
+    }
+  }, [searchParams, feedMode, dispatch]);
 
   // 1. Debounce logic for search input
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -74,16 +90,8 @@ export const useHome = () => {
 
         const pagePosts = response.documents ?? [];
 
-        // --- Senior Dev Move: Batch Prefetch Profiles ---
-        if (pagePosts.length > 0) {
-          const authorIds = [...new Set(pagePosts.map(p => p.authorId))].filter(Boolean);
-          profileService.getProfilesByIds(authorIds)
-            .then(profiles => {
-              profiles.forEach(p => dispatch(setUserProfile(p)));
-            })
-            .catch(err => console.warn('Home Feed: Batch profile prefetch failed', err));
-        }
-        // -----------------------------------------------
+        const authorIds = getUniqueProfileIds(pagePosts, (post) => post.authorId);
+        prefetchProfiles(dispatch, authorIds, 'Home feed profile prefetch');
 
         const totalFetched = (pageNum === 1 ? 0 : (pageNum - 1) * LIMIT) + pagePosts.length;
 
@@ -138,9 +146,10 @@ export const useHome = () => {
     (mode) => {
       setSearchTerm('');
       setDebouncedSearchTerm('');
+      setSearchParams({ feed: mode });
       dispatch(setFeedMode(mode));
     },
-    [dispatch],
+    [dispatch, setSearchParams],
   );
 
   return {

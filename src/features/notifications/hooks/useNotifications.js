@@ -5,8 +5,6 @@ import { config } from '@/lib/config';
 import { notificationService } from '../services/notification.service';
 import {
   setNotifications,
-  addNotification,
-  removeNotification,
   setNotificationsStatus,
   setNotificationsError,
   selectUnreadNotificationsCount,
@@ -23,17 +21,23 @@ export const useNotifications = () => {
   const authUserId = useSelector(selectAuthUserId);
   const unreadCount = useSelector(selectUnreadNotificationsCount);
 
+  const normalizeId = useCallback((value) => (value ? String(value) : null), []);
+
   const fetchInitialNotifications = useCallback(async () => {
     if (!authUserId) return;
 
     dispatch(setNotificationsStatus('loading'));
     try {
       const data = await notificationService.getNotifications(authUserId);
-      dispatch(setNotifications(data));
+      const currentUserId = normalizeId(authUserId);
+      const scopedNotifications = data.filter(
+        (notification) => normalizeId(notification?.recipientId) === currentUserId,
+      );
+      dispatch(setNotifications(scopedNotifications));
     } catch (error) {
       dispatch(setNotificationsError(error.message));
     }
-  }, [authUserId, dispatch]);
+  }, [authUserId, dispatch, normalizeId]);
 
   useEffect(() => {
     if (!authUserId) return;
@@ -45,12 +49,14 @@ export const useNotifications = () => {
     const channel = `databases.${config.appwrite.databaseId}.collections.${config.appwrite.collections.notifications}.documents`;
 
     const unsubscribe = client.subscribe(channel, (response) => {
-      // Check if the event is a new document and belongs to the current user
       const { events, payload } = response;
+      const currentUserId = normalizeId(authUserId);
+      const payloadRecipientId = normalizeId(payload?.recipientId);
+      const isRecipientEvent = payloadRecipientId === currentUserId;
 
       // Handle Creation
-      if (events.some((e) => e.includes('.create')) && payload.recipientId === authUserId) {
-        dispatch(addNotification(payload));
+      if (events.some((e) => e.includes('.create')) && isRecipientEvent) {
+        fetchInitialNotifications();
 
         // Show a toast for the notification
         const message = getNotificationMessage(payload);
@@ -64,14 +70,14 @@ export const useNotifications = () => {
 
       // Handle Deletion
       if (events.some((e) => e.includes('.delete'))) {
-        dispatch(removeNotification(payload.$id));
+        fetchInitialNotifications();
       }
     });
 
     return () => {
       unsubscribe();
     };
-  }, [authUserId, fetchInitialNotifications, dispatch]);
+  }, [authUserId, fetchInitialNotifications, normalizeId]);
 
   return {
     unreadCount,

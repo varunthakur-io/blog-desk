@@ -8,14 +8,14 @@ import { selectProfileById, setUserProfile } from '@/features/profile';
  * Hook to fetch basic identity info for a user.
  * Supports resolving from username (URL) or direct userId.
  */
-export const useProfileBasic = ({ userId = null, username = null } = {}) => {
+export const useProfileIdentity = ({ userId = null, username = null } = {}) => {
   const dispatch = useDispatch();
   const authUserId = useSelector(selectAuthUserId);
 
   const targetId = userId || (!username ? authUserId : null);
   const [resolvedId, setResolvedId] = useState(targetId);
   const profile = useSelector((state) => selectProfileById(state, resolvedId));
-  
+
   const [isLoading, setIsLoading] = useState(!profile);
   const [error, setError] = useState(null);
 
@@ -25,27 +25,41 @@ export const useProfileBasic = ({ userId = null, username = null } = {}) => {
     let cancelled = false;
 
     const fetchProfileData = async () => {
-      if (profile && resolvedId) {
-        setIsLoading(false);
-        return;
-      }
-
       setIsLoading(true);
       setError(null);
 
       try {
-        let data = null;
-        if (username && !resolvedId) {
-          data = await profileService.getProfileByUsername(username);
-          if (data && !cancelled) setResolvedId(data.$id);
-        } else if (resolvedId) {
-          data = await profileService.getProfile(resolvedId);
+        if (username) {
+          if (profile?.username === username) return;
+
+          const profileByUsername = await profileService.getProfileByUsername(username);
+          if (cancelled) return;
+
+          if (!profileByUsername) {
+            setResolvedId(null);
+            setError('User not found');
+            return;
+          }
+
+          setResolvedId(profileByUsername.$id);
+          dispatch(setUserProfile(profileByUsername));
+          return;
         }
 
-        if (data && !cancelled) {
-          dispatch(setUserProfile(data));
-        } else if (!data && username && !cancelled) {
-          setError('User not found');
+        if (!targetId) return;
+
+        if (resolvedId !== targetId) {
+          setResolvedId(targetId);
+          return;
+        }
+
+        if (profile) return;
+
+        const profileById = await profileService.getProfile(targetId);
+        if (cancelled) return;
+
+        if (profileById) {
+          dispatch(setUserProfile(profileById));
         }
       } catch (err) {
         if (!cancelled) setError(err.message || 'Failed to fetch profile');
@@ -55,8 +69,10 @@ export const useProfileBasic = ({ userId = null, username = null } = {}) => {
     };
 
     fetchProfileData();
-    return () => { cancelled = true; };
-  }, [userId, username, resolvedId, profile, dispatch]);
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, username, targetId, resolvedId, profile, dispatch]);
 
   return {
     profile,

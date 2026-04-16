@@ -1,31 +1,34 @@
-import DOMPurify from 'dompurify';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowUpRight, Calendar, Clock, MessageSquare, Heart, Loader2 } from 'lucide-react';
+import { Heart, Share2 } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
+import BookmarkButton from '@/features/bookmarks/components/BookmarkButton';
+import { useBookmark } from '@/features/bookmarks/hooks/useBookmark';
 import { selectProfileById } from '@/features/profile';
 import { setActiveCategory } from '@/features/posts';
 import { useLike } from '@/features/posts';
+import { ShareDialog } from '@/components/common';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { formatDate, calculateReadTime } from '@/utils/formatters';
+import { formatDate, calculateReadTime, generateExcerpt } from '@/utils/formatters';
 
+/**
+ * A Premium, Asymmetric Editorial Post Card.
+ * Designed for high-end digital magazines with a focus on typography and geometric balance.
+ */
 const PostCard = ({ post }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [isShareOpen, setIsShareOpen] = useState(false);
+
   const authorProfile = useSelector((state) => selectProfileById(state, post.authorId));
-  const authorName = authorProfile?.name;
+  const authorName = authorProfile?.name || 'Anonymous';
   const readTime = calculateReadTime(post.content);
 
-  const {
-    likesCount,
-    isLiked,
-    isLiking,
-    toggleLike,
-  } = useLike(post);
+  const { likesCount, isLiked, isLiking, toggleLike } = useLike(post);
+  const { isBookmarked, isLoading: isBookmarkLoading, toggleBookmark } = useBookmark(post);
 
-  const plainContent = DOMPurify.sanitize(post.content || '', {
-    USE_PROFILES: { html: false },
-  });
-
+  const excerpt = generateExcerpt(post.content, post.title, 140);
   const coverImageUrl = post.coverImageUrl || null;
   const category = post.category || null;
 
@@ -37,109 +40,114 @@ const PostCard = ({ post }) => {
   };
 
   return (
-    // h-full makes the card stretch to fill the grid row height — all cards in a row stay same height
-    <div className="group flex flex-col h-full overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-      {/* Cover Image — fixed aspect ratio so cards with/without images don't cause height jumps */}
-      {coverImageUrl && (
-        <div className="aspect-[16/9] w-full overflow-hidden bg-muted shrink-0">
-          <img
-            src={coverImageUrl}
-            alt={post.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-          />
-        </div>
-      )}
+    <article className="group relative border-b border-border/40 py-10 last:border-0 hover:bg-muted/30 px-4 -mx-4 transition-all duration-500 first:pt-0 overflow-hidden hover:rounded-2xl">
+      <ShareDialog
+        open={isShareOpen}
+        onOpenChange={setIsShareOpen}
+        url={`/posts/${post.slug}`}
+        title={post.title}
+      />
 
-      {/* flex-1 so this section grows to fill remaining card height */}
-      <div className={`flex flex-col flex-1 ${coverImageUrl ? 'pt-4' : 'pt-5'} px-5 pb-5`}>
-        {/* Top meta row — category badge + stats */}
-        <div className="flex items-center justify-between mb-3">
-          {/* Clickable category badge — uses neutral secondary colors, no blue */}
-          {category ? (
-            <button
-              onClick={handleCategoryClick}
-              className="text-[10px] font-semibold px-2 py-0.5 uppercase tracking-wider rounded-md bg-secondary text-secondary-foreground hover:bg-foreground hover:text-background transition-colors duration-200"
-            >
-              {category}
-            </button>
-          ) : (
-            <span className="text-[10px] font-semibold px-2 py-0.5 uppercase tracking-wider rounded-md bg-muted text-muted-foreground">
-              Article
-            </span>
-          )}
+      <div className="flex flex-col sm:flex-row items-center gap-8 md:gap-12 justify-between">
+        
+        {/* ── Content Section ── */}
+        <div className="flex-1 min-w-0 order-2 sm:order-1 space-y-4">
+          
+          {/* Top Metadata Row */}
+          <div className="flex items-center gap-2 mb-1">
+             <Link to={`/profile/${authorProfile?.username}`} className="flex items-center gap-2 shrink-0 group/meta">
+              <Avatar className="size-5 border-none bg-muted ring-1 ring-border/20 transition-all group-hover/meta:ring-primary/20">
+                {authorProfile?.avatarUrl && <AvatarImage src={authorProfile.avatarUrl} className="object-cover" />}
+                <AvatarFallback className="text-[8px] font-bold bg-muted uppercase text-muted-foreground/60">
+                  {authorName.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-[12px] font-bold text-foreground hover:text-primary transition-colors truncate tracking-tight">{authorName}</span>
+            </Link>
+            <span className="text-muted-foreground/40 text-[10px]">•</span>
+            <time className="text-muted-foreground/60 font-medium text-[12px]" dateTime={post.$createdAt}>
+              {formatDate(post.$createdAt, { month: 'short', day: 'numeric' })}
+            </time>
+          </div>
 
-          <div className="flex items-center gap-3 text-muted-foreground/60">
-            <span className="flex items-center gap-1 text-[11px]">
-              <MessageSquare className="h-3 w-3" />
-              {post.commentsCount || 0}
-            </span>
-            <button
-              onClick={toggleLike}
-              disabled={isLiking}
-              className={cn(
-                "flex items-center gap-1 text-[11px] transition-all duration-200 active:scale-125",
-                isLiked ? "text-red-500 font-bold" : "hover:text-red-400"
+          {/* Title & Excerpt Area */}
+          <div className="space-y-2">
+            <Link to={`/posts/${post.$id}`} className="block group/title">
+              <h2 className="text-xl md:text-2xl font-black leading-[1.2] tracking-tighter text-foreground group-hover/title:text-primary transition-all duration-300">
+                {post.title}
+              </h2>
+            </Link>
+            <p className="text-[14px] leading-relaxed text-muted-foreground/80 line-clamp-2 font-medium tracking-tight">
+              {excerpt}
+            </p>
+          </div>
+
+          {/* Bottom Metric & Action Bar */}
+          <div className="flex items-center justify-between pt-3">
+             <div className="flex items-center gap-4">
+              {category && (
+                <button 
+                  onClick={handleCategoryClick}
+                  className="px-2 py-0.5 rounded-md bg-muted/60 border border-border/40 text-muted-foreground text-[10px] font-bold uppercase tracking-tight hover:bg-primary/5 hover:text-primary hover:border-primary/20 transition-all"
+                >
+                  {category}
+                </button>
               )}
-            >
-              {isLiking ? (
-                <Loader2 className="h-3 w-3 animate-spin" />
-              ) : (
-                <Heart className={cn("h-3 w-3 transition-colors", isLiked ? "fill-current" : "")} />
-              )}
-              {likesCount}
-            </button>
-            <span className="flex items-center gap-1 text-[11px]">
-              <Clock className="h-3 w-3" />
-              {readTime}m
-            </span>
+              <span className="text-[11px] font-bold text-muted-foreground/40 tabular-nums">
+                {readTime} min read
+              </span>
+            </div>
+
+            <div className="flex items-center gap-1">
+               <button 
+                  onClick={toggleLike}
+                  disabled={isLiking}
+                  className={cn(
+                    "h-8 px-2 flex items-center justify-center gap-1.5 transition-all rounded-md hover:bg-rose-500/5 group/like",
+                    isLiked ? "text-rose-500" : "text-muted-foreground/40 hover:text-rose-500"
+                  )}
+                >
+                  <Heart className={cn("size-3.5 transition-transform group-active/like:scale-125", isLiked && "fill-current")} />
+                  {likesCount > 0 && <span className="text-[11px] font-bold tabular-nums">{likesCount}</span>}
+                </button>
+
+                <div className="h-4 w-px bg-border/20 mx-1" />
+
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsShareOpen(true);
+                  }}
+                  className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground/40 hover:bg-muted/50 hover:text-foreground transition-all"
+                  aria-label="Share"
+                >
+                  <Share2 className="size-3.5" />
+                </button>
+
+                <BookmarkButton
+                  isBookmarked={isBookmarked}
+                  onClick={toggleBookmark}
+                  isLoading={isBookmarkLoading}
+                  className="size-8 border-none bg-transparent hover:bg-muted/50 rounded-md"
+                />
+            </div>
           </div>
         </div>
 
-        {/* Title — always reserves exactly 2 lines of height so short titles don't shrink the card */}
-        <Link to={`/posts/${post.$id}`} className="block mb-3">
-          <h3
-            className="text-[0.975rem] font-bold leading-snug tracking-tight text-foreground line-clamp-2 group-hover:opacity-70 transition-opacity duration-200"
-            style={{ minHeight: '2.75rem' }} // 2 lines × line-height ~1.375rem each
-          >
-            {post.title}
-          </h3>
-        </Link>
-
-        {/* Excerpt — flex-1 fills all available space, pushing footer to the bottom */}
-        <p className="text-muted-foreground text-[13px] line-clamp-3 leading-relaxed flex-1 mb-4">
-          {plainContent}
-        </p>
-
-        {/* Footer — always pinned to the bottom of the card */}
-        <div className="flex items-center justify-between pt-3 border-t border-border/40">
-          <div className="flex items-center gap-2.5 min-w-0">
-            {/* Author avatar — neutral muted bg instead of bg-accent which can have blue tint */}
-            <div className="h-7 w-7 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-xs font-bold shrink-0 ring-1 ring-border">
-              {authorName?.charAt(0).toUpperCase() || 'A'}
+        {/* ── Visual Section (Asymmetric Right) ── */}
+        {coverImageUrl && (
+          <Link to={`/posts/${post.$id}`} className="shrink-0 order-1 sm:order-2">
+            <div className="relative aspect-square w-24 sm:w-32 md:w-40 rounded-md overflow-hidden bg-muted border border-border/40 transition-all duration-700 group-hover:scale-[1.02] group-hover:shadow-xl group-hover:shadow-primary/5">
+              <img
+                src={coverImageUrl}
+                alt={post.title}
+                className="w-full h-full object-cover grayscale-[10%] group-hover:grayscale-0 transition-all duration-700"
+              />
             </div>
-            <div className="min-w-0">
-              <p className="text-xs font-semibold text-foreground/80 truncate leading-none mb-0.5">
-                {authorName || 'Anonymous'}
-              </p>
-              <div className="flex items-center gap-1 text-[11px] text-muted-foreground/60">
-                <Calendar className="h-3 w-3 shrink-0" />
-                <time dateTime={post.$createdAt} className="truncate">
-                  {formatDate(post.$createdAt)}
-                </time>
-              </div>
-            </div>
-          </div>
-
-          <Link
-            to={`/posts/${post.$id}`}
-            className="shrink-0 flex items-center gap-1 text-[11px] font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 ml-2 group/link"
-          >
-            Read
-            <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />
           </Link>
-        </div>
+        )}
       </div>
-    </div>
+    </article>
   );
 };
 

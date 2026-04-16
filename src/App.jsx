@@ -20,6 +20,10 @@ const Signup = lazy(() => import('./pages/Signup'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Settings = lazy(() => import('./pages/Settings'));
 const About = lazy(() => import('./pages/About'));
+const VerifyEmail = lazy(() => import('./pages/VerifyEmail'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 function App() {
   const isAuthChecked = useAuthCheck();
@@ -36,6 +40,9 @@ function App() {
         {/* Routes with layout */}
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
+          <Route path="/explore" element={<Home />} />
+          <Route path="/following" element={<Home />} />
+          <Route path="/bookmarks" element={<Home />} />
           <Route path="/about" element={<About />} />
 
           {/* 🔒 Protected Routes */}
@@ -47,14 +54,22 @@ function App() {
             <Route path="/settings" element={<Settings />} />
           </Route>
 
-          {/* Public route for viewing articles */}
+          {/* Public routes */}
           <Route path="/posts/:id" element={<PostDetails />} />
           <Route path="/profile/:username" element={<Profile />} />
+          <Route path="/verify" element={<VerifyEmail />} />
+
+          {/* 404 Catch-all */}
+          <Route path="*" element={<NotFound />} />
         </Route>
 
         {/* Auth pages (no layout) */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+
+        {/* Recovery Routes */}
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
     </Suspense>
   );

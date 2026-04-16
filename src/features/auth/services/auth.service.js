@@ -1,5 +1,7 @@
 import { authApi } from './auth.api';
 import { profileService } from '@/features/profile';
+import { config } from '@/lib/config';
+import { parseApiError } from '@/lib/error-handler';
 
 class AuthService {
   cacheUser(user) {
@@ -16,53 +18,80 @@ class AuthService {
   }
 
   async createUser({ email, password, name, username }) {
-    const createdUser = await authApi.createAccount(email, password, name);
+    try {
+      const createdUser = await authApi.createAccount(email, password, name);
 
-    const maxRetries = 2;
-    let profileCreated = false;
+      const maxRetries = 2;
+      let profileCreated = false;
 
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
-      try {
-        await profileService.createProfile(createdUser, username);
-        profileCreated = true;
-        break;
-      } catch {
-        if (attempt < maxRetries) {
-          await new Promise((r) => setTimeout(r, 300));
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+          await profileService.createProfile(createdUser, username);
+          profileCreated = true;
+          break;
+        } catch {
+          if (attempt < maxRetries) {
+            await new Promise((r) => setTimeout(r, 300));
+          }
         }
       }
-    }
 
-    if (!profileCreated) {
-      throw new Error('Signup failed: could not create profile. Please try again.');
-    }
+      if (!profileCreated) {
+        throw new Error('Signup failed: could not create profile. Please try again.');
+      }
 
-    return await this.loginUser({ email, password });
+      const user = await this.loginUser({ email, password });
+
+      // Send verification email AFTER signup
+      try {
+        await this.createVerification();
+      } catch (error) {
+        console.warn('Initial verification email failed:', error);
+      }
+
+      return user;
+    } catch (error) {
+      throw new Error(parseApiError(error));
+    }
   }
 
   async loginUser({ email, password }) {
-    await authApi.createEmailPasswordSession(email, password);
-    const user = await authApi.getAccount();
-
-    let profile = null;
     try {
-      profile = await profileService.getProfile(user.$id);
-    } catch {
-      // Silently fail — session is still valid
-    }
+      await authApi.createEmailPasswordSession(email, password);
+      const user = await authApi.getAccount();
 
-    this.cacheUser({ ...user, profile });
-    return { user, profile };
+      let profile = null;
+      try {
+        profile = await profileService.getProfile(user.$id);
+      } catch {
+        // Silently fail — session is still valid
+      }
+
+      this.cacheUser({ ...user, profile });
+      return { user, profile };
+    } catch (error) {
+      throw new Error(parseApiError(error));
+    }
   }
 
   async logout() {
-    await authApi.deleteSession('current');
-    this.clearCachedUser();
+    try {
+      await authApi.deleteSession('current');
+      this.clearCachedUser();
+    } catch (error) {
+      this.clearCachedUser(); // Always clear local state
+      throw new Error(parseApiError(error));
+    }
   }
 
   async deleteAllSessions() {
-    await authApi.deleteSessions();
-    this.clearCachedUser();
+    try {
+      await authApi.deleteSessions();
+      this.clearCachedUser();
+    } catch (error) {
+      this.clearCachedUser();
+      throw new Error(parseApiError(error));
+    }
   }
 
   async getAccount() {
@@ -87,45 +116,105 @@ class AuthService {
   }
 
   async updateName(name) {
-    const user = await authApi.updateName(name);
-    await profileService.updateProfile(user.$id, { name });
-    const cached = this.getCachedUser() || {};
-    this.cacheUser({ ...cached, ...user, name });
-    return user;
+    try {
+      const user = await authApi.updateName(name);
+      await profileService.updateProfile(user.$id, { name });
+      const cached = this.getCachedUser() || {};
+      this.cacheUser({ ...cached, ...user, name });
+      return user;
+    } catch (error) {
+      throw new Error(parseApiError(error));
+    }
   }
 
   async updateEmail(email, password) {
-    const user = await authApi.updateEmail(email, password);
-    const cached = this.getCachedUser() || {};
-    this.cacheUser({ ...cached, ...user });
-    return user.email;
+    try {
+      const user = await authApi.updateEmail(email, password);
+      const cached = this.getCachedUser() || {};
+      this.cacheUser({ ...cached, ...user });
+      return user.email;
+    } catch (error) {
+      throw new Error(parseApiError(error));
+    }
   }
 
   async updatePassword(newPassword, oldPassword) {
-    return await authApi.updatePassword(newPassword, oldPassword);
+    try {
+      return await authApi.updatePassword(newPassword, oldPassword);
+    } catch (error) {
+      throw new Error(parseApiError(error));
+    }
   }
 
   async updatePrefs(prefs) {
-    const updatedUser = await authApi.updatePrefs(prefs);
-    const cached = this.getCachedUser() || {};
-    this.cacheUser({ ...cached, ...updatedUser });
-    return updatedUser;
+    try {
+      const updatedUser = await authApi.updatePrefs(prefs);
+      const cached = this.getCachedUser() || {};
+      this.cacheUser({ ...cached, ...updatedUser });
+      return updatedUser;
+    } catch (error) {
+      throw new Error(parseApiError(error));
+    }
   }
 
   async deleteAccount() {
-    const execution = await authApi.executeDeleteAccount();
-    if (execution.responseStatusCode >= 400) {
-      let message = 'Failed to delete account.';
-      try {
-        const parsed = JSON.parse(execution.responseBody || '{}');
-        message = parsed?.message || message;
-      } catch {
-        // ignore parse errors
+    try {
+      const execution = await authApi.executeDeleteAccount();
+      if (execution.responseStatusCode >= 400) {
+        let message = 'Failed to delete account.';
+        try {
+          const parsed = JSON.parse(execution.responseBody || '{}');
+          message = parsed?.message || message;
+        } catch {
+          // ignore parse errors
+        }
+        throw new Error(message);
       }
-      throw new Error(message);
+      this.clearCachedUser();
+      return true;
+    } catch (error) {
+      throw new Error(parseApiError(error));
     }
-    this.clearCachedUser();
-    return true;
+  }
+
+  async createVerification() {
+    try {
+      const url = `${config.app.url}/verify`;
+      return await authApi.createVerification(url);
+    } catch (error) {
+      throw new Error(parseApiError(error));
+    }
+  }
+
+  async verifyUser(userId, secret) {
+    try {
+      await authApi.updateVerification(userId, secret);
+      const updatedUser = await authApi.getAccount();
+
+      const cached = this.getCachedUser() || {};
+      this.cacheUser({ ...cached, ...updatedUser });
+
+      return updatedUser;
+    } catch (error) {
+      throw new Error(parseApiError(error));
+    }
+  }
+
+  async createRecovery(email) {
+    try {
+      const url = `${config.app.url}/reset-password`;
+      return await authApi.createRecovery(email, url);
+    } catch (error) {
+      throw new Error(parseApiError(error));
+    }
+  }
+
+  async resetPassword(userId, secret, password) {
+    try {
+      return await authApi.updateRecovery(userId, secret, password);
+    } catch (error) {
+      throw new Error(parseApiError(error));
+    }
   }
 }
 
