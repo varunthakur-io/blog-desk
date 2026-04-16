@@ -5,7 +5,7 @@ import StarterKit from '@tiptap/starter-kit';
 import TiptapLink from '@tiptap/extension-link';
 import { postService } from '@/features/posts';
 import toast from 'react-hot-toast';
-import { Loader2, Save } from 'lucide-react';
+import { Loader2, Save, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,6 +26,7 @@ import {
   PostEditorToolbar,
   PostPreviewDialog,
   FeaturedImageUpload,
+  PostSettingsSidebar,
 } from './PostFormUI';
 
 const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBackClick }) => {
@@ -146,20 +147,26 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
     );
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-background overflow-hidden animate-in fade-in duration-700">
-      {/* Editor Header (Fixed at the top of this component) */}
-      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b border-border/40 px-4 sm:px-6 lg:px-10 h-14 flex items-center justify-between shadow-sm shrink-0">
-        {/* Integrated Toolbar (Left aligned) */}
-        <div className="flex items-center gap-4 overflow-x-auto no-scrollbar">
-          <PostEditorToolbar editor={editor} />
+    <div className="flex-1 flex flex-col bg-background animate-in fade-in duration-700">
+      {/* Editor Header (Sleek sticky top-bar) */}
+      <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border/40 px-6 sm:px-10 h-14 flex items-center justify-between shadow-sm shrink-0">
+        <div className="flex items-center gap-6">
+          <RouterLink to="/" className="text-muted-foreground hover:text-foreground transition-colors">
+            <X className="h-5 w-5" />
+          </RouterLink>
+          <div className="h-5 w-px bg-border/60" />
+          {/* Integrated Toolbar */}
+          <div className="flex items-center gap-4 overflow-x-auto no-scrollbar max-w-sm sm:max-w-md lg:max-w-none">
+            <PostEditorToolbar editor={editor} />
+          </div>
         </div>
 
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <Button
             type="button"
             variant="ghost"
             onClick={() => setIsPreviewOpen(true)}
-            className="rounded-full text-[10px] font-bold text-muted-foreground hover:text-foreground h-8 px-4 uppercase tracking-wider transition-all hidden sm:flex"
+            className="rounded-md text-[13px] font-bold text-muted-foreground hover:text-foreground h-9 px-4 transition-all border border-border/40 bg-muted/5 hover:bg-muted/20"
           >
             Preview
           </Button>
@@ -168,7 +175,7 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="rounded-full px-6 font-bold text-[10px] bg-[#1a8917] hover:bg-[#156d12] text-white h-8 shadow-sm active:scale-95 transition-all gap-2 border-none uppercase tracking-wider"
+            className="rounded-md px-6 font-bold text-[13px] bg-foreground text-background h-9 shadow-sm transition-all active:scale-95 gap-2 border-none"
           >
             {isSubmitting ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -178,109 +185,50 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
         </div>
       </div>
 
-      {/* Main Content Area (Scrollable internally) */}
-      <div className="flex-1 overflow-y-auto no-scrollbar">
-        <div className="max-w-screen-2xl mx-auto flex flex-col lg:flex-row gap-16 xl:gap-32 items-start px-6">
+      {/* Main Content Area */}
+      <div className="flex-1 overflow-y-auto no-scrollbar bg-background">
+        <div className="w-full h-full flex flex-col lg:flex-row gap-0">
           {/* Main Writing Area */}
-          <div className="flex-1 w-full max-w-[820px] mx-auto lg:mx-0 pt-8 pb-32">
-            <div className="space-y-6">
+          <div className="flex-1 flex flex-col py-8 lg:py-12 border-r border-border/20 overflow-y-auto no-scrollbar">
+            <div className="max-w-[850px] w-full mx-auto px-4 sm:px-8 space-y-10">
               <textarea
                 ref={titleRef}
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                placeholder="Title"
+                placeholder="Story Title"
                 rows={1}
-                className="w-full text-3xl md:text-4xl lg:text-5xl font-serif font-bold border-none shadow-none px-0 py-0 focus:outline-none placeholder:text-muted-foreground/20 bg-transparent leading-tight resize-none overflow-hidden min-h-[1.2em]"
+                className="w-full text-4xl sm:text-5xl lg:text-6xl font-serif font-black tracking-tighter border-none shadow-none px-0 py-0 focus:outline-none placeholder:text-muted-foreground/10 bg-transparent leading-[1.05] resize-none overflow-hidden min-h-[1.1em]"
                 autoFocus
               />
               
-              <Separator className="opacity-20" />
-              
-              <div className="relative pt-4">
+              <div className="relative">
                 <EditorContent 
                   editor={editor} 
-                  className="prose-lg font-serif prose-headings:font-serif prose-p:text-foreground/90 leading-relaxed"
+                  className="prose-xl font-serif prose-headings:font-serif prose-p:text-foreground/90 leading-relaxed min-h-[60vh]"
                 />
               </div>
             </div>
           </div>
 
           {/* Sidebar Settings */}
-          <aside className="w-full lg:w-[320px] shrink-0 space-y-16 pb-20 pt-16 lg:sticky lg:top-0 h-fit">
-            <div className="space-y-12">
-              <div className="space-y-8">
-                <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 border-b border-border/40 pb-3">Story Settings</h3>
-                
-                <div className="space-y-8 px-1">
-                  <div className="space-y-3">
-                    <Label className="text-[12px] font-bold text-foreground/80">Category</Label>
-                    <Select
-                      value={formData.category || '__none__'}
-                      onValueChange={(val) => setFormData(p => ({ ...p, category: val === '__none__' ? null : val }))}
-                    >
-                      <SelectTrigger className="h-11 rounded-xl bg-muted/20 border-border/40 text-xs font-bold hover:bg-muted/40 transition-all">
-                        <SelectValue placeholder="Add category" />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-xl shadow-2xl border-border/40">
-                        <SelectItem value="__none__" className="text-xs font-bold">Uncategorised</SelectItem>
-                        {CATEGORIES.map((cat) => (
-                          <SelectItem key={cat} value={cat} className="text-xs font-bold">{cat}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <p className="text-[11px] text-muted-foreground/60 font-medium leading-relaxed italic px-1">Helping readers find your story.</p>
-                  </div>
-
-                  <div className="space-y-3">
-                    <Label className="text-[12px] font-bold text-foreground/80">Visibility</Label>
-                    <Select 
-                      value={formData.status} 
-                      onValueChange={(val) => setFormData(p => ({ ...p, status: val }))}
-                    >
-                      <SelectTrigger className="h-11 rounded-xl bg-muted/20 border-border/40 text-xs font-bold hover:bg-muted/40 transition-all">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-xl shadow-2xl border-border/40">
-                        <SelectItem value="published" className="text-xs font-bold">Public (Visible to all)</SelectItem>
-                        <SelectItem value="draft" className="text-xs font-bold">Draft (Only you)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-8">
-                <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 border-b border-border/40 pb-3">Cover Image</h3>
-                <div className="px-1 space-y-5">
-                  <div className="rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 ring-1 ring-border/40">
-                    <FeaturedImageUpload
-                      imagePreview={postImagePreview}
-                      onUpload={handleFeaturedImageUpload}
-                      onRemove={removeFeaturedImage}
-                    />
-                  </div>
-                  <p className="text-[11px] text-muted-foreground/60 leading-relaxed font-medium italic px-1">
-                    High-quality images capture more readers.
-                  </p>
-                </div>
-              </div>
-
-              {!isEdit && import.meta.env.DEV && (
-                <div className="pt-10 border-t border-border/40">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={handleRandomData}
-                    className="w-full justify-start gap-4 text-muted-foreground/60 hover:text-primary transition-all text-[10px] font-black uppercase tracking-widest h-12 rounded-2xl px-4 hover:bg-primary/5"
-                  >
-                    <span className="flex items-center justify-center size-6 rounded-lg bg-primary/10 text-primary shadow-sm">✨</span>
-                    Generate Content
-                  </Button>
-                </div>
-              )}
-            </div>
-          </aside>
+          <PostSettingsSidebar
+            isEdit={isEdit}
+            onBackClick={onBackClick}
+            saveStateLabel={saveStateLabel}
+            status={formData.status}
+            onStatusChange={(val) => setFormData(p => ({ ...p, status: val }))}
+            category={formData.category}
+            onCategoryChange={(val) => setFormData(p => ({ ...p, category: val }))}
+            imagePreview={postImagePreview}
+            onImageUpload={handleFeaturedImageUpload}
+            onImageRemove={removeFeaturedImage}
+            onPreviewClick={() => setIsPreviewOpen(true)}
+            onRandomData={handleRandomData}
+            onDiscard={() => navigate(-1)}
+            onSubmit={handleSubmit}
+            isSubmitting={isSubmitting}
+          />
         </div>
       </div>
 

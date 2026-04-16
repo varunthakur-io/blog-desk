@@ -50,38 +50,38 @@ const PostContent = ({ title, content, coverImageUrl, onHeadingsReady }) => {
 
   return (
     <>
-      {/* reading progress bar */}
-      <div className="fixed top-0 left-0 right-0 z-[60] h-1 bg-muted/20">
+      {/* premium minimalist progress bar */}
+      <div className="fixed top-0 left-0 right-0 z-[100] h-0.5 bg-muted/20">
         <div
-          className="h-full bg-gradient-to-r from-primary/40 via-primary to-primary transition-all duration-150 ease-out shadow-[0_0_8px_rgba(var(--primary),0.4)]"
+          className="h-full bg-foreground transition-all duration-150 ease-out shadow-[0_0_10px_rgba(0,0,0,0.2)]"
           style={{ width: `${progress}%` }}
         />
       </div>
 
       <div className="space-y-8">
-        {/* cover image */}
+        {/* cover image - strictly geometric rounded-md */}
         {coverImageUrl && (
-          <div className="relative w-full rounded-3xl overflow-hidden bg-muted border border-border/40 shadow-sm">
+          <div className="relative w-full rounded-md overflow-hidden bg-muted border border-border/40">
             <img
               src={coverImageUrl}
-              className="w-full h-auto object-cover max-h-[600px]"
+              className="w-full h-auto object-cover max-h-[600px] hover:scale-[1.01] transition-transform duration-700"
             />
           </div>
         )}
 
-        {/* article body */}
+        {/* article body - premium editorial typography */}
         <article
           ref={articleRef}
-          className="prose prose-lg dark:prose-invert w-full max-w-none font-serif
-            prose-headings:font-serif prose-headings:font-black prose-headings:tracking-tight prose-headings:text-foreground
-            prose-p:text-foreground/90 prose-p:leading-[1.8] prose-p:mb-8
-            prose-a:text-primary prose-a:underline prose-a:underline-offset-4 hover:prose-a:opacity-70
+          className="prose prose-lg dark:prose-invert w-full max-w-none 
+            prose-headings:font-sans prose-headings:font-black prose-headings:tracking-tighter prose-headings:text-foreground
+            prose-p:font-serif prose-p:text-foreground/90 prose-p:leading-[1.8] prose-p:mb-8 prose-p:text-[18px]
+            prose-a:text-foreground prose-a:underline prose-a:underline-offset-4 hover:prose-a:opacity-70 transition-all
             prose-strong:text-foreground prose-strong:font-bold
-            prose-code:bg-muted prose-code:rounded prose-code:px-1.5 prose-code:py-0.5 prose-code:text-sm prose-code:font-mono prose-code:before:content-none prose-code:after:content-none
-            prose-pre:bg-muted prose-pre:border prose-pre:border-border prose-pre:rounded-2xl prose-pre:p-6
-            prose-blockquote:border-l-4 prose-blockquote:border-primary/20 prose-blockquote:bg-primary/[0.02] prose-blockquote:py-2 prose-blockquote:px-8 prose-blockquote:text-xl prose-blockquote:font-medium prose-blockquote:italic prose-blockquote:text-foreground/80
-            prose-img:rounded-3xl prose-img:border prose-img:border-border/40 prose-img:shadow-lg
-            prose-hr:border-border/40
+            prose-code:bg-muted prose-code:rounded-md prose-code:px-1.5 prose-code:py-0.5 prose-code:text-sm prose-code:font-mono prose-code:before:content-none prose-code:after:content-none
+            prose-pre:bg-muted prose-pre:border prose-pre:border-border/40 prose-pre:rounded-md prose-pre:p-6
+            prose-blockquote:border-l-2 prose-blockquote:border-border prose-blockquote:bg-muted/5 prose-blockquote:py-2 prose-blockquote:px-8 prose-blockquote:text-xl prose-blockquote:font-serif prose-blockquote:font-medium prose-blockquote:italic prose-blockquote:text-foreground/80
+            prose-img:rounded-md prose-img:border prose-img:border-border/40
+            prose-hr:border-border/20
             prose-li:text-foreground/90 prose-li:leading-relaxed"
           dangerouslySetInnerHTML={{ __html: processedContent }}
         />
