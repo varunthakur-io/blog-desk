@@ -7,12 +7,11 @@ import {
   DashboardFilters,
   DashboardTable,
   DashboardPagination,
+  useDashboard,
 } from '@/features/posts';
 import { ConfirmationDialog, EmptyState } from '@/components/common';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-
-import { useDashboard } from '@/features/posts';
 
 /**
  * Dashboard page for users to manage their stories.

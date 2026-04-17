@@ -1,14 +1,11 @@
-import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { profileService } from '@/features/profile';
 import { selectAuthUser } from '@/features/auth';
 import { 
   PostCard, 
   PostCardSkeleton, 
   useCategories, 
-  postService,
   useHome,
   HomeTabs, 
   HomeCategoryFilters, 
@@ -21,10 +18,7 @@ import {
  */
 const Home = () => {
   const { categories } = useCategories();
-  const [recommendedAuthors, setRecommendedAuthors] = useState([]);
-  const [isAuthorsLoading, setIsAuthorsLoading] = useState(false);
-  const [staffPicks, setStaffPicks] = useState([]);
-  const [isStaffPicksLoading, setIsStaffPicksLoading] = useState(false);
+  const user = useSelector(selectAuthUser);
 
   const {
     posts,
@@ -38,56 +32,11 @@ const Home = () => {
     handleSearchChange,
     handleCategoryChange,
     handleFeedModeChange,
+    recommendedAuthors,
+    isAuthorsLoading,
+    staffPicks,
+    isStaffPicksLoading,
   } = useHome();
-
-  const user = useSelector(selectAuthUser);
-  const isEmailVerified = user?.emailVerification;
-
-  useEffect(() => {
-    const fetchAuthors = async () => {
-      setIsAuthorsLoading(true);
-      try {
-        const authors = await profileService.searchProfiles(' '); 
-        setRecommendedAuthors(authors.filter(a => a.$id !== authUserId));
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setIsAuthorsLoading(false);
-      }
-    };
-    fetchAuthors();
-  }, [authUserId]);
-
-  useEffect(() => {
-    const fetchStaffPicks = async () => {
-      setIsStaffPicksLoading(true);
-      try {
-        const res = await postService.getStaffPicks(3);
-        const posts = res.documents;
-        const authorIds = [...new Set(posts.map(p => p.authorId))];
-        const profiles = await profileService.getProfilesByIds(authorIds);
-        
-        const enrichedPosts = posts.map(post => {
-          const authorProfile = profiles.find(p => p.userId === post.authorId);
-          return {
-            ...post,
-            author: {
-              ...authorProfile,
-              name: authorProfile?.name || post.authorName || 'Anonymous',
-              username: authorProfile?.username || post.authorId
-            }
-          };
-        });
-        
-        setStaffPicks(enrichedPosts);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setIsStaffPicksLoading(false);
-      }
-    };
-    fetchStaffPicks();
-  }, []);
 
   const renderContent = () => {
     if (postsLoading && posts.length === 0) {
