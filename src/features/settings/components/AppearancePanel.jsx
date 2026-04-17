@@ -1,5 +1,4 @@
 import { Switch } from '@/components/ui/switch';
-import { cn } from '@/lib/utils';
 
 const AppearancePanel = ({ isDarkMode, handleToggleDarkMode }) => {
   return (

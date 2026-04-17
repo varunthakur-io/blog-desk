@@ -1,4 +1,4 @@
-import { Camera, Loader2, Save, Upload } from 'lucide-react';
+import { Camera, Loader2, Save } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';

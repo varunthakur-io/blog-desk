@@ -1,6 +1,5 @@
 import { Loader2, LogOut, Trash2, ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { ConfirmationDialog } from '@/components/common';
 

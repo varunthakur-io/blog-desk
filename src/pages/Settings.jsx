@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { User, Shield, Bell, Palette, Lock, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-import useDarkMode from '@/hooks/common/useDarkMode';
+import useDarkMode from '@/hooks/useDarkMode';
 import {
   useProfileSettings,
   useAccountSettings,

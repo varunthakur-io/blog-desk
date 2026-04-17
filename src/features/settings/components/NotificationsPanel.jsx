@@ -1,7 +1,5 @@
 import { Loader2 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
-import { Card, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 
 const NotificationsPanel = ({ prefs, isPrefsLoading, handlePrefChange }) => {
   return (
