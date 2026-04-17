@@ -1,7 +1,6 @@
 import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CalendarDays, Mail } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
 
 // ─── Profile Info ───────────────────────────────────────────
 

@@ -18,17 +18,14 @@ class StorageService {
       await storageApi.deleteFile(fileId);
       return true;
     } catch (error) {
-      // For deletion, we log a warning but return false so the main flow isn't crashed
       console.warn('StorageService :: deleteFile() Failed to delete file:', error);
       return false;
     }
   }
 
-  // Delete the previous asset first so profile/post image fields keep a single active file id.
   async uploadFileWithReplacement(file, oldFileId) {
     try {
       if (oldFileId) {
-        // Best-effort replacement keeps a single active asset id for profile/post images.
         await this.deleteFile(oldFileId);
       }
       return await this.uploadFile(file);

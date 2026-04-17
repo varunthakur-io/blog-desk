@@ -26,7 +26,7 @@ import {
 import { selectProfileById } from '@/features/profile';
 import { NavUserSearch } from '@/features/search';
 import { NotificationBell } from '@/features/notifications';
-import useDarkMode from '@/hooks/common/useDarkMode';
+import useDarkMode from '@/hooks/useDarkMode';
 
 /**
  * Navbar component for global navigation and user actions.
@@ -57,8 +57,8 @@ const Navbar = ({ onToggleSidebar }) => {
   }, [dispatch, navigate]);
 
   return (
-    <header className="sticky top-0 z-50 flex h-16 w-full shrink-0 items-center border-b border-border/40 bg-background/60 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/40 transition-all duration-500">
-      <div className="flex w-full items-center justify-between gap-4 px-4 sm:px-6">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/60 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/40">
+      <div className="flex h-16 w-full items-center justify-between gap-4 px-4 sm:px-6">
         
         {/* Branding & Sidebar Toggle */}
         <div className="flex items-center gap-4">

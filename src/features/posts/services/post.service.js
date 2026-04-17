@@ -1,5 +1,5 @@
 import { postApi } from './post.api';
-import { storageService } from './storage.service';
+import { storageService } from '@/features/storage';
 import { commentService } from '@/features/comments';
 import { likeService } from '@/features/likes';
 import { authService } from '@/features/auth';

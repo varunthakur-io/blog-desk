@@ -6,4 +6,4 @@ export { default as ConfirmationDialog } from './ConfirmationDialog';
 export { default as EmptyState } from './EmptyState';
 export { default as ShareDialog } from './ShareDialog';
 export { default as SEO } from './SEO';
-export { default as VerificationBanner } from '@/features/auth/components/VerificationBanner';
+export { default as VerificationBanner } from './VerificationBanner';

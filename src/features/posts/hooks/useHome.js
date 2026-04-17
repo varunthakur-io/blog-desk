@@ -22,6 +22,7 @@ import {
 import { selectAuthUserId } from '@/features/auth';
 import { POSTS_PER_PAGE } from '@/constants';
 import { getUniqueProfileIds, prefetchProfiles } from '@/features/profile/utils/prefetchProfiles';
+import { profileService } from '@/features/profile';
 
 const LIMIT = POSTS_PER_PAGE;
 
@@ -41,6 +42,12 @@ export const useHome = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
 
+  // Sidebar States
+  const [recommendedAuthors, setRecommendedAuthors] = useState([]);
+  const [isAuthorsLoading, setIsAuthorsLoading] = useState(false);
+  const [staffPicks, setStaffPicks] = useState([]);
+  const [isStaffPicksLoading, setIsStaffPicksLoading] = useState(false);
+
   const loadingRef = useRef(false);
 
   // Sync feedMode with URL query param
@@ -57,6 +64,54 @@ export const useHome = () => {
       }
     }
   }, [searchParams, feedMode, dispatch]);
+
+  // Sidebar: Fetch Recommended Authors
+  useEffect(() => {
+    const fetchAuthors = async () => {
+      setIsAuthorsLoading(true);
+      try {
+        const authors = await profileService.searchProfiles(' '); 
+        setRecommendedAuthors(authors.filter(a => a.$id !== authUserId));
+      } catch (err) {
+        console.error('useHome :: fetchAuthors failed', err);
+      } finally {
+        setIsAuthorsLoading(false);
+      }
+    };
+    fetchAuthors();
+  }, [authUserId]);
+
+  // Sidebar: Fetch Staff Picks
+  useEffect(() => {
+    const fetchStaffPicks = async () => {
+      setIsStaffPicksLoading(true);
+      try {
+        const res = await postService.getStaffPicks(3);
+        const posts = res.documents;
+        const authorIds = [...new Set(posts.map(p => p.authorId))];
+        const profiles = await profileService.getProfilesByIds(authorIds);
+        
+        const enrichedPosts = posts.map(post => {
+          const authorProfile = profiles.find(p => p.userId === post.authorId);
+          return {
+            ...post,
+            author: {
+              ...authorProfile,
+              name: authorProfile?.name || post.authorName || 'Anonymous',
+              username: authorProfile?.username || post.authorId
+            }
+          };
+        });
+        
+        setStaffPicks(enrichedPosts);
+      } catch (err) {
+        console.error('useHome :: fetchStaffPicks failed', err);
+      } finally {
+        setIsStaffPicksLoading(false);
+      }
+    };
+    fetchStaffPicks();
+  }, []);
 
   // 1. Debounce logic for search input
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -164,6 +219,10 @@ export const useHome = () => {
     handleSearchChange,
     handleCategoryChange,
     handleFeedModeChange,
+    recommendedAuthors,
+    isAuthorsLoading,
+    staffPicks,
+    isStaffPicksLoading,
     LIMIT,
   };
 };
