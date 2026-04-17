@@ -1,5 +1,20 @@
 root = true
 
+# Global settings for all files
 [*]
+charset = utf-8
 end_of_line = lf
+indent_style = space
+indent_size = 2
 insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Target specific text/source files
+[*.{js,jsx,ts,tsx,html,css,json,md,yml}]
+indent_style = space
+indent_size = 2
+
+# Explicitly exclude binary files from text-based formatting
+[*.{png,jpg,jpeg,webp,gif,ico,woff,woff2,ttf,pdf}]
+insert_final_newline = false
+trim_trailing_whitespace = false
