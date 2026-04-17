@@ -10,7 +10,6 @@ import { FollowButton } from '@/features/follows';
 import { useComments } from '@/features/comments';
 import { useProfileIdentity } from '@/features/profile';
 import { formatDate } from '@/utils/formatters';
-import { cn } from '@/lib/utils';
 
 /* ───────────────────────────────────────────── */
 /* Comment Item */
