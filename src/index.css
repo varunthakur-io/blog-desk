@@ -107,10 +107,10 @@
 
 @layer base {
   * {
-    @apply border-border font-sans transition-[background-color,color,border-color,box-shadow,backdrop-filter] duration-500 ease-in-out;
+    @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-sans antialiased selection:bg-primary/10;
+    @apply bg-background text-foreground font-sans antialiased transition-[background-color,color] duration-500 ease-in-out selection:bg-primary/10;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -145,4 +145,110 @@
     background-image: radial-gradient(circle, hsl(var(--border)) 1px, transparent 1px);
     background-size: 28px 28px;
   }
+}
+
+/* Tiptap / Prose Overrides for forced contrast */
+.prose {
+  --tw-prose-body: hsl(var(--foreground));
+  --tw-prose-headings: hsl(var(--foreground));
+  --tw-prose-lead: hsl(var(--foreground));
+  --tw-prose-links: hsl(var(--primary));
+  --tw-prose-bold: hsl(var(--foreground));
+  --tw-prose-counters: hsl(var(--muted-foreground));
+  --tw-prose-bullets: hsl(var(--muted-foreground));
+  --tw-prose-hr: hsl(var(--border));
+  --tw-prose-quotes: hsl(var(--foreground));
+  --tw-prose-quote-borders: hsl(var(--border));
+  --tw-prose-captions: hsl(var(--muted-foreground));
+  --tw-prose-code: hsl(var(--foreground));
+  --tw-prose-pre-code: hsl(var(--foreground));
+  --tw-prose-pre-bg: hsl(var(--muted) / 0.5);
+  --tw-prose-th-borders: hsl(var(--border));
+  --tw-prose-td-borders: hsl(var(--border));
+}
+
+.prose pre {
+  background-color: hsl(var(--muted) / 0.5) !important;
+  color: hsl(var(--foreground)) !important;
+  border: 1px solid hsl(var(--border) / 0.5);
+  white-space: pre-wrap !important;
+  word-break: break-all !important;
+}
+
+.prose code {
+  color: hsl(var(--foreground)) !important;
+  background-color: hsl(var(--muted) / 0.4);
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  font-weight: 600;
+}
+
+.prose pre code {
+  background-color: transparent !important;
+  padding: 0 !important;
+  color: inherit !important;
+}
+
+/* Syntax Highlighting Tokens */
+.hljs-comment,
+.hljs-quote {
+  color: #a0aec0;
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-subst {
+  color: #f687b3; /* soft pink */
+}
+
+.hljs-string,
+.hljs-doctag,
+.hljs-regexp,
+.hljs-type,
+.hljs-name,
+.hljs-section,
+.hljs-symbol,
+.hljs-bullet {
+  color: #68d391; /* emerald/green */
+}
+
+.hljs-title,
+.hljs-attribute,
+.hljs-title.function_,
+.hljs-class .hljs-title {
+  color: #63b3ed; /* sky blue */
+}
+
+.hljs-variable,
+.hljs-template-variable,
+.hljs-params,
+.hljs-link {
+  color: #f6ad55; /* orange */
+}
+
+.hljs-number,
+.hljs-literal,
+.hljs-tag,
+.hljs-built_in,
+.hljs-meta {
+  color: #ed64a6; /* bright pink */
+}
+
+.hljs-addition {
+  background-color: #f0fff4;
+  color: #22543d;
+}
+
+.hljs-deletion {
+  background-color: #fff5f5;
+  color: #742a2a;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
 }

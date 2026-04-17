@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import DOMPurify from 'dompurify';
+import hljs from 'highlight.js/lib/common';
 
 // extracts all h2/h3 headings from html string for the TOC
 const extractHeadings = (html) => {
@@ -13,13 +14,27 @@ const extractHeadings = (html) => {
   }));
 };
 
-// injects id attributes into heading elements in the html string
-const injectHeadingIds = (html) => {
+// injects id attributes and syntax highlighting into the html string
+const processContentHtml = (html) => {
   const div = document.createElement('div');
   div.innerHTML = DOMPurify.sanitize(html);
+  
+  // Highlighting
+  div.querySelectorAll('pre code').forEach((block) => {
+    try {
+      const result = hljs.highlightAuto(block.textContent);
+      block.innerHTML = result.value;
+      block.classList.add('hljs');
+    } catch (e) {
+      console.error('Highlight error:', e);
+    }
+  });
+
+  // TOC IDs
   div.querySelectorAll('h2, h3').forEach((node, i) => {
     node.id = `heading-${i}`;
   });
+  
   return div.innerHTML;
 };
 
@@ -46,7 +61,7 @@ const PostContent = ({ title, content, coverImageUrl, onHeadingsReady }) => {
     }
   }, [content, onHeadingsReady]);
 
-  const processedContent = content ? injectHeadingIds(content) : '';
+  const processedContent = content ? processContentHtml(content) : '';
 
   return (
     <>

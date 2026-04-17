@@ -1,23 +1,21 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import TiptapLink from '@tiptap/extension-link';
-import { postService } from '@/features/posts';
-import toast from 'react-hot-toast';
+import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
+import { common, createLowlight } from 'lowlight';
 import { Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+
+const lowlight = createLowlight(common);
 
 // UI Helpers
-import {
-  PostEditorToolbar,
-  PostPreviewDialog,
-  PostSettingsSidebar,
-} from './PostFormUI';
+import { PostEditorToolbar, PostPreviewDialog, PostSettingsSidebar } from './editor';
 
 const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBackClick }) => {
   const navigate = useNavigate();
 
+  // form state
   const [formData, setFormData] = useState({
     title: initialData?.title || '',
     content: initialData?.content || '',
@@ -27,13 +25,21 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
     category: initialData?.category || null,
   });
 
+  // preview state
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
+  // refs
   const titleRef = useRef(null);
 
+  // editor instance
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        codeBlock: false, // Disable the default codeBlock to use lowlight instead
+      }),
+      CodeBlockLowlight.configure({
+        lowlight,
+      }),
       TiptapLink.configure({
         openOnClick: false,
       }),
@@ -44,28 +50,46 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-lg dark:prose-invert max-w-none focus:outline-none min-h-[500px] font-serif',
+        class:
+          'prose prose-neutral prose-lg dark:prose-invert max-w-none focus:outline-none min-h-[500px] font-serif transition-colors',
       },
     },
   });
 
-  // Focus title on mount if creating
+  // focus title on mount
   useEffect(() => {
     if (mode === 'create' && titleRef.current) {
       titleRef.current.focus();
     }
   }, [mode]);
 
+  // auto resize textarea
+  useEffect(() => {
+    if (titleRef.current) {
+      titleRef.current.style.height = 'auto';
+      titleRef.current.style.height = titleRef.current.scrollHeight + 'px';
+    }
+  }, [formData.title]);
+
+  // handle input change
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (name === 'title') {
+      e.target.style.height = 'auto';
+      e.target.style.height = e.target.scrollHeight + 'px';
+    }
   };
 
+  // submit wrapper
   const wrapOnSubmit = (e) => {
     e?.preventDefault();
     onSubmit(formData);
   };
 
+  // loading state
   if (!editor) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -75,40 +99,45 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
   }
 
   return (
-    <form onSubmit={wrapOnSubmit} className="relative flex flex-col h-full bg-background">
-      {/* Zen Toolbar */}
-      <PostEditorToolbar 
-        editor={editor} 
-        isSubmitting={isSubmitting} 
+    <form className="flex flex-col h-screen bg-background" onSubmit={wrapOnSubmit}>
+      {/* toolbar */}
+      <PostEditorToolbar
+        editor={editor}
+        isSubmitting={isSubmitting}
         onPreview={() => setIsPreviewOpen(true)}
         onSave={() => onSubmit(formData)}
         onBack={() => (onBackClick ? onBackClick() : navigate(-1))}
         mode={mode}
       />
 
-      <div className="flex-1 overflow-y-auto no-scrollbar bg-background">
-        <div className="w-full h-full flex flex-col lg:flex-row gap-0">
-          {/* Main Writing Area */}
-          <div className="flex-1 flex flex-col py-8 lg:py-12 border-r border-border/20 overflow-y-auto no-scrollbar">
-            <div className="max-w-[850px] w-full mx-auto px-4 sm:px-8 space-y-10">
+      {/* main scroll container */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="flex w-full">
+          {/* editor section */}
+          <div className="flex-1 flex flex-col py-8 lg:py-12 border-r border-border/20">
+            <div className="max-w-[850px] w-full mx-auto px-4 sm:px-8">
+              {/* title */}
               <textarea
                 ref={titleRef}
                 name="title"
                 value={formData.title}
                 onChange={handleInputChange}
                 placeholder="Story title..."
-                className="w-full bg-transparent border-0 text-4xl sm:text-5xl lg:text-6xl font-black tracking-tighter text-foreground placeholder:text-muted-foreground/20 focus:ring-0 resize-none min-h-[120px] leading-[1.1]"
+                rows={1}
+                className="w-full bg-transparent text-4xl sm:text-5xl lg:text-5xl font-black tracking-wide text-foreground placeholder:text-muted-foreground/20 resize-none overflow-hidden border-none outline-none focus:outline-none focus:ring-0 focus:border-none"
               />
+              <div className="h-px w-full bg-border/40 my-4" />
 
+              {/* editor content */}
               <EditorContent editor={editor} />
             </div>
           </div>
 
-          {/* Settings Tray - ALWAYS FULL RIGHT */}
-          <aside className="hidden lg:block w-[350px] shrink-0 h-full sticky top-0 overflow-y-auto border-l border-border/20 no-scrollbar">
-            <div className="p-8 space-y-0">
-               <PostSettingsSidebar 
-                formData={formData} 
+          {/* sidebar */}
+          <aside className="hidden lg:block w-[350px] shrink-0 sticky top-0 h-screen border-l border-border/20 overflow-y-auto">
+            <div className="p-8">
+              <PostSettingsSidebar
+                formData={formData}
                 setFormData={setFormData}
                 onPublish={wrapOnSubmit}
                 isSubmitting={isSubmitting}
@@ -118,10 +147,11 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
         </div>
       </div>
 
-      <PostPreviewDialog 
-        open={isPreviewOpen} 
-        onOpenChange={setIsPreviewOpen} 
-        post={{ ...formData, title: formData.title || 'Untitled Story' }} 
+      {/* preview dialog */}
+      <PostPreviewDialog
+        open={isPreviewOpen}
+        onOpenChange={setIsPreviewOpen}
+        post={{ ...formData, title: formData.title || 'Untitled Story' }}
       />
     </form>
   );
