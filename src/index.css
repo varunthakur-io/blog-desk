@@ -1,12 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Outfit:wght@100..900&display=swap');
-@import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import "tailwindcss";
 
-@plugin 'tailwindcss-animate';
-@plugin '@tailwindcss/typography';
+@plugin "tailwindcss-animate";
+@plugin "@tailwindcss/typography";
 
 @theme {
-  /* Default Spacing Scale (preserving your page spacing tokens) */
-  --spacing-page-top: 0.5rem;
+  /* Spacing */
+  --spacing-page-px: var(--page-px);
   --spacing-page-gap: 1.5rem;
 
   /* Border Radii */
@@ -14,7 +14,7 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
 
-  /* Colors mapped to your CSS variables */
+  /* Colors (Proven Usage) */
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
 
@@ -43,24 +43,35 @@
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
 
-  /* Animations & Keyframes */
-  --animate-accordion-down: accordion-down 0.2s ease-out;
-  --animate-accordion-up: accordion-up 0.2s ease-out;
+  /* Default border color for 'border' class redundancy reduction */
+  --default-border-color: var(--color-border);
 
-  @keyframes accordion-down {
+  /* Animations & Keyframes */
+  --animate-in: animate-in 0.3s ease-out;
+  --animate-spin: spin 1s linear infinite;
+  --animate-bounce: bounce 1s infinite;
+
+  @keyframes spin {
     from {
-      height: 0;
+      transform: rotate(0deg);
     }
+
     to {
-      height: var(--radix-accordion-content-height);
+      transform: rotate(360deg);
     }
   }
-  @keyframes accordion-up {
-    from {
-      height: var(--radix-accordion-content-height);
+
+  @keyframes bounce {
+
+    0%,
+    100% {
+      transform: translateY(-25%);
+      animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
     }
-    to {
-      height: 0;
+
+    50% {
+      transform: translateY(0);
+      animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
     }
   }
 }
@@ -87,6 +98,21 @@
     --input: 240 5.9% 90%;
     --ring: 240 5.9% 10%;
     --radius: 0.5rem;
+
+    /* Global X-Axis Padding Control */
+    --page-px: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    :root {
+      --page-px: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    :root {
+      --page-px: 2.5rem;
+    }
   }
 
   .dark {
@@ -114,39 +140,21 @@
 
 @layer base {
   * {
-    @apply border-border;
+    /* Rely on default-border-color for internal borders */
+    border-color: var(--color-border);
   }
+
   body {
-    @apply bg-background text-foreground selection:bg-primary/10 font-sans antialiased transition-[background-color,color] duration-500 ease-in-out;
-  }
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    @apply font-sans font-bold tracking-tight;
-  }
-}
-
-@layer utilities {
-  .font-sans {
-    font-family:
-      'Inter',
-      system-ui,
-      -apple-system,
-      sans-serif;
-  }
-  .font-display {
-    font-family: 'Outfit', sans-serif;
+    @apply bg-background text-foreground antialiased selection:bg-primary/10 transition-colors duration-300;
+    font-family: 'Inter', system-ui, sans-serif;
   }
 }
 
 @layer components {
-  /* Semantic Page structure */
+
+  /* Layout Structures (Proven Usage) */
   .page-container {
-    @apply mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-10;
+    @apply mx-auto w-full max-w-screen-2xl px-page-px;
   }
 
   .page-py {
@@ -163,37 +171,37 @@
   }
 }
 
-/* Tiptap / Prose Overrides for forced contrast */
+/* Tiptap / Prose Overrides (Strict Proof - used in PostContent.jsx) */
 .prose {
-  --tw-prose-body: hsl(var(--foreground));
-  --tw-prose-headings: hsl(var(--foreground));
-  --tw-prose-lead: hsl(var(--foreground));
-  --tw-prose-links: hsl(var(--primary));
-  --tw-prose-bold: hsl(var(--foreground));
-  --tw-prose-counters: hsl(var(--muted-foreground));
-  --tw-prose-bullets: hsl(var(--muted-foreground));
-  --tw-prose-hr: hsl(var(--border));
-  --tw-prose-quotes: hsl(var(--foreground));
-  --tw-prose-quote-borders: hsl(var(--border));
-  --tw-prose-captions: hsl(var(--muted-foreground));
-  --tw-prose-code: hsl(var(--foreground));
-  --tw-prose-pre-code: hsl(var(--foreground));
-  --tw-prose-pre-bg: hsl(var(--muted) / 0.5);
-  --tw-prose-th-borders: hsl(var(--border));
-  --tw-prose-td-borders: hsl(var(--border));
+  --tw-prose-body: var(--color-foreground);
+  --tw-prose-headings: var(--color-foreground);
+  --tw-prose-lead: var(--color-foreground);
+  --tw-prose-links: var(--color-primary);
+  --tw-prose-bold: var(--color-foreground);
+  --tw-prose-counters: var(--color-muted-foreground);
+  --tw-prose-bullets: var(--color-muted-foreground);
+  --tw-prose-hr: var(--color-border);
+  --tw-prose-quotes: var(--color-foreground);
+  --tw-prose-quote-borders: var(--color-border);
+  --tw-prose-captions: var(--color-muted-foreground);
+  --tw-prose-code: var(--color-foreground);
+  --tw-prose-pre-code: var(--color-foreground);
+  --tw-prose-pre-bg: color-mix(in srgb, var(--color-muted) 50%, transparent);
+  --tw-prose-th-borders: var(--color-border);
+  --tw-prose-td-borders: var(--color-border);
 }
 
 .prose pre {
-  background-color: hsl(var(--muted) / 0.5) !important;
-  color: hsl(var(--foreground)) !important;
-  border: 1px solid hsl(var(--border) / 0.5);
+  background-color: color-mix(in srgb, var(--color-muted) 50%, transparent) !important;
+  color: var(--color-foreground) !important;
+  border: 1px solid color-mix(in srgb, var(--color-border) 50%, transparent);
   white-space: pre-wrap !important;
   word-break: break-all !important;
 }
 
 .prose code {
-  color: hsl(var(--foreground)) !important;
-  background-color: hsl(var(--muted) / 0.4);
+  color: var(--color-foreground) !important;
+  background-color: color-mix(in srgb, var(--color-muted) 40%, transparent);
   padding: 0.2rem 0.4rem;
   border-radius: 0.25rem;
   font-weight: 600;
@@ -205,7 +213,7 @@
   color: inherit !important;
 }
 
-/* Syntax Highlighting Tokens */
+/* Syntax Highlighting Tokens (highlight.js) */
 .hljs-comment,
 .hljs-quote {
   color: #a0aec0;
@@ -215,7 +223,7 @@
 .hljs-keyword,
 .hljs-selector-tag,
 .hljs-subst {
-  color: #f687b3; /* soft pink */
+  color: #f687b3;
 }
 
 .hljs-string,
@@ -226,21 +234,21 @@
 .hljs-section,
 .hljs-symbol,
 .hljs-bullet {
-  color: #68d391; /* emerald/green */
+  color: #68d391;
 }
 
 .hljs-title,
 .hljs-attribute,
 .hljs-title.function_,
 .hljs-class .hljs-title {
-  color: #63b3ed; /* sky blue */
+  color: #63b3ed;
 }
 
 .hljs-variable,
 .hljs-template-variable,
 .hljs-params,
 .hljs-link {
-  color: #f6ad55; /* orange */
+  color: #f6ad55;
 }
 
 .hljs-number,
@@ -248,7 +256,7 @@
 .hljs-tag,
 .hljs-built_in,
 .hljs-meta {
-  color: #ed64a6; /* bright pink */
+  color: #ed64a6;
 }
 
 .hljs-addition {
