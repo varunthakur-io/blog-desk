@@ -19,25 +19,23 @@ export const PostCardSkeleton = () => {
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-4">
-            <div className="flex items-center gap-5">
-              <Skeleton className="h-4 w-16 rounded-full" />
-              <Skeleton className="h-3 w-16 rounded-md" />
-              <div className="bg-border/40 xs:block hidden h-3 w-px" aria-hidden="true" />
-              <div className="flex items-center gap-4">
-                <Skeleton className="h-4 w-10 rounded-md" />
-                <Skeleton className="h-4 w-10 rounded-md" />
-              </div>
+          <div className="flex items-center justify-between pt-3">
+            <div className="flex items-center gap-4">
+              <Skeleton className="h-4 w-16 rounded-md" />
+              <Skeleton className="h-3 w-20 rounded-full" />
             </div>
-            <div className="flex items-center gap-2">
-              <Skeleton className="size-8 rounded-full" />
-              <Skeleton className="size-8 rounded-full" />
+
+            <div className="flex items-center gap-1">
+              <Skeleton className="h-8 w-12 rounded-md" />
+              <div className="bg-border/20 mx-1 h-4 w-px" />
+              <Skeleton className="h-8 w-8 rounded-md" />
+              <Skeleton className="h-8 w-8 rounded-md" />
             </div>
           </div>
         </div>
 
-        <div className="ml-4 hidden shrink-0 sm:block">
-          <Skeleton className="bg-muted aspect-video w-32 rounded-xl md:w-44 lg:w-52" />
+        <div className="order-1 shrink-0 sm:order-2">
+          <Skeleton className="bg-muted aspect-square w-24 rounded-md sm:w-32 md:w-40" />
         </div>
       </div>
     </article>
