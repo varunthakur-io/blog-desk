@@ -42,7 +42,7 @@ export const SignupForm = () => {
   return (
     <Card className="border-0 bg-transparent shadow-none">
       <CardHeader className="space-y-1 px-0 text-center lg:text-left">
-        <CardTitle className="text-2xl font-bold tracking-tight">Create an account</CardTitle>
+        <CardTitle className="text-2xl font-black tracking-tighter">Create an account</CardTitle>
         <CardDescription>Enter your details to get started</CardDescription>
       </CardHeader>
 
