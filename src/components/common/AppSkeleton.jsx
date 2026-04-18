@@ -5,7 +5,7 @@ const AppSkeleton = () => {
     <div className="flex min-h-screen flex-col">
       {/* Navbar */}
       <header className="border-border/50 bg-background/85 sticky top-0 z-50 flex h-16 w-full shrink-0 items-center border-b backdrop-blur-xl">
-        <div className="flex w-full items-center justify-between gap-4 px-page-px">
+        <div className="px-page-px flex w-full items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <Skeleton className="hidden h-9 w-9 rounded-full md:block" />
             <div className="flex items-center gap-2.5">
@@ -43,7 +43,7 @@ const AppSkeleton = () => {
         </div>
 
         {/* Main Content Area Skeleton */}
-        <main className="mx-auto max-w-screen-2xl flex-1 px-page-px py-8">
+        <main className="px-page-px mx-auto max-w-screen-2xl flex-1 py-8">
           <div className="space-y-10">
             <div className="space-y-4">
               <Skeleton className="h-12 w-1/3 rounded-xl" />
