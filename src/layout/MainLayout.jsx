@@ -22,7 +22,7 @@ const MainLayout = () => {
   return (
     <div
       className={cn(
-        'bg-background relative flex min-h-screen flex-col',
+        'relative flex min-h-screen flex-col',
         isEditorPage && 'h-screen overflow-hidden',
       )}
     >
@@ -36,7 +36,7 @@ const MainLayout = () => {
         {/* Navigation Sidebar: Managed via layout wrapper to decouple component logic from positioning */}
         <aside
           className={cn(
-            'border-border/50 bg-background sticky top-16 z-40 hidden h-[calc(100vh-4rem)] shrink-0 border-r transition-all duration-500 md:block',
+            'border-border/50 sticky top-16 z-40 hidden h-[calc(100vh-4rem)] shrink-0 border-r transition-all duration-500 md:block',
             isSidebarOpen ? 'w-64' : 'w-0 overflow-hidden border-none',
           )}
         >
@@ -46,7 +46,7 @@ const MainLayout = () => {
         </aside>
 
         {/* Primary Content Container */}
-        <div className="bg-background relative flex min-w-0 flex-1 flex-col">
+        <div className="relative flex min-w-0 flex-1 flex-col">
           {/* Aesthetic Background Grid */}
           {!isEditorPage && (
             <div

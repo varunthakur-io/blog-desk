@@ -112,7 +112,7 @@ const Home = () => {
           onCategoryChange={handleCategoryChange}
         />
 
-        <div className="pb-20">{renderContent()}</div>
+        <div className="pt-8 pb-20">{renderContent()}</div>
       </section>
 
       {/* ── Right Sidebar ── */}
