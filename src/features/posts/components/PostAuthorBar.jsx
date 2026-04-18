@@ -19,47 +19,52 @@ const PostAuthorBar = ({
   const authorUsername = authorProfile?.username;
 
   return (
-    <div className="flex items-center justify-between border-y border-border/20 py-8">
+    <div className="border-border/20 flex items-center justify-between border-y py-8">
       <div className="flex items-center gap-4">
         <Link to={`/profile/${authorUsername}`} className="shrink-0">
-          <Avatar className="size-10 border-none bg-muted ring-1 ring-border/20 shadow-sm transition-all hover:ring-primary/20">
-            {authorAvatar && <AvatarImage src={authorAvatar} alt={authorName} className="object-cover" />}
-            <AvatarFallback className="bg-muted text-sm font-bold uppercase text-muted-foreground">
+          <Avatar className="bg-muted ring-border/20 hover:ring-primary/20 size-10 border-none shadow-sm ring-1 transition-all">
+            {authorAvatar && (
+              <AvatarImage src={authorAvatar} alt={authorName} className="object-cover" />
+            )}
+            <AvatarFallback className="bg-muted text-muted-foreground text-sm font-bold uppercase">
               {authorName.charAt(0)}
             </AvatarFallback>
           </Avatar>
         </Link>
         <div className="flex flex-col gap-0">
           <div className="flex items-center gap-3">
-            <Link to={`/profile/${authorUsername}`} className="text-[15px] font-bold text-foreground hover:text-primary transition-colors tracking-tight">
+            <Link
+              to={`/profile/${authorUsername}`}
+              className="text-foreground hover:text-primary text-[15px] font-bold tracking-tight transition-colors"
+            >
               {authorName}
             </Link>
-            <FollowButton 
-              userId={authorProfile?.$id} 
-              size="sm" 
-              variant="ghost" 
+            <FollowButton
+              userId={authorProfile?.$id}
+              size="sm"
+              variant="ghost"
               showIcon={false}
-              className="h-6 border border-border/40 px-3 text-[10px] font-bold uppercase tracking-tight rounded-md hover:bg-foreground hover:text-background transition-all" 
+              className="border-border/40 hover:bg-foreground hover:text-background h-6 rounded-md border px-3 text-[10px] font-bold tracking-tight uppercase transition-all"
             />
           </div>
-          <span className="text-[11px] font-medium text-muted-foreground/50 tracking-tight">
+          <span className="text-muted-foreground/50 text-[11px] font-medium tracking-tight">
             Author · {authorProfile?.bio?.substring(0, 40) || 'Verified Writer'}
           </span>
         </div>
       </div>
 
       <div className="flex items-center gap-1">
-        <BookmarkButton 
-          isBookmarked={isBookmarked} 
-          onClick={toggleBookmark} 
+        <BookmarkButton
+          isBookmarked={isBookmarked}
+          onClick={toggleBookmark}
           isLoading={isBookmarkLoading}
-          className="size-9 rounded-md border-none bg-transparent hover:bg-muted/50"
+          className="hover:bg-muted/50 size-9 rounded-md border-none bg-transparent"
         />
         <Button
           variant="ghost"
           size="icon"
           onClick={onShareClick}
-          className="size-9 rounded-md text-muted-foreground hover:bg-muted/50"
+          className="text-muted-foreground hover:bg-muted/50 size-9 rounded-md"
           aria-label="Share story"
         >
           <Share2 className="size-4" />
@@ -69,7 +74,7 @@ const PostAuthorBar = ({
             variant="ghost"
             size="icon"
             asChild
-            className="size-9 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="text-muted-foreground hover:bg-muted hover:text-foreground size-9 rounded-md"
             aria-label="Edit story"
           >
             <Link to={`/edit/${post.$id}`}>

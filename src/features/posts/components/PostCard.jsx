@@ -40,7 +40,7 @@ const PostCard = ({ post }) => {
   };
 
   return (
-    <article className="group relative border-b border-border/40 py-10 last:border-0 hover:bg-muted/30 px-4 -mx-4 transition-all duration-500 first:pt-0 overflow-hidden hover:rounded-2xl">
+    <article className="group border-border/40 hover:bg-muted/30 relative -mx-4 overflow-hidden border-b px-4 py-10 transition-all duration-500 first:pt-0 last:border-0 hover:rounded-2xl">
       <ShareDialog
         open={isShareOpen}
         onOpenChange={setIsShareOpen}
@@ -48,100 +48,115 @@ const PostCard = ({ post }) => {
         title={post.title}
       />
 
-      <div className="flex flex-col sm:flex-row items-center gap-8 md:gap-12 justify-between">
-        
+      <div className="flex flex-col items-center justify-between gap-8 sm:flex-row md:gap-12">
         {/* ── Content Section ── */}
-        <div className="flex-1 min-w-0 order-2 sm:order-1 space-y-4">
-          
+        <div className="order-2 min-w-0 flex-1 space-y-4 sm:order-1">
           {/* Top Metadata Row */}
-          <div className="flex items-center gap-2 mb-1">
-             <Link to={`/profile/${authorProfile?.username}`} className="flex items-center gap-2 shrink-0 group/meta">
-              <Avatar className="size-5 border-none bg-muted ring-1 ring-border/20 transition-all group-hover/meta:ring-primary/20">
-                {authorProfile?.avatarUrl && <AvatarImage src={authorProfile.avatarUrl} className="object-cover" />}
-                <AvatarFallback className="text-[8px] font-bold bg-muted uppercase text-muted-foreground/60">
+          <div className="mb-1 flex items-center gap-2">
+            <Link
+              to={`/profile/${authorProfile?.username}`}
+              className="group/meta flex shrink-0 items-center gap-2"
+            >
+              <Avatar className="bg-muted ring-border/20 group-hover/meta:ring-primary/20 size-5 border-none ring-1 transition-all">
+                {authorProfile?.avatarUrl && (
+                  <AvatarImage src={authorProfile.avatarUrl} className="object-cover" />
+                )}
+                <AvatarFallback className="bg-muted text-muted-foreground/60 text-[8px] font-bold uppercase">
                   {authorName.charAt(0)}
                 </AvatarFallback>
               </Avatar>
-              <span className="text-[12px] font-bold text-foreground hover:text-primary transition-colors truncate tracking-tight">{authorName}</span>
+              <span className="text-foreground hover:text-primary truncate text-[12px] font-bold tracking-tight transition-colors">
+                {authorName}
+              </span>
             </Link>
             <span className="text-muted-foreground/40 text-[10px]">•</span>
-            <time className="text-muted-foreground/60 font-medium text-[12px]" dateTime={post.$createdAt}>
+            <time
+              className="text-muted-foreground/60 text-[12px] font-medium"
+              dateTime={post.$createdAt}
+            >
               {formatDate(post.$createdAt, { month: 'short', day: 'numeric' })}
             </time>
           </div>
 
           {/* Title & Excerpt Area */}
           <div className="space-y-2">
-            <Link to={`/posts/${post.$id}`} className="block group/title">
-              <h2 className="text-xl md:text-2xl font-black leading-[1.2] tracking-tighter text-foreground group-hover/title:text-primary transition-all duration-300">
+            <Link to={`/posts/${post.$id}`} className="group/title block">
+              <h2 className="text-foreground group-hover/title:text-primary text-xl leading-[1.2] font-black tracking-tighter transition-all duration-300 md:text-2xl">
                 {post.title}
               </h2>
             </Link>
-            <p className="text-[14px] leading-relaxed text-muted-foreground/80 line-clamp-2 font-medium tracking-tight">
+            <p className="text-muted-foreground/80 line-clamp-2 text-[14px] leading-relaxed font-medium tracking-tight">
               {excerpt}
             </p>
           </div>
 
           {/* Bottom Metric & Action Bar */}
           <div className="flex items-center justify-between pt-3">
-             <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4">
               {category && (
-                <button 
+                <button
                   onClick={handleCategoryClick}
-                  className="px-2 py-0.5 rounded-md bg-muted/60 border border-border/40 text-muted-foreground text-[10px] font-bold uppercase tracking-tight hover:bg-primary/5 hover:text-primary hover:border-primary/20 transition-all"
+                  className="bg-muted/60 border-border/40 text-muted-foreground hover:bg-primary/5 hover:text-primary hover:border-primary/20 rounded-md border px-2 py-0.5 text-[10px] font-bold tracking-tight uppercase transition-all"
                 >
                   {category}
                 </button>
               )}
-              <span className="text-[11px] font-bold text-muted-foreground/40 tabular-nums">
+              <span className="text-muted-foreground/40 text-[11px] font-bold tabular-nums">
                 {readTime} min read
               </span>
             </div>
 
             <div className="flex items-center gap-1">
-               <button 
-                  onClick={toggleLike}
-                  disabled={isLiking}
+              <button
+                onClick={toggleLike}
+                disabled={isLiking}
+                className={cn(
+                  'group/like flex h-8 items-center justify-center gap-1.5 rounded-md px-2 transition-all hover:bg-rose-500/5',
+                  isLiked ? 'text-rose-500' : 'text-muted-foreground/40 hover:text-rose-500',
+                )}
+              >
+                <Heart
                   className={cn(
-                    "h-8 px-2 flex items-center justify-center gap-1.5 transition-all rounded-md hover:bg-rose-500/5 group/like",
-                    isLiked ? "text-rose-500" : "text-muted-foreground/40 hover:text-rose-500"
+                    'size-3.5 transition-transform group-active/like:scale-125',
+                    isLiked && 'fill-current',
                   )}
-                >
-                  <Heart className={cn("size-3.5 transition-transform group-active/like:scale-125", isLiked && "fill-current")} />
-                  {likesCount > 0 && <span className="text-[11px] font-bold tabular-nums">{likesCount}</span>}
-                </button>
-
-                <div className="h-4 w-px bg-border/20 mx-1" />
-
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setIsShareOpen(true);
-                  }}
-                  className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground/40 hover:bg-muted/50 hover:text-foreground transition-all"
-                  aria-label="Share"
-                >
-                  <Share2 className="size-3.5" />
-                </button>
-
-                <BookmarkButton
-                  isBookmarked={isBookmarked}
-                  onClick={toggleBookmark}
-                  isLoading={isBookmarkLoading}
-                  className="size-8 border-none bg-transparent hover:bg-muted/50 rounded-md"
                 />
+                {likesCount > 0 && (
+                  <span className="text-[11px] font-bold tabular-nums">{likesCount}</span>
+                )}
+              </button>
+
+              <div className="bg-border/20 mx-1 h-4 w-px" />
+
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  setIsShareOpen(true);
+                }}
+                className="text-muted-foreground/40 hover:bg-muted/50 hover:text-foreground flex h-8 w-8 items-center justify-center rounded-md transition-all"
+                aria-label="Share"
+              >
+                <Share2 className="size-3.5" />
+              </button>
+
+              <BookmarkButton
+                isBookmarked={isBookmarked}
+                onClick={toggleBookmark}
+                isLoading={isBookmarkLoading}
+                className="hover:bg-muted/50 size-8 rounded-md border-none bg-transparent"
+              />
             </div>
           </div>
         </div>
 
         {/* ── Visual Section (Asymmetric Right) ── */}
         {coverImageUrl && (
-          <Link to={`/posts/${post.$id}`} className="shrink-0 order-1 sm:order-2">
-            <div className="relative aspect-square w-24 sm:w-32 md:w-40 rounded-md overflow-hidden bg-muted border border-border/40 transition-all duration-700 group-hover:scale-[1.02] group-hover:shadow-xl group-hover:shadow-primary/5">
+          <Link to={`/posts/${post.$id}`} className="order-1 shrink-0 sm:order-2">
+            <div className="bg-muted border-border/40 group-hover:shadow-primary/5 relative aspect-square w-24 overflow-hidden rounded-md border transition-all duration-700 group-hover:scale-[1.02] group-hover:shadow-xl sm:w-32 md:w-40">
               <img
                 src={coverImageUrl}
                 alt={post.title}
-                className="w-full h-full object-cover grayscale-[10%] group-hover:grayscale-0 transition-all duration-700"
+                className="h-full w-full object-cover grayscale-[10%] transition-all duration-700 group-hover:grayscale-0"
               />
             </div>
           </Link>

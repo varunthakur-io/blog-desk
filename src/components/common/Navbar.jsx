@@ -57,26 +57,25 @@ const Navbar = ({ onToggleSidebar }) => {
   }, [dispatch, navigate]);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/60 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/40">
+    <header className="border-border/40 bg-background/60 supports-[backdrop-filter]:bg-background/40 sticky top-0 z-50 w-full border-b backdrop-blur-2xl">
       <div className="flex h-16 w-full items-center justify-between gap-4 px-4 sm:px-6">
-        
         {/* Branding & Sidebar Toggle */}
         <div className="flex items-center gap-4">
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={onToggleSidebar}
-            className="hidden rounded-md text-muted-foreground hover:text-foreground md:flex shrink-0 transition-all hover:bg-muted"
+            className="text-muted-foreground hover:text-foreground hover:bg-muted hidden shrink-0 rounded-md transition-all md:flex"
             aria-label="Toggle Sidebar"
           >
             <Menu className="h-5 w-5" />
           </Button>
 
           <Link to="/" className="group flex shrink-0 items-center gap-2">
-            <div className="flex size-7 items-center justify-center rounded bg-foreground font-black text-[15px] text-background transition-all group-hover:opacity-90">
+            <div className="bg-foreground text-background flex size-7 items-center justify-center rounded text-[15px] font-black transition-all group-hover:opacity-90">
               B
             </div>
-            <span className="hidden font-sans font-bold tracking-tight text-[17px] text-foreground sm:inline-block">
+            <span className="text-foreground hidden font-sans text-[17px] font-bold tracking-tight sm:inline-block">
               blogdesk
             </span>
           </Link>
@@ -94,7 +93,7 @@ const Navbar = ({ onToggleSidebar }) => {
             variant="ghost"
             size="icon"
             onClick={() => setDarkMode(!isDarkMode)}
-            className="h-9 w-9 rounded-md text-muted-foreground hover:text-foreground shrink-0"
+            className="text-muted-foreground hover:text-foreground h-9 w-9 shrink-0 rounded-md"
             aria-label="Toggle theme"
           >
             <Sun className="h-4 w-4 scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
@@ -103,34 +102,42 @@ const Navbar = ({ onToggleSidebar }) => {
 
           {isAuthenticated ? (
             <div className="flex items-center gap-1 sm:gap-2">
-              <Button variant="ghost" className="hidden h-9 px-4 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground md:flex shrink-0" asChild>
+              <Button
+                variant="ghost"
+                className="text-muted-foreground hover:text-foreground hidden h-9 shrink-0 rounded-md px-4 text-sm font-medium md:flex"
+                asChild
+              >
                 <Link to="/create" className="flex items-center gap-2">
                   <PenSquare className="h-4 w-4" />
                   Write
                 </Link>
               </Button>
-              
+
               <NotificationBell />
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="relative h-9 w-9 p-0 rounded-full ring-1 ring-border transition-colors hover:bg-accent shrink-0"
+                    className="ring-border hover:bg-accent relative h-9 w-9 shrink-0 rounded-full p-0 ring-1 transition-colors"
                   >
                     <Avatar className="h-8 w-8">
-                      {profile?.avatarUrl && <AvatarImage src={profile.avatarUrl} className="object-cover" />}
+                      {profile?.avatarUrl && (
+                        <AvatarImage src={profile.avatarUrl} className="object-cover" />
+                      )}
                       <AvatarFallback className="bg-muted text-xs font-medium">
                         {userName?.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56 border-border/60 shadow-lg" align="end">
+                <DropdownMenuContent className="border-border/60 w-56 shadow-lg" align="end">
                   <DropdownMenuLabel className="py-2.5 text-xs font-normal">
                     <div className="flex flex-col gap-0.5">
-                      <p className="font-bold leading-none">{userName}</p>
-                      <p className="mt-1 truncate leading-none text-muted-foreground">{userEmail}</p>
+                      <p className="leading-none font-bold">{userName}</p>
+                      <p className="text-muted-foreground mt-1 truncate leading-none">
+                        {userEmail}
+                      </p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
@@ -147,7 +154,7 @@ const Navbar = ({ onToggleSidebar }) => {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={handleLogout}
-                    className="cursor-pointer gap-2 py-2 text-destructive focus:text-destructive"
+                    className="text-destructive focus:text-destructive cursor-pointer gap-2 py-2"
                   >
                     <LogOut className="size-4" /> Log out
                   </DropdownMenuItem>
@@ -156,10 +163,19 @@ const Navbar = ({ onToggleSidebar }) => {
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" asChild className="hidden rounded-md text-sm font-medium sm:flex">
+              <Button
+                variant="ghost"
+                size="sm"
+                asChild
+                className="hidden rounded-md text-sm font-medium sm:flex"
+              >
                 <Link to="/login">Sign In</Link>
               </Button>
-              <Button size="sm" asChild className="h-9 rounded-md px-4 text-sm font-medium shadow-sm">
+              <Button
+                size="sm"
+                asChild
+                className="h-9 rounded-md px-4 text-sm font-medium shadow-sm"
+              >
                 <Link to="/signup">Get Started</Link>
               </Button>
             </div>

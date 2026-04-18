@@ -10,7 +10,7 @@ const EyeToggle = ({ show, onToggle }) => (
   <button
     type="button"
     onClick={onToggle}
-    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 hover:text-foreground transition-colors p-1"
+    className="text-muted-foreground/50 hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 p-1 transition-colors"
   >
     {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
   </button>
@@ -37,8 +37,8 @@ const AccountPanel = ({
   return (
     <div className="space-y-8">
       <div className="pb-2">
-        <h2 className="text-[17px] font-bold tracking-tight text-foreground">Account settings</h2>
-        <p className="text-muted-foreground text-[13px] mt-1 font-medium">
+        <h2 className="text-foreground text-[17px] font-bold tracking-tight">Account settings</h2>
+        <p className="text-muted-foreground mt-1 text-[13px] font-medium">
           Manage your email and security preferences.
         </p>
       </div>
@@ -46,9 +46,10 @@ const AccountPanel = ({
       {/* Email Section */}
       <section className="space-y-6">
         <div className="space-y-1">
-          <h3 className="text-[14px] font-bold text-foreground">Email Address</h3>
-          <p className="text-[12px] text-muted-foreground font-medium">
-            Your current email is <span className="text-foreground font-bold">{authUser?.email}</span>
+          <h3 className="text-foreground text-[14px] font-bold">Email Address</h3>
+          <p className="text-muted-foreground text-[12px] font-medium">
+            Your current email is{' '}
+            <span className="text-foreground font-bold">{authUser?.email}</span>
           </p>
         </div>
 
@@ -62,7 +63,9 @@ const AccountPanel = ({
         >
           <div className="grid gap-6">
             <div className="space-y-3">
-              <Label htmlFor="new-email" className="text-[13px] font-bold text-foreground">New email</Label>
+              <Label htmlFor="new-email" className="text-foreground text-[13px] font-bold">
+                New email
+              </Label>
               <Input
                 id="new-email"
                 name="email"
@@ -71,19 +74,24 @@ const AccountPanel = ({
                 onChange={(e) => setEmailForm((p) => ({ ...p, email: e.target.value }))}
                 placeholder="you@example.com"
                 className={cn(
-                  "rounded-md border-border/60 bg-muted/20 focus:bg-background transition-all h-10 text-[14px] font-medium tracking-tight",
-                  emailError && "border-destructive/50 ring-destructive/10"
+                  'border-border/60 bg-muted/20 focus:bg-background h-10 rounded-md text-[14px] font-medium tracking-tight transition-all',
+                  emailError && 'border-destructive/50 ring-destructive/10',
                 )}
               />
               {emailError && (
-                <p className="text-[11px] text-destructive font-bold px-1 animate-in fade-in duration-300">
+                <p className="text-destructive animate-in fade-in px-1 text-[11px] font-bold duration-300">
                   {emailError}
                 </p>
               )}
             </div>
 
             <div className="space-y-3">
-              <Label htmlFor="email-current-password" className="text-[13px] font-bold text-foreground">Current password</Label>
+              <Label
+                htmlFor="email-current-password"
+                className="text-foreground text-[13px] font-bold"
+              >
+                Current password
+              </Label>
               <div className="relative">
                 <Input
                   id="email-current-password"
@@ -92,7 +100,7 @@ const AccountPanel = ({
                   value={emailForm.password}
                   onChange={(e) => setEmailForm((p) => ({ ...p, password: e.target.value }))}
                   placeholder="Confirm password"
-                  className="rounded-md border-border/60 bg-muted/20 focus:bg-background transition-all h-10 pr-10 text-[14px] font-medium"
+                  className="border-border/60 bg-muted/20 focus:bg-background h-10 rounded-md pr-10 text-[14px] font-medium transition-all"
                 />
                 <EyeToggle show={showEmailPw} onToggle={() => setShowEmailPw((v) => !v)} />
               </div>
@@ -103,9 +111,9 @@ const AccountPanel = ({
             <Button
               type="submit"
               disabled={isSavingEmail}
-              className="rounded-md px-6 h-9 font-bold text-xs shadow-sm bg-foreground text-background hover:opacity-90 active:scale-95 transition-all"
+              className="bg-foreground text-background h-9 rounded-md px-6 text-xs font-bold shadow-sm transition-all hover:opacity-90 active:scale-95"
             >
-              {isSavingEmail && <Loader2 className="h-3.5 w-3.5 animate-spin mr-2" />}
+              {isSavingEmail && <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />}
               Update email
             </Button>
           </div>
@@ -117,8 +125,8 @@ const AccountPanel = ({
       {/* Password Section */}
       <section className="space-y-6">
         <div className="space-y-1">
-          <h3 className="text-[14px] font-bold text-foreground">Change Password</h3>
-          <p className="text-[12px] text-muted-foreground font-medium">
+          <h3 className="text-foreground text-[14px] font-bold">Change Password</h3>
+          <p className="text-muted-foreground text-[12px] font-medium">
             Keep your account secure with a strong password.
           </p>
         </div>
@@ -133,7 +141,12 @@ const AccountPanel = ({
         >
           <div className="grid gap-6">
             <div className="space-y-3">
-              <Label htmlFor="current-password-field" className="text-[13px] font-bold text-foreground">Current password</Label>
+              <Label
+                htmlFor="current-password-field"
+                className="text-foreground text-[13px] font-bold"
+              >
+                Current password
+              </Label>
               <div className="relative">
                 <Input
                   id="current-password-field"
@@ -145,38 +158,44 @@ const AccountPanel = ({
                   }
                   placeholder="Old password"
                   className={cn(
-                    "rounded-md border-border/60 bg-muted/20 focus:bg-background transition-all h-10 pr-10 text-[14px] font-medium",
-                    passwordError && "border-destructive/50"
+                    'border-border/60 bg-muted/20 focus:bg-background h-10 rounded-md pr-10 text-[14px] font-medium transition-all',
+                    passwordError && 'border-destructive/50',
                   )}
                 />
                 <EyeToggle show={showCurrentPw} onToggle={() => setShowCurrentPw((v) => !v)} />
               </div>
               {passwordError && (
-                <p className="text-[11px] text-destructive font-bold px-1 animate-in fade-in duration-300">
+                <p className="text-destructive animate-in fade-in px-1 text-[11px] font-bold duration-300">
                   {passwordError}
                 </p>
               )}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div className="space-y-3">
-                <Label htmlFor="new-password" className="text-[13px] font-bold text-foreground">New password</Label>
+                <Label htmlFor="new-password" className="text-foreground text-[13px] font-bold">
+                  New password
+                </Label>
                 <div className="relative">
                   <Input
                     id="new-password"
                     name="new-password"
                     type={showNewPw ? 'text' : 'password'}
                     value={passwordForm.newPassword}
-                    onChange={(e) => setPasswordForm((p) => ({ ...p, newPassword: e.target.value }))}
+                    onChange={(e) =>
+                      setPasswordForm((p) => ({ ...p, newPassword: e.target.value }))
+                    }
                     placeholder="Min. 8 characters"
-                    className="rounded-md border-border/60 bg-muted/20 focus:bg-background transition-all h-10 pr-10 text-[14px] font-medium"
+                    className="border-border/60 bg-muted/20 focus:bg-background h-10 rounded-md pr-10 text-[14px] font-medium transition-all"
                   />
                   <EyeToggle show={showNewPw} onToggle={() => setShowNewPw((v) => !v)} />
                 </div>
               </div>
 
               <div className="space-y-3">
-                <Label htmlFor="confirm-password" className="text-[13px] font-bold text-foreground">Confirm password</Label>
+                <Label htmlFor="confirm-password" className="text-foreground text-[13px] font-bold">
+                  Confirm password
+                </Label>
                 <div className="relative">
                   <Input
                     id="confirm-password"
@@ -187,7 +206,7 @@ const AccountPanel = ({
                       setPasswordForm((p) => ({ ...p, confirmPassword: e.target.value }))
                     }
                     placeholder="Repeat password"
-                    className="rounded-md border-border/60 bg-muted/20 focus:bg-background transition-all h-10 pr-10 text-[14px] font-medium"
+                    className="border-border/60 bg-muted/20 focus:bg-background h-10 rounded-md pr-10 text-[14px] font-medium transition-all"
                   />
                   <EyeToggle show={showConfirmPw} onToggle={() => setShowConfirmPw((v) => !v)} />
                 </div>
@@ -199,9 +218,9 @@ const AccountPanel = ({
             <Button
               type="submit"
               disabled={isSavingPassword}
-              className="rounded-md px-6 h-9 font-bold text-xs shadow-sm bg-foreground text-background hover:opacity-90 active:scale-95 transition-all"
+              className="bg-foreground text-background h-9 rounded-md px-6 text-xs font-bold shadow-sm transition-all hover:opacity-90 active:scale-95"
             >
-              {isSavingPassword && <Loader2 className="h-3.5 w-3.5 animate-spin mr-2" />}
+              {isSavingPassword && <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />}
               Save password
             </Button>
           </div>

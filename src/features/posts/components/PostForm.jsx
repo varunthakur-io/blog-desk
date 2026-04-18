@@ -93,13 +93,13 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
   if (!editor) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="text-primary h-8 w-8 animate-spin" />
       </div>
     );
   }
 
   return (
-    <form className="flex flex-col h-screen bg-background" onSubmit={wrapOnSubmit}>
+    <form className="bg-background flex h-screen flex-col" onSubmit={wrapOnSubmit}>
       {/* toolbar */}
       <PostEditorToolbar
         editor={editor}
@@ -114,8 +114,8 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
       <div className="flex-1 overflow-y-auto">
         <div className="flex w-full">
           {/* editor section */}
-          <div className="flex-1 flex flex-col py-8 lg:py-12 border-r border-border/20">
-            <div className="max-w-[850px] w-full mx-auto px-4 sm:px-8">
+          <div className="border-border/20 flex flex-1 flex-col border-r py-8 lg:py-12">
+            <div className="mx-auto w-full max-w-[850px] px-4 sm:px-8">
               {/* title */}
               <textarea
                 ref={titleRef}
@@ -124,9 +124,9 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
                 onChange={handleInputChange}
                 placeholder="Story title..."
                 rows={1}
-                className="w-full bg-transparent text-4xl sm:text-5xl lg:text-5xl font-black tracking-wide text-foreground placeholder:text-muted-foreground/20 resize-none overflow-hidden border-none outline-none focus:outline-none focus:ring-0 focus:border-none"
+                className="text-foreground placeholder:text-muted-foreground/20 w-full resize-none overflow-hidden border-none bg-transparent text-4xl font-black tracking-wide outline-none focus:border-none focus:ring-0 focus:outline-none sm:text-5xl lg:text-5xl"
               />
-              <div className="h-px w-full bg-border/40 my-4" />
+              <div className="bg-border/40 my-4 h-px w-full" />
 
               {/* editor content */}
               <EditorContent editor={editor} />
@@ -134,7 +134,7 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
           </div>
 
           {/* sidebar */}
-          <aside className="hidden lg:block w-[350px] shrink-0 sticky top-0 h-screen border-l border-border/20 overflow-y-auto">
+          <aside className="border-border/20 sticky top-0 hidden h-screen w-[350px] shrink-0 overflow-y-auto border-l lg:block">
             <div className="p-8">
               <PostSettingsSidebar
                 formData={formData}

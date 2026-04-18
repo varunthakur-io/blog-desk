@@ -5,27 +5,19 @@ import DOMPurify from 'dompurify';
 const PostPreviewDialog = ({ isOpen, onOpenChange, title, content }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto rounded-md">
+      <DialogContent className="max-h-[85vh] max-w-3xl overflow-y-auto rounded-md">
         <DialogHeader>
-          <DialogTitle className="text-xs font-bold text-muted-foreground uppercase tracking-widest text-left">
+          <DialogTitle className="text-muted-foreground text-left text-xs font-bold tracking-widest uppercase">
             Preview
           </DialogTitle>
         </DialogHeader>
 
         <div className="mt-2 space-y-5">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight text-foreground text-left">
+          <h1 className="text-foreground text-left text-2xl leading-tight font-bold tracking-tight sm:text-3xl">
             {title || <span className="text-muted-foreground/40">Untitled Post</span>}
           </h1>
           <Separator className="opacity-40" />
-          <article
-            className="prose dark:prose-invert max-w-none text-left
-              prose-headings:font-bold prose-headings:tracking-tight
-              prose-a:text-foreground prose-a:underline prose-a:underline-offset-4
-              prose-code:bg-muted prose-code:rounded prose-code:px-1.5 prose-code:text-sm prose-code:before:content-none prose-code:after:content-none
-              prose-pre:bg-muted prose-pre:border prose-pre:border-border prose-pre:rounded-md
-              prose-blockquote:border-l-2 prose-blockquote:border-border prose-blockquote:text-muted-foreground prose-blockquote:not-italic
-              prose-img:rounded-md prose-img:border prose-img:border-border"
-          >
+          <article className="prose dark:prose-invert prose-headings:font-bold prose-headings:tracking-tight prose-a:text-foreground prose-a:underline prose-a:underline-offset-4 prose-code:bg-muted prose-code:rounded prose-code:px-1.5 prose-code:text-sm prose-code:before:content-none prose-code:after:content-none prose-pre:bg-muted prose-pre:border prose-pre:border-border prose-pre:rounded-md prose-blockquote:border-l-2 prose-blockquote:border-border prose-blockquote:text-muted-foreground prose-blockquote:not-italic prose-img:rounded-md prose-img:border prose-img:border-border max-w-none text-left">
             <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }} />
           </article>
         </div>

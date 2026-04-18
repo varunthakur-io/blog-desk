@@ -27,7 +27,7 @@ import { formatDate } from '@/utils/formatters';
 const PostDetails = () => {
   const dispatch = useDispatch();
   const [isShareOpen, setIsShareOpen] = useState(false);
-  
+
   const {
     authUserId,
     post,
@@ -45,16 +45,12 @@ const PostDetails = () => {
     navigate,
   } = usePostDetails();
 
-  const {
-    isBookmarked,
-    isLoading: isBookmarkLoading,
-    toggleBookmark,
-  } = useBookmark(post || {});
+  const { isBookmarked, isLoading: isBookmarkLoading, toggleBookmark } = useBookmark(post || {});
 
   if (isPostLoading) return <PostDetailsSkeleton />;
 
-  const isNotFound = 
-    postFetchError?.toLowerCase().includes('not found') || 
+  const isNotFound =
+    postFetchError?.toLowerCase().includes('not found') ||
     postFetchError?.toLowerCase().includes('404') ||
     (!post && !isPostLoading);
 
@@ -73,7 +69,11 @@ const PostDetails = () => {
               (!isAuthorized ? 'This post is private.' : 'This post does not exist.')}
           </AlertDescription>
         </Alert>
-        <Button onClick={() => navigate('/')} variant="outline" className="mt-2 gap-2 rounded-md font-bold text-xs uppercase tracking-widest border-border/40">
+        <Button
+          onClick={() => navigate('/')}
+          variant="outline"
+          className="border-border/40 mt-2 gap-2 rounded-md text-xs font-bold tracking-widest uppercase"
+        >
           <ArrowLeft className="size-4" /> Back to Home
         </Button>
       </div>
@@ -92,7 +92,7 @@ const PostDetails = () => {
   };
 
   return (
-    <article className="animate-in fade-in py-10 lg:py-16 space-y-12 duration-700">
+    <article className="animate-in fade-in space-y-12 py-10 duration-700 lg:py-16">
       <SEO
         title={post.title}
         description={post.content?.substring(0, 160).replace(/<[^>]*>/g, '')}
@@ -104,40 +104,40 @@ const PostDetails = () => {
         category={post.category}
       />
 
-      <ShareDialog 
-        open={isShareOpen} 
-        onOpenChange={setIsShareOpen} 
-        url={`/posts/${post.slug}`} 
-        title={post.title} 
+      <ShareDialog
+        open={isShareOpen}
+        onOpenChange={setIsShareOpen}
+        url={`/posts/${post.slug}`}
+        title={post.title}
       />
 
-      <div className="w-full max-w-[800px] mx-auto">
+      <div className="mx-auto w-full max-w-[800px]">
         <header className="space-y-10 pb-10">
           <div className="space-y-6">
             <div className="flex items-center gap-3">
               {post.category && (
-                <button 
+                <button
                   onClick={handleCategoryClick}
-                  className="rounded-md bg-muted/50 border border-border/40 px-2 py-0.5 text-[10px] font-bold uppercase tracking-tight text-muted-foreground transition-all hover:bg-foreground hover:text-background"
+                  className="bg-muted/50 border-border/40 text-muted-foreground hover:bg-foreground hover:text-background rounded-md border px-2 py-0.5 text-[10px] font-bold tracking-tight uppercase transition-all"
                 >
                   {post.category}
                 </button>
               )}
-              <div className="h-3 w-px bg-border/40" aria-hidden="true" />
-              <time className="text-[12px] font-bold text-muted-foreground/40 tabular-nums">
+              <div className="bg-border/40 h-3 w-px" aria-hidden="true" />
+              <time className="text-muted-foreground/40 text-[12px] font-bold tabular-nums">
                 {formatDate(post.$createdAt, { month: 'long', day: 'numeric', year: 'numeric' })}
               </time>
-              <div className="h-3 w-px bg-border/40" aria-hidden="true" />
-              <span className="text-[12px] font-bold text-muted-foreground/40 tabular-nums">
+              <div className="bg-border/40 h-3 w-px" aria-hidden="true" />
+              <span className="text-muted-foreground/40 text-[12px] font-bold tabular-nums">
                 {estimatedReadTime} min read
               </span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black leading-[1.1] tracking-tighter text-foreground font-sans">
+            <h1 className="text-foreground font-sans text-3xl leading-[1.1] font-black tracking-tighter sm:text-4xl lg:text-5xl">
               {post.title}
             </h1>
 
-            <PostAuthorBar 
+            <PostAuthorBar
               authorProfile={authorProfile}
               authUserId={authUserId}
               post={post}
@@ -152,20 +152,24 @@ const PostDetails = () => {
         <PostContent content={post.content} coverImageUrl={post.coverImageUrl} />
 
         <footer id="comments" className="mt-20 flex flex-col gap-12 pb-20">
-          <div className="flex items-center justify-between border-t border-border/20 pt-10">
+          <div className="border-border/20 flex items-center justify-between border-t pt-10">
             <div className="flex items-center gap-6">
               <Button
                 variant="outline"
                 onClick={handleLike}
                 disabled={isLikedLoading || isLiking || !authUserId}
                 className={cn(
-                  "h-10 gap-2 rounded-md px-6 text-[13px] font-bold tracking-tight transition-all active:scale-95",
-                  isLiked 
-                    ? "bg-foreground text-background border-none hover:opacity-90" 
-                    : "border border-border/40 text-muted-foreground hover:bg-rose-500/5 hover:text-rose-500 hover:border-rose-500/20"
+                  'h-10 gap-2 rounded-md px-6 text-[13px] font-bold tracking-tight transition-all active:scale-95',
+                  isLiked
+                    ? 'bg-foreground text-background border-none hover:opacity-90'
+                    : 'border-border/40 text-muted-foreground border hover:border-rose-500/20 hover:bg-rose-500/5 hover:text-rose-500',
                 )}
               >
-                {isLiking ? <Loader2 className="size-3.5 animate-spin" /> : <Heart className={cn("size-4", isLiked && "fill-current")} />}
+                {isLiking ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : (
+                  <Heart className={cn('size-4', isLiked && 'fill-current')} />
+                )}
                 {likesCount} Like
               </Button>
             </div>
@@ -183,7 +187,7 @@ const PostDetails = () => {
         </footer>
       </div>
 
-      <PostFloatingActions 
+      <PostFloatingActions
         isLiked={isLiked}
         likesCount={likesCount}
         commentsCount={comments.length}

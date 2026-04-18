@@ -7,7 +7,7 @@ import { PostCard, PostCardSkeleton } from '@/features/posts';
 import { EmptyState } from '@/components/common';
 
 const PostListSkeleton = ({ count = 3 }) => (
-  <div className="flex flex-col gap-0 px-4 -mx-4">
+  <div className="-mx-4 flex flex-col gap-0 px-4">
     {[...Array(count)].map((_, i) => (
       <PostCardSkeleton key={i} />
     ))}
@@ -15,7 +15,7 @@ const PostListSkeleton = ({ count = 3 }) => (
 );
 
 const PostList = ({ posts }) => (
-  <section className="flex flex-col gap-0 px-4 -mx-4">
+  <section className="-mx-4 flex flex-col gap-0 px-4">
     {posts.map((post) => (
       <PostCard key={post.$id} post={post} />
     ))}
@@ -23,18 +23,22 @@ const PostList = ({ posts }) => (
 );
 
 const ErrorMessage = ({ message }) => (
-  <Alert variant="destructive" className="rounded-xl border-destructive/20 bg-destructive/5 mx-4">
-    <AlertDescription className="font-bold text-xs uppercase tracking-widest">{message}</AlertDescription>
+  <Alert variant="destructive" className="border-destructive/20 bg-destructive/5 mx-4 rounded-xl">
+    <AlertDescription className="text-xs font-bold tracking-widest uppercase">
+      {message}
+    </AlertDescription>
   </Alert>
 );
 
 const PrivateTabMessage = ({ children }) => (
-  <article className="rounded-2xl border border-dashed border-border/60 bg-muted/10 py-20 text-center mx-4">
-    <div className="max-w-xs mx-auto space-y-3">
-       <div className="size-12 rounded-full bg-muted flex items-center justify-center mx-auto opacity-50">
-          <Bookmark className="size-5 text-muted-foreground" />
-       </div>
-       <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest">{children}</p>
+  <article className="border-border/60 bg-muted/10 mx-4 rounded-2xl border border-dashed py-20 text-center">
+    <div className="mx-auto max-w-xs space-y-3">
+      <div className="bg-muted mx-auto flex size-12 items-center justify-center rounded-full opacity-50">
+        <Bookmark className="text-muted-foreground size-5" />
+      </div>
+      <p className="text-muted-foreground text-sm font-bold tracking-widest uppercase">
+        {children}
+      </p>
     </div>
   </article>
 );
@@ -71,25 +75,25 @@ const ProfileTabs = ({
 }) => {
   return (
     <Tabs value={activeTab} className="w-full" onValueChange={setActiveTab}>
-      <div className="sticky top-16 z-30 border-b border-border/40 bg-background/95 backdrop-blur-md mb-4 px-4 -mx-4">
-        <TabsList className="h-12 bg-transparent p-0 w-fit rounded-none border-none gap-8 flex items-end">
-          <TabsTrigger 
-            value="posts" 
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none text-[14px] px-0 pb-4 font-bold tracking-tight text-muted-foreground data-[state=active]:text-foreground transition-all duration-300"
+      <div className="border-border/40 bg-background/95 sticky top-16 z-30 -mx-4 mb-4 border-b px-4 backdrop-blur-md">
+        <TabsList className="flex h-12 w-fit items-end gap-8 rounded-none border-none bg-transparent p-0">
+          <TabsTrigger
+            value="posts"
+            className="data-[state=active]:border-foreground text-muted-foreground data-[state=active]:text-foreground rounded-none border-b-2 border-transparent px-0 pb-4 text-[14px] font-bold tracking-tight transition-all duration-300 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
           >
             Posts
           </TabsTrigger>
           {isOwner && (
             <>
-              <TabsTrigger 
-                value="likes" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none text-[14px] px-0 pb-4 font-bold tracking-tight text-muted-foreground data-[state=active]:text-foreground transition-all duration-300"
+              <TabsTrigger
+                value="likes"
+                className="data-[state=active]:border-foreground text-muted-foreground data-[state=active]:text-foreground rounded-none border-b-2 border-transparent px-0 pb-4 text-[14px] font-bold tracking-tight transition-all duration-300 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
               >
                 Likes
               </TabsTrigger>
-              <TabsTrigger 
-                value="saved" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none text-[14px] px-0 pb-4 font-bold tracking-tight text-muted-foreground data-[state=active]:text-foreground transition-all duration-300"
+              <TabsTrigger
+                value="saved"
+                className="data-[state=active]:border-foreground text-muted-foreground data-[state=active]:text-foreground rounded-none border-b-2 border-transparent px-0 pb-4 text-[14px] font-bold tracking-tight transition-all duration-300 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
               >
                 Saved
               </TabsTrigger>
@@ -99,16 +103,19 @@ const ProfileTabs = ({
       </div>
 
       {/* Posts Tab */}
-      <TabsContent value="posts" className="mt-0 outline-none animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <TabsContent
+        value="posts"
+        className="animate-in fade-in slide-in-from-bottom-2 mt-0 duration-500 outline-none"
+      >
         <PostCollectionTab
           isLoading={postsLoading}
           error={postsError}
           posts={userPosts}
           skeletonCount={4}
           emptyState={
-            <div className="py-10 px-4">
+            <div className="px-4 py-10">
               <EmptyState
-                className="bg-transparent border-none"
+                className="border-none bg-transparent"
                 icon={Edit}
                 title="No posts yet"
                 description={
@@ -118,7 +125,10 @@ const ProfileTabs = ({
                 }
                 action={
                   isOwner && (
-                    <Button asChild className="rounded-md px-8 shadow-sm font-bold text-xs h-9 bg-foreground text-background transition-all hover:opacity-90">
+                    <Button
+                      asChild
+                      className="bg-foreground text-background h-9 rounded-md px-8 text-xs font-bold shadow-sm transition-all hover:opacity-90"
+                    >
                       <Link to="/create">Write First Post</Link>
                     </Button>
                   )
@@ -130,7 +140,10 @@ const ProfileTabs = ({
       </TabsContent>
 
       {/* Likes Tab */}
-      <TabsContent value="likes" className="mt-0 outline-none animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <TabsContent
+        value="likes"
+        className="animate-in fade-in slide-in-from-bottom-2 mt-0 duration-500 outline-none"
+      >
         <PostCollectionTab
           isPrivate={!isOwner}
           privateMessage="Liked posts are private."
@@ -138,9 +151,9 @@ const ProfileTabs = ({
           error={likesError}
           posts={likedPosts}
           emptyState={
-            <div className="py-10 px-4">
+            <div className="px-4 py-10">
               <EmptyState
-                className="bg-transparent border-none"
+                className="border-none bg-transparent"
                 icon={Heart}
                 title="No liked posts"
                 description="Posts you like will appear here for quick access."
@@ -151,7 +164,10 @@ const ProfileTabs = ({
       </TabsContent>
 
       {/* Saved Tab */}
-      <TabsContent value="saved" className="mt-0 outline-none animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <TabsContent
+        value="saved"
+        className="animate-in fade-in slide-in-from-bottom-2 mt-0 duration-500 outline-none"
+      >
         <PostCollectionTab
           isPrivate={!isOwner}
           privateMessage="Saved posts are private."
@@ -159,9 +175,9 @@ const ProfileTabs = ({
           error={savedError}
           posts={savedPosts}
           emptyState={
-            <div className="py-10 px-4">
+            <div className="px-4 py-10">
               <EmptyState
-                className="bg-transparent border-none"
+                className="border-none bg-transparent"
                 icon={Bookmark}
                 title="No saved articles"
                 description="Articles you bookmark will appear here so you can read them later."

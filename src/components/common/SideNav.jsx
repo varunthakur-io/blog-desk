@@ -1,14 +1,6 @@
 import React from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import {
-  Home,
-  Bookmark,
-  FileText,
-  Compass,
-  Users,
-  Settings,
-  PenSquare,
-} from 'lucide-react';
+import { Home, Bookmark, FileText, Compass, Users, Settings, PenSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
@@ -44,7 +36,7 @@ const SideNav = ({ isOpen }) => {
         key={item.label}
         to={item.path}
         className={cn(
-          'group flex items-center gap-3 px-3 py-2 rounded-md text-[13px] font-bold tracking-tight transition-all duration-300',
+          'group flex items-center gap-3 rounded-md px-3 py-2 text-[13px] font-bold tracking-tight transition-all duration-300',
           isItemActive
             ? 'bg-muted text-foreground'
             : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
@@ -57,16 +49,15 @@ const SideNav = ({ isOpen }) => {
   };
 
   return (
-    <nav className="flex flex-col h-full pt-6 pb-0 overflow-x-hidden">
+    <nav className="flex h-full flex-col overflow-x-hidden pt-6 pb-0">
       {/* Main Content */}
-      <div className="flex flex-col gap-6 flex-1 min-h-0">
-        
+      <div className="flex min-h-0 flex-1 flex-col gap-6">
         {/* Write Button - ONLY AUTHENTICATED */}
         {isAuthenticated && location.pathname !== '/create' && (
-          <div className="px-3 pb-2 pt-2">
+          <div className="px-3 pt-2 pb-2">
             <Button
               asChild
-              className="w-full rounded-md h-9 font-bold bg-foreground text-background transition-all hover:opacity-90 active:scale-95"
+              className="bg-foreground text-background h-9 w-full rounded-md font-bold transition-all hover:opacity-90 active:scale-95"
             >
               <Link to="/create">
                 <PenSquare className="mr-2 h-4 w-4" />
@@ -78,18 +69,16 @@ const SideNav = ({ isOpen }) => {
 
         {/* Discovery */}
         <div className="space-y-1.5 px-3">
-          <p className="px-2 text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 mb-4">
+          <p className="text-muted-foreground/50 mb-4 px-2 text-[11px] font-black tracking-[0.2em] uppercase">
             Discovery
           </p>
-          {navItems
-            .filter(item => item.label !== 'Following' || isAuthenticated)
-            .map(renderLink)}
+          {navItems.filter((item) => item.label !== 'Following' || isAuthenticated).map(renderLink)}
         </div>
 
         {/* Library - ONLY AUTHENTICATED */}
         {isAuthenticated && (
           <div className="space-y-1.5 px-3">
-            <p className="px-2 text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 mb-4 mt-2">
+            <p className="text-muted-foreground/50 mt-2 mb-4 px-2 text-[11px] font-black tracking-[0.2em] uppercase">
               Library
             </p>
             {libraryItems.map(renderLink)}
@@ -98,7 +87,7 @@ const SideNav = ({ isOpen }) => {
               to="/settings"
               className={({ isActive }) =>
                 cn(
-                  'group flex items-center gap-3 px-3 py-2 rounded-md text-[13px] font-bold tracking-tight transition-all duration-300',
+                  'group flex items-center gap-3 rounded-md px-3 py-2 text-[13px] font-bold tracking-tight transition-all duration-300',
                   isActive
                     ? 'bg-muted text-foreground'
                     : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
@@ -113,14 +102,14 @@ const SideNav = ({ isOpen }) => {
       </div>
 
       {/* Footer */}
-      <div className="mt-auto border-t border-border/20 pt-6 pb-6 px-6">
+      <div className="border-border/20 mt-auto border-t px-6 pt-6 pb-6">
         <Link
           to="/about"
-          className="text-[12px] font-bold text-muted-foreground/60 hover:text-foreground transition-all"
+          className="text-muted-foreground/60 hover:text-foreground text-[12px] font-bold transition-all"
         >
           About
         </Link>
-        <p className="text-[11px] font-medium text-muted-foreground/30 mt-1">
+        <p className="text-muted-foreground/30 mt-1 text-[11px] font-medium">
           © {new Date().getFullYear()} blogdesk
         </p>
       </div>

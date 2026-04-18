@@ -4,7 +4,14 @@ import { ArrowRight, Loader2, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { authService } from '@/features/auth';
 import toast from 'react-hot-toast';
 
@@ -30,32 +37,38 @@ const ForgotPassword = () => {
   };
 
   return (
-    <main className="flex items-center justify-center min-h-screen bg-background p-6">
+    <main className="bg-background flex min-h-screen items-center justify-center p-6">
       <div className="w-full max-w-sm space-y-8">
         {/* Branding */}
         <div className="flex justify-center">
           <Link to="/" className="flex items-center gap-3">
-            <div className="flex size-9 items-center justify-center rounded-lg bg-primary font-bold text-sm text-primary-foreground">
+            <div className="bg-primary text-primary-foreground flex size-9 items-center justify-center rounded-lg text-sm font-bold">
               B
             </div>
             <div className="flex flex-col">
-              <span className="text-lg font-bold tracking-tight text-foreground">BlogDesk</span>
-              <span className="text-[10px] font-medium text-muted-foreground -mt-0.5">Digital Magazine</span>
+              <span className="text-foreground text-lg font-bold tracking-tight">BlogDesk</span>
+              <span className="text-muted-foreground -mt-0.5 text-[10px] font-medium">
+                Digital Magazine
+              </span>
             </div>
           </Link>
         </div>
 
         {!submitted ? (
-          <Card className="border-0 shadow-none bg-transparent">
+          <Card className="border-0 bg-transparent shadow-none">
             <CardHeader className="space-y-1 px-0 text-center">
               <CardTitle className="text-2xl font-bold tracking-tight">Forgot password?</CardTitle>
-              <CardDescription>Enter your email and we&apos;ll send you a reset link</CardDescription>
+              <CardDescription>
+                Enter your email and we&apos;ll send you a reset link
+              </CardDescription>
             </CardHeader>
 
             <CardContent className="px-0">
               <form onSubmit={handleSubmit} className="space-y-4" noValidate>
                 <div>
-                  <Label htmlFor="email" className="mb-2 block">Email</Label>
+                  <Label htmlFor="email" className="mb-2 block">
+                    Email
+                  </Label>
                   <Input
                     id="email"
                     type="email"
@@ -83,10 +96,10 @@ const ForgotPassword = () => {
               </form>
             </CardContent>
 
-            <CardFooter className="px-0 justify-center">
+            <CardFooter className="justify-center px-0">
               <Link
                 to="/login"
-                className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors"
+                className="text-muted-foreground hover:text-primary inline-flex items-center gap-1 text-sm transition-colors"
               >
                 <ArrowLeft className="h-3 w-3" />
                 Back to sign in
@@ -94,29 +107,27 @@ const ForgotPassword = () => {
             </CardFooter>
           </Card>
         ) : (
-          <Card className="border-0 shadow-none bg-transparent">
+          <Card className="border-0 bg-transparent shadow-none">
             <CardHeader className="space-y-4 px-0 text-center">
-              <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-primary/10">
-                <CheckCircle2 className="h-6 w-6 text-primary" />
+              <div className="bg-primary/10 mx-auto flex size-12 items-center justify-center rounded-full">
+                <CheckCircle2 className="text-primary h-6 w-6" />
               </div>
               <div className="space-y-1">
-                <CardTitle className="text-2xl font-bold tracking-tight">Check your email</CardTitle>
+                <CardTitle className="text-2xl font-bold tracking-tight">
+                  Check your email
+                </CardTitle>
                 <CardDescription>
                   We sent a password reset link to <br />
-                  <span className="font-medium text-foreground">{email}</span>
+                  <span className="text-foreground font-medium">{email}</span>
                 </CardDescription>
               </div>
             </CardHeader>
 
-            <CardContent className="px-0 space-y-3">
+            <CardContent className="space-y-3 px-0">
               <Button asChild className="w-full" size="lg">
                 <Link to="/login">Back to sign in</Link>
               </Button>
-              <Button
-                variant="ghost"
-                className="w-full"
-                onClick={() => setSubmitted(false)}
-              >
+              <Button variant="ghost" className="w-full" onClick={() => setSubmitted(false)}>
                 Didn&apos;t receive it? Try again
               </Button>
             </CardContent>

@@ -7,18 +7,15 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-const PostMobileOptions = ({
-  status,
-  onStatusChange,
-}) => {
+const PostMobileOptions = ({ status, onStatusChange }) => {
   return (
-    <div className="md:hidden rounded-md border border-border bg-card p-4 mb-4 space-y-4 text-left">
+    <div className="border-border bg-card mb-4 space-y-4 rounded-md border p-4 text-left md:hidden">
       <div className="space-y-1.5">
-        <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+        <Label className="text-muted-foreground text-xs font-bold tracking-wider uppercase">
           Status
         </Label>
         <Select value={status} onValueChange={onStatusChange}>
-          <SelectTrigger className="h-8 text-xs rounded-md">
+          <SelectTrigger className="h-8 rounded-md text-xs">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

@@ -104,43 +104,46 @@ export default function Settings() {
 
   return (
     <article className="animate-in fade-in duration-700">
-      <header className="py-5 border-b border-border/20 mb-6 px-4 -mx-4">
-        <h1 className="text-2xl font-black tracking-tighter text-foreground">Settings</h1>
-        <p className="text-muted-foreground text-[12px] font-medium opacity-60">Account management and preferences.</p>
+      <header className="border-border/20 -mx-4 mb-6 border-b px-4 py-5">
+        <h1 className="text-foreground text-2xl font-black tracking-tighter">Settings</h1>
+        <p className="text-muted-foreground text-[12px] font-medium opacity-60">
+          Account management and preferences.
+        </p>
       </header>
 
-      <div className="flex flex-col lg:flex-row items-start gap-12 lg:gap-16">
+      <div className="flex flex-col items-start gap-12 lg:flex-row lg:gap-16">
         {/* Left Column (Vertical Sub-nav) */}
-        <aside className="w-full lg:w-64 shrink-0 lg:sticky lg:top-24">
-          <nav 
-            className="flex flex-col gap-1"
-            aria-label="Settings categories"
-          >
+        <aside className="w-full shrink-0 lg:sticky lg:top-24 lg:w-64">
+          <nav className="flex flex-col gap-1" aria-label="Settings categories">
             {NAV.map(({ id, label, icon: Icon, description }) => (
               <button
                 key={id}
                 onClick={() => setActive(id)}
                 className={cn(
-                  'group flex items-center justify-between px-3 py-2.5 rounded-md transition-all duration-200',
+                  'group flex items-center justify-between rounded-md px-3 py-2.5 transition-all duration-200',
                   active === id
                     ? 'bg-muted text-foreground'
-                    : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                    : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
                 )}
                 aria-current={active === id ? 'page' : undefined}
               >
                 <div className="flex items-center gap-3">
-                  <Icon className={cn(
-                    "size-4 shrink-0 transition-colors",
-                    active === id ? "text-foreground" : "text-muted-foreground/60"
-                  )} />
-                  <div className="flex flex-col items-start leading-none gap-1">
+                  <Icon
+                    className={cn(
+                      'size-4 shrink-0 transition-colors',
+                      active === id ? 'text-foreground' : 'text-muted-foreground/60',
+                    )}
+                  />
+                  <div className="flex flex-col items-start gap-1 leading-none">
                     <span className="text-[13px] font-bold tracking-tight">{label}</span>
                     {/* Optional description for premium feel */}
-                    <span className="hidden lg:block text-[10px] font-medium opacity-50">{description}</span>
+                    <span className="hidden text-[10px] font-medium opacity-50 lg:block">
+                      {description}
+                    </span>
                   </div>
                 </div>
                 {active === id && (
-                  <ChevronRight className="size-3 text-muted-foreground/30 hidden lg:block" />
+                  <ChevronRight className="text-muted-foreground/30 hidden size-3 lg:block" />
                 )}
               </button>
             ))}
@@ -148,7 +151,7 @@ export default function Settings() {
         </aside>
 
         {/* Right Column (Panel Content) */}
-        <main className="flex-1 w-full max-w-2xl px-4 -mx-4 lg:px-0 lg:mx-0">
+        <main className="-mx-4 w-full max-w-2xl flex-1 px-4 lg:mx-0 lg:px-0">
           <div className="animate-in fade-in slide-in-from-right-4 duration-500">
             {renderPanel()}
           </div>

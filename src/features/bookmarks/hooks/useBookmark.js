@@ -2,11 +2,7 @@ import { useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAuthUserId } from '@/features/auth';
 import { bookmarkService } from '../services/bookmark.service';
-import { 
-  addBookmark, 
-  removeBookmark, 
-  selectIsPostBookmarked 
-} from '../store';
+import { addBookmark, removeBookmark, selectIsPostBookmarked } from '../store';
 import toast from 'react-hot-toast';
 
 /**
@@ -26,7 +22,7 @@ export const useBookmark = (post) => {
     }
 
     setIsLoading(true);
-    
+
     // Optimistic Update
     if (isBookmarked) {
       dispatch(removeBookmark(post.$id));
@@ -36,7 +32,7 @@ export const useBookmark = (post) => {
 
     try {
       const result = await bookmarkService.toggleBookmark(userId, post.$id);
-      
+
       // Sync with server if result is different (rare race condition)
       if (result !== !isBookmarked) {
         if (result) {

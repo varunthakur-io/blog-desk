@@ -2,12 +2,7 @@ import { useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { followService } from '@/features/follows';
 import { profileService } from '@/features/profile';
-import {
-  selectFollowers,
-  selectFollowing,
-  setFollowers,
-  setFollowing,
-} from '@/features/profile';
+import { selectFollowers, selectFollowing, setFollowers, setFollowing } from '@/features/profile';
 
 /**
  * Hook to manage followers and following lists for a profile.

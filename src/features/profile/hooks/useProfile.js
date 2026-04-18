@@ -53,13 +53,13 @@ export const useProfile = () => {
   // 3. Follow Lists & Relationship
   const { isFollowing, isLoading: isFollowLoading, toggleFollow } = useFollow(profileId);
 
-  const { 
-    followersProfiles, 
-    followingProfiles, 
-    isFollowersLoading, 
+  const {
+    followersProfiles,
+    followingProfiles,
+    isFollowersLoading,
     isFollowingLoading,
     fetchFollowers,
-    fetchFollowing
+    fetchFollowing,
   } = useProfileConnections(profileId);
 
   // Formatted View Data

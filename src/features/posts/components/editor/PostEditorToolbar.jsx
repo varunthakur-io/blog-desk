@@ -24,25 +24,23 @@ const ToolbarButton = ({ onClick, isActive, disabled, title, children }) => (
     disabled={disabled}
     title={title}
     className={cn(
-      "h-8 w-8 flex items-center justify-center rounded-md text-sm transition-all duration-200",
+      'flex h-8 w-8 items-center justify-center rounded-md text-sm transition-all duration-200',
       isActive
         ? 'bg-foreground text-background font-bold'
         : 'text-muted-foreground hover:text-foreground hover:bg-muted',
-      disabled && "opacity-30 cursor-not-allowed"
+      disabled && 'cursor-not-allowed opacity-30',
     )}
   >
     {children}
   </button>
 );
 
-const PostEditorToolbar = ({ 
-  editor
-}) => {
+const PostEditorToolbar = ({ editor }) => {
   if (!editor) return null;
 
   return (
-    <div className="sticky top-0 z-30 w-full border-b border-border/60 bg-background/95 backdrop-blur-md py-2">
-      <div className="max-w-[850px] w-full mx-auto px-4 sm:px-8 flex items-center gap-0.5 flex-wrap">
+    <div className="border-border/60 bg-background/95 sticky top-0 z-30 w-full border-b py-2 backdrop-blur-md">
+      <div className="mx-auto flex w-full max-w-[850px] flex-wrap items-center gap-0.5 px-4 sm:px-8">
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleBold().run()}
           isActive={editor.isActive('bold')}
@@ -72,7 +70,7 @@ const PostEditorToolbar = ({
           <SquareCode className="h-3.5 w-3.5" />
         </ToolbarButton>
 
-        <Separator orientation="vertical" className="h-4 mx-1.5 opacity-30" />
+        <Separator orientation="vertical" className="mx-1.5 h-4 opacity-30" />
 
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
@@ -89,7 +87,7 @@ const PostEditorToolbar = ({
           <Heading2 className="h-3.5 w-3.5" />
         </ToolbarButton>
 
-        <Separator orientation="vertical" className="h-4 mx-1.5 opacity-30" />
+        <Separator orientation="vertical" className="mx-1.5 h-4 opacity-30" />
 
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleBulletList().run()}
@@ -113,7 +111,7 @@ const PostEditorToolbar = ({
           <Quote className="h-3.5 w-3.5" />
         </ToolbarButton>
 
-        <Separator orientation="vertical" className="h-4 mx-1.5 opacity-30" />
+        <Separator orientation="vertical" className="mx-1.5 h-4 opacity-30" />
 
         <ToolbarButton
           onClick={() => editor.chain().focus().undo().run()}
@@ -135,4 +133,3 @@ const PostEditorToolbar = ({
 };
 
 export default PostEditorToolbar;
-

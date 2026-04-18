@@ -2,11 +2,7 @@ import { useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAuthUserId } from '@/features/auth';
 import { bookmarkService } from '../services/bookmark.service';
-import {
-  setBookmarks,
-  setBookmarksStatus,
-  setBookmarksError,
-} from '../store';
+import { setBookmarks, setBookmarksStatus, setBookmarksError } from '../store';
 
 /**
  * Hook to initialize bookmarks for the logged-in user.

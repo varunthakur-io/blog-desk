@@ -2,15 +2,15 @@ import { useSelector } from 'react-redux';
 import { Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { selectAuthUser } from '@/features/auth';
-import { 
-  PostCard, 
-  PostCardSkeleton, 
-  useCategories, 
+import {
+  PostCard,
+  PostCardSkeleton,
+  useCategories,
   useHome,
-  HomeTabs, 
-  HomeCategoryFilters, 
-  EmptyHomeState, 
-  RecommendedSidebar 
+  HomeTabs,
+  HomeCategoryFilters,
+  EmptyHomeState,
+  RecommendedSidebar,
 } from '@/features/posts';
 
 /**
@@ -52,7 +52,10 @@ const Home = () => {
     if (postsError) {
       return (
         <div className="flex justify-center py-20">
-          <Alert variant="destructive" className="max-w-md rounded-2xl border-destructive/20 bg-destructive/5 shadow-lg">
+          <Alert
+            variant="destructive"
+            className="border-destructive/20 bg-destructive/5 max-w-md rounded-2xl shadow-lg"
+          >
             <AlertTitle className="font-bold">Error loading feed</AlertTitle>
             <AlertDescription className="opacity-90">{postsError}</AlertDescription>
           </Alert>
@@ -84,7 +87,7 @@ const Home = () => {
 
         {postsLoading && hasMore && (
           <div className="flex justify-center pt-10">
-            <Loader2 className="size-6 animate-spin text-primary/40" />
+            <Loader2 className="text-primary/40 size-6 animate-spin" />
           </div>
         )}
       </div>
@@ -94,12 +97,11 @@ const Home = () => {
   return (
     <div className="flex flex-col gap-0 xl:flex-row">
       {/* ── Main Feed Column ── */}
-      <section className="min-w-0 flex-1 max-w-4xl xl:pr-16">
-        
-        <HomeTabs 
-          activeMode={feedMode} 
-          onModeChange={handleFeedModeChange} 
-          isAuthenticated={!!authUserId} 
+      <section className="max-w-4xl min-w-0 flex-1 xl:pr-16">
+        <HomeTabs
+          activeMode={feedMode}
+          onModeChange={handleFeedModeChange}
+          isAuthenticated={!!authUserId}
           searchTerm={searchTerm}
           onSearchChange={handleSearchChange}
         />
@@ -110,16 +112,14 @@ const Home = () => {
           onCategoryChange={handleCategoryChange}
         />
 
-        <div className="pb-20">
-          {renderContent()}
-        </div>
+        <div className="pb-20">{renderContent()}</div>
       </section>
 
       {/* ── Right Sidebar ── */}
-      <aside className="hidden xl:block shrink-0 xl:w-[350px] border-l border-border/40">
+      <aside className="border-border/40 hidden shrink-0 border-l xl:block xl:w-[350px]">
         <div className="sticky top-24 pl-12 transition-all duration-300">
-          <RecommendedSidebar 
-            authors={recommendedAuthors} 
+          <RecommendedSidebar
+            authors={recommendedAuthors}
             isLoading={isAuthorsLoading}
             staffPicks={staffPicks}
             isStaffPicksLoading={isStaffPicksLoading}

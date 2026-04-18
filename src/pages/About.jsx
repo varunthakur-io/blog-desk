@@ -13,23 +13,23 @@ import {
 import { selectIsAuthenticated } from '@/features/auth';
 
 const FeatureCard = ({ icon: Icon, title, description }) => (
-  <article className="transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:border-border flex flex-col items-center rounded-xl border border-border bg-card p-7 text-center shadow-sm">
-    <div className="mb-4 rounded-xl bg-muted p-3">
-      <Icon className="size-6 text-foreground" aria-hidden="true" />
+  <article className="hover:border-border border-border bg-card flex flex-col items-center rounded-xl border p-7 text-center shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
+    <div className="bg-muted mb-4 rounded-xl p-3">
+      <Icon className="text-foreground size-6" aria-hidden="true" />
     </div>
     <h3 className="mb-1.5 text-base font-bold">{title}</h3>
-    <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
+    <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
   </article>
 );
 
 const WhyItem = ({ icon: Icon, title, description }) => (
   <div className="flex items-start gap-5">
-    <div className="mt-0.5 shrink-0 rounded-xl bg-muted p-2.5">
-      <Icon className="size-5 text-foreground" aria-hidden="true" />
+    <div className="bg-muted mt-0.5 shrink-0 rounded-xl p-2.5">
+      <Icon className="text-foreground size-5" aria-hidden="true" />
     </div>
     <div>
       <h3 className="mb-1 text-base font-bold">{title}</h3>
-      <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
+      <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
     </div>
   </div>
 );
@@ -41,14 +41,17 @@ const About = () => {
     <div className="animate-in fade-in page-py space-y-16 duration-500">
       {/* Hero */}
       <section className="mx-auto max-w-3xl space-y-6 pt-8 text-center">
-        <div className="mx-auto inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
+        <div className="border-border bg-muted text-muted-foreground mx-auto inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold">
           <Zap className="size-3" />
           About Blog Desk
         </div>
-        <h1 className="text-4xl font-extrabold leading-tight tracking-tight md:text-6xl">
-          Crafting Stories, <span className="bg-gradient-to-r from-foreground via-foreground/80 to-foreground/60 bg-clip-text text-transparent">Empowering Voices.</span>
+        <h1 className="text-4xl leading-tight font-extrabold tracking-tight md:text-6xl">
+          Crafting Stories,{' '}
+          <span className="from-foreground via-foreground/80 to-foreground/60 bg-gradient-to-r bg-clip-text text-transparent">
+            Empowering Voices.
+          </span>
         </h1>
-        <p className="mx-auto max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+        <p className="text-muted-foreground mx-auto max-w-2xl text-base leading-relaxed sm:text-lg">
           Blog Desk is built for creators, developers, and thinkers who want to share their
           perspectives with the world — without the noise.
         </p>
@@ -57,13 +60,13 @@ const About = () => {
             <>
               <Link
                 to="/create"
-                className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-background shadow-sm transition-opacity hover:opacity-80"
+                className="bg-foreground text-background inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold shadow-sm transition-opacity hover:opacity-80"
               >
                 <PenLine className="size-4" /> Start Writing
               </Link>
               <Link
                 to="/dashboard"
-                className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-semibold transition-colors hover:bg-muted"
+                className="border-border hover:bg-muted inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors"
               >
                 <LayoutDashboard className="size-4" /> Dashboard
               </Link>
@@ -72,13 +75,13 @@ const About = () => {
             <>
               <Link
                 to="/signup"
-                className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-background shadow-sm transition-opacity hover:opacity-80"
+                className="bg-foreground text-background inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold shadow-sm transition-opacity hover:opacity-80"
               >
                 Get Started <ArrowRight className="size-4" />
               </Link>
               <Link
                 to="/"
-                className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-semibold transition-colors hover:bg-muted"
+                className="border-border hover:bg-muted inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors"
               >
                 Browse Posts
               </Link>
@@ -110,23 +113,23 @@ const About = () => {
       <section className="mx-auto max-w-3xl space-y-10">
         <header className="space-y-2 text-center">
           <h2 className="text-3xl font-extrabold tracking-tight">Why Blog Desk?</h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Built with modern tools and real attention to detail.
           </p>
         </header>
-        <div className="space-y-7 rounded-2xl border border-border bg-card p-8 shadow-sm">
+        <div className="border-border bg-card space-y-7 rounded-2xl border p-8 shadow-sm">
           <WhyItem
             icon={Code2}
             title="Built for Performance"
             description="Leveraging React 19, Vite, and Appwrite — Blog Desk delivers blazing-fast load times and a highly responsive interface so your content always shines."
           />
-          <div className="border-t border-border" aria-hidden="true" />
+          <div className="border-border border-t" aria-hidden="true" />
           <WhyItem
             icon={BookOpen}
             title="Intuitive Authoring"
             description="Our rich-text editor powered by Tiptap gives you a comfortable, distraction-free writing environment. Focus on your words — we handle the rest."
           />
-          <div className="border-t border-border" aria-hidden="true" />
+          <div className="border-border border-t" aria-hidden="true" />
           <WhyItem
             icon={Lightbulb}
             title="Engaging Reader Experience"
@@ -136,25 +139,25 @@ const About = () => {
       </section>
 
       {/* Bottom CTA */}
-      <section className="mb-20 mx-auto max-w-lg rounded-2xl border border-border bg-muted/40 px-8 py-10 text-center">
+      <section className="border-border bg-muted/40 mx-auto mb-20 max-w-lg rounded-2xl border px-8 py-10 text-center">
         {isAuthenticated ? (
           <>
             <h2 className="mb-2 text-2xl font-extrabold tracking-tight">
               What will you write today?
             </h2>
-            <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
+            <p className="text-muted-foreground mb-6 text-sm leading-relaxed">
               Head to your dashboard to manage posts or start a new one.
             </p>
             <div className="flex justify-center gap-3">
               <Link
                 to="/create"
-                className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-2.5 text-sm font-semibold text-background shadow-sm transition-opacity hover:opacity-80"
+                className="bg-foreground text-background inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold shadow-sm transition-opacity hover:opacity-80"
               >
                 <PenLine className="size-4" /> New Post
               </Link>
               <Link
                 to="/dashboard"
-                className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-2.5 text-sm font-semibold transition-colors hover:bg-muted"
+                className="border-border hover:bg-muted inline-flex items-center gap-2 rounded-full border px-6 py-2.5 text-sm font-semibold transition-colors"
               >
                 <LayoutDashboard className="size-4" /> Dashboard
               </Link>
@@ -163,12 +166,12 @@ const About = () => {
         ) : (
           <>
             <h2 className="mb-2 text-2xl font-extrabold tracking-tight">Ready to start writing?</h2>
-            <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
+            <p className="text-muted-foreground mb-6 text-sm leading-relaxed">
               Join Blog Desk today and turn your ideas into stories that matter.
             </p>
             <Link
               to="/signup"
-              className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-2.5 text-sm font-semibold text-background shadow-sm transition-opacity hover:opacity-80"
+              className="bg-foreground text-background inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold shadow-sm transition-opacity hover:opacity-80"
             >
               Create Free Account <ArrowRight className="size-4" />
             </Link>

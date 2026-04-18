@@ -4,7 +4,14 @@ import { authService } from '@/features/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Loader2, CheckCircle2, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -41,7 +48,7 @@ const ResetPassword = () => {
       await authService.resetPassword(userId, secret, password);
       setStatus('success');
       toast.success('Password reset successfully!');
-      
+
       // Auto redirect after a brief delay
       setTimeout(() => navigate('/login'), 3000);
     } catch (error) {
@@ -52,29 +59,33 @@ const ResetPassword = () => {
   };
 
   return (
-    <main className="flex items-center justify-center min-h-screen bg-background p-6">
+    <main className="bg-background flex min-h-screen items-center justify-center p-6">
       <div className="w-full max-w-sm space-y-8">
         {/* Branding */}
         <div className="flex justify-center">
           <Link to="/" className="flex items-center gap-3">
-            <div className="flex size-9 items-center justify-center rounded-lg bg-primary font-bold text-sm text-primary-foreground">
+            <div className="bg-primary text-primary-foreground flex size-9 items-center justify-center rounded-lg text-sm font-bold">
               B
             </div>
             <div className="flex flex-col">
-              <span className="text-lg font-bold tracking-tight text-foreground">BlogDesk</span>
-              <span className="text-[10px] font-medium text-muted-foreground -mt-0.5">Digital Magazine</span>
+              <span className="text-foreground text-lg font-bold tracking-tight">BlogDesk</span>
+              <span className="text-muted-foreground -mt-0.5 text-[10px] font-medium">
+                Digital Magazine
+              </span>
             </div>
           </Link>
         </div>
 
         {status === 'success' ? (
-          <Card className="border-0 shadow-none bg-transparent">
+          <Card className="border-0 bg-transparent shadow-none">
             <CardHeader className="space-y-4 px-0 text-center">
-              <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-primary/10">
-                <CheckCircle2 className="h-6 w-6 text-primary" />
+              <div className="bg-primary/10 mx-auto flex size-12 items-center justify-center rounded-full">
+                <CheckCircle2 className="text-primary h-6 w-6" />
               </div>
               <div className="space-y-1">
-                <CardTitle className="text-2xl font-bold tracking-tight">Password updated</CardTitle>
+                <CardTitle className="text-2xl font-bold tracking-tight">
+                  Password updated
+                </CardTitle>
                 <CardDescription>
                   Your password has been reset successfully. Redirecting to sign in...
                 </CardDescription>
@@ -88,7 +99,7 @@ const ResetPassword = () => {
             </CardContent>
           </Card>
         ) : (
-          <Card className="border-0 shadow-none bg-transparent">
+          <Card className="border-0 bg-transparent shadow-none">
             <CardHeader className="space-y-1 px-0 text-center">
               <CardTitle className="text-2xl font-bold tracking-tight">Reset password</CardTitle>
               <CardDescription>Enter your new password below</CardDescription>
@@ -97,7 +108,9 @@ const ResetPassword = () => {
             <CardContent className="px-0">
               <form onSubmit={handleReset} className="space-y-4" noValidate>
                 <div>
-                  <Label htmlFor="password" className="mb-2 block">New password</Label>
+                  <Label htmlFor="password" className="mb-2 block">
+                    New password
+                  </Label>
                   <Input
                     id="password"
                     type="password"
@@ -111,7 +124,9 @@ const ResetPassword = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="confirmPassword" className="mb-2 block">Confirm password</Label>
+                  <Label htmlFor="confirmPassword" className="mb-2 block">
+                    Confirm password
+                  </Label>
                   <Input
                     id="confirmPassword"
                     type="password"
@@ -136,10 +151,10 @@ const ResetPassword = () => {
               </form>
             </CardContent>
 
-            <CardFooter className="px-0 justify-center">
+            <CardFooter className="justify-center px-0">
               <Link
                 to="/login"
-                className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors"
+                className="text-muted-foreground hover:text-primary inline-flex items-center gap-1 text-sm transition-colors"
               >
                 <ArrowLeft className="h-3 w-3" />
                 Back to sign in

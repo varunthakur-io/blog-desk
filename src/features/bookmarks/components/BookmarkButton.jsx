@@ -18,19 +18,14 @@ const BookmarkButton = ({ isBookmarked, onClick, isLoading, className }) => {
       }}
       disabled={isLoading}
       className={cn(
-        "h-8 w-8 p-0 rounded-full transition-all duration-200 active:scale-90",
-        isBookmarked 
-          ? "text-primary hover:text-primary/80 bg-primary/10 hover:bg-primary/20" 
-          : "text-muted-foreground hover:text-foreground hover:bg-muted",
-        className
+        'h-8 w-8 rounded-full p-0 transition-all duration-200 active:scale-90',
+        isBookmarked
+          ? 'text-primary hover:text-primary/80 bg-primary/10 hover:bg-primary/20'
+          : 'text-muted-foreground hover:text-foreground hover:bg-muted',
+        className,
       )}
     >
-      <Bookmark 
-        className={cn(
-          "h-[1.1rem] w-[1.1rem]",
-          isBookmarked && "fill-current"
-        )} 
-      />
+      <Bookmark className={cn('h-[1.1rem] w-[1.1rem]', isBookmarked && 'fill-current')} />
     </Button>
   );
 };

@@ -58,9 +58,9 @@ export const useHome = () => {
     } else {
       // Default to explore if not specified or 'explore'
       if (feedMode !== 'explore' && !feed) {
-         // only reset if there is no query param at all
+        // only reset if there is no query param at all
       } else if (feed === 'explore' && feedMode !== 'explore') {
-         dispatch(setFeedMode('explore'));
+        dispatch(setFeedMode('explore'));
       }
     }
   }, [searchParams, feedMode, dispatch]);
@@ -70,8 +70,8 @@ export const useHome = () => {
     const fetchAuthors = async () => {
       setIsAuthorsLoading(true);
       try {
-        const authors = await profileService.searchProfiles(' '); 
-        setRecommendedAuthors(authors.filter(a => a.$id !== authUserId));
+        const authors = await profileService.searchProfiles(' ');
+        setRecommendedAuthors(authors.filter((a) => a.$id !== authUserId));
       } catch (err) {
         console.error('useHome :: fetchAuthors failed', err);
       } finally {
@@ -88,21 +88,21 @@ export const useHome = () => {
       try {
         const res = await postService.getStaffPicks(3);
         const posts = res.documents;
-        const authorIds = [...new Set(posts.map(p => p.authorId))];
+        const authorIds = [...new Set(posts.map((p) => p.authorId))];
         const profiles = await profileService.getProfilesByIds(authorIds);
-        
-        const enrichedPosts = posts.map(post => {
-          const authorProfile = profiles.find(p => p.userId === post.authorId);
+
+        const enrichedPosts = posts.map((post) => {
+          const authorProfile = profiles.find((p) => p.userId === post.authorId);
           return {
             ...post,
             author: {
               ...authorProfile,
               name: authorProfile?.name || post.authorName || 'Anonymous',
-              username: authorProfile?.username || post.authorId
-            }
+              username: authorProfile?.username || post.authorId,
+            },
           };
         });
-        
+
         setStaffPicks(enrichedPosts);
       } catch (err) {
         console.error('useHome :: fetchStaffPicks failed', err);

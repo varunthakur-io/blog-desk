@@ -1,7 +1,5 @@
 {
   "skills": {
-    "disabled": [
-      "chrome-devtools"
-    ]
+    "disabled": ["chrome-devtools"]
   }
 }

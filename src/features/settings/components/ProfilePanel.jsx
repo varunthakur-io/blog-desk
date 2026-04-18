@@ -24,24 +24,26 @@ const ProfilePanel = ({
   return (
     <div className="space-y-6">
       <div className="pb-1">
-        <h2 className="text-[16px] font-bold tracking-tight text-foreground">Public profile</h2>
-        <p className="text-muted-foreground text-[12px] mt-0.5 font-medium">
+        <h2 className="text-foreground text-[16px] font-bold tracking-tight">Public profile</h2>
+        <p className="text-muted-foreground mt-0.5 text-[12px] font-medium">
           How people see you when reading your stories.
         </p>
       </div>
 
       <div className="space-y-6">
         {/* Profile photo */}
-        <div className="flex flex-col sm:flex-row items-center gap-8">
-          <div className="relative group size-20 shrink-0">
-            <Avatar className="h-full w-full border border-border/40 shadow-sm transition-all group-hover:ring-4 group-hover:ring-primary/5">
+        <div className="flex flex-col items-center gap-8 sm:flex-row">
+          <div className="group relative size-20 shrink-0">
+            <Avatar className="border-border/40 group-hover:ring-primary/5 h-full w-full border shadow-sm transition-all group-hover:ring-4">
               <AvatarImage src={avatarPreview} className="object-cover" />
-              <AvatarFallback className="text-xl font-bold bg-muted text-muted-foreground">{initial}</AvatarFallback>
+              <AvatarFallback className="bg-muted text-muted-foreground text-xl font-bold">
+                {initial}
+              </AvatarFallback>
             </Avatar>
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center cursor-pointer backdrop-blur-[2px]"
+              className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-full bg-black/40 opacity-0 backdrop-blur-[2px] transition-all group-hover:opacity-100"
             >
               <Camera className="h-5 w-5 text-white" />
             </button>
@@ -61,7 +63,7 @@ const ProfilePanel = ({
                 type="button"
                 variant="outline"
                 onClick={() => fileInputRef.current?.click()}
-                className="rounded-md px-3 font-bold text-[11px] shadow-sm active:scale-95 transition-all h-8 border-border/60"
+                className="border-border/60 h-8 rounded-md px-3 text-[11px] font-bold shadow-sm transition-all active:scale-95"
               >
                 Upload avatar
               </Button>
@@ -72,12 +74,12 @@ const ProfilePanel = ({
                 onClick={() => {
                   if (fileInputRef.current) fileInputRef.current.value = '';
                 }}
-                className="rounded-md px-3 font-bold text-[11px] text-muted-foreground hover:text-destructive active:scale-95 transition-all h-8"
+                className="text-muted-foreground hover:text-destructive h-8 rounded-md px-3 text-[11px] font-bold transition-all active:scale-95"
               >
                 Remove
               </Button>
             </div>
-            <p className="text-[10px] font-medium text-muted-foreground/40 leading-none">
+            <p className="text-muted-foreground/40 text-[10px] leading-none font-medium">
               Accepts .jpg, .png or .webp. Max size 3MB.
             </p>
           </div>
@@ -89,7 +91,10 @@ const ProfilePanel = ({
         <div className="space-y-6">
           <div className="grid gap-6">
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-[13px] font-bold text-foreground tracking-tight">
+              <Label
+                htmlFor="name"
+                className="text-foreground text-[13px] font-bold tracking-tight"
+              >
                 Display name
               </Label>
               <Input
@@ -98,35 +103,37 @@ const ProfilePanel = ({
                 onChange={(e) => setProfileForm((p) => ({ ...p, name: e.target.value }))}
                 placeholder="Full Name"
                 className={cn(
-                  "rounded-md border-border/60 bg-muted/20 focus:bg-background transition-all h-9 text-[13px] font-medium",
-                  profileError && "border-destructive/50 ring-destructive/10"
+                  'border-border/60 bg-muted/20 focus:bg-background h-9 rounded-md text-[13px] font-medium transition-all',
+                  profileError && 'border-destructive/50 ring-destructive/10',
                 )}
               />
               {profileError ? (
-                <p className="text-[11px] text-destructive font-bold px-1">
-                  {profileError}
-                </p>
+                <p className="text-destructive px-1 text-[11px] font-bold">{profileError}</p>
               ) : (
-                <p className="text-[11px] text-muted-foreground/50 font-medium px-1">Visible on your posts and header.</p>
+                <p className="text-muted-foreground/50 px-1 text-[11px] font-medium">
+                  Visible on your posts and header.
+                </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email-display" className="text-[13px] font-bold text-foreground">
+              <Label htmlFor="email-display" className="text-foreground text-[13px] font-bold">
                 Email
               </Label>
               <Input
                 id="email-display"
                 value={authUser?.email || ''}
                 readOnly
-                className="rounded-md border-border/40 bg-muted text-muted-foreground/40 cursor-not-allowed h-9 text-[13px] opacity-70 border-none"
+                className="border-border/40 bg-muted text-muted-foreground/40 h-9 cursor-not-allowed rounded-md border-none text-[13px] opacity-70"
               />
-              <p className="text-[11px] text-muted-foreground/40 font-medium px-1">To change, visit the <span className="text-primary/70 font-bold">Account</span> tab.</p>
+              <p className="text-muted-foreground/40 px-1 text-[11px] font-medium">
+                To change, visit the <span className="text-primary/70 font-bold">Account</span> tab.
+              </p>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="bio" className="text-[13px] font-bold text-foreground">
+            <Label htmlFor="bio" className="text-foreground text-[13px] font-bold">
               About you
             </Label>
             <div className="relative">
@@ -135,16 +142,22 @@ const ProfilePanel = ({
                 value={profileForm.bio}
                 onChange={(e) => setProfileForm((p) => ({ ...p, bio: e.target.value }))}
                 placeholder="Tell us about yourself…"
-                className="resize-none min-h-[90px] rounded-md border-border/60 bg-muted/20 focus:bg-background transition-all p-3 text-[13px] leading-relaxed"
+                className="border-border/60 bg-muted/20 focus:bg-background min-h-[90px] resize-none rounded-md p-3 text-[13px] leading-relaxed transition-all"
                 maxLength={200}
               />
             </div>
-            <div className="flex justify-between items-center px-1">
-              <p className="text-[11px] text-muted-foreground/40 font-medium">Keep it short and catchy.</p>
-              <p className={cn(
-                "text-[10px] font-bold tabular-nums tracking-tight",
-                (profileForm.bio?.length || 0) > 180 ? "text-orange-500" : "text-muted-foreground/40"
-              )}>
+            <div className="flex items-center justify-between px-1">
+              <p className="text-muted-foreground/40 text-[11px] font-medium">
+                Keep it short and catchy.
+              </p>
+              <p
+                className={cn(
+                  'text-[10px] font-bold tracking-tight tabular-nums',
+                  (profileForm.bio?.length || 0) > 180
+                    ? 'text-orange-500'
+                    : 'text-muted-foreground/40',
+                )}
+              >
                 {profileForm.bio?.length || 0} / 200
               </p>
             </div>
@@ -152,15 +165,15 @@ const ProfilePanel = ({
         </div>
 
         <div className="pt-4">
-          <Button 
-            onClick={handleSaveProfile} 
-            disabled={isSavingProfile} 
-            className="rounded-md px-6 h-9 font-bold text-xs shadow-sm active:scale-95 transition-all bg-foreground text-background hover:opacity-90"
+          <Button
+            onClick={handleSaveProfile}
+            disabled={isSavingProfile}
+            className="bg-foreground text-background h-9 rounded-md px-6 text-xs font-bold shadow-sm transition-all hover:opacity-90 active:scale-95"
           >
             {isSavingProfile ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              <Save className="h-4 w-4 mr-2" />
+              <Save className="mr-2 h-4 w-4" />
             )}
             Save changes
           </Button>

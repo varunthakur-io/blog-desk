@@ -54,10 +54,10 @@ const ShareDialog = ({ open, onOpenChange, url, title }) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md rounded-2xl border-border bg-card">
+      <DialogContent className="border-border bg-card rounded-2xl sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold flex items-center gap-2">
-            <Share2 className="h-5 w-5 text-primary" />
+          <DialogTitle className="flex items-center gap-2 text-xl font-bold">
+            <Share2 className="text-primary h-5 w-5" />
             Share this story
           </DialogTitle>
           <DialogDescription className="text-sm">
@@ -68,7 +68,7 @@ const ShareDialog = ({ open, onOpenChange, url, title }) => {
         <div className="space-y-6 pt-4">
           {/* Copy Link Section - FIXED ALIGNMENT */}
           <div className="space-y-2">
-            <Label htmlFor="link" className="text-xs font-bold uppercase tracking-wider opacity-50">
+            <Label htmlFor="link" className="text-xs font-bold tracking-wider uppercase opacity-50">
               Page Link
             </Label>
             <div className="flex items-center gap-2">
@@ -76,13 +76,13 @@ const ShareDialog = ({ open, onOpenChange, url, title }) => {
                 id="link"
                 defaultValue={fullUrl}
                 readOnly
-                className="h-10 flex-1 text-xs text-muted-foreground bg-muted/30 border-border rounded-lg focus-visible:ring-primary/20"
+                className="text-muted-foreground bg-muted/30 border-border focus-visible:ring-primary/20 h-10 flex-1 rounded-lg text-xs"
               />
               <Button
                 type="button"
                 size="icon"
                 onClick={handleCopy}
-                className="h-10 w-10 rounded-lg shrink-0 transition-all active:scale-95 shadow-sm"
+                className="h-10 w-10 shrink-0 rounded-lg shadow-sm transition-all active:scale-95"
               >
                 {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
               </Button>
@@ -97,10 +97,10 @@ const ShareDialog = ({ open, onOpenChange, url, title }) => {
                 href={social.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`flex flex-col items-center gap-2 p-3 rounded-xl border border-border bg-muted/10 transition-all duration-200 group ${social.color}`}
+                className={`border-border bg-muted/10 group flex flex-col items-center gap-2 rounded-xl border p-3 transition-all duration-200 ${social.color}`}
               >
                 <social.icon className="h-5 w-5 transition-transform group-hover:scale-110" />
-                <span className="text-[10px] font-bold uppercase tracking-wider opacity-70 group-hover:opacity-100">
+                <span className="text-[10px] font-bold tracking-wider uppercase opacity-70 group-hover:opacity-100">
                   {social.name}
                 </span>
               </a>

@@ -10,7 +10,7 @@ const VerifyEmail = () => {
   const dispatch = useDispatch();
   const secret = searchParams.get('secret');
   const userId = searchParams.get('userId');
-  
+
   const [status, setStatus] = useState('loading'); // loading | success | error
   const [error, setError] = useState('');
 
@@ -24,12 +24,12 @@ const VerifyEmail = () => {
 
       try {
         const updatedUser = await authService.verifyUser(userId, secret);
-        
+
         // Handle Redux dispatch here instead of in the service
         if (updatedUser) {
           dispatch(setAuthUser(updatedUser));
         }
-        
+
         setStatus('success');
       } catch (err) {
         setStatus('error');
@@ -41,18 +41,23 @@ const VerifyEmail = () => {
   }, [secret, userId, dispatch]);
 
   return (
-    <main className="page-container flex items-center justify-center min-h-[calc(100vh-4rem)]">
-      <section className="max-w-md w-full text-center space-y-8 p-8 rounded-2xl border border-border bg-card shadow-sm animate-in fade-in zoom-in duration-300">
-        
+    <main className="page-container flex min-h-[calc(100vh-4rem)] items-center justify-center">
+      <section className="border-border bg-card animate-in fade-in zoom-in w-full max-w-md space-y-8 rounded-2xl border p-8 text-center shadow-sm duration-300">
         {/* ICON */}
-        <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto ${
-          status === 'loading' ? 'bg-muted' : 
-          status === 'success' ? 'bg-green-500/10 text-green-500' : 
-          'bg-destructive/10 text-destructive'
-        }`}>
-          {status === 'loading' && <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />}
-          {status === 'success' && <CheckCircle2 className="w-8 h-8" />}
-          {status === 'error' && <XCircle className="w-8 h-8" />}
+        <div
+          className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full ${
+            status === 'loading'
+              ? 'bg-muted'
+              : status === 'success'
+                ? 'bg-green-500/10 text-green-500'
+                : 'bg-destructive/10 text-destructive'
+          }`}
+        >
+          {status === 'loading' && (
+            <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
+          )}
+          {status === 'success' && <CheckCircle2 className="h-8 w-8" />}
+          {status === 'error' && <XCircle className="h-8 w-8" />}
         </div>
 
         {/* TEXT */}
@@ -64,7 +69,8 @@ const VerifyEmail = () => {
           </h1>
           <p className="text-muted-foreground text-sm">
             {status === 'loading' && 'Please wait while we confirm your account.'}
-            {status === 'success' && 'Your account is now fully activated. You can now post and interact with others.'}
+            {status === 'success' &&
+              'Your account is now fully activated. You can now post and interact with others.'}
             {status === 'error' && error}
           </p>
         </header>
@@ -81,7 +87,7 @@ const VerifyEmail = () => {
               <Button asChild variant="outline" className="w-full rounded-full">
                 <Link to="/">Back to Home</Link>
               </Button>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 Need a new link? Try logging in again or check your settings.
               </p>
             </div>

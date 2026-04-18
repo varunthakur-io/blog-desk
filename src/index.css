@@ -1,9 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Outfit:wght@100..900&display=swap');
-@import "tailwindcss";
+@import 'tailwindcss';
 
-
-@plugin "tailwindcss-animate";
-@plugin "@tailwindcss/typography";
+@plugin 'tailwindcss-animate';
+@plugin '@tailwindcss/typography';
 
 @theme {
   /* Default Spacing Scale (preserving your page spacing tokens) */
@@ -49,12 +48,20 @@
   --animate-accordion-up: accordion-up 0.2s ease-out;
 
   @keyframes accordion-down {
-    from { height: 0; }
-    to { height: var(--radix-accordion-content-height); }
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
   }
   @keyframes accordion-up {
-    from { height: var(--radix-accordion-content-height); }
-    to { height: 0; }
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
   }
 }
 
@@ -110,17 +117,26 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-sans antialiased transition-[background-color,color] duration-500 ease-in-out selection:bg-primary/10;
+    @apply bg-background text-foreground selection:bg-primary/10 font-sans antialiased transition-[background-color,color] duration-500 ease-in-out;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-sans font-bold tracking-tight;
   }
 }
 
 @layer utilities {
   .font-sans {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family:
+      'Inter',
+      system-ui,
+      -apple-system,
+      sans-serif;
   }
   .font-display {
     font-family: 'Outfit', sans-serif;
@@ -130,7 +146,7 @@
 @layer components {
   /* Semantic Page structure */
   .page-container {
-    @apply w-full mx-auto px-4 sm:px-6 lg:px-10 max-w-screen-2xl;
+    @apply mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-10;
   }
 
   .page-py {

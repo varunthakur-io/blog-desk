@@ -179,11 +179,11 @@ class PostService {
       const queries = [
         Query.equal('status', 'published'),
         Query.limit(100),
-        Query.select(['category'])
+        Query.select(['category']),
       ];
 
       const res = await postApi.listPosts(queries);
-      const categories = [...new Set(res.documents.map(p => p.category).filter(Boolean))];
+      const categories = [...new Set(res.documents.map((p) => p.category).filter(Boolean))];
       return categories.sort();
     } catch (error) {
       console.warn('PostService :: getUsedCategories failed:', error);
@@ -208,7 +208,7 @@ class PostService {
           Query.orderDesc('$createdAt'),
         ]);
       }
-      
+
       return res;
     } catch (error) {
       console.warn('PostService :: getStaffPicks failed:', error);

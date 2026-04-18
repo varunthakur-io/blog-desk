@@ -67,7 +67,10 @@ export default function Dashboard() {
 
       {/* Dynamic Error Messaging */}
       {postsError && (
-        <Alert variant="destructive" className="rounded-xl border-destructive/20 bg-destructive/5 shadow-sm">
+        <Alert
+          variant="destructive"
+          className="border-destructive/20 bg-destructive/5 rounded-xl shadow-sm"
+        >
           <AlertDescription className="font-medium">{postsError}</AlertDescription>
         </Alert>
       )}
@@ -89,7 +92,7 @@ export default function Dashboard() {
               !searchQuery && (
                 <Button
                   onClick={handleNewPost}
-                  className="mt-2 gap-2 rounded-full px-6 font-bold text-xs shadow-md transition-all active:scale-95 hover:shadow-xl"
+                  className="mt-2 gap-2 rounded-full px-6 text-xs font-bold shadow-md transition-all hover:shadow-xl active:scale-95"
                   aria-label="Create your first post"
                 >
                   <Plus className="size-4" /> Create First Post
@@ -126,7 +129,7 @@ export default function Dashboard() {
         description={
           <span className="text-muted-foreground">
             This will permanently delete{' '}
-            <strong className="font-bold text-foreground underline decoration-primary/20">
+            <strong className="text-foreground decoration-primary/20 font-bold underline">
               &ldquo;{postToDelete?.title}&rdquo;
             </strong>{' '}
             and all its comments and likes. This action is irreversible.

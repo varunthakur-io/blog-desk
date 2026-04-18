@@ -5,9 +5,9 @@ import { EmptyState } from '@/components/common';
 
 const EmptyHomeState = ({ searchTerm, activeCategory, onClearFilters }) => {
   const isSearch = searchTerm || activeCategory;
-  
+
   return (
-    <div className="py-20 animate-in fade-in duration-700">
+    <div className="animate-in fade-in py-20 duration-700">
       <EmptyState
         animate
         className="border-none bg-transparent"
@@ -26,12 +26,15 @@ const EmptyHomeState = ({ searchTerm, activeCategory, onClearFilters }) => {
               variant="outline"
               size="sm"
               onClick={onClearFilters}
-              className="rounded-md gap-2 px-5 font-bold text-xs hover:bg-muted border-border/40"
+              className="hover:bg-muted border-border/40 gap-2 rounded-md px-5 text-xs font-bold"
             >
               <X className="size-3.5" /> Clear all filters
             </Button>
           ) : (
-            <Button asChild className="mt-2 h-11 rounded-md bg-foreground text-background px-8 font-bold text-xs shadow-md transition-all hover:opacity-90 active:scale-95">
+            <Button
+              asChild
+              className="bg-foreground text-background mt-2 h-11 rounded-md px-8 text-xs font-bold shadow-md transition-all hover:opacity-90 active:scale-95"
+            >
               <NavLink to="/create">
                 Write First Post <ArrowRight className="ml-2 size-4" />
               </NavLink>

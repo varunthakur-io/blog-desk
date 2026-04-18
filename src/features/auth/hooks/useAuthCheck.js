@@ -1,12 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import {
-  setAuthUser,
-  clearAuthUser,
-  selectAuthStatus,
-  selectAuthUserId,
-} from '@/features/auth';
+import { setAuthUser, clearAuthUser, selectAuthStatus, selectAuthUserId } from '@/features/auth';
 import { setUserProfile, selectProfileById } from '@/features/profile';
 import { authService } from '@/features/auth';
 import { profileService } from '@/features/profile';
@@ -38,7 +33,7 @@ export const useAuthCheck = () => {
 
         if (currentUser) {
           dispatch(setAuthUser(currentUser));
-          
+
           const profileDoc = await profileService.getProfile(currentUser.$id);
           if (mountedRef.current && profileDoc) {
             dispatch(setUserProfile(profileDoc));
@@ -48,7 +43,7 @@ export const useAuthCheck = () => {
         }
       } catch {
         if (mountedRef.current) {
-          dispatch(clearAuthUser()); 
+          dispatch(clearAuthUser());
         }
       } finally {
         if (mountedRef.current) {
