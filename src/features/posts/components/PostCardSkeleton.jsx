@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export const PostCardSkeleton = () => {
   return (
-    <article className="group border-border/40 hover:bg-muted/5 relative border-b py-10 transition-colors duration-500 last:border-0">
+    <article className="group border-border/40 hover:bg-muted/5 relative border-b py-8 transition-colors duration-500 last:border-0">
       <div className="flex min-h-[140px] items-start justify-between gap-8 sm:gap-12">
         <div className="min-w-0 flex-1 space-y-5">
           <div className="flex items-center gap-3">

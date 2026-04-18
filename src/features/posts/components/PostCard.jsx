@@ -23,7 +23,7 @@ const PostCardMeta = memo(({ authorProfile, authorName, createdAt }) => (
       to={`/profile/${authorProfile?.username}`}
       className="group/meta flex shrink-0 items-center gap-2"
     >
-      <Avatar className="bg-muted ring-border/20 group-hover/meta:ring-primary/20 size-5 border-none ring-1 transition-all">
+      <Avatar className="bg-muted ring-border/20 group-hover/meta:ring-primary/20 size-6 border-none ring-1 transition-all">
         {authorProfile?.avatarUrl && (
           <AvatarImage src={authorProfile.avatarUrl} className="object-cover" />
         )}
@@ -41,6 +41,7 @@ const PostCardMeta = memo(({ authorProfile, authorName, createdAt }) => (
     </time>
   </div>
 ));
+PostCardMeta.displayName = 'PostCardMeta';
 
 const PostCardContent = memo(({ postId, title, excerpt }) => (
   <div className="space-y-2">
@@ -54,6 +55,7 @@ const PostCardContent = memo(({ postId, title, excerpt }) => (
     </p>
   </div>
 ));
+PostCardContent.displayName = 'PostCardContent';
 
 const PostCardActions = memo(
   ({
@@ -99,7 +101,9 @@ const PostCardActions = memo(
               isLiked && 'fill-current',
             )}
           />
-          {likesCount > 0 && <span className="text-[11px] font-bold tabular-nums">{likesCount}</span>}
+          {likesCount > 0 && (
+            <span className="text-[11px] font-bold tabular-nums">{likesCount}</span>
+          )}
         </button>
 
         <div className="bg-border/20 mx-1 h-4 w-px" />
@@ -122,6 +126,7 @@ const PostCardActions = memo(
     </div>
   ),
 );
+PostCardActions.displayName = 'PostCardActions';
 
 /**
  * ── MAIN COMPONENT ──
@@ -137,10 +142,10 @@ const PostCard = memo(({ post }) => {
   // Derived state memoization
   const authorName = useMemo(() => authorProfile?.name || 'Anonymous', [authorProfile]);
   const readTime = useMemo(() => calculateReadTime(post.content), [post.content]);
-  const excerpt = useMemo(() => generateExcerpt(post.content, post.title, 140), [
-    post.content,
-    post.title,
-  ]);
+  const excerpt = useMemo(
+    () => generateExcerpt(post.content, post.title, 140),
+    [post.content, post.title],
+  );
   const coverImageUrl = useMemo(() => post.coverImageUrl || null, [post.coverImageUrl]);
   const category = useMemo(() => post.category || null, [post.category]);
 
@@ -161,7 +166,7 @@ const PostCard = memo(({ post }) => {
   };
 
   return (
-    <article className="group border-border/40 hover:bg-muted/50 relative -mx-4 overflow-hidden border-b px-4 py-10 transition-all duration-500 last:border-0 hover:rounded-2xl">
+    <article className="group border-border/40 hover:bg-muted/50 relative -mx-4 overflow-hidden border-b px-4 py-8 transition-all duration-500 last:border-0 hover:rounded-2xl">
       <ShareDialog
         open={isShareOpen}
         onOpenChange={setIsShareOpen}
@@ -202,7 +207,7 @@ const PostCard = memo(({ post }) => {
               <img
                 src={coverImageUrl}
                 alt={post.title}
-                className="h-full w-full object-cover grayscale-[10%] transition-all duration-700 group-hover:grayscale-0"
+                className="h-full w-full object-cover grayscale-10 transition-all duration-700 group-hover:grayscale-0"
               />
             </div>
           </Link>
