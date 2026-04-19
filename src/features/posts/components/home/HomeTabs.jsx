@@ -2,48 +2,51 @@ import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
+const TabButton = ({ isActive, onClick, children }) => (
+  <button
+    onClick={onClick}
+    className={cn(
+      'relative pb-4 text-sm font-bold tracking-tight transition-all',
+      isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground/70',
+    )}
+  >
+    {children}
+    {isActive && <span className="bg-foreground absolute -bottom-px left-0 h-[2px] w-full" />}
+  </button>
+);
+
 const HomeTabs = ({ activeMode, onModeChange, isAuthenticated, searchTerm, onSearchChange }) => {
+  const modes = ['explore', 'following'].filter((m) => m !== 'following' || isAuthenticated);
+
   return (
-    <div className="border-border/20 bg-background/95 sticky top-16 z-30 -mx-4 mb-2 border-b px-4 backdrop-blur-md">
-      <div className="flex h-14 items-center justify-between gap-4">
-        {/* Tabs - Align to the bottom of the container */}
-        <div className="flex h-full items-end gap-8">
-          {['explore', 'following']
-            .filter((mode) => mode !== 'following' || isAuthenticated)
-            .map((mode) => (
-              <button
-                key={mode}
-                onClick={() => onModeChange(mode)}
-                className={cn(
-                  'relative pb-4 text-[14px] font-bold tracking-tight transition-all duration-300',
-                  activeMode === mode
-                    ? 'text-foreground'
-                    : 'text-muted-foreground hover:text-foreground/70',
-                )}
-              >
-                {mode === 'explore' ? 'For you' : 'Following'}
-                {activeMode === mode && (
-                  <span className="bg-foreground absolute -bottom-px left-0 h-[2px] w-full transition-all" />
-                )}
-              </button>
-            ))}
+    <nav className="bg-background/95 border-border/10  sticky top-[calc(var(--header-height,4rem))] z-30 -mx-4 mb-2 border-b px-4 backdrop-blur-md">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-end gap-8 pt-4">
+          {modes.map((mode) => (
+            <TabButton
+              key={mode}
+              isActive={activeMode === mode}
+              onClick={() => onModeChange(mode)}
+            >
+              {mode === 'explore' ? 'For you' : 'Following'}
+            </TabButton>
+          ))}
         </div>
 
-        {/* Search - Vertically centered in the height */}
         <div className="hidden items-center sm:flex">
           <div className="group relative w-64">
-            <Search className="text-muted-foreground/50 group-focus-within:text-foreground absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 transition-colors" />
+            <Search className="text-muted-foreground/50 group-focus-within:text-foreground absolute top-1/2 left-3 size-3.5 -translate-y-1/2 transition-colors" />
             <Input
               type="search"
               placeholder="Search stories..."
-              className="bg-muted/20 border-border/10 focus:bg-muted/40 ring-foreground/10 focus:ring-ring h-8 w-full rounded-md pl-9 text-[13px] shadow-none transition-all"
+              className="bg-muted/30 border-none focus:bg-muted/50 h-8 w-full rounded-md pl-9 text-xs shadow-none transition-all"
               value={searchTerm}
               onChange={onSearchChange}
             />
           </div>
         </div>
       </div>
-    </div>
+    </nav>
   );
 };
 

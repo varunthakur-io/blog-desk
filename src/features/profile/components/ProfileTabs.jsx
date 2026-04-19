@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { PostCard, PostCardSkeleton } from '@/features/posts';
 import { EmptyState } from '@/components/common';
 
+// ProfileTabs: collection management for posts, likes, and bookmarks
 const PostListSkeleton = ({ count = 3 }) => (
   <div className="-mx-4 flex flex-col gap-0 px-4">
     {[...Array(count)].map((_, i) => (
@@ -14,6 +15,7 @@ const PostListSkeleton = ({ count = 3 }) => (
   </div>
 );
 
+// PostList: mapped rendering of article cards
 const PostList = ({ posts }) => (
   <section className="-mx-4 flex flex-col gap-0 px-4">
     {posts.map((post) => (
@@ -43,6 +45,7 @@ const PrivateTabMessage = ({ children }) => (
   </article>
 );
 
+// PostCollectionTab: orchestrator for various content collection states
 const PostCollectionTab = ({
   isPrivate,
   privateMessage,
@@ -75,8 +78,9 @@ const ProfileTabs = ({
 }) => {
   return (
     <Tabs value={activeTab} className="w-full" onValueChange={setActiveTab}>
-      <div className="border-border/40 bg-background/95 sticky top-16 z-30 -mx-4 mb-4 border-b px-4 backdrop-blur-md">
-        <TabsList className="flex h-12 w-fit items-end gap-8 rounded-none border-none bg-transparent p-0">
+      {/* Navigation Header */}
+      <div className="border-border/40 bg-background/95 sticky top-[calc(var(--header-height,4rem)+2.5rem)] z-30 -mx-4 mb-2 border-b px-4 backdrop-blur-md">
+        <TabsList className="flex h-11 w-fit items-end gap-8 rounded-none border-none bg-transparent p-0">
           <TabsTrigger
             value="posts"
             className="data-[state=active]:border-foreground text-muted-foreground data-[state=active]:text-foreground rounded-none border-b-2 border-transparent px-0 pb-4 text-[14px] font-bold tracking-tight transition-all duration-300 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
@@ -102,7 +106,7 @@ const ProfileTabs = ({
         </TabsList>
       </div>
 
-      {/* Posts Tab */}
+      {/* User Publications */}
       <TabsContent
         value="posts"
         className="animate-in fade-in slide-in-from-bottom-2 mt-0 duration-500 outline-none"
@@ -139,7 +143,7 @@ const ProfileTabs = ({
         />
       </TabsContent>
 
-      {/* Likes Tab */}
+      {/* Liked Content */}
       <TabsContent
         value="likes"
         className="animate-in fade-in slide-in-from-bottom-2 mt-0 duration-500 outline-none"
@@ -163,7 +167,7 @@ const ProfileTabs = ({
         />
       </TabsContent>
 
-      {/* Saved Tab */}
+      {/* Saved Articles */}
       <TabsContent
         value="saved"
         className="animate-in fade-in slide-in-from-bottom-2 mt-0 duration-500 outline-none"
