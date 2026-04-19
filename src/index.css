@@ -97,6 +97,7 @@
     --input: 240 5.9% 90%;
     --ring: 240 5.9% 10%;
     --radius: 0.5rem;
+    --page-gap: 1.5rem;
 
     /* Global X-Axis Padding Control */
     --page-px: 1rem;
@@ -161,6 +162,29 @@
 
   .page-section {
     @apply space-y-page-gap;
+  }
+
+  /* Standardized Grid Engine */
+  .section-grid {
+    @apply flex flex-col gap-0 xl:flex-row;
+    column-gap: var(--page-gap, 1.5rem);
+  }
+
+  .main-content {
+    @apply min-w-0 flex-1 xl:max-w-4xl;
+  }
+
+  .right-sidebar {
+    @apply border-border/40 hidden shrink-0 border-l transition-all duration-300 xl:block xl:w-[320px] xl:pl-[var(--page-gap,1.5rem)];
+  }
+
+  /* Branded Typography */
+  .page-title {
+    @apply text-2xl font-black tracking-tighter sm:text-3xl;
+  }
+
+  .page-subtitle {
+    @apply text-muted-foreground text-[12px] font-medium opacity-60;
   }
 
   .bg-dot-grid {
