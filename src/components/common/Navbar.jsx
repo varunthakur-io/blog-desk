@@ -28,10 +28,7 @@ import { NavUserSearch } from '@/features/search';
 import { NotificationBell } from '@/features/notifications';
 import useDarkMode from '@/hooks/useDarkMode';
 
-/**
- * Navbar component for global navigation and user actions.
- * Layout (position, z-index, background) is handled internally as a sticky header.
- */
+// Navbar: global navigation and user actions
 const Navbar = ({ onToggleSidebar }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -57,9 +54,9 @@ const Navbar = ({ onToggleSidebar }) => {
   }, [dispatch, navigate]);
 
   return (
-    <header className="border-border/40 bg-background/60 supports-backdrop-filter:bg-background/40 sticky top-0 z-50 w-full border-b backdrop-blur-2xl">
+    <header className="border-border/40 bg-background/60 supports-backdrop-filter:bg-background/40 w-full border-b backdrop-blur-2xl">
       <div className="px-page-px flex h-16 w-full items-center justify-between gap-4">
-        {/* Branding & Sidebar Toggle */}
+        {/* Branding */}
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
@@ -75,20 +72,19 @@ const Navbar = ({ onToggleSidebar }) => {
             <div className="bg-foreground text-background flex size-7 items-center justify-center rounded text-[15px] font-black transition-all group-hover:opacity-90">
               B
             </div>
-            <span className="text-foreground hidden font-sans text-[17px] font-bold tracking-tight sm:inline-block">
+            <span className="hidden font-sans text-[17px] font-bold tracking-tight sm:inline-block">
               blogdesk
             </span>
           </Link>
         </div>
 
-        {/* Search: Layout-decoupled through flex-1 */}
+        {/* Search */}
         <div className="hidden max-w-2xl flex-1 sm:block">
           <NavUserSearch />
         </div>
 
-        {/* User Actions */}
+        {/* User actions */}
         <div className="flex items-center gap-1 sm:gap-2">
-          {/* Dark Mode Toggle */}
           <Button
             variant="ghost"
             size="icon"

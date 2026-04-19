@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { FollowButton } from '@/features/follows';
 import { useProfileIdentity } from '@/features/profile';
 
+// AuthorSidebar: contextual metadata and author actions for the post view
 const AuthorSidebar = ({
   authorProfile: initialProfile,
   createdAt,
@@ -30,6 +31,7 @@ const AuthorSidebar = ({
   authUserId,
   onBack,
 }) => {
+  // Synchronize author profile data
   const { profile: authorProfile } = useProfileIdentity({ userId: initialProfile?.$id });
 
   const authorName = authorProfile?.name || 'Anonymous';
@@ -39,7 +41,7 @@ const AuthorSidebar = ({
 
   return (
     <aside className="flex flex-col gap-6">
-      {/* back button — same style as settings nav items */}
+      {/* Navigation & Context */}
       <button
         onClick={onBack}
         className="text-muted-foreground hover:text-foreground hover:bg-secondary/50 flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-medium transition-colors"
@@ -48,13 +50,14 @@ const AuthorSidebar = ({
         Back to posts
       </button>
 
-      {/* ── Author ─────────────────────────────────── */}
+      {/* Author profile summary */}
       <div>
         <p className="text-muted-foreground mb-2 px-3 text-xs font-semibold tracking-wider uppercase">
           Author
         </p>
         <div className="space-y-3 px-3">
           <div className="flex items-center gap-3">
+            {/* Avatar thumbnail */}
             <Avatar className="border-border h-9 w-9 shrink-0 border">
               {authorAvatar && (
                 <AvatarImage src={authorAvatar} alt={authorName} className="object-cover" />
@@ -73,6 +76,7 @@ const AuthorSidebar = ({
             </div>
           </div>
 
+          {/* Profile interaction */}
           <div className="mt-3 grid grid-cols-2 gap-2">
             {authorUsername && (
               <Button
@@ -94,7 +98,7 @@ const AuthorSidebar = ({
         </div>
       </div>
 
-      {/* ── Post Info ──────────────────────────────── */}
+      {/* Publication metadata */}
       <div>
         <p className="text-muted-foreground mb-2 px-3 text-xs font-semibold tracking-wider uppercase">
           Post Info
@@ -141,7 +145,7 @@ const AuthorSidebar = ({
         </nav>
       </div>
 
-      {/* ── Actions ────────────────────────────────── */}
+      {/* Engagement actions */}
       <div>
         <p className="text-muted-foreground mb-2 px-3 text-xs font-semibold tracking-wider uppercase">
           Actions

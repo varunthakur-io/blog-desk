@@ -1,3 +1,4 @@
+// PostCard: article preview with interaction states
 import { useState, useMemo, memo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Heart, Share2 } from 'lucide-react';
@@ -12,11 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { formatDate, calculateReadTime, generateExcerpt } from '@/utils/formatters';
 
-/**
- * ── SUB-COMPONENTS (Internal) ──
- * Split for better performance tracking and cleaner main component body.
- */
-
+// PostCardMeta: author information
 const PostCardMeta = memo(({ authorProfile, authorName, createdAt }) => (
   <div className="mb-2 flex items-center gap-2">
     <Link
@@ -31,7 +28,7 @@ const PostCardMeta = memo(({ authorProfile, authorName, createdAt }) => (
           {authorName.charAt(0)}
         </AvatarFallback>
       </Avatar>
-      <span className="text-foreground hover:text-primary truncate text-[12px] font-bold tracking-tight transition-colors">
+      <span className="hover:text-primary truncate text-[12px] font-bold tracking-tight transition-colors">
         {authorName}
       </span>
     </Link>
@@ -43,10 +40,11 @@ const PostCardMeta = memo(({ authorProfile, authorName, createdAt }) => (
 ));
 PostCardMeta.displayName = 'PostCardMeta';
 
+// PostCardContent: post title and excerpt
 const PostCardContent = memo(({ postId, title, excerpt }) => (
   <div className="space-y-2">
     <Link to={`/posts/${postId}`} className="group/title block">
-      <h2 className="text-foreground group-hover/title:text-primary text-xl leading-[1.2] font-black tracking-tighter transition-all duration-300 md:text-2xl">
+      <h2 className="group-hover:title:text-primary text-xl leading-[1.2] font-black tracking-tighter transition-all duration-300 md:text-2xl">
         {title}
       </h2>
     </Link>
@@ -57,6 +55,7 @@ const PostCardContent = memo(({ postId, title, excerpt }) => (
 ));
 PostCardContent.displayName = 'PostCardContent';
 
+// PostCardActions: post actions
 const PostCardActions = memo(
   ({
     category,
@@ -128,10 +127,7 @@ const PostCardActions = memo(
 );
 PostCardActions.displayName = 'PostCardActions';
 
-/**
- * ── MAIN COMPONENT ──
- * Optimized with memoization and internal decomposition.
- */
+// PostCard: article preview with interaction states
 const PostCard = memo(({ post }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -139,7 +135,6 @@ const PostCard = memo(({ post }) => {
 
   const authorProfile = useSelector((state) => selectProfileById(state, post.authorId));
 
-  // Derived state memoization
   const authorName = useMemo(() => authorProfile?.name || 'Anonymous', [authorProfile]);
   const readTime = useMemo(() => calculateReadTime(post.content), [post.content]);
   const excerpt = useMemo(
@@ -149,7 +144,6 @@ const PostCard = memo(({ post }) => {
   const coverImageUrl = useMemo(() => post.coverImageUrl || null, [post.coverImageUrl]);
   const category = useMemo(() => post.category || null, [post.category]);
 
-  // Hook-based feature states
   const { likesCount, isLiked, isLiking, toggleLike } = useLike(post);
   const { isBookmarked, isLoading: isBookmarkLoading, toggleBookmark } = useBookmark(post);
 
@@ -175,7 +169,7 @@ const PostCard = memo(({ post }) => {
       />
 
       <div className="flex flex-col items-center justify-between gap-8 sm:flex-row md:gap-12">
-        {/* ── Content Section ── */}
+        {/* Content */}
         <div className="order-2 min-w-0 flex-1 space-y-5 sm:order-1">
           <PostCardMeta
             authorProfile={authorProfile}
@@ -200,7 +194,7 @@ const PostCard = memo(({ post }) => {
           />
         </div>
 
-        {/* ── Visual Section (Asymmetric Right) ── */}
+        {/* Visual */}
         {coverImageUrl && (
           <Link to={`/posts/${post.$id}`} className="order-1 shrink-0 sm:order-2">
             <div className="bg-muted border-border/40 group-hover:shadow-primary/5 relative aspect-square w-24 overflow-hidden rounded-md border transition-all duration-700 group-hover:scale-[1.02] group-hover:shadow-xl sm:w-32 md:w-40">
