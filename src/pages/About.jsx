@@ -11,6 +11,8 @@ import {
   PenLine,
 } from 'lucide-react';
 import { selectIsAuthenticated } from '@/features/auth';
+import { DashboardHeader } from '@/features/posts';
+import { Sparkles } from 'lucide-react';
 
 const FeatureCard = ({ icon: Icon, title, description }) => (
   <article className="hover:border-border border-border bg-card flex flex-col items-center rounded-xl border p-7 text-center shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
@@ -34,6 +36,7 @@ const WhyItem = ({ icon: Icon, title, description }) => (
   </div>
 );
 
+// About: company mission and platform vision
 const About = () => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
 
@@ -90,7 +93,7 @@ const About = () => {
         </div>
       </section>
 
-      {/* Mission / Vision / Community */}
+      {/* Features */}
       <section className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <FeatureCard
           icon={BookOpen}
@@ -109,13 +112,13 @@ const About = () => {
         />
       </section>
 
-      {/* Why Blog Desk */}
       <section className="mx-auto max-w-3xl space-y-10">
-        <header className="space-y-2 text-center">
-          <h2 className="text-3xl font-black tracking-tighter">Why Blog Desk?</h2>
-          <p className="text-muted-foreground text-sm">
-            Built with modern tools and real attention to detail.
-          </p>
+        <header>
+          <DashboardHeader
+            title="Why Blog Desk?"
+            subtitle="Built with modern tools and real attention to detail."
+            icon={Sparkles}
+          />
         </header>
         <div className="border-border bg-card space-y-7 rounded-2xl border p-8 shadow-sm">
           <WhyItem
@@ -138,7 +141,7 @@ const About = () => {
         </div>
       </section>
 
-      {/* Bottom CTA */}
+      {/* Call to action */}
       <section className="border-border bg-muted/40 mx-auto mb-20 max-w-lg rounded-2xl border px-8 py-10 text-center">
         {isAuthenticated ? (
           <>

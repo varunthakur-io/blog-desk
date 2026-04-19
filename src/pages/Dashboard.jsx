@@ -13,9 +13,7 @@ import { ConfirmationDialog, EmptyState } from '@/components/common';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 
-/**
- * Dashboard page for users to manage their stories.
- */
+// Dashboard: central hub for authoring and post management
 export default function Dashboard() {
   const navigate = useNavigate();
   const {
@@ -45,7 +43,7 @@ export default function Dashboard() {
 
   return (
     <article className="animate-in fade-in duration-500">
-      {/* Dashboard Top Header & Filtering */}
+      {/* Header */}
       <header className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
         <DashboardHeader onNewPost={handleNewPost} />
         <DashboardFilters
@@ -75,7 +73,7 @@ export default function Dashboard() {
         </Alert>
       )}
 
-      {/* Main Content Area */}
+      {/* Content */}
       <section className="min-h-[50vh]">
         {postsLoading && posts.length === 0 ? (
           <DashboardSkeleton />
@@ -120,7 +118,7 @@ export default function Dashboard() {
         )}
       </section>
 
-      {/* Contextual Confirmation for Dangerous Actions */}
+      {/* Confirmation Dialog */}
       <ConfirmationDialog
         open={isDeleteDialogOpen}
         onOpenChange={(open) => !isDeleting && setIsDeleteDialogOpen(open)}
@@ -129,7 +127,7 @@ export default function Dashboard() {
         description={
           <span className="text-muted-foreground">
             This will permanently delete{' '}
-            <strong className="text-foreground decoration-primary/20 font-bold underline">
+            <strong className="decoration-primary/20 font-bold underline">
               &ldquo;{postToDelete?.title}&rdquo;
             </strong>{' '}
             and all its comments and likes. This action is irreversible.

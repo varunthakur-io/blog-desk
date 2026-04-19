@@ -13,9 +13,7 @@ import {
   RecommendedSidebar,
 } from '@/features/posts';
 
-/**
- * Home page displaying the primary post feed and recommendations.
- */
+// Home: primary post feed and discovery hub
 const Home = () => {
   const { categories } = useCategories();
   const user = useSelector(selectAuthUser);
@@ -79,11 +77,9 @@ const Home = () => {
 
     return (
       <div className="page-section animate-in fade-in duration-700">
-        <div className="flex flex-col">
-          {posts.map((post) => (
-            <PostCard key={post.$id} post={post} />
-          ))}
-        </div>
+        {posts.map((post) => (
+          <PostCard key={post.$id} post={post} />
+        ))}
 
         {postsLoading && hasMore && (
           <div className="flex justify-center pt-10">
@@ -95,9 +91,8 @@ const Home = () => {
   };
 
   return (
-    <div className="flex flex-col gap-0 xl:flex-row">
-      {/* ── Main Feed Column ── */}
-      <section className="max-w-4xl min-w-0 flex-1 xl:pr-16">
+    <article className="section-grid animate-in fade-in duration-700">
+      <section className="main-content">
         <HomeTabs
           activeMode={feedMode}
           onModeChange={handleFeedModeChange}
@@ -115,9 +110,8 @@ const Home = () => {
         <div className="pb-20">{renderContent()}</div>
       </section>
 
-      {/* ── Right Sidebar ── */}
-      <aside className="border-border/40 hidden shrink-0 border-l xl:block xl:w-[350px]">
-        <div className="sticky top-24 pl-12 transition-all duration-300">
+      <aside className="right-sidebar">
+        <div className="sticky top-[calc(var(--header-height,4rem)+2.5rem)]">
           <RecommendedSidebar
             authors={recommendedAuthors}
             isLoading={isAuthorsLoading}
@@ -127,7 +121,7 @@ const Home = () => {
           />
         </div>
       </aside>
-    </div>
+    </article>
   );
 };
 

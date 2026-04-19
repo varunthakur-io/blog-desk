@@ -15,6 +15,8 @@ import AccountPanel from '@/features/settings/components/AccountPanel';
 import AppearancePanel from '@/features/settings/components/AppearancePanel';
 import NotificationsPanel from '@/features/settings/components/NotificationsPanel';
 import PrivacyPanel from '@/features/settings/components/PrivacyPanel';
+import { DashboardHeader } from '@/features/posts';
+import { Settings as SettingsIcon } from 'lucide-react';
 
 const NAV = [
   { id: 'profile', label: 'Profile', icon: User, description: 'Personal information' },
@@ -24,10 +26,7 @@ const NAV = [
   { id: 'privacy', label: 'Privacy', icon: Shield, description: 'Safety and visibility' },
 ];
 
-/**
- * User Settings page.
- * Uses a premium TWO-COLUMN layout for professional account management.
- */
+// Settings: user preference and account management
 export default function Settings() {
   const [active, setActive] = useState('profile');
   const [isDarkMode, setDarkMode] = useDarkMode();
@@ -104,15 +103,16 @@ export default function Settings() {
 
   return (
     <article className="animate-in fade-in duration-700">
-      <header className="border-border/20 -mx-4 mb-6 border-b px-4 py-5">
-        <h1 className="text-2xl font-black tracking-tighter">Settings</h1>
-        <p className="text-muted-foreground text-[12px] font-medium opacity-60">
-          Account management and preferences.
-        </p>
+      <header className="mb-6">
+        <DashboardHeader
+          title="Settings"
+          subtitle="Account management and preferences."
+          icon={SettingsIcon}
+        />
       </header>
 
       <div className="flex flex-col items-start gap-12 lg:flex-row lg:gap-16">
-        {/* Left Column (Vertical Sub-nav) */}
+        {/* Categories */}
         <aside className="w-full shrink-0 lg:sticky lg:top-24 lg:w-64">
           <nav className="flex flex-col gap-1" aria-label="Settings categories">
             {NAV.map(({ id, label, icon: Icon, description }) => (
@@ -136,7 +136,6 @@ export default function Settings() {
                   />
                   <div className="flex flex-col items-start gap-1 leading-none">
                     <span className="text-[13px] font-bold tracking-tight">{label}</span>
-                    {/* Optional description for premium feel */}
                     <span className="hidden text-[10px] font-medium opacity-50 lg:block">
                       {description}
                     </span>
@@ -150,7 +149,7 @@ export default function Settings() {
           </nav>
         </aside>
 
-        {/* Right Column (Panel Content) */}
+        {/* Active panel */}
         <main className="-mx-4 w-full max-w-2xl flex-1 px-4 lg:mx-0 lg:px-0">
           <div className="animate-in fade-in slide-in-from-right-4 duration-500">
             {renderPanel()}
