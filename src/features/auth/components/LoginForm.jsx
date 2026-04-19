@@ -14,6 +14,7 @@ import {
 import { useLogin } from '../hooks/useLogin';
 import { cn } from '@/lib/utils';
 
+// LoginForm: user credentials input and validation
 export const LoginForm = () => {
   const {
     credentials,
@@ -33,6 +34,7 @@ export const LoginForm = () => {
       </CardHeader>
 
       <CardContent className="px-0">
+        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           {/* Email */}
           <div>
@@ -112,6 +114,7 @@ export const LoginForm = () => {
         </form>
       </CardContent>
 
+      {/* Footer */}
       <CardFooter className="justify-center px-0">
         <p className="text-muted-foreground text-sm">
           Don&apos;t have an account?{' '}

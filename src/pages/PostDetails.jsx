@@ -21,9 +21,7 @@ import { SEO, ShareDialog } from '@/components/common';
 import NotFound from './NotFound';
 import { formatDate } from '@/utils/formatters';
 
-/**
- * Detailed view of a single blog post.
- */
+// PostDetails: full-article reader and interaction hub
 const PostDetails = () => {
   const dispatch = useDispatch();
   const [isShareOpen, setIsShareOpen] = useState(false);
@@ -60,6 +58,7 @@ const PostDetails = () => {
 
   const isAuthorized = post?.status === 'published' || post?.authorId === authUserId;
 
+  // Error handling
   if (postFetchError || !post || !isAuthorized) {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center gap-4 py-20 text-center">
@@ -80,6 +79,7 @@ const PostDetails = () => {
     );
   }
 
+  // Category click handler
   const handleCategoryClick = () => {
     if (post.category) {
       dispatch(setActiveCategory(post.category));
@@ -87,12 +87,14 @@ const PostDetails = () => {
     }
   };
 
+  // Comments click handler
   const handleCommentsClick = () => {
     document.getElementById('comments')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
-    <article className="animate-in fade-in space-y-12 py-10 duration-700 lg:py-16">
+    <article className="animate-in fade-in space-y-12 duration-700">
+      {/* SEO Meta Tags */}
       <SEO
         title={post.title}
         description={post.content?.substring(0, 160).replace(/<[^>]*>/g, '')}
@@ -104,6 +106,7 @@ const PostDetails = () => {
         category={post.category}
       />
 
+      {/* Share dialog */}
       <ShareDialog
         open={isShareOpen}
         onOpenChange={setIsShareOpen}
@@ -111,7 +114,9 @@ const PostDetails = () => {
         title={post.title}
       />
 
+      {/* Main content */}
       <div className="mx-auto w-full max-w-[800px]">
+        {/* Header */}
         <header className="space-y-10 pb-10">
           <div className="space-y-6">
             <div className="flex items-center gap-3">
@@ -133,7 +138,7 @@ const PostDetails = () => {
               </span>
             </div>
 
-            <h1 className="text-foreground font-sans text-3xl leading-[1.1] font-black tracking-tighter sm:text-4xl lg:text-5xl">
+            <h1 className="font-sans text-3xl leading-[1.1] font-black tracking-tighter sm:text-4xl lg:text-5xl">
               {post.title}
             </h1>
 
@@ -149,9 +154,11 @@ const PostDetails = () => {
           </div>
         </header>
 
+        {/* Article */}
         <PostContent content={post.content} coverImageUrl={post.coverImageUrl} />
 
-        <footer id="comments" className="mt-20 flex flex-col gap-12 pb-20">
+        {/* Footer */}
+        <footer id="comments" className="mt-20 flex flex-col gap-12">
           <div className="border-border/20 flex items-center justify-between border-t pt-10">
             <div className="flex items-center gap-6">
               <Button
@@ -173,7 +180,6 @@ const PostDetails = () => {
                 {likesCount} Like
               </Button>
             </div>
-            {/* Share button etc */}
           </div>
 
           <Separator className="opacity-20" />
@@ -187,6 +193,7 @@ const PostDetails = () => {
         </footer>
       </div>
 
+      {/* Floating actions */}
       <PostFloatingActions
         isLiked={isLiked}
         likesCount={likesCount}

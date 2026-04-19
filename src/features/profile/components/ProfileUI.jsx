@@ -2,7 +2,7 @@ import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CalendarDays, Mail } from 'lucide-react';
 
-// ─── Profile Info ───────────────────────────────────────────
+// ProfileInfo: detailed user identity and social statistics display
 
 export const ProfileInfo = ({
   profile,
@@ -21,6 +21,7 @@ export const ProfileInfo = ({
 
   return (
     <div className="animate-in fade-in slide-in-from-left-4 flex flex-col items-start gap-8 duration-500 md:flex-row">
+      {/* Profile header layout */}
       {/* Left: Large Avatar */}
       <div className="mx-auto shrink-0 md:mx-0">
         <div className="group relative">
@@ -34,7 +35,7 @@ export const ProfileInfo = ({
         </div>
       </div>
 
-      {/* Right: Details Container */}
+      {/* Identity summary */}
       <div className="w-full flex-1 space-y-6 text-center md:text-left">
         <div className="space-y-2">
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
@@ -56,7 +57,7 @@ export const ProfileInfo = ({
           )}
         </div>
 
-        {/* Stats Row */}
+        {/* Social statistics */}
         <div className="flex flex-wrap items-center justify-center gap-8 pt-2 md:justify-start">
           <div className="text-center md:text-left">
             <span className="text-foreground block text-xl font-black">{postsCount}</span>
@@ -90,7 +91,7 @@ export const ProfileInfo = ({
           </button>
         </div>
 
-        {/* Metadata Badges */}
+        {/* Account metadata badges */}
         <div className="flex flex-wrap items-center justify-center gap-4 pt-2 md:justify-start">
           <div className="text-muted-foreground bg-muted/50 border-border/50 flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold">
             <CalendarDays className="h-3.5 w-3.5" />

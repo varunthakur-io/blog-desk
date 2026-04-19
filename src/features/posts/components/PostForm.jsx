@@ -12,10 +12,11 @@ const lowlight = createLowlight(common);
 // UI Helpers
 import { PostEditorToolbar, PostPreviewDialog, PostSettingsSidebar } from './editor';
 
+// PostForm: comprehensive editor for creating and editing stories
 const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBackClick }) => {
   const navigate = useNavigate();
 
-  // form state
+  // Form state
   const [formData, setFormData] = useState({
     title: initialData?.title || '',
     content: initialData?.content || '',
@@ -25,17 +26,15 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
     category: initialData?.category || null,
   });
 
-  // preview state
+  // Internal UI state
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-
-  // refs
   const titleRef = useRef(null);
 
-  // editor instance
+  // Tiptap editor configuration
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        codeBlock: false, // Disable the default codeBlock to use lowlight instead
+        codeBlock: false,
       }),
       CodeBlockLowlight.configure({
         lowlight,
@@ -56,14 +55,13 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
     },
   });
 
-  // focus title on mount
+  // Title focus and auto-resize logic
   useEffect(() => {
     if (mode === 'create' && titleRef.current) {
       titleRef.current.focus();
     }
   }, [mode]);
 
-  // auto resize textarea
   useEffect(() => {
     if (titleRef.current) {
       titleRef.current.style.height = 'auto';
@@ -71,10 +69,9 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
     }
   }, [formData.title]);
 
-  // handle input change
+  // Input change handler
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-
     setFormData((prev) => ({ ...prev, [name]: value }));
 
     if (name === 'title') {
@@ -83,7 +80,7 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
     }
   };
 
-  // submit wrapper
+  // Form submission wrapper
   const wrapOnSubmit = (e) => {
     e?.preventDefault();
     onSubmit(formData);
@@ -100,7 +97,7 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
 
   return (
     <form className="bg-background flex h-screen flex-col" onSubmit={wrapOnSubmit}>
-      {/* toolbar */}
+      {/* Editor Toolbar */}
       <PostEditorToolbar
         editor={editor}
         isSubmitting={isSubmitting}
@@ -110,13 +107,13 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
         mode={mode}
       />
 
-      {/* main scroll container */}
+      {/* Main scroll container */}
       <div className="flex-1 overflow-y-auto">
         <div className="flex w-full">
-          {/* editor section */}
+          {/* Editor section */}
           <div className="border-border/20 flex flex-1 flex-col border-r py-8 lg:py-12">
             <div className="mx-auto w-full max-w-[850px] px-4 sm:px-8">
-              {/* title */}
+              {/* Title input */}
               <textarea
                 ref={titleRef}
                 name="title"
@@ -128,12 +125,12 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
               />
               <div className="bg-border/40 my-4 h-px w-full" />
 
-              {/* editor content */}
+              {/* TipTap editor area */}
               <EditorContent editor={editor} />
             </div>
           </div>
 
-          {/* sidebar */}
+          {/* Settings Sidebar */}
           <aside className="border-border/20 sticky top-0 hidden h-screen w-[350px] shrink-0 overflow-y-auto border-l lg:block">
             <div className="p-8">
               <PostSettingsSidebar
@@ -147,7 +144,7 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
         </div>
       </div>
 
-      {/* preview dialog */}
+      {/* Full-screen preview dialog */}
       <PostPreviewDialog
         open={isPreviewOpen}
         onOpenChange={setIsPreviewOpen}

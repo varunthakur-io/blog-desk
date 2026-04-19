@@ -3,13 +3,11 @@ import { Link } from 'react-router-dom';
 import { Home, ArrowLeft, Ghost } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-/**
- * A professional 404 "Page Not Found" screen.
- */
+// NotFound: fallback error state for invalid routes
 const NotFound = () => {
   return (
     <div className="animate-in fade-in flex flex-col items-center justify-center space-y-8 px-4 py-20 text-center duration-500">
-      {/* Visual Element */}
+      {/* Visuals */}
       <div className="relative">
         <div className="bg-primary/10 absolute inset-0 rounded-full blur-3xl" />
         <div className="bg-card border-border relative mx-auto flex h-24 w-24 items-center justify-center rounded-3xl border shadow-sm">
@@ -17,9 +15,9 @@ const NotFound = () => {
         </div>
       </div>
 
-      {/* Text Content */}
+      {/* Content */}
       <div className="max-w-md space-y-3">
-        <h1 className="text-foreground text-4xl font-extrabold tracking-tight sm:text-5xl">404</h1>
+        <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">404</h1>
         <h2 className="text-foreground/90 text-xl font-bold">Page not found</h2>
         <p className="text-muted-foreground">
           The page you are looking for doesn&apos;t exist or has been moved to a new galaxy.
@@ -40,7 +38,7 @@ const NotFound = () => {
         </Button>
       </div>
 
-      {/* Helpful Links */}
+      {/* Nav */}
       <div className="border-border mt-16 w-full max-w-xs border-t pt-8">
         <p className="text-muted-foreground mb-4 text-xs font-bold tracking-widest uppercase">
           Need help finding something?

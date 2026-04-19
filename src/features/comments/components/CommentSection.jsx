@@ -11,16 +11,16 @@ import { useComments } from '@/features/comments';
 import { useProfileIdentity } from '@/features/profile';
 import { formatDate } from '@/utils/formatters';
 
-/* ───────────────────────────────────────────── */
-/* Comment Item */
-/* ───────────────────────────────────────────── */
+// CommentItem: individual user contribution with meta and actions
 
 const CommentItem = ({ comment, isMe, onDeleteClick }) => {
+  // Fetch profile identity for the comment author
   const { profile, displayName, avatarUrl } = useProfileIdentity({ userId: comment.userId });
 
   return (
     <div className="border-border/20 group animate-in fade-in border-b py-6 duration-500 first:pt-0 last:border-0">
       <div className="mb-2 flex gap-4">
+        {/* Author Avatar */}
         <Link to={`/profile/${profile?.username}`} className="shrink-0">
           <Avatar className="bg-muted ring-border/20 hover:ring-primary/20 size-8 border-none ring-1 transition-all">
             {avatarUrl && (
@@ -34,6 +34,7 @@ const CommentItem = ({ comment, isMe, onDeleteClick }) => {
 
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-4">
+            {/* Author Meta */}
             <div className="flex min-w-0 items-center gap-2">
               <Link
                 to={`/profile/${profile?.username}`}
@@ -55,7 +56,8 @@ const CommentItem = ({ comment, isMe, onDeleteClick }) => {
                 />
               )}
             </div>
-
+            
+            {/* Contextual Actions */}
             {isMe && (
               <Button
                 variant="ghost"
@@ -69,6 +71,7 @@ const CommentItem = ({ comment, isMe, onDeleteClick }) => {
             )}
           </div>
 
+          {/* Comment body */}
           <div className="mt-1.5 px-0.5">
             <p className="text-foreground/90 text-[14px] leading-relaxed tracking-tight whitespace-pre-wrap">
               {comment.content}
@@ -80,9 +83,7 @@ const CommentItem = ({ comment, isMe, onDeleteClick }) => {
   );
 };
 
-/* ───────────────────────────────────────────── */
-/* Comment Form */
-/* ───────────────────────────────────────────── */
+// CommentForm: input area for new contributions
 
 const CommentForm = ({
   authUserId,
@@ -93,6 +94,7 @@ const CommentForm = ({
   onSubmit,
   onKeyDown,
 }) => {
+  // Handle unauthenticated state
   if (!authUserId) {
     return (
       <div className="border-border/40 bg-muted/5 mb-10 rounded-md border py-8 text-center">
@@ -123,6 +125,7 @@ const CommentForm = ({
             {currentUserName.charAt(0)}
           </AvatarFallback>
         </Avatar>
+        {/* Input field */}
         <Textarea
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
@@ -131,6 +134,8 @@ const CommentForm = ({
           className="placeholder:text-muted-foreground/30 mt-0.5 min-h-[40px] w-full resize-none border-0 bg-transparent p-0 text-[14px] leading-relaxed shadow-none focus:outline-none focus-visible:ring-0"
         />
       </div>
+      
+      {/* Form Utilities */}
       <div className="border-border/10 mt-3 flex items-center justify-between border-t pt-3">
         <p className="text-muted-foreground/30 text-[10px] font-bold tracking-tight uppercase">
           Ctrl + Enter to post
@@ -153,11 +158,10 @@ const CommentForm = ({
   );
 };
 
-/* ───────────────────────────────────────────── */
-/* Comment Section */
-/* ───────────────────────────────────────────── */
+// CommentSection: root component for post engagement
 
 const CommentSection = ({ postId, authUserId, currentUserProfile, initialComments }) => {
+  // Discussion thread management state
   const {
     comments,
     newComment,
@@ -173,7 +177,7 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
 
   return (
     <div className="w-full">
-      {/* Header */}
+      {/* Engagement Header */}
       <div className="mb-8 flex items-center gap-3">
         <h3 className="text-foreground text-[17px] font-black tracking-tighter">Comments</h3>
         <span className="text-muted-foreground/40 text-xs font-bold tabular-nums">
@@ -191,7 +195,7 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
         onKeyDown={handleKeyDown}
       />
 
-      {/* Comments List */}
+      {/* Unified thread */}
       {comments.length === 0 ? (
         <div className="border-border/10 border-t py-12">
           <p className="text-muted-foreground/40 text-center text-[13px] font-bold tracking-tight">
@@ -211,6 +215,7 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
         </div>
       )}
 
+      {/* Modals & Dialogs */}
       <ConfirmationDialog
         open={!!commentToDelete}
         onOpenChange={(open) => !open && !isDeleting && setCommentToDelete(null)}

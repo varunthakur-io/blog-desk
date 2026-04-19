@@ -1,3 +1,4 @@
+// AccountPanel: credential management and security settings
 import { useState } from 'react';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -36,6 +37,7 @@ const AccountPanel = ({
 
   return (
     <div className="space-y-8">
+      {/* Panel Header */}
       <div className="pb-2">
         <h2 className="text-foreground text-[17px] font-bold tracking-tight">Account settings</h2>
         <p className="text-muted-foreground mt-1 text-[13px] font-medium">
@@ -43,7 +45,7 @@ const AccountPanel = ({
         </p>
       </div>
 
-      {/* Email Section */}
+      {/* Email credentials section */}
       <section className="space-y-6">
         <div className="space-y-1">
           <h3 className="text-foreground text-[14px] font-bold">Email Address</h3>
@@ -53,6 +55,7 @@ const AccountPanel = ({
           </p>
         </div>
 
+        {/* Update email form */}
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -62,6 +65,7 @@ const AccountPanel = ({
           className="space-y-6"
         >
           <div className="grid gap-6">
+            {/* New Email input */}
             <div className="space-y-3">
               <Label htmlFor="new-email" className="text-foreground text-[13px] font-bold">
                 New email
@@ -85,6 +89,7 @@ const AccountPanel = ({
               )}
             </div>
 
+            {/* Identity Verification */}
             <div className="space-y-3">
               <Label
                 htmlFor="email-current-password"
@@ -122,7 +127,7 @@ const AccountPanel = ({
 
       <Separator className="opacity-40" />
 
-      {/* Password Section */}
+      {/* Password security section */}
       <section className="space-y-6">
         <div className="space-y-1">
           <h3 className="text-foreground text-[14px] font-bold">Change Password</h3>
@@ -140,6 +145,8 @@ const AccountPanel = ({
           className="space-y-6"
         >
           <div className="grid gap-6">
+            {/* Current Password */}
+            {/* Current Password validation */}
             <div className="space-y-3">
               <Label
                 htmlFor="current-password-field"
@@ -171,7 +178,9 @@ const AccountPanel = ({
               )}
             </div>
 
+            {/* New Credentials */}
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              {/* New Password entry */}
               <div className="space-y-3">
                 <Label htmlFor="new-password" className="text-foreground text-[13px] font-bold">
                   New password
@@ -192,6 +201,7 @@ const AccountPanel = ({
                 </div>
               </div>
 
+              {/* Confirmation entry */}
               <div className="space-y-3">
                 <Label htmlFor="confirm-password" className="text-foreground text-[13px] font-bold">
                   Confirm password

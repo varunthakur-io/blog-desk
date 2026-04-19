@@ -3,13 +3,12 @@ import { Routes, Route } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Toaster } from 'react-hot-toast';
 
-// Main application entry point and router configuration
-// Layout & Routing
+// App: main router and application entry point
 import MainLayout from './layout/MainLayout';
 import { PrivateRoute, AppSkeleton } from './components/common';
 import { useAuthCheck } from '@/features/auth';
 
-// Pages (Lazy Loaded)
+// Lazy-loaded pages
 const CreatePost = lazy(() => import('./pages/CreatePost'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const EditPost = lazy(() => import('./pages/EditPost'));
@@ -37,7 +36,7 @@ function App() {
     <Suspense fallback={<AppSkeleton />}>
       <Toaster position="bottom-right" reverseOrder={false} toastOptions={{ duration: 2500 }} />
       <Routes>
-        {/* Routes with layout */}
+        {/* Layout routing */}
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/explore" element={<Home />} />
@@ -45,7 +44,7 @@ function App() {
           <Route path="/bookmarks" element={<Home />} />
           <Route path="/about" element={<About />} />
 
-          {/* 🔒 Protected Routes */}
+          {/* Protected routes */}
           <Route element={<PrivateRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/create" element={<CreatePost />} />
@@ -54,20 +53,19 @@ function App() {
             <Route path="/settings" element={<Settings />} />
           </Route>
 
-          {/* Public routes */}
+          {/* Public content */}
           <Route path="/posts/:id" element={<PostDetails />} />
           <Route path="/profile/:username" element={<Profile />} />
           <Route path="/verify" element={<VerifyEmail />} />
 
-          {/* 404 Catch-all */}
           <Route path="*" element={<NotFound />} />
         </Route>
 
-        {/* Auth pages (no layout) */}
+        {/* Auth flow */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-
-        {/* Recovery Routes */}
+        
+        {/* Password reset flow */}
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>

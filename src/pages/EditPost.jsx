@@ -1,12 +1,11 @@
+// EditPost: editor shell for updating existing content
 import { ArrowLeft } from 'lucide-react';
 
-// UI Components
 import { FormSkeleton, PostForm } from '@/features/posts';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
-// Hooks
 import { useEditPost } from '@/features/posts';
 
 export default function EditPost() {
@@ -41,14 +40,12 @@ export default function EditPost() {
   }
 
   return (
-    <div>
-      <PostForm
-        mode="edit"
-        initialData={formData}
-        onSubmit={handleUpdate}
-        isSubmitting={isPostUpdating}
-        onBackClick={() => navigate('/dashboard')}
-      />
-    </div>
+    <PostForm
+      mode="edit"
+      initialData={formData}
+      onSubmit={handleUpdate}
+      isSubmitting={isPostUpdating}
+      onBackClick={() => navigate('/dashboard')}
+    />
   );
 }

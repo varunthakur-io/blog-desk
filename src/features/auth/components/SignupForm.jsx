@@ -14,6 +14,7 @@ import {
 import { useSignup } from '../hooks/useSignup';
 import { cn } from '@/lib/utils';
 
+// SignupForm: new account registration and validation
 export const SignupForm = () => {
   const {
     formData,
@@ -47,6 +48,7 @@ export const SignupForm = () => {
       </CardHeader>
 
       <CardContent className="px-0">
+        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           {/* Name */}
           <div>
@@ -159,6 +161,7 @@ export const SignupForm = () => {
         </form>
       </CardContent>
 
+      {/* Footer */}
       <CardFooter className="justify-center px-0">
         <p className="text-muted-foreground text-sm">
           Already have an account?{' '}

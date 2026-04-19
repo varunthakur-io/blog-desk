@@ -1,3 +1,4 @@
+// ForgotPassword: user account recovery initiation
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Loader2, CheckCircle2, ArrowLeft } from 'lucide-react';
@@ -46,7 +47,7 @@ const ForgotPassword = () => {
               B
             </div>
             <div className="flex flex-col">
-              <span className="text-foreground text-lg font-bold tracking-tight">BlogDesk</span>
+              <span className="text-lg font-bold tracking-tight">BlogDesk</span>
               <span className="text-muted-foreground -mt-0.5 text-[10px] font-medium">
                 Digital Magazine
               </span>
@@ -63,6 +64,7 @@ const ForgotPassword = () => {
               </CardDescription>
             </CardHeader>
 
+            {/* Form container */}
             <CardContent className="px-0">
               <form onSubmit={handleSubmit} className="space-y-4" noValidate>
                 <div>
@@ -118,7 +120,7 @@ const ForgotPassword = () => {
                 </CardTitle>
                 <CardDescription>
                   We sent a password reset link to <br />
-                  <span className="text-foreground font-medium">{email}</span>
+                  <span className="font-medium">{email}</span>
                 </CardDescription>
               </div>
             </CardHeader>

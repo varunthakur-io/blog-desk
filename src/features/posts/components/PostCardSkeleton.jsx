@@ -1,9 +1,11 @@
+// PostCardSkeleton: placeholder for article card loading state
 import { Skeleton } from '@/components/ui/skeleton';
 
 export const PostCardSkeleton = () => {
   return (
     <article className="group border-border/40 hover:bg-muted/5 relative border-b py-8 transition-colors duration-500 last:border-0">
       <div className="flex min-h-[140px] items-start justify-between gap-8 sm:gap-12">
+        {/* Content */}
         <div className="min-w-0 flex-1 space-y-5">
           <div className="flex items-center gap-3">
             <Skeleton className="size-6 rounded-full" />
@@ -34,6 +36,7 @@ export const PostCardSkeleton = () => {
           </div>
         </div>
 
+        {/* Visual */}
         <div className="order-1 shrink-0 sm:order-2">
           <Skeleton className="bg-muted aspect-square w-24 rounded-md sm:w-32 md:w-40" />
         </div>

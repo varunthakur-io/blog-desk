@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 
+// ProfilePanel: public profile details and avatar management
 const ProfilePanel = ({
   profileForm,
   setProfileForm,
@@ -23,6 +24,7 @@ const ProfilePanel = ({
 
   return (
     <div className="space-y-6">
+      {/* Panel Header */}
       <div className="pb-1">
         <h2 className="text-foreground text-[16px] font-bold tracking-tight">Public profile</h2>
         <p className="text-muted-foreground mt-0.5 text-[12px] font-medium">
@@ -31,7 +33,7 @@ const ProfilePanel = ({
       </div>
 
       <div className="space-y-6">
-        {/* Profile photo */}
+        {/* Avatar Management */}
         <div className="flex flex-col items-center gap-8 sm:flex-row">
           <div className="group relative size-20 shrink-0">
             <Avatar className="border-border/40 group-hover:ring-primary/5 h-full w-full border shadow-sm transition-all group-hover:ring-4">
@@ -87,9 +89,10 @@ const ProfilePanel = ({
 
         <Separator className="opacity-40" />
 
-        {/* Form details */}
+        {/* Identity & Bio Fields */}
         <div className="space-y-6">
           <div className="grid gap-6">
+            {/* Display Name */}
             <div className="space-y-2">
               <Label
                 htmlFor="name"
@@ -116,6 +119,7 @@ const ProfilePanel = ({
               )}
             </div>
 
+            {/* Email Identification */}
             <div className="space-y-2">
               <Label htmlFor="email-display" className="text-foreground text-[13px] font-bold">
                 Email
@@ -132,6 +136,7 @@ const ProfilePanel = ({
             </div>
           </div>
 
+          {/* Biography Information */}
           <div className="space-y-2">
             <Label htmlFor="bio" className="text-foreground text-[13px] font-bold">
               About you
@@ -164,6 +169,7 @@ const ProfilePanel = ({
           </div>
         </div>
 
+        {/* Action Footer */}
         <div className="pt-4">
           <Button
             onClick={handleSaveProfile}

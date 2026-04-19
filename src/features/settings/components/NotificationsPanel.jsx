@@ -1,9 +1,11 @@
 import { Loader2 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 
+// NotificationsPanel: alert preferences and communication settings
 const NotificationsPanel = ({ prefs, isPrefsLoading, handlePrefChange }) => {
   return (
     <div className="space-y-8">
+      {/* Panel Header */}
       <div className="border-border/50 border-b pb-4">
         <h2 className="text-xl font-bold tracking-tight">Notifications</h2>
         <p className="text-muted-foreground mt-1 text-sm">
@@ -11,6 +13,7 @@ const NotificationsPanel = ({ prefs, isPrefsLoading, handlePrefChange }) => {
         </p>
       </div>
 
+      {/* Preferences Section */}
       <div className="space-y-4">
         {isPrefsLoading ? (
           <div className="border-border/60 text-muted-foreground flex animate-pulse items-center justify-center gap-3 rounded-xl border border-dashed p-8 text-sm">
@@ -19,6 +22,7 @@ const NotificationsPanel = ({ prefs, isPrefsLoading, handlePrefChange }) => {
           </div>
         ) : (
           <div className="divide-border/40 border-border/60 bg-background/50 divide-y overflow-hidden rounded-xl border shadow-sm">
+            {/* Marketing preferences */}
             <div className="hover:bg-muted/5 flex items-center justify-between p-5 transition-colors">
               <div className="space-y-0.5">
                 <h3 className="text-[14px] font-bold">Marketing Emails</h3>
@@ -33,6 +37,7 @@ const NotificationsPanel = ({ prefs, isPrefsLoading, handlePrefChange }) => {
               />
             </div>
 
+            {/* Security preferences */}
             <div className="hover:bg-muted/5 flex items-center justify-between p-5 transition-colors">
               <div className="space-y-0.5">
                 <h3 className="text-[14px] font-bold">Security Alerts</h3>

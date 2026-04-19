@@ -1,8 +1,10 @@
 import { Switch } from '@/components/ui/switch';
 
+// AppearancePanel: UI theme and visual customization settings
 const AppearancePanel = ({ isDarkMode, handleToggleDarkMode }) => {
   return (
     <div className="space-y-6">
+      {/* Panel Header */}
       <div className="pb-2">
         <h2 className="text-foreground text-[17px] font-bold tracking-tight">Appearance</h2>
         <p className="text-muted-foreground mt-1 text-[13px] font-medium">
@@ -10,6 +12,7 @@ const AppearancePanel = ({ isDarkMode, handleToggleDarkMode }) => {
         </p>
       </div>
 
+      {/* Theme selection controls */}
       <div className="space-y-2">
         <div className="border-border/40 bg-muted/20 flex items-center justify-between rounded-md border p-4">
           <div className="space-y-0.5">

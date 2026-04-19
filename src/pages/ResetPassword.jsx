@@ -1,3 +1,4 @@
+// ResetPassword: password update interface via recovery token
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { authService } from '@/features/auth';
@@ -22,7 +23,7 @@ const ResetPassword = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState('idle'); // idle | success
+  const [status, setStatus] = useState('idle');
 
   const userId = searchParams.get('userId');
   const secret = searchParams.get('secret');
@@ -34,6 +35,7 @@ const ResetPassword = () => {
     }
   }, [userId, secret, navigate]);
 
+  
   const handleReset = async (e) => {
     e.preventDefault();
 
@@ -49,7 +51,6 @@ const ResetPassword = () => {
       setStatus('success');
       toast.success('Password reset successfully!');
 
-      // Auto redirect after a brief delay
       setTimeout(() => navigate('/login'), 3000);
     } catch (error) {
       toast.error(error.message || 'Failed to reset password');
@@ -68,7 +69,7 @@ const ResetPassword = () => {
               B
             </div>
             <div className="flex flex-col">
-              <span className="text-foreground text-lg font-bold tracking-tight">BlogDesk</span>
+              <span className="text-lg font-bold tracking-tight">BlogDesk</span>
               <span className="text-muted-foreground -mt-0.5 text-[10px] font-medium">
                 Digital Magazine
               </span>

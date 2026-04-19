@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 
 const HomeCategoryFilters = ({ categories = [], activeCategory, onCategoryChange }) => (
-  <div className="no-scrollbar -mx-4 flex items-center gap-2 overflow-x-auto px-4 py-4">
+  <div className="no-scrollbar -mx-4 flex items-center gap-2 overflow-x-auto px-4 pt-1 pb-5">
     <button
       onClick={() => activeCategory && onCategoryChange(null)}
       className={cn(
