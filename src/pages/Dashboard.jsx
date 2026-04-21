@@ -90,7 +90,7 @@ export default function Dashboard() {
               !searchQuery && (
                 <Button
                   onClick={handleNewPost}
-                  className="mt-2 gap-2 rounded-full px-6 text-xs font-bold shadow-md transition-all hover:shadow-xl active:scale-95"
+                  className="mt-2 gap-2 rounded-full px-6 text-xs font-bold shadow-md hover:shadow-xl active:scale-95"
                   aria-label="Create your first post"
                 >
                   <Plus className="size-4" /> Create First Post
@@ -101,7 +101,7 @@ export default function Dashboard() {
         ) : (
           <div
             className={cn(
-              'flex flex-col gap-6 transition-all duration-300',
+              'flex flex-col gap-6',
               postsLoading && 'pointer-events-none opacity-50 grayscale-[20%]',
             )}
           >

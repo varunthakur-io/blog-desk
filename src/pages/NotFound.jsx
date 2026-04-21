@@ -44,22 +44,13 @@ const NotFound = () => {
           Need help finding something?
         </p>
         <div className="flex justify-center gap-6 text-sm">
-          <Link
-            to="/"
-            className="text-muted-foreground hover:text-primary font-medium transition-colors"
-          >
+          <Link to="/" className="text-muted-foreground hover:text-primary font-medium">
             Articles
           </Link>
-          <Link
-            to="/about"
-            className="text-muted-foreground hover:text-primary font-medium transition-colors"
-          >
+          <Link to="/about" className="text-muted-foreground hover:text-primary font-medium">
             About
           </Link>
-          <Link
-            to="/signup"
-            className="text-muted-foreground hover:text-primary font-medium transition-colors"
-          >
+          <Link to="/signup" className="text-muted-foreground hover:text-primary font-medium">
             Join Us
           </Link>
         </div>

@@ -12,7 +12,7 @@ const Login = () => {
           <img
             src="/auth_hero.webp"
             alt="Architectural Writing Studio"
-            className="absolute inset-0 h-full w-full transform-gpu object-cover grayscale-10 transition-all duration-10000 ease-out backface-hidden hover:scale-110 hover:grayscale-0"
+            className="absolute inset-0 h-full w-full transform-gpu object-cover grayscale-10 duration-10000 ease-out backface-hidden hover:scale-110 hover:grayscale-0"
           />
         </div>
 

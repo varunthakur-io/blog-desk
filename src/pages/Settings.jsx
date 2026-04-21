@@ -120,7 +120,7 @@ export default function Settings() {
                 key={id}
                 onClick={() => setActive(id)}
                 className={cn(
-                  'group flex items-center justify-between rounded-md px-3 py-2.5 transition-all duration-200',
+                  'group flex items-center justify-between rounded-md px-3 py-2.5 duration-200',
                   active === id
                     ? 'bg-muted text-foreground'
                     : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
@@ -130,7 +130,7 @@ export default function Settings() {
                 <div className="flex items-center gap-3">
                   <Icon
                     className={cn(
-                      'size-4 shrink-0 transition-colors',
+                      'size-4 shrink-0',
                       active === id ? 'text-foreground' : 'text-muted-foreground/60',
                     )}
                   />

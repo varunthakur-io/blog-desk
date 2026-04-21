@@ -123,7 +123,7 @@ const PostDetails = () => {
               {post.category && (
                 <button
                   onClick={handleCategoryClick}
-                  className="bg-muted/50 border-border/40 text-muted-foreground hover:bg-foreground hover:text-background rounded-md border px-2 py-0.5 text-[10px] font-bold tracking-tight uppercase transition-all"
+                  className="bg-muted/50 border-border/40 text-muted-foreground hover:bg-foreground hover:text-background rounded-md border px-2 py-0.5 text-[10px] font-bold tracking-tight uppercase"
                 >
                   {post.category}
                 </button>
@@ -166,7 +166,7 @@ const PostDetails = () => {
                 onClick={handleLike}
                 disabled={isLikedLoading || isLiking || !authUserId}
                 className={cn(
-                  'h-10 gap-2 rounded-md px-6 text-[13px] font-bold tracking-tight transition-all active:scale-95',
+                  'h-10 gap-2 rounded-md px-6 text-[13px] font-bold tracking-tight active:scale-95',
                   isLiked
                     ? 'bg-foreground text-background border-none hover:opacity-90'
                     : 'border-border/40 text-muted-foreground border hover:border-rose-500/20 hover:bg-rose-500/5 hover:text-rose-500',

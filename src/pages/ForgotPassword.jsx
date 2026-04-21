@@ -58,7 +58,9 @@ const ForgotPassword = () => {
         {!submitted ? (
           <Card className="border-0 bg-transparent shadow-none">
             <CardHeader className="space-y-1 px-0 text-center">
-              <CardTitle className="text-2xl font-black tracking-tighter">Forgot password?</CardTitle>
+              <CardTitle className="text-2xl font-black tracking-tighter">
+                Forgot password?
+              </CardTitle>
               <CardDescription>
                 Enter your email and we&apos;ll send you a reset link
               </CardDescription>
@@ -101,7 +103,7 @@ const ForgotPassword = () => {
             <CardFooter className="justify-center px-0">
               <Link
                 to="/login"
-                className="text-muted-foreground hover:text-primary inline-flex items-center gap-1 text-sm transition-colors"
+                className="text-muted-foreground hover:text-primary inline-flex items-center gap-1 text-sm"
               >
                 <ArrowLeft className="h-3 w-3" />
                 Back to sign in

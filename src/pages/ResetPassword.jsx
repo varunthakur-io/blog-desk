@@ -35,7 +35,6 @@ const ResetPassword = () => {
     }
   }, [userId, secret, navigate]);
 
-  
   const handleReset = async (e) => {
     e.preventDefault();
 
@@ -155,7 +154,7 @@ const ResetPassword = () => {
             <CardFooter className="justify-center px-0">
               <Link
                 to="/login"
-                className="text-muted-foreground hover:text-primary inline-flex items-center gap-1 text-sm transition-colors"
+                className="text-muted-foreground hover:text-primary inline-flex items-center gap-1 text-sm"
               >
                 <ArrowLeft className="h-3 w-3" />
                 Back to sign in

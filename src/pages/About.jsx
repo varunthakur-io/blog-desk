@@ -15,7 +15,7 @@ import { DashboardHeader } from '@/features/posts';
 import { Sparkles } from 'lucide-react';
 
 const FeatureCard = ({ icon: Icon, title, description }) => (
-  <article className="hover:border-border border-border bg-card flex flex-col items-center rounded-xl border p-7 text-center shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
+  <article className="hover:border-border border-border bg-card flex flex-col items-center rounded-xl border p-7 text-center shadow-sm hover:-translate-y-0.5 hover:shadow-md">
     <div className="bg-muted mb-4 rounded-xl p-3">
       <Icon className="text-foreground size-6" aria-hidden="true" />
     </div>
@@ -69,7 +69,7 @@ const About = () => {
               </Link>
               <Link
                 to="/dashboard"
-                className="border-border hover:bg-muted inline-flex items-center gap-2 rounded-lg border px-5 py-2.5 text-sm font-semibold transition-colors"
+                className="border-border hover:bg-muted inline-flex items-center gap-2 rounded-lg border px-5 py-2.5 text-sm font-semibold"
               >
                 <LayoutDashboard className="size-4" /> Dashboard
               </Link>
@@ -84,7 +84,7 @@ const About = () => {
               </Link>
               <Link
                 to="/"
-                className="border-border hover:bg-muted inline-flex items-center gap-2 rounded-lg border px-5 py-2.5 text-sm font-semibold transition-colors"
+                className="border-border hover:bg-muted inline-flex items-center gap-2 rounded-lg border px-5 py-2.5 text-sm font-semibold"
               >
                 Browse Posts
               </Link>
@@ -160,7 +160,7 @@ const About = () => {
               </Link>
               <Link
                 to="/dashboard"
-                className="border-border hover:bg-muted inline-flex items-center gap-2 rounded-full border px-6 py-2.5 text-sm font-semibold transition-colors"
+                className="border-border hover:bg-muted inline-flex items-center gap-2 rounded-full border px-6 py-2.5 text-sm font-semibold"
               >
                 <LayoutDashboard className="size-4" /> Dashboard
               </Link>
