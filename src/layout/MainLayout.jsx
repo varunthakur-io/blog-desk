@@ -51,7 +51,8 @@ const MainLayout = () => {
         {/* Sidebar (Left) */}
         <aside
           className={cn(
-            'border-border/50 sticky top-(--header-height,4rem) z-40 hidden h-[calc(100vh-var(--header-height,4rem))] shrink-0 border-r transition-[width] duration-500 md:block',
+            'border-border/50 sticky z-40 hidden shrink-0 border-r transition-[width] duration-500 md:block',
+            'top-(--header-height,4rem) h-[calc(100vh-var(--header-height,4rem))]',
             isSidebarOpen ? 'w-64' : 'w-0 overflow-hidden border-none',
           )}
         >

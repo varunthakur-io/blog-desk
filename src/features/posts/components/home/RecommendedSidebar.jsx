@@ -76,7 +76,7 @@ const RecommendedSidebar = ({
                 >
                   <img
                     src={post.coverImageUrl}
-                    className="h-full w-full object-cover grayscale-[30%] duration-500 group-hover:grayscale-0"
+                    className="h-full w-full object-cover grayscale-30 duration-500 group-hover:grayscale-0"
                     alt=""
                   />
                 </Link>

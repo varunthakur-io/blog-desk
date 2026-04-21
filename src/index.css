@@ -185,7 +185,7 @@
 
   /* Fixed right sidebar — hidden below xl */
   .right-sidebar {
-    @apply border-border/40 xl:pl-[var(--page-gap, 1.5rem)] hidden shrink-0 border-l xl:block xl:w-[320px];
+    @apply border-border/40 xl:pl-(--page-gap,1.5rem) hidden shrink-0 border-l xl:block xl:w-[320px];
   }
 
   /* Page-level heading */
