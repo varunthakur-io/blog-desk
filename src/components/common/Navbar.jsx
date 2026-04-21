@@ -62,14 +62,14 @@ const Navbar = ({ onToggleSidebar }) => {
             variant="ghost"
             size="icon"
             onClick={onToggleSidebar}
-            className="text-muted-foreground hover:text-foreground hover:bg-muted hidden shrink-0 rounded-md transition-all md:flex"
+            className="text-muted-foreground hover:text-foreground hover:bg-muted hidden shrink-0 rounded-md md:flex"
             aria-label="Toggle Sidebar"
           >
             <Menu className="h-5 w-5" />
           </Button>
 
           <Link to="/" className="group flex shrink-0 items-center gap-2">
-            <div className="bg-foreground text-background flex size-7 items-center justify-center rounded text-[15px] font-black transition-all group-hover:opacity-90">
+            <div className="bg-foreground text-background flex size-7 items-center justify-center rounded text-[15px] font-black group-hover:opacity-90">
               B
             </div>
             <span className="hidden font-sans text-[17px] font-bold tracking-tight sm:inline-block">
@@ -92,8 +92,8 @@ const Navbar = ({ onToggleSidebar }) => {
             className="text-muted-foreground hover:text-foreground h-9 w-9 shrink-0 rounded-md"
             aria-label="Toggle theme"
           >
-            <Sun className="h-4 w-4 scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-            <Moon className="absolute h-4 w-4 scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+            <Sun className="h-4 w-4 scale-100 rotate-0 dark:scale-0 dark:-rotate-90" />
+            <Moon className="absolute h-4 w-4 scale-0 rotate-90 dark:scale-100 dark:rotate-0" />
           </Button>
 
           {isAuthenticated ? (
@@ -115,7 +115,7 @@ const Navbar = ({ onToggleSidebar }) => {
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="ring-border hover:bg-accent relative h-9 w-9 shrink-0 rounded-full p-0 ring-1 transition-colors"
+                    className="ring-border hover:bg-accent relative h-9 w-9 shrink-0 rounded-full p-0 ring-1"
                   >
                     <Avatar className="h-8 w-8">
                       {profile?.avatarUrl && (

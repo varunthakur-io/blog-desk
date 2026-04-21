@@ -51,27 +51,25 @@ const MainLayout = () => {
         {/* Sidebar (Left) */}
         <aside
           className={cn(
-            'border-border/50 sticky top-(--header-height,4rem) z-40 hidden h-[calc(100vh-var(--header-height,4rem))] shrink-0 border-r transition-all duration-500 md:block',
+            'border-border/50 sticky top-(--header-height,4rem) z-40 hidden h-[calc(100vh-var(--header-height,4rem))] shrink-0 border-r transition-[width] duration-500 md:block',
             isSidebarOpen ? 'w-64' : 'w-0 overflow-hidden border-none',
           )}
         >
-
           <SideNav isOpen={isSidebarOpen} />
-
         </aside>
 
         {/* Content */}
         <div className="relative flex min-w-0 flex-1 flex-col">
           {!isEditorPage && (
             <div
-              className="bg-dot-grid pointer-events-none fixed inset-0 -z-10 opacity-[0.018] dark:opacity-[0.03]"
+              className="bg-dot-grid pointer-events-none fixed inset-0 -z-10"
               aria-hidden="true"
             />
           )}
 
           <main
             className={cn(
-              'mx-auto w-full transition-all duration-300',
+              'mx-auto w-full',
               isEditorPage
                 ? 'flex h-[calc(100vh-var(--header-height,4rem))] max-w-none flex-col overflow-hidden p-0'
                 : 'page-container min-h-[calc(100vh-var(--header-height,4rem))] py-5',

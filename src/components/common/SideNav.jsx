@@ -36,7 +36,7 @@ const SideNav = ({ isOpen }) => {
         key={item.label}
         to={item.path}
         className={cn(
-          'group flex items-center gap-3 rounded-md px-3 py-2 text-[13px] font-bold tracking-tight transition-all duration-300',
+          'group flex items-center gap-3 rounded-md px-3 py-2 text-[13px] font-bold tracking-tight',
           isItemActive
             ? 'bg-muted text-foreground'
             : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
@@ -57,7 +57,7 @@ const SideNav = ({ isOpen }) => {
           <div className="px-3 pt-2 pb-2">
             <Button
               asChild
-              className="bg-foreground text-background h-9 w-full rounded-md font-bold transition-all hover:opacity-90 active:scale-95"
+              className="bg-foreground text-background h-9 w-full rounded-md font-bold hover:opacity-90 active:scale-95"
             >
               <Link to="/create">
                 <PenSquare className="mr-2 h-4 w-4" />
@@ -87,7 +87,7 @@ const SideNav = ({ isOpen }) => {
               to="/settings"
               className={({ isActive }) =>
                 cn(
-                  'group flex items-center gap-3 rounded-md px-3 py-2 text-[13px] font-bold tracking-tight transition-all duration-300',
+                  'group flex items-center gap-3 rounded-md px-3 py-2 text-[13px] font-bold tracking-tight',
                   isActive
                     ? 'bg-muted text-foreground'
                     : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
@@ -105,7 +105,7 @@ const SideNav = ({ isOpen }) => {
       <div className="border-border/20 mt-auto border-t px-6 pt-6 pb-6">
         <Link
           to="/about"
-          className="text-muted-foreground/60 hover:text-foreground text-[12px] font-bold transition-all"
+          className="text-muted-foreground/60 hover:text-foreground text-[12px] font-bold"
         >
           About
         </Link>

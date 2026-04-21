@@ -27,9 +27,9 @@ const VerificationBanner = ({ user }) => {
   };
 
   return (
-    <div className="bg-background/40 border-primary/10 animate-in slide-in-from-top relative w-full border-b px-page-px py-2 backdrop-blur-xl duration-500 selection:bg-primary/20">
+    <div className="bg-background/40 border-primary/10 animate-in slide-in-from-top px-page-px selection:bg-primary/20 relative w-full border-b py-2 backdrop-blur-xl duration-500">
       {/* Premium Highlight Gradient */}
-      <div className="from-primary/5 via-transparent absolute inset-0 -z-10 bg-linear-to-r to-primary/5 opacity-50" />
+      <div className="from-primary/5 to-primary/5 absolute inset-0 -z-10 bg-linear-to-r via-transparent opacity-50" />
 
       <div className="mx-auto flex max-w-screen-2xl items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
@@ -51,7 +51,7 @@ const VerificationBanner = ({ user }) => {
             disabled={isLoading || isSent}
             variant={isSent ? 'secondary' : 'outline'}
             className={cn(
-              'h-8 rounded-full px-4 text-[10px] font-bold tracking-tighter uppercase transition-all active:scale-95',
+              'h-8 rounded-full px-4 text-[10px] font-bold tracking-tighter uppercase active:scale-95',
               !isSent && 'border-primary/20 hover:bg-primary/5 text-primary hover:text-primary',
             )}
           >
@@ -67,7 +67,7 @@ const VerificationBanner = ({ user }) => {
             variant="ghost"
             size="icon"
             onClick={() => setIsVisible(false)}
-            className="hover:bg-primary/10 text-muted-foreground hover:text-primary size-8 rounded-full transition-all"
+            className="hover:bg-primary/10 text-muted-foreground hover:text-primary size-8 rounded-full"
           >
             <X className="h-4 w-4" />
           </Button>

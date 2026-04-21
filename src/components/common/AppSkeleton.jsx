@@ -23,7 +23,7 @@ const AppSkeleton = () => {
           </div>
         </div>
       </header>
-      
+
       {/* Sidebar & Content Body */}
       <div className="flex flex-1">
         {/* Sidebar (Left) */}

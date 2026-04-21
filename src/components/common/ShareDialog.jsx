@@ -82,7 +82,7 @@ const ShareDialog = ({ open, onOpenChange, url, title }) => {
                 type="button"
                 size="icon"
                 onClick={handleCopy}
-                className="h-10 w-10 shrink-0 rounded-lg shadow-sm transition-all active:scale-95"
+                className="h-10 w-10 shrink-0 rounded-lg shadow-sm active:scale-95"
               >
                 {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
               </Button>
@@ -97,7 +97,7 @@ const ShareDialog = ({ open, onOpenChange, url, title }) => {
                 href={social.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`border-border bg-muted/10 group flex flex-col items-center gap-2 rounded-xl border p-3 transition-all duration-200 ${social.color}`}
+                className={`border-border bg-muted/10 group flex flex-col items-center gap-2 rounded-xl border p-3 duration-200 ${social.color}`}
               >
                 <social.icon className="h-5 w-5 transition-transform group-hover:scale-110" />
                 <span className="text-[10px] font-bold tracking-wider uppercase opacity-70 group-hover:opacity-100">
