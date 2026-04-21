@@ -38,7 +38,7 @@ const RecommendedSidebar = ({
           staffPicks.map((post) => (
             <article
               key={post.$id}
-              className="group hover:bg-muted/30 -mx-2 flex items-start gap-4 rounded-xl px-2 py-3 transition-all duration-300 first:pt-0"
+              className="group hover:bg-muted/30 -mx-2 flex items-start gap-4 rounded-xl px-2 py-3 first:pt-0"
             >
               {/* Post Metadata & Link */}
               <div className="min-w-0 flex-1 space-y-2">
@@ -62,7 +62,7 @@ const RecommendedSidebar = ({
 
                 {/* Post Title */}
                 <Link to={`/posts/${post.$id}`} className="block">
-                  <h4 className="text-foreground group-hover:text-primary line-clamp-2 text-[13px] leading-snug font-bold tracking-tight transition-colors">
+                  <h4 className="text-foreground group-hover:text-primary line-clamp-2 text-[13px] leading-snug font-bold tracking-tight">
                     {post.title}
                   </h4>
                 </Link>
@@ -76,7 +76,7 @@ const RecommendedSidebar = ({
                 >
                   <img
                     src={post.coverImageUrl}
-                    className="h-full w-full object-cover grayscale-[30%] transition-all duration-500 group-hover:grayscale-0"
+                    className="h-full w-full object-cover grayscale-[30%] duration-500 group-hover:grayscale-0"
                     alt=""
                   />
                 </Link>
@@ -125,7 +125,7 @@ const RecommendedSidebar = ({
                   to={`/profile/${author.username}`}
                   className="flex min-w-0 items-center gap-3"
                 >
-                  <Avatar className="bg-muted ring-border/20 group-hover/author:ring-primary/20 size-10 border-none ring-1 transition-all">
+                  <Avatar className="bg-muted ring-border/20 group-hover/author:ring-primary/20 size-10 border-none ring-1">
                     {author.avatarUrl && (
                       <AvatarImage src={author.avatarUrl} className="object-cover" />
                     )}
@@ -134,7 +134,7 @@ const RecommendedSidebar = ({
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0">
-                    <p className="text-foreground hover:text-primary truncate text-[13px] font-bold tracking-tight transition-colors">
+                    <p className="text-foreground hover:text-primary truncate text-[13px] font-bold tracking-tight">
                       {author.name}
                     </p>
                     <p className="text-muted-foreground/40 truncate text-[11px] font-medium tracking-tight">
@@ -147,7 +147,7 @@ const RecommendedSidebar = ({
                 <Button
                   variant="outline"
                   size="sm"
-                  className="bg-foreground text-background h-7 rounded-md border-none px-3 text-[10px] font-black tracking-tighter uppercase transition-all hover:opacity-90 active:scale-95"
+                  className="bg-foreground text-background h-7 rounded-md border-none px-3 text-[10px] font-black tracking-tighter uppercase hover:opacity-90 active:scale-95"
                 >
                   Follow
                 </Button>

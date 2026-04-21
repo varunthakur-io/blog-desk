@@ -68,24 +68,24 @@ export const ProfileInfo = ({
 
           <button
             onClick={onFollowersClick}
-            className="group text-center transition-all active:scale-95 md:text-left"
+            className="group text-center active:scale-95 md:text-left"
           >
-            <span className="text-foreground group-hover:text-primary block text-xl font-black transition-colors">
+            <span className="text-foreground group-hover:text-primary block text-xl font-black">
               {followersCount}
             </span>
-            <span className="text-muted-foreground group-hover:text-primary/70 text-[10px] font-bold tracking-widest uppercase transition-colors">
+            <span className="text-muted-foreground group-hover:text-primary/70 text-[10px] font-bold tracking-widest uppercase">
               Followers
             </span>
           </button>
 
           <button
             onClick={onFollowingClick}
-            className="group text-center transition-all active:scale-95 md:text-left"
+            className="group text-center active:scale-95 md:text-left"
           >
-            <span className="text-foreground group-hover:text-primary block text-xl font-black transition-colors">
+            <span className="text-foreground group-hover:text-primary block text-xl font-black">
               {followingCount}
             </span>
-            <span className="text-muted-foreground group-hover:text-primary/70 text-[10px] font-bold tracking-widest uppercase transition-colors">
+            <span className="text-muted-foreground group-hover:text-primary/70 text-[10px] font-bold tracking-widest uppercase">
               Following
             </span>
           </button>

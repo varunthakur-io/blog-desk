@@ -36,7 +36,7 @@ const ProfilePanel = ({
         {/* Avatar Management */}
         <div className="flex flex-col items-center gap-8 sm:flex-row">
           <div className="group relative size-20 shrink-0">
-            <Avatar className="border-border/40 group-hover:ring-primary/5 h-full w-full border shadow-sm transition-all group-hover:ring-4">
+            <Avatar className="border-border/40 group-hover:ring-primary/5 h-full w-full border shadow-sm group-hover:ring-4">
               <AvatarImage src={avatarPreview} className="object-cover" />
               <AvatarFallback className="bg-muted text-muted-foreground text-xl font-bold">
                 {initial}
@@ -45,7 +45,7 @@ const ProfilePanel = ({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-full bg-black/40 opacity-0 backdrop-blur-[2px] transition-all group-hover:opacity-100"
+              className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-full bg-black/40 opacity-0 backdrop-blur-[2px] group-hover:opacity-100"
             >
               <Camera className="h-5 w-5 text-white" />
             </button>
@@ -65,7 +65,7 @@ const ProfilePanel = ({
                 type="button"
                 variant="outline"
                 onClick={() => fileInputRef.current?.click()}
-                className="border-border/60 h-8 rounded-md px-3 text-[11px] font-bold shadow-sm transition-all active:scale-95"
+                className="border-border/60 h-8 rounded-md px-3 text-[11px] font-bold shadow-sm active:scale-95"
               >
                 Upload avatar
               </Button>
@@ -76,7 +76,7 @@ const ProfilePanel = ({
                 onClick={() => {
                   if (fileInputRef.current) fileInputRef.current.value = '';
                 }}
-                className="text-muted-foreground hover:text-destructive h-8 rounded-md px-3 text-[11px] font-bold transition-all active:scale-95"
+                className="text-muted-foreground hover:text-destructive h-8 rounded-md px-3 text-[11px] font-bold active:scale-95"
               >
                 Remove
               </Button>
@@ -106,7 +106,7 @@ const ProfilePanel = ({
                 onChange={(e) => setProfileForm((p) => ({ ...p, name: e.target.value }))}
                 placeholder="Full Name"
                 className={cn(
-                  'border-border/60 bg-muted/20 focus:bg-background h-9 rounded-md text-[13px] font-medium transition-all',
+                  'border-border/60 bg-muted/20 focus:bg-background h-9 rounded-md text-[13px] font-medium',
                   profileError && 'border-destructive/50 ring-destructive/10',
                 )}
               />
@@ -147,7 +147,7 @@ const ProfilePanel = ({
                 value={profileForm.bio}
                 onChange={(e) => setProfileForm((p) => ({ ...p, bio: e.target.value }))}
                 placeholder="Tell us about yourself…"
-                className="border-border/60 bg-muted/20 focus:bg-background min-h-[90px] resize-none rounded-md p-3 text-[13px] leading-relaxed transition-all"
+                className="border-border/60 bg-muted/20 focus:bg-background min-h-[90px] resize-none rounded-md p-3 text-[13px] leading-relaxed"
                 maxLength={200}
               />
             </div>
@@ -174,7 +174,7 @@ const ProfilePanel = ({
           <Button
             onClick={handleSaveProfile}
             disabled={isSavingProfile}
-            className="bg-foreground text-background h-9 rounded-md px-6 text-xs font-bold shadow-sm transition-all hover:opacity-90 active:scale-95"
+            className="bg-foreground text-background h-9 rounded-md px-6 text-xs font-bold shadow-sm hover:opacity-90 active:scale-95"
           >
             {isSavingProfile ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -36,7 +36,7 @@ const PrivacyPanel = ({
           size="sm"
           disabled={isUpdatingSession}
           onClick={() => setIsSessionsDialogOpen(true)}
-          className="border-border/60 hover:bg-muted/50 h-10 rounded-full px-6 text-xs font-bold transition-all active:scale-95"
+          className="border-border/60 hover:bg-muted/50 h-10 rounded-full px-6 text-xs font-bold active:scale-95"
         >
           {isUpdatingSession ? (
             <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
@@ -70,7 +70,7 @@ const PrivacyPanel = ({
           size="sm"
           disabled={isUpdatingSession}
           onClick={() => setIsDeleteDialogOpen(true)}
-          className="shadow-destructive/10 hover:shadow-destructive/20 h-10 rounded-full px-8 text-xs font-bold shadow-sm transition-all hover:shadow-xl active:scale-95"
+          className="shadow-destructive/10 hover:shadow-destructive/20 h-10 rounded-full px-8 text-xs font-bold shadow-sm hover:shadow-xl active:scale-95"
         >
           {isUpdatingSession ? (
             <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />

@@ -21,7 +21,7 @@ const FollowButton = ({ userId, className, size = 'sm', variant = 'default', sho
       onClick={toggleFollow}
       disabled={isLoading}
       className={cn(
-        'rounded-full font-bold transition-all duration-300 active:scale-95',
+        'rounded-full font-bold active:scale-95',
         isFollowing
           ? 'hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30'
           : 'shadow-sm',

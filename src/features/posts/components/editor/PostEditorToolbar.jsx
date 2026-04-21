@@ -24,7 +24,7 @@ const ToolbarButton = ({ onClick, isActive, disabled, title, children }) => (
     disabled={disabled}
     title={title}
     className={cn(
-      'flex h-8 w-8 items-center justify-center rounded-md text-sm transition-all duration-200',
+      'flex h-8 w-8 items-center justify-center rounded-md text-sm duration-200',
       isActive
         ? 'bg-foreground text-background font-bold'
         : 'text-muted-foreground hover:text-foreground hover:bg-muted',

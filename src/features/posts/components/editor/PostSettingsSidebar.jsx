@@ -121,7 +121,7 @@ const PostSettingsSidebar = ({
         <Button
           type="button"
           size="sm"
-          className="bg-foreground text-background h-9 w-full gap-2 rounded-md text-xs font-bold shadow-sm transition-all hover:opacity-90 active:scale-95"
+          className="bg-foreground text-background h-9 w-full gap-2 rounded-md text-xs font-bold shadow-sm hover:opacity-90 active:scale-95"
           onClick={onPublish}
           disabled={isSubmitting}
         >

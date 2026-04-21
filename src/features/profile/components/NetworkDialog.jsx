@@ -9,19 +9,17 @@ const UserItem = ({ user, onClick }) => (
   <Link
     to={`/profile/${user.username}`}
     onClick={onClick}
-    className="hover:bg-muted/50 group flex items-center justify-between rounded-xl p-3 transition-colors"
+    className="hover:bg-muted/50 group flex items-center justify-between rounded-xl p-3"
   >
     <div className="flex items-center gap-3">
-      <Avatar className="group-hover:border-primary/30 h-10 w-10 border transition-colors">
+      <Avatar className="group-hover:border-primary/30 h-10 w-10 border">
         {user.avatarUrl && <AvatarImage src={user.avatarUrl} className="object-cover" />}
         <AvatarFallback className="bg-primary/5 text-primary text-xs font-bold">
           {user.name?.charAt(0).toUpperCase()}
         </AvatarFallback>
       </Avatar>
       <div className="leading-tight">
-        <p className="text-foreground group-hover:text-primary text-sm font-bold transition-colors">
-          {user.name}
-        </p>
+        <p className="text-foreground group-hover:text-primary text-sm font-bold">{user.name}</p>
         <p className="text-muted-foreground text-xs">@{user.username}</p>
       </div>
     </div>

@@ -5,13 +5,13 @@ const FeaturedImageUpload = ({ imagePreview, onUpload, onRemove }) => {
   return (
     <div className="group relative">
       {imagePreview ? (
-        <div className="bg-muted/30 border-border/40 relative aspect-video overflow-hidden rounded-md border shadow-sm transition-all duration-300 group-hover:shadow-md">
+        <div className="bg-muted/30 border-border/40 relative aspect-video overflow-hidden rounded-md border shadow-sm group-hover:shadow-md">
           <img
             src={imagePreview}
             alt="Featured image"
             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
-          <div className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 backdrop-blur-[2px] transition-all group-hover:opacity-100">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 backdrop-blur-[2px] group-hover:opacity-100">
             <Button
               type="button"
               variant="destructive"
@@ -24,8 +24,8 @@ const FeaturedImageUpload = ({ imagePreview, onUpload, onRemove }) => {
           </div>
         </div>
       ) : (
-        <label className="border-border/60 bg-muted/5 hover:bg-muted/10 hover:border-primary/20 group relative flex aspect-video cursor-pointer flex-col items-center justify-center gap-4 rounded-md border border-dashed transition-all">
-          <div className="bg-background border-border/40 text-muted-foreground group-hover:text-foreground group-hover:border-border/60 rounded-md border p-3 shadow-sm transition-all">
+        <label className="border-border/60 bg-muted/5 hover:bg-muted/10 hover:border-primary/20 group relative flex aspect-video cursor-pointer flex-col items-center justify-center gap-4 rounded-md border border-dashed">
+          <div className="bg-background border-border/40 text-muted-foreground group-hover:text-foreground group-hover:border-border/60 rounded-md border p-3 shadow-sm">
             <Upload className="h-5 w-5" />
           </div>
           <div className="space-y-1 text-center">

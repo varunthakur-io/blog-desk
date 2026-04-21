@@ -11,7 +11,7 @@ const EyeToggle = ({ show, onToggle }) => (
   <button
     type="button"
     onClick={onToggle}
-    className="text-muted-foreground/50 hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 p-1 transition-colors"
+    className="text-muted-foreground/50 hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 p-1"
   >
     {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
   </button>
@@ -78,7 +78,7 @@ const AccountPanel = ({
                 onChange={(e) => setEmailForm((p) => ({ ...p, email: e.target.value }))}
                 placeholder="you@example.com"
                 className={cn(
-                  'border-border/60 bg-muted/20 focus:bg-background h-10 rounded-md text-[14px] font-medium tracking-tight transition-all',
+                  'border-border/60 bg-muted/20 focus:bg-background h-10 rounded-md text-[14px] font-medium tracking-tight',
                   emailError && 'border-destructive/50 ring-destructive/10',
                 )}
               />
@@ -105,7 +105,7 @@ const AccountPanel = ({
                   value={emailForm.password}
                   onChange={(e) => setEmailForm((p) => ({ ...p, password: e.target.value }))}
                   placeholder="Confirm password"
-                  className="border-border/60 bg-muted/20 focus:bg-background h-10 rounded-md pr-10 text-[14px] font-medium transition-all"
+                  className="border-border/60 bg-muted/20 focus:bg-background h-10 rounded-md pr-10 text-[14px] font-medium"
                 />
                 <EyeToggle show={showEmailPw} onToggle={() => setShowEmailPw((v) => !v)} />
               </div>
@@ -116,7 +116,7 @@ const AccountPanel = ({
             <Button
               type="submit"
               disabled={isSavingEmail}
-              className="bg-foreground text-background h-9 rounded-md px-6 text-xs font-bold shadow-sm transition-all hover:opacity-90 active:scale-95"
+              className="bg-foreground text-background h-9 rounded-md px-6 text-xs font-bold shadow-sm hover:opacity-90 active:scale-95"
             >
               {isSavingEmail && <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />}
               Update email
@@ -165,7 +165,7 @@ const AccountPanel = ({
                   }
                   placeholder="Old password"
                   className={cn(
-                    'border-border/60 bg-muted/20 focus:bg-background h-10 rounded-md pr-10 text-[14px] font-medium transition-all',
+                    'border-border/60 bg-muted/20 focus:bg-background h-10 rounded-md pr-10 text-[14px] font-medium',
                     passwordError && 'border-destructive/50',
                   )}
                 />
@@ -195,7 +195,7 @@ const AccountPanel = ({
                       setPasswordForm((p) => ({ ...p, newPassword: e.target.value }))
                     }
                     placeholder="Min. 8 characters"
-                    className="border-border/60 bg-muted/20 focus:bg-background h-10 rounded-md pr-10 text-[14px] font-medium transition-all"
+                    className="border-border/60 bg-muted/20 focus:bg-background h-10 rounded-md pr-10 text-[14px] font-medium"
                   />
                   <EyeToggle show={showNewPw} onToggle={() => setShowNewPw((v) => !v)} />
                 </div>
@@ -216,7 +216,7 @@ const AccountPanel = ({
                       setPasswordForm((p) => ({ ...p, confirmPassword: e.target.value }))
                     }
                     placeholder="Repeat password"
-                    className="border-border/60 bg-muted/20 focus:bg-background h-10 rounded-md pr-10 text-[14px] font-medium transition-all"
+                    className="border-border/60 bg-muted/20 focus:bg-background h-10 rounded-md pr-10 text-[14px] font-medium"
                   />
                   <EyeToggle show={showConfirmPw} onToggle={() => setShowConfirmPw((v) => !v)} />
                 </div>
@@ -228,7 +228,7 @@ const AccountPanel = ({
             <Button
               type="submit"
               disabled={isSavingPassword}
-              className="bg-foreground text-background h-9 rounded-md px-6 text-xs font-bold shadow-sm transition-all hover:opacity-90 active:scale-95"
+              className="bg-foreground text-background h-9 rounded-md px-6 text-xs font-bold shadow-sm hover:opacity-90 active:scale-95"
             >
               {isSavingPassword && <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />}
               Save password

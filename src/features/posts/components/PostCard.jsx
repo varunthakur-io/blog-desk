@@ -20,7 +20,7 @@ const PostCardMeta = memo(({ authorProfile, authorName, createdAt }) => (
       to={`/profile/${authorProfile?.username}`}
       className="group/meta flex shrink-0 items-center gap-2"
     >
-      <Avatar className="bg-muted ring-border/20 group-hover/meta:ring-primary/20 size-6 border-none ring-1 transition-all">
+      <Avatar className="bg-muted ring-border/20 group-hover/meta:ring-primary/20 size-6 border-none ring-1">
         {authorProfile?.avatarUrl && (
           <AvatarImage src={authorProfile.avatarUrl} className="object-cover" />
         )}
@@ -28,7 +28,7 @@ const PostCardMeta = memo(({ authorProfile, authorName, createdAt }) => (
           {authorName.charAt(0)}
         </AvatarFallback>
       </Avatar>
-      <span className="hover:text-primary truncate text-[12px] font-bold tracking-tight transition-colors">
+      <span className="hover:text-primary truncate text-[12px] font-bold tracking-tight">
         {authorName}
       </span>
     </Link>
@@ -44,7 +44,7 @@ PostCardMeta.displayName = 'PostCardMeta';
 const PostCardContent = memo(({ postId, title, excerpt }) => (
   <div className="space-y-2">
     <Link to={`/posts/${postId}`} className="group/title block">
-      <h2 className="group-hover:title:text-primary text-xl leading-[1.2] font-black tracking-tighter transition-all duration-300 md:text-2xl">
+      <h2 className="group-hover:title:text-primary text-xl leading-[1.2] font-black tracking-tighter md:text-2xl">
         {title}
       </h2>
     </Link>
@@ -75,7 +75,7 @@ const PostCardActions = memo(
         {category && (
           <button
             onClick={onCategoryClick}
-            className="bg-muted/60 border-border/40 text-muted-foreground hover:bg-primary/5 hover:text-primary hover:border-primary/20 rounded-md border px-2 py-0.5 text-[10px] font-bold tracking-tight uppercase transition-all"
+            className="bg-muted/60 border-border/40 text-muted-foreground hover:bg-primary/5 hover:text-primary hover:border-primary/20 rounded-md border px-2 py-0.5 text-[10px] font-bold tracking-tight uppercase"
           >
             {category}
           </button>
@@ -90,7 +90,7 @@ const PostCardActions = memo(
           onClick={toggleLike}
           disabled={isLiking}
           className={cn(
-            'group/like flex h-8 items-center justify-center gap-1.5 rounded-md px-2 transition-all hover:bg-rose-500/5',
+            'group/like flex h-8 items-center justify-center gap-1.5 rounded-md px-2 hover:bg-rose-500/5',
             isLiked ? 'text-rose-500' : 'text-muted-foreground/40 hover:text-rose-500',
           )}
         >
@@ -109,7 +109,7 @@ const PostCardActions = memo(
 
         <button
           onClick={onShareClick}
-          className="text-muted-foreground/40 hover:bg-muted/50 hover:text-foreground flex h-8 w-8 items-center justify-center rounded-md transition-all"
+          className="text-muted-foreground/40 hover:bg-muted/50 hover:text-foreground flex h-8 w-8 items-center justify-center rounded-md"
           aria-label="Share"
         >
           <Share2 className="size-3.5" />
@@ -160,7 +160,7 @@ const PostCard = memo(({ post }) => {
   };
 
   return (
-    <article className="group border-border/40 hover:bg-muted/50 relative -mx-4 overflow-hidden border-b px-4 py-8 transition-all duration-500 last:border-0 hover:rounded-2xl">
+    <article className="group border-border/40 hover:bg-muted/50 relative -mx-4 overflow-hidden border-b px-4 py-8 duration-500 last:border-0 hover:rounded-2xl">
       <ShareDialog
         open={isShareOpen}
         onOpenChange={setIsShareOpen}
@@ -197,11 +197,11 @@ const PostCard = memo(({ post }) => {
         {/* Visual */}
         {coverImageUrl && (
           <Link to={`/posts/${post.$id}`} className="order-1 shrink-0 sm:order-2">
-            <div className="bg-muted border-border/40 group-hover:shadow-primary/5 relative aspect-square w-24 overflow-hidden rounded-md border transition-all duration-700 group-hover:scale-[1.02] group-hover:shadow-xl sm:w-32 md:w-40">
+            <div className="bg-muted border-border/40 group-hover:shadow-primary/5 relative aspect-square w-24 overflow-hidden rounded-md border duration-700 group-hover:scale-[1.02] group-hover:shadow-xl sm:w-32 md:w-40">
               <img
                 src={coverImageUrl}
                 alt={post.title}
-                className="h-full w-full object-cover grayscale-10 transition-all duration-700 group-hover:grayscale-0"
+                className="h-full w-full object-cover grayscale-10 duration-700 group-hover:grayscale-0"
               />
             </div>
           </Link>

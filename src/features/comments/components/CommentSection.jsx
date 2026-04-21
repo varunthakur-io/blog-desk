@@ -22,7 +22,7 @@ const CommentItem = ({ comment, isMe, onDeleteClick }) => {
       <div className="mb-2 flex gap-4">
         {/* Author Avatar */}
         <Link to={`/profile/${profile?.username}`} className="shrink-0">
-          <Avatar className="bg-muted ring-border/20 hover:ring-primary/20 size-8 border-none ring-1 transition-all">
+          <Avatar className="bg-muted ring-border/20 hover:ring-primary/20 size-8 border-none ring-1">
             {avatarUrl && (
               <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" />
             )}
@@ -38,7 +38,7 @@ const CommentItem = ({ comment, isMe, onDeleteClick }) => {
             <div className="flex min-w-0 items-center gap-2">
               <Link
                 to={`/profile/${profile?.username}`}
-                className="text-foreground hover:text-primary truncate text-[13px] font-bold tracking-tight transition-colors"
+                className="text-foreground hover:text-primary truncate text-[13px] font-bold tracking-tight"
               >
                 {displayName}
               </Link>
@@ -56,14 +56,14 @@ const CommentItem = ({ comment, isMe, onDeleteClick }) => {
                 />
               )}
             </div>
-            
+
             {/* Contextual Actions */}
             {isMe && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={onDeleteClick}
-                className="text-muted-foreground/50 hover:text-destructive hover:bg-destructive/5 h-7 gap-1.5 rounded-md px-2 text-[10px] font-bold tracking-wider uppercase opacity-0 transition-all group-hover:opacity-100"
+                className="text-muted-foreground/50 hover:text-destructive hover:bg-destructive/5 h-7 gap-1.5 rounded-md px-2 text-[10px] font-bold tracking-wider uppercase opacity-0 group-hover:opacity-100"
               >
                 <Trash2 className="size-3" />
                 <span>Delete</span>
@@ -104,7 +104,7 @@ const CommentForm = ({
         <Button
           asChild
           size="sm"
-          className="bg-foreground text-background h-9 rounded-md px-6 text-xs font-bold transition-all active:scale-95"
+          className="bg-foreground text-background h-9 rounded-md px-6 text-xs font-bold active:scale-95"
         >
           <Link to="/login">Sign In</Link>
         </Button>
@@ -115,7 +115,7 @@ const CommentForm = ({
   const currentUserName = currentUserProfile?.name || 'You';
 
   return (
-    <div className="group bg-background border-border/60 focus-within:border-foreground/20 focus-within:ring-foreground/[0.02] mb-10 rounded-md border p-4 transition-all outline-none focus-within:ring-4">
+    <div className="group bg-background border-border/60 focus-within:border-foreground/20 focus-within:ring-foreground/[0.02] mb-10 rounded-md border p-4 outline-none focus-within:ring-4">
       <div className="flex gap-4">
         <Avatar className="bg-muted ring-border/20 size-8 shrink-0 border-none shadow-sm ring-1">
           {currentUserProfile?.avatarUrl && (
@@ -134,7 +134,7 @@ const CommentForm = ({
           className="placeholder:text-muted-foreground/30 mt-0.5 min-h-[40px] w-full resize-none border-0 bg-transparent p-0 text-[14px] leading-relaxed shadow-none focus:outline-none focus-visible:ring-0"
         />
       </div>
-      
+
       {/* Form Utilities */}
       <div className="border-border/10 mt-3 flex items-center justify-between border-t pt-3">
         <p className="text-muted-foreground/30 text-[10px] font-bold tracking-tight uppercase">
@@ -144,7 +144,7 @@ const CommentForm = ({
           onClick={onSubmit}
           disabled={isCommenting || !newComment.trim()}
           size="sm"
-          className="bg-foreground text-background h-8 gap-2 rounded-md px-4 text-xs font-bold transition-all hover:opacity-90 active:scale-95"
+          className="bg-foreground text-background h-8 gap-2 rounded-md px-4 text-xs font-bold hover:opacity-90 active:scale-95"
         >
           {isCommenting ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />

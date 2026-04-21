@@ -46,7 +46,7 @@ const DashboardFilters = ({
       <Input
         type="search"
         placeholder="Search stories…"
-        className="bg-muted/20 border-border/40 focus:bg-background h-9 w-full rounded-md pl-9 text-[13px] tracking-tight shadow-none transition-colors"
+        className="bg-muted/20 border-border/40 focus:bg-background h-9 w-full rounded-md pl-9 text-[13px] tracking-tight shadow-none"
         value={searchQuery}
         onChange={onSearchChange}
       />
@@ -55,7 +55,7 @@ const DashboardFilters = ({
     <Button
       onClick={onNewPost}
       size="sm"
-      className="bg-foreground text-background shrink-0 gap-2 rounded-md px-4 text-xs font-bold shadow-sm transition-all hover:opacity-90 active:scale-95"
+      className="bg-foreground text-background shrink-0 gap-2 rounded-md px-4 text-xs font-bold shadow-sm hover:opacity-90 active:scale-95"
     >
       <Plus className="h-4 w-4" /> New Story
     </Button>

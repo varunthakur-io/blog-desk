@@ -44,7 +44,7 @@ const AuthorSidebar = ({
       {/* Navigation & Context */}
       <button
         onClick={onBack}
-        className="text-muted-foreground hover:text-foreground hover:bg-secondary/50 flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-medium transition-colors"
+        className="text-muted-foreground hover:text-foreground hover:bg-secondary/50 flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-medium"
       >
         <ArrowLeft className="h-4 w-4 shrink-0" />
         Back to posts
@@ -154,7 +154,7 @@ const AuthorSidebar = ({
           <button
             onClick={handleLike}
             disabled={isLikedLoading || isLiking || !authUserId}
-            className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-medium transition-colors ${
+            className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-medium ${
               isLiked
                 ? 'bg-rose-500/10 text-rose-500 hover:bg-rose-500/20'
                 : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
@@ -169,7 +169,7 @@ const AuthorSidebar = ({
           </button>
           <button
             onClick={handleShare}
-            className="text-muted-foreground hover:text-foreground hover:bg-secondary/50 flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-medium transition-colors"
+            className="text-muted-foreground hover:text-foreground hover:bg-secondary/50 flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-medium"
           >
             <Share2 className="h-4 w-4 shrink-0" />
             Share post

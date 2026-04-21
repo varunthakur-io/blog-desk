@@ -50,7 +50,7 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
     editorProps: {
       attributes: {
         class:
-          'prose prose-neutral prose-lg dark:prose-invert max-w-none focus:outline-none min-h-[500px] font-serif transition-colors',
+          'prose prose-neutral prose-lg dark:prose-invert max-w-none focus:outline-none min-h-[500px] font-serif ',
       },
     },
   });

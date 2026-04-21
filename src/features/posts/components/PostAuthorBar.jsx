@@ -22,7 +22,7 @@ const PostAuthorBar = ({
     <div className="border-border/20 flex items-center justify-between border-y py-8">
       <div className="flex items-center gap-4">
         <Link to={`/profile/${authorUsername}`} className="shrink-0">
-          <Avatar className="bg-muted ring-border/20 hover:ring-primary/20 size-10 border-none shadow-sm ring-1 transition-all">
+          <Avatar className="bg-muted ring-border/20 hover:ring-primary/20 size-10 border-none shadow-sm ring-1">
             {authorAvatar && (
               <AvatarImage src={authorAvatar} alt={authorName} className="object-cover" />
             )}
@@ -35,7 +35,7 @@ const PostAuthorBar = ({
           <div className="flex items-center gap-3">
             <Link
               to={`/profile/${authorUsername}`}
-              className="text-foreground hover:text-primary text-[15px] font-bold tracking-tight transition-colors"
+              className="text-foreground hover:text-primary text-[15px] font-bold tracking-tight"
             >
               {authorName}
             </Link>
@@ -44,7 +44,7 @@ const PostAuthorBar = ({
               size="sm"
               variant="ghost"
               showIcon={false}
-              className="border-border/40 hover:bg-foreground hover:text-background h-6 rounded-md border px-3 text-[10px] font-bold tracking-tight uppercase transition-all"
+              className="border-border/40 hover:bg-foreground hover:text-background h-6 rounded-md border px-3 text-[10px] font-bold tracking-tight uppercase"
             />
           </div>
           <span className="text-muted-foreground/50 text-[11px] font-medium tracking-tight">

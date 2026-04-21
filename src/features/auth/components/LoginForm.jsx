@@ -64,7 +64,7 @@ export const LoginForm = () => {
               <Label htmlFor="password">Password</Label>
               <Link
                 to="/forgot-password"
-                className="text-muted-foreground hover:text-primary text-sm leading-none underline-offset-4 transition-colors hover:underline"
+                className="text-muted-foreground hover:text-primary text-sm leading-none underline-offset-4 hover:underline"
               >
                 Forgot password?
               </Link>
@@ -87,7 +87,7 @@ export const LoginForm = () => {
               />
               <button
                 type="button"
-                className="text-muted-foreground hover:text-foreground absolute top-0 right-0 h-full px-3 transition-colors"
+                className="text-muted-foreground hover:text-foreground absolute top-0 right-0 h-full px-3"
                 onClick={togglePasswordVisibility}
                 tabIndex={-1}
               >

@@ -13,7 +13,7 @@ const DashboardPagination = ({ page, totalPages, totalPosts, currentCount, onPre
         size="sm"
         onClick={onPrev}
         disabled={page === 1}
-        className="hover:bg-muted h-9 gap-2 rounded-md px-4 text-xs font-bold transition-all"
+        className="hover:bg-muted h-9 gap-2 rounded-md px-4 text-xs font-bold"
       >
         <ChevronLeft className="h-4 w-4" /> Newer
       </Button>
@@ -25,7 +25,7 @@ const DashboardPagination = ({ page, totalPages, totalPosts, currentCount, onPre
         size="sm"
         onClick={onNext}
         disabled={page >= totalPages}
-        className="hover:bg-muted h-9 gap-2 rounded-md px-4 text-xs font-bold transition-all"
+        className="hover:bg-muted h-9 gap-2 rounded-md px-4 text-xs font-bold"
       >
         Older <ChevronRight className="h-4 w-4" />
       </Button>

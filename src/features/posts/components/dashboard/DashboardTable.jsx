@@ -43,12 +43,12 @@ const DashboardTable = ({ posts, onEdit, onDelete }) => (
         {posts.map((post) => (
           <TableRow
             key={post.$id}
-            className="hover:bg-muted/30 border-border/40 group -mx-4 border-b px-4 transition-all last:border-0"
+            className="hover:bg-muted/30 border-border/40 group -mx-4 border-b px-4 last:border-0"
           >
             <TableCell className="px-4 py-5 font-bold">
               <Link
                 to={`/posts/${post.$id}`}
-                className="hover:text-primary text-foreground line-clamp-1 text-[14px] leading-tight tracking-tight transition-colors"
+                className="hover:text-primary text-foreground line-clamp-1 text-[14px] leading-tight tracking-tight"
               >
                 {post.title}
               </Link>
@@ -57,7 +57,7 @@ const DashboardTable = ({ posts, onEdit, onDelete }) => (
               <Badge
                 variant="secondary"
                 className={cn(
-                  'rounded-md border-none px-2.5 py-0.5 text-[11px] font-bold transition-all',
+                  'rounded-md border-none px-2.5 py-0.5 text-[11px] font-bold',
                   post.status === 'published'
                     ? 'bg-green-500/10 text-green-700 dark:text-green-400'
                     : 'bg-muted text-muted-foreground',
@@ -74,7 +74,7 @@ const DashboardTable = ({ posts, onEdit, onDelete }) => (
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="hover:bg-muted h-8 w-8 rounded-md p-0 opacity-0 transition-colors group-hover:opacity-100 data-[state=open]:opacity-100"
+                    className="hover:bg-muted h-8 w-8 rounded-md p-0 opacity-0 group-hover:opacity-100 data-[state=open]:opacity-100"
                   >
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>

@@ -33,7 +33,7 @@ const EmptyHomeState = ({ searchTerm, activeCategory, onClearFilters }) => {
           ) : (
             <Button
               asChild
-              className="bg-foreground text-background mt-2 h-11 rounded-md px-8 text-xs font-bold shadow-md transition-all hover:opacity-90 active:scale-95"
+              className="bg-foreground text-background mt-2 h-11 rounded-md px-8 text-xs font-bold shadow-md hover:opacity-90 active:scale-95"
             >
               <NavLink to="/create">
                 Write First Post <ArrowRight className="ml-2 size-4" />

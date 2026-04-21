@@ -9,19 +9,19 @@ import { cn } from '@/lib/utils';
 
 const SearchResultItem = ({ user, onSelect }) => {
   return (
-    <div className="hover:bg-primary/5 group relative flex w-full items-center gap-3 rounded-xl p-2.5 text-left transition-all">
+    <div className="hover:bg-primary/5 group relative flex w-full items-center gap-3 rounded-xl p-2.5 text-left">
       <button
         onClick={() => onSelect(user.username)}
         className="flex min-w-0 flex-1 items-center gap-3"
       >
-        <Avatar className="border-border/50 group-hover:border-primary/30 h-9 w-9 border transition-colors">
+        <Avatar className="border-border/50 group-hover:border-primary/30 h-9 w-9 border">
           <AvatarImage src={user.avatarUrl} alt={user.name} className="object-cover" />
           <AvatarFallback className="bg-muted text-xs">
             {user.name?.charAt(0).toUpperCase()}
           </AvatarFallback>
         </Avatar>
         <div className="flex min-w-0 flex-col">
-          <span className="group-hover:text-primary truncate text-sm font-semibold transition-colors">
+          <span className="group-hover:text-primary truncate text-sm font-semibold">
             {user.name}
           </span>
           <span className="text-muted-foreground truncate text-xs">@{user.username}</span>
@@ -60,16 +60,13 @@ const NavUserSearch = ({ isMobile }) => {
 
   return (
     <div
-      className={cn(
-        'relative flex-1 transition-all duration-300',
-        isMobile ? 'mx-1 mb-4 block' : 'mx-4 hidden md:block',
-      )}
+      className={cn('relative flex-1', isMobile ? 'mx-1 mb-4 block' : 'mx-4 hidden md:block')}
       ref={dropdownRef}
     >
       <div className="group relative">
         <Search
           className={cn(
-            'absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transition-colors duration-200',
+            'absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 duration-200',
             searchTerm ? 'text-primary' : 'text-muted-foreground group-focus-within:text-primary',
           )}
         />
@@ -78,12 +75,12 @@ const NavUserSearch = ({ isMobile }) => {
           placeholder="Search authors... (⌘K)"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="bg-muted/40 border-border/50 focus-visible:ring-primary/20 focus-visible:bg-background h-9 w-full rounded-full pr-10 pl-10 text-xs font-medium transition-all duration-300"
+          className="bg-muted/40 border-border/50 focus-visible:ring-primary/20 focus-visible:bg-background h-9 w-full rounded-full pr-10 pl-10 text-xs font-medium"
         />
         {searchTerm && (
           <button
             onClick={clearSearch}
-            className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
+            className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2"
           >
             {isLoading ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />

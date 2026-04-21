@@ -83,7 +83,7 @@ const ProfileTabs = ({
         <TabsList className="flex h-11 w-fit items-end gap-8 rounded-none border-none bg-transparent p-0">
           <TabsTrigger
             value="posts"
-            className="data-[state=active]:border-foreground text-muted-foreground data-[state=active]:text-foreground rounded-none border-b-2 border-transparent px-0 pb-4 text-[14px] font-bold tracking-tight transition-all duration-300 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+            className="data-[state=active]:border-foreground text-muted-foreground data-[state=active]:text-foreground rounded-none border-b-2 border-transparent px-0 pb-4 text-[14px] font-bold tracking-tight data-[state=active]:bg-transparent data-[state=active]:shadow-none"
           >
             Posts
           </TabsTrigger>
@@ -91,13 +91,13 @@ const ProfileTabs = ({
             <>
               <TabsTrigger
                 value="likes"
-                className="data-[state=active]:border-foreground text-muted-foreground data-[state=active]:text-foreground rounded-none border-b-2 border-transparent px-0 pb-4 text-[14px] font-bold tracking-tight transition-all duration-300 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                className="data-[state=active]:border-foreground text-muted-foreground data-[state=active]:text-foreground rounded-none border-b-2 border-transparent px-0 pb-4 text-[14px] font-bold tracking-tight data-[state=active]:bg-transparent data-[state=active]:shadow-none"
               >
                 Likes
               </TabsTrigger>
               <TabsTrigger
                 value="saved"
-                className="data-[state=active]:border-foreground text-muted-foreground data-[state=active]:text-foreground rounded-none border-b-2 border-transparent px-0 pb-4 text-[14px] font-bold tracking-tight transition-all duration-300 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                className="data-[state=active]:border-foreground text-muted-foreground data-[state=active]:text-foreground rounded-none border-b-2 border-transparent px-0 pb-4 text-[14px] font-bold tracking-tight data-[state=active]:bg-transparent data-[state=active]:shadow-none"
               >
                 Saved
               </TabsTrigger>
@@ -131,7 +131,7 @@ const ProfileTabs = ({
                   isOwner && (
                     <Button
                       asChild
-                      className="bg-foreground text-background h-9 rounded-md px-8 text-xs font-bold shadow-sm transition-all hover:opacity-90"
+                      className="bg-foreground text-background h-9 rounded-md px-8 text-xs font-bold shadow-sm hover:opacity-90"
                     >
                       <Link to="/create">Write First Post</Link>
                     </Button>

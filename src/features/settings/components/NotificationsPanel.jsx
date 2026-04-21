@@ -23,7 +23,7 @@ const NotificationsPanel = ({ prefs, isPrefsLoading, handlePrefChange }) => {
         ) : (
           <div className="divide-border/40 border-border/60 bg-background/50 divide-y overflow-hidden rounded-xl border shadow-sm">
             {/* Marketing preferences */}
-            <div className="hover:bg-muted/5 flex items-center justify-between p-5 transition-colors">
+            <div className="hover:bg-muted/5 flex items-center justify-between p-5">
               <div className="space-y-0.5">
                 <h3 className="text-[14px] font-bold">Marketing Emails</h3>
                 <p className="text-muted-foreground text-xs font-medium">
@@ -38,7 +38,7 @@ const NotificationsPanel = ({ prefs, isPrefsLoading, handlePrefChange }) => {
             </div>
 
             {/* Security preferences */}
-            <div className="hover:bg-muted/5 flex items-center justify-between p-5 transition-colors">
+            <div className="hover:bg-muted/5 flex items-center justify-between p-5">
               <div className="space-y-0.5">
                 <h3 className="text-[14px] font-bold">Security Alerts</h3>
                 <p className="text-muted-foreground text-xs font-medium">

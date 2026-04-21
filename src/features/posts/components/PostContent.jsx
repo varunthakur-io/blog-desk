@@ -68,7 +68,7 @@ const PostContent = ({ title, content, coverImageUrl, onHeadingsReady }) => {
       {/* premium minimalist progress bar */}
       <div className="bg-muted/20 fixed top-0 right-0 left-0 z-[100] h-0.5">
         <div
-          className="bg-foreground h-full shadow-[0_0_10px_rgba(0,0,0,0.2)] transition-all duration-150 ease-out"
+          className="bg-foreground h-full shadow-[0_0_10px_rgba(0,0,0,0.2)] duration-150 ease-out"
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -87,7 +87,7 @@ const PostContent = ({ title, content, coverImageUrl, onHeadingsReady }) => {
         {/* article body - premium editorial typography */}
         <article
           ref={articleRef}
-          className="prose prose-lg dark:prose-invert prose-headings:font-sans prose-headings:font-black prose-headings:tracking-tighter prose-headings:text-foreground prose-p:font-serif prose-p:text-foreground/90 prose-p:leading-[1.8] prose-p:mb-8 prose-p:text-[18px] prose-a:text-foreground prose-a:underline prose-a:underline-offset-4 hover:prose-a:opacity-70 prose-strong:text-foreground prose-strong:font-bold prose-code:bg-muted prose-code:rounded-md prose-code:px-1.5 prose-code:py-0.5 prose-code:text-sm prose-code:font-mono prose-code:before:content-none prose-code:after:content-none prose-pre:bg-muted prose-pre:border prose-pre:border-border/40 prose-pre:rounded-md prose-pre:p-6 prose-blockquote:border-l-2 prose-blockquote:border-border prose-blockquote:bg-muted/5 prose-blockquote:py-2 prose-blockquote:px-8 prose-blockquote:text-xl prose-blockquote:font-serif prose-blockquote:font-medium prose-blockquote:italic prose-blockquote:text-foreground/80 prose-img:rounded-md prose-img:border prose-img:border-border/40 prose-hr:border-border/20 prose-li:text-foreground/90 prose-li:leading-relaxed w-full max-w-none transition-all"
+          className="prose prose-lg dark:prose-invert prose-headings:font-sans prose-headings:font-black prose-headings:tracking-tighter prose-headings:text-foreground prose-p:font-serif prose-p:text-foreground/90 prose-p:leading-[1.8] prose-p:mb-8 prose-p:text-[18px] prose-a:text-foreground prose-a:underline prose-a:underline-offset-4 hover:prose-a:opacity-70 prose-strong:text-foreground prose-strong:font-bold prose-code:bg-muted prose-code:rounded-md prose-code:px-1.5 prose-code:py-0.5 prose-code:text-sm prose-code:font-mono prose-code:before:content-none prose-code:after:content-none prose-pre:bg-muted prose-pre:border prose-pre:border-border/40 prose-pre:rounded-md prose-pre:p-6 prose-blockquote:border-l-2 prose-blockquote:border-border prose-blockquote:bg-muted/5 prose-blockquote:py-2 prose-blockquote:px-8 prose-blockquote:text-xl prose-blockquote:font-serif prose-blockquote:font-medium prose-blockquote:italic prose-blockquote:text-foreground/80 prose-img:rounded-md prose-img:border prose-img:border-border/40 prose-hr:border-border/20 prose-li:text-foreground/90 prose-li:leading-relaxed w-full max-w-none"
           dangerouslySetInnerHTML={{ __html: processedContent }}
         />
       </div>

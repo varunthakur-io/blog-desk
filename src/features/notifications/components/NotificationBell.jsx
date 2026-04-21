@@ -72,7 +72,7 @@ const NotificationItem = ({ notification, onClose }) => {
     <button
       onClick={handleItemClick}
       className={cn(
-        'hover:bg-muted/50 border-border/40 flex w-full items-start gap-3 border-b p-3 text-left transition-colors last:border-0',
+        'hover:bg-muted/50 border-border/40 flex w-full items-start gap-3 border-b p-3 text-left last:border-0',
         !notification.isRead && 'bg-primary/5',
       )}
     >
@@ -128,7 +128,7 @@ const NotificationBell = () => {
         <Button
           variant="ghost"
           size="icon"
-          className="hover:bg-muted relative h-9 w-9 rounded-full transition-all duration-300 active:scale-90"
+          className="hover:bg-muted relative h-9 w-9 rounded-full active:scale-90"
         >
           <Bell className="text-muted-foreground h-[1.1rem] w-[1.1rem]" />
           {unreadCount > 0 && (

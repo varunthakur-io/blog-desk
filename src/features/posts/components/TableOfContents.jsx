@@ -42,7 +42,7 @@ const TableOfContents = ({ headings, comments, profiles, authUserId, currentUser
               <button
                 key={id}
                 onClick={() => handleClick(id)}
-                className={`border-l-2 py-1 text-left text-xs transition-colors duration-150 ${
+                className={`border-l-2 py-1 text-left text-xs duration-150 ${
                   level === 3 ? 'pl-4' : 'pl-2'
                 } ${
                   activeId === id
