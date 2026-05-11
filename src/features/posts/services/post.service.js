@@ -27,12 +27,14 @@ class PostService {
         content,
         slug: generateSlug(title),
         status: status || 'draft',
-        coverImageId: coverImageId || null,
-        coverImageUrl: coverImageUrl || null,
-        category: category || null,
         likesCount: 0,
         commentsCount: 0,
       };
+      
+      if (coverImageId) postData.coverImageId = coverImageId;
+      if (coverImageUrl) postData.coverImageUrl = coverImageUrl;
+      if (category) postData.category = category;
+
       return await postApi.createPost(postData);
     } catch (error) {
       throw new Error(parseApiError(error));

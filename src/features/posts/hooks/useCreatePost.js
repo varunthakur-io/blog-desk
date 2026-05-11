@@ -36,12 +36,25 @@ export const useCreatePost = () => {
       setCreateStatus('loading');
 
       try {
+        let finalCoverImageId = formData.coverImageId || null;
+        let finalCoverImageUrl = formData.coverImageUrl || null;
+
+        // If there's a new file selected, upload it first
+        if (formData.coverImageFile) {
+          const uploaded = await postService.uploadPostImage(formData.coverImageFile, null);
+          finalCoverImageId = uploaded.fileId;
+          finalCoverImageUrl = uploaded.imageUrl;
+        } else if (finalCoverImageUrl && finalCoverImageUrl.startsWith('data:')) {
+          // Fallback: don't send base64 data to Appwrite DB
+          finalCoverImageUrl = null;
+        }
+
         const newPost = await postService.createPost({
           title: formData.title.trim(),
           content: formData.content.trim(),
           status: formData.status || 'draft',
-          coverImageId: formData.coverImageId || null,
-          coverImageUrl: formData.coverImageUrl || null,
+          coverImageId: finalCoverImageId,
+          coverImageUrl: finalCoverImageUrl,
           category: formData.category || null,
         });
 
