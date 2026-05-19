@@ -120,7 +120,7 @@ export default function Profile() {
         </header>
 
         <section>
-          <header className="flex h-[52px] items-center justify-between pb-1">
+          <header className="flex h-13 items-center justify-between pb-1">
             <h2 className="text-4xl font-black tracking-tighter">Stories</h2>
           </header>
 

@@ -79,11 +79,11 @@ const ProfileTabs = ({
   return (
     <Tabs value={activeTab} className="w-full" onValueChange={setActiveTab}>
       {/* Navigation Header */}
-      <div className="border-border/40 bg-background/95 sticky top-[calc(var(--header-height,4rem)+2.5rem)] z-30 -mx-4 mb-2 border-b px-4 backdrop-blur-md">
+      <div className="border-border/40 bg-background/95 sticky top-(--header-height,4rem) z-30 -mx-4 mb-2 border-b px-4 pt-4 backdrop-blur-md">
         <TabsList className="flex h-11 w-fit items-end gap-8 rounded-none border-none bg-transparent p-0">
           <TabsTrigger
             value="posts"
-            className="data-[state=active]:border-foreground text-muted-foreground data-[state=active]:text-foreground rounded-none border-b-2 border-transparent px-0 pb-4 text-[14px] font-bold tracking-tight data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+            className="border-0 border-b-2 border-transparent text-muted-foreground data-[state=active]:border-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none dark:data-[state=active]:border-foreground dark:data-[state=active]:bg-transparent rounded-none px-0 pb-4 text-[14px] font-bold tracking-tight"
           >
             Posts
           </TabsTrigger>
@@ -91,13 +91,13 @@ const ProfileTabs = ({
             <>
               <TabsTrigger
                 value="likes"
-                className="data-[state=active]:border-foreground text-muted-foreground data-[state=active]:text-foreground rounded-none border-b-2 border-transparent px-0 pb-4 text-[14px] font-bold tracking-tight data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                className="border-0 border-b-2 border-transparent text-muted-foreground data-[state=active]:border-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none dark:data-[state=active]:border-foreground dark:data-[state=active]:bg-transparent rounded-none px-0 pb-4 text-[14px] font-bold tracking-tight"
               >
                 Likes
               </TabsTrigger>
               <TabsTrigger
                 value="saved"
-                className="data-[state=active]:border-foreground text-muted-foreground data-[state=active]:text-foreground rounded-none border-b-2 border-transparent px-0 pb-4 text-[14px] font-bold tracking-tight data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                className="border-0 border-b-2 border-transparent text-muted-foreground data-[state=active]:border-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none dark:data-[state=active]:border-foreground dark:data-[state=active]:bg-transparent rounded-none px-0 pb-4 text-[14px] font-bold tracking-tight"
               >
                 Saved
               </TabsTrigger>
