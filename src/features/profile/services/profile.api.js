@@ -8,28 +8,46 @@ class ProfileApi {
   }
 
   async getProfileByUsername(username) {
-    const profileList = await databases.listDocuments(appwrite.databaseId, appwrite.profilesCollectionId, [
-      Query.equal('username', username),
-    ]);
+    const profileList = await databases.listDocuments(
+      appwrite.databaseId,
+      appwrite.profilesCollectionId,
+      [Query.equal('username', username)],
+    );
     return profileList.total > 0 ? profileList.documents[0] : null;
   }
 
   async createProfile(userId, profileData) {
-    return await databases.createDocument(appwrite.databaseId, appwrite.profilesCollectionId, userId, profileData);
+    return await databases.createDocument(
+      appwrite.databaseId,
+      appwrite.profilesCollectionId,
+      userId,
+      profileData,
+    );
   }
 
   async updateProfile(userId, profileData) {
-    return await databases.updateDocument(appwrite.databaseId, appwrite.profilesCollectionId, userId, profileData);
+    return await databases.updateDocument(
+      appwrite.databaseId,
+      appwrite.profilesCollectionId,
+      userId,
+      profileData,
+    );
   }
 
   async clearProfile(userId) {
-    return await databases.deleteDocument(appwrite.databaseId, appwrite.profilesCollectionId, userId);
+    return await databases.deleteDocument(
+      appwrite.databaseId,
+      appwrite.profilesCollectionId,
+      userId,
+    );
   }
 
   async checkUsernameAvailable(username) {
-    const profileList = await databases.listDocuments(appwrite.databaseId, appwrite.profilesCollectionId, [
-      Query.equal('username', username),
-    ]);
+    const profileList = await databases.listDocuments(
+      appwrite.databaseId,
+      appwrite.profilesCollectionId,
+      [Query.equal('username', username)],
+    );
     return profileList.total === 0;
   }
 

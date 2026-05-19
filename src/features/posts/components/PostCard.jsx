@@ -1,4 +1,5 @@
-import { useState } from 'react';
+// PostCard: article preview with interaction states
+import { useState, useMemo, memo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Heart, Share2 } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
@@ -12,25 +13,139 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { formatDate, calculateReadTime, generateExcerpt } from '@/utils/formatters';
 
-/**
- * A Premium, Asymmetric Editorial Post Card.
- * Designed for high-end digital magazines with a focus on typography and geometric balance.
- */
-const PostCard = ({ post }) => {
+// PostCardMeta: author information
+const PostCardMeta = memo(({ authorProfile, authorName, createdAt }) => (
+  <div className="mb-2 flex items-center gap-2">
+    <Link
+      to={`/profile/${authorProfile?.username}`}
+      className="group/meta flex shrink-0 items-center gap-2"
+    >
+      <Avatar className="bg-muted ring-border/20 group-hover/meta:ring-primary/20 size-6 border-none ring-1">
+        {authorProfile?.avatarUrl && (
+          <AvatarImage src={authorProfile.avatarUrl} className="object-cover" />
+        )}
+        <AvatarFallback className="bg-muted text-muted-foreground/60 text-[8px] font-bold uppercase">
+          {authorName.charAt(0)}
+        </AvatarFallback>
+      </Avatar>
+      <span className="hover:text-primary truncate text-[12px] font-bold tracking-tight">
+        {authorName}
+      </span>
+    </Link>
+    <span className="text-muted-foreground/40 text-[10px]">•</span>
+    <time className="text-muted-foreground/60 text-[12px] font-medium" dateTime={createdAt}>
+      {formatDate(createdAt, { month: 'short', day: 'numeric' })}
+    </time>
+  </div>
+));
+PostCardMeta.displayName = 'PostCardMeta';
+
+// PostCardContent: post title and excerpt
+const PostCardContent = memo(({ postId, title, excerpt }) => (
+  <div className="space-y-2">
+    <Link to={`/posts/${postId}`} className="group/title block">
+      <h2 className="group-hover:title:text-primary text-xl leading-[1.2] font-black tracking-tighter md:text-2xl">
+        {title}
+      </h2>
+    </Link>
+    <p className="text-muted-foreground/80 line-clamp-2 text-[14px] leading-relaxed font-medium tracking-tight">
+      {excerpt}
+    </p>
+  </div>
+));
+PostCardContent.displayName = 'PostCardContent';
+
+// PostCardActions: post actions
+const PostCardActions = memo(
+  ({
+    category,
+    readTime,
+    onCategoryClick,
+    onShareClick,
+    likesCount,
+    isLiked,
+    isLiking,
+    toggleLike,
+    isBookmarked,
+    isBookmarkLoading,
+    toggleBookmark,
+  }) => (
+    <div className="flex items-center justify-between pt-3">
+      <div className="flex items-center gap-4">
+        {category && (
+          <button
+            onClick={onCategoryClick}
+            className="bg-muted/60 border-border/40 text-muted-foreground hover:bg-primary/5 hover:text-primary hover:border-primary/20 rounded-md border px-2 py-0.5 text-[10px] font-bold tracking-tight uppercase"
+          >
+            {category}
+          </button>
+        )}
+        <span className="text-muted-foreground/40 text-[11px] font-bold tabular-nums">
+          {readTime} min read
+        </span>
+      </div>
+
+      <div className="flex items-center gap-1">
+        <button
+          onClick={toggleLike}
+          disabled={isLiking}
+          className={cn(
+            'group/like flex h-8 items-center justify-center gap-1.5 rounded-md px-2 hover:bg-rose-500/5',
+            isLiked ? 'text-rose-500' : 'text-muted-foreground/40 hover:text-rose-500',
+          )}
+        >
+          <Heart
+            className={cn(
+              'size-3.5 transition-transform group-active/like:scale-125',
+              isLiked && 'fill-current',
+            )}
+          />
+          {likesCount > 0 && (
+            <span className="text-[11px] font-bold tabular-nums">{likesCount}</span>
+          )}
+        </button>
+
+        <div className="bg-border/20 mx-1 h-4 w-px" />
+
+        <button
+          onClick={onShareClick}
+          className="text-muted-foreground/40 hover:bg-muted/50 hover:text-foreground flex h-8 w-8 items-center justify-center rounded-md"
+          aria-label="Share"
+        >
+          <Share2 className="size-3.5" />
+        </button>
+
+        <BookmarkButton
+          isBookmarked={isBookmarked}
+          onClick={toggleBookmark}
+          isLoading={isBookmarkLoading}
+          className="hover:bg-muted/50 size-8 rounded-md border-none bg-transparent"
+        />
+      </div>
+    </div>
+  ),
+);
+PostCardActions.displayName = 'PostCardActions';
+
+// PostCard: article preview with interaction states
+const PostCard = memo(({ post }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isShareOpen, setIsShareOpen] = useState(false);
 
   const authorProfile = useSelector((state) => selectProfileById(state, post.authorId));
-  const authorName = authorProfile?.name || 'Anonymous';
-  const readTime = calculateReadTime(post.content);
+
+  const authorName = useMemo(() => authorProfile?.name || 'Anonymous', [authorProfile]);
+  const readTime = useMemo(() => calculateReadTime(post.content), [post.content]);
+  const excerpt = useMemo(
+    () => generateExcerpt(post.content, post.title, 140),
+    [post.content, post.title],
+  );
+  const coverImageUrl = useMemo(() => post.coverImageUrl || null, [post.coverImageUrl]);
+  const category = useMemo(() => post.category || null, [post.category]);
 
   const { likesCount, isLiked, isLiking, toggleLike } = useLike(post);
   const { isBookmarked, isLoading: isBookmarkLoading, toggleBookmark } = useBookmark(post);
-
-  const excerpt = generateExcerpt(post.content, post.title, 140);
-  const coverImageUrl = post.coverImageUrl || null;
-  const category = post.category || null;
 
   const handleCategoryClick = (e) => {
     e.preventDefault();
@@ -39,8 +154,13 @@ const PostCard = ({ post }) => {
     navigate('/');
   };
 
+  const handleShareClick = (e) => {
+    e.preventDefault();
+    setIsShareOpen(true);
+  };
+
   return (
-    <article className="group relative border-b border-border/40 py-10 last:border-0 hover:bg-muted/30 px-4 -mx-4 transition-all duration-500 first:pt-0 overflow-hidden hover:rounded-2xl">
+    <article className="group border-border/40 hover:bg-muted/50 relative -mx-4 overflow-hidden border-b px-4 py-8 duration-500 last:border-0 hover:rounded-2xl">
       <ShareDialog
         open={isShareOpen}
         onOpenChange={setIsShareOpen}
@@ -48,100 +168,40 @@ const PostCard = ({ post }) => {
         title={post.title}
       />
 
-      <div className="flex flex-col sm:flex-row items-center gap-8 md:gap-12 justify-between">
-        
-        {/* ── Content Section ── */}
-        <div className="flex-1 min-w-0 order-2 sm:order-1 space-y-4">
-          
-          {/* Top Metadata Row */}
-          <div className="flex items-center gap-2 mb-1">
-             <Link to={`/profile/${authorProfile?.username}`} className="flex items-center gap-2 shrink-0 group/meta">
-              <Avatar className="size-5 border-none bg-muted ring-1 ring-border/20 transition-all group-hover/meta:ring-primary/20">
-                {authorProfile?.avatarUrl && <AvatarImage src={authorProfile.avatarUrl} className="object-cover" />}
-                <AvatarFallback className="text-[8px] font-bold bg-muted uppercase text-muted-foreground/60">
-                  {authorName.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-[12px] font-bold text-foreground hover:text-primary transition-colors truncate tracking-tight">{authorName}</span>
-            </Link>
-            <span className="text-muted-foreground/40 text-[10px]">•</span>
-            <time className="text-muted-foreground/60 font-medium text-[12px]" dateTime={post.$createdAt}>
-              {formatDate(post.$createdAt, { month: 'short', day: 'numeric' })}
-            </time>
-          </div>
+      <div className="flex flex-col items-center justify-between gap-8 sm:flex-row md:gap-12">
+        {/* Content */}
+        <div className="order-2 min-w-0 flex-1 space-y-5 sm:order-1">
+          <PostCardMeta
+            authorProfile={authorProfile}
+            authorName={authorName}
+            createdAt={post.$createdAt}
+          />
 
-          {/* Title & Excerpt Area */}
-          <div className="space-y-2">
-            <Link to={`/posts/${post.$id}`} className="block group/title">
-              <h2 className="text-xl md:text-2xl font-black leading-[1.2] tracking-tighter text-foreground group-hover/title:text-primary transition-all duration-300">
-                {post.title}
-              </h2>
-            </Link>
-            <p className="text-[14px] leading-relaxed text-muted-foreground/80 line-clamp-2 font-medium tracking-tight">
-              {excerpt}
-            </p>
-          </div>
+          <PostCardContent postId={post.$id} title={post.title} excerpt={excerpt} />
 
-          {/* Bottom Metric & Action Bar */}
-          <div className="flex items-center justify-between pt-3">
-             <div className="flex items-center gap-4">
-              {category && (
-                <button 
-                  onClick={handleCategoryClick}
-                  className="px-2 py-0.5 rounded-md bg-muted/60 border border-border/40 text-muted-foreground text-[10px] font-bold uppercase tracking-tight hover:bg-primary/5 hover:text-primary hover:border-primary/20 transition-all"
-                >
-                  {category}
-                </button>
-              )}
-              <span className="text-[11px] font-bold text-muted-foreground/40 tabular-nums">
-                {readTime} min read
-              </span>
-            </div>
-
-            <div className="flex items-center gap-1">
-               <button 
-                  onClick={toggleLike}
-                  disabled={isLiking}
-                  className={cn(
-                    "h-8 px-2 flex items-center justify-center gap-1.5 transition-all rounded-md hover:bg-rose-500/5 group/like",
-                    isLiked ? "text-rose-500" : "text-muted-foreground/40 hover:text-rose-500"
-                  )}
-                >
-                  <Heart className={cn("size-3.5 transition-transform group-active/like:scale-125", isLiked && "fill-current")} />
-                  {likesCount > 0 && <span className="text-[11px] font-bold tabular-nums">{likesCount}</span>}
-                </button>
-
-                <div className="h-4 w-px bg-border/20 mx-1" />
-
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setIsShareOpen(true);
-                  }}
-                  className="h-8 w-8 rounded-md flex items-center justify-center text-muted-foreground/40 hover:bg-muted/50 hover:text-foreground transition-all"
-                  aria-label="Share"
-                >
-                  <Share2 className="size-3.5" />
-                </button>
-
-                <BookmarkButton
-                  isBookmarked={isBookmarked}
-                  onClick={toggleBookmark}
-                  isLoading={isBookmarkLoading}
-                  className="size-8 border-none bg-transparent hover:bg-muted/50 rounded-md"
-                />
-            </div>
-          </div>
+          <PostCardActions
+            category={category}
+            readTime={readTime}
+            onCategoryClick={handleCategoryClick}
+            onShareClick={handleShareClick}
+            likesCount={likesCount}
+            isLiked={isLiked}
+            isLiking={isLiking}
+            toggleLike={toggleLike}
+            isBookmarked={isBookmarked}
+            isBookmarkLoading={isBookmarkLoading}
+            toggleBookmark={toggleBookmark}
+          />
         </div>
 
-        {/* ── Visual Section (Asymmetric Right) ── */}
+        {/* Visual */}
         {coverImageUrl && (
-          <Link to={`/posts/${post.$id}`} className="shrink-0 order-1 sm:order-2">
-            <div className="relative aspect-square w-24 sm:w-32 md:w-40 rounded-md overflow-hidden bg-muted border border-border/40 transition-all duration-700 group-hover:scale-[1.02] group-hover:shadow-xl group-hover:shadow-primary/5">
+          <Link to={`/posts/${post.$id}`} className="order-1 shrink-0 sm:order-2">
+            <div className="bg-muted border-border/40 group-hover:shadow-primary/5 relative aspect-square w-24 overflow-hidden rounded-md border duration-700 group-hover:scale-[1.02] group-hover:shadow-xl sm:w-32 md:w-40">
               <img
                 src={coverImageUrl}
                 alt={post.title}
-                className="w-full h-full object-cover grayscale-[10%] group-hover:grayscale-0 transition-all duration-700"
+                className="h-full w-full object-cover grayscale-10 duration-700 group-hover:grayscale-0"
               />
             </div>
           </Link>
@@ -149,6 +209,8 @@ const PostCard = ({ post }) => {
       </div>
     </article>
   );
-};
+});
+
+PostCard.displayName = 'PostCard';
 
 export default PostCard;

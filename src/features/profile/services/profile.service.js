@@ -1,5 +1,5 @@
 import { profileApi } from './profile.api';
-import { storageService } from '@/features/posts';
+import { storageService } from '@/features/storage';
 import { Query } from 'appwrite';
 import { parseApiError } from '@/lib/error-handler';
 

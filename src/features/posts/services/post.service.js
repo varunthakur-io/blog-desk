@@ -1,5 +1,5 @@
 import { postApi } from './post.api';
-import { storageService } from './storage.service';
+import { storageService } from '@/features/storage';
 import { commentService } from '@/features/comments';
 import { likeService } from '@/features/likes';
 import { authService } from '@/features/auth';
@@ -27,12 +27,14 @@ class PostService {
         content,
         slug: generateSlug(title),
         status: status || 'draft',
-        coverImageId: coverImageId || null,
-        coverImageUrl: coverImageUrl || null,
-        category: category || null,
         likesCount: 0,
         commentsCount: 0,
       };
+      
+      if (coverImageId) postData.coverImageId = coverImageId;
+      if (coverImageUrl) postData.coverImageUrl = coverImageUrl;
+      if (category) postData.category = category;
+
       return await postApi.createPost(postData);
     } catch (error) {
       throw new Error(parseApiError(error));
@@ -179,11 +181,11 @@ class PostService {
       const queries = [
         Query.equal('status', 'published'),
         Query.limit(100),
-        Query.select(['category'])
+        Query.select(['category']),
       ];
 
       const res = await postApi.listPosts(queries);
-      const categories = [...new Set(res.documents.map(p => p.category).filter(Boolean))];
+      const categories = [...new Set(res.documents.map((p) => p.category).filter(Boolean))];
       return categories.sort();
     } catch (error) {
       console.warn('PostService :: getUsedCategories failed:', error);
@@ -208,7 +210,7 @@ class PostService {
           Query.orderDesc('$createdAt'),
         ]);
       }
-      
+
       return res;
     } catch (error) {
       console.warn('PostService :: getStaffPicks failed:', error);

@@ -10,39 +10,31 @@ class BookmarkApi {
       {
         userId,
         postId,
-      }
+      },
     );
   }
 
   async getBookmark(userId, postId) {
-    const res = await databases.listDocuments(
-      appwrite.databaseId,
-      appwrite.bookmarksCollectionId,
-      [
-        Query.equal('userId', userId),
-        Query.equal('postId', postId)
-      ]
-    );
+    const res = await databases.listDocuments(appwrite.databaseId, appwrite.bookmarksCollectionId, [
+      Query.equal('userId', userId),
+      Query.equal('postId', postId),
+    ]);
     return res.documents[0] || null;
   }
 
   async listBookmarksByUser(userId, limit = 100) {
-    return await databases.listDocuments(
-      appwrite.databaseId,
-      appwrite.bookmarksCollectionId,
-      [
-        Query.equal('userId', userId),
-        Query.orderDesc('$createdAt'),
-        Query.limit(limit)
-      ]
-    );
+    return await databases.listDocuments(appwrite.databaseId, appwrite.bookmarksCollectionId, [
+      Query.equal('userId', userId),
+      Query.orderDesc('$createdAt'),
+      Query.limit(limit),
+    ]);
   }
 
   async deleteBookmark(bookmarkId) {
     return await databases.deleteDocument(
       appwrite.databaseId,
       appwrite.bookmarksCollectionId,
-      bookmarkId
+      bookmarkId,
     );
   }
 }

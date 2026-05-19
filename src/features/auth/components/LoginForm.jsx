@@ -3,10 +3,18 @@ import { Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { useLogin } from '../hooks/useLogin';
 import { cn } from '@/lib/utils';
 
+// LoginForm: user credentials input and validation
 export const LoginForm = () => {
   const {
     credentials,
@@ -19,17 +27,20 @@ export const LoginForm = () => {
   } = useLogin();
 
   return (
-    <Card className="border-0 shadow-none bg-transparent">
+    <Card className="border-0 bg-transparent shadow-none">
       <CardHeader className="space-y-1 px-0 text-center lg:text-left">
-        <CardTitle className="text-2xl font-bold tracking-tight">Welcome back</CardTitle>
+        <CardTitle className="text-2xl font-black tracking-tighter">Welcome back</CardTitle>
         <CardDescription>Enter your credentials to access your workspace</CardDescription>
       </CardHeader>
 
       <CardContent className="px-0">
+        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           {/* Email */}
           <div>
-            <Label htmlFor="email" className="mb-2 block">Email</Label>
+            <Label htmlFor="email" className="mb-2 block">
+              Email
+            </Label>
             <Input
               id="email"
               type="email"
@@ -41,21 +52,19 @@ export const LoginForm = () => {
               disabled={isLoginLoading}
               autoComplete="email"
               className={cn(
-                loginErrors.email && "border-destructive focus-visible:ring-destructive"
+                loginErrors.email && 'border-destructive focus-visible:ring-destructive',
               )}
             />
-            {loginErrors.email && (
-              <p className="text-sm text-destructive">{loginErrors.email}</p>
-            )}
+            {loginErrors.email && <p className="text-destructive text-sm">{loginErrors.email}</p>}
           </div>
 
           {/* Password */}
           <div>
-            <div className="flex items-baseline justify-between mb-2">
+            <div className="mb-2 flex items-baseline justify-between">
               <Label htmlFor="password">Password</Label>
               <Link
                 to="/forgot-password"
-                className="text-sm leading-none text-muted-foreground hover:text-primary transition-colors underline-offset-4 hover:underline"
+                className="text-muted-foreground hover:text-primary text-sm leading-none underline-offset-4 hover:underline"
               >
                 Forgot password?
               </Link>
@@ -72,34 +81,25 @@ export const LoginForm = () => {
                 disabled={isLoginLoading}
                 autoComplete="current-password"
                 className={cn(
-                  "pr-10",
-                  loginErrors.password && "border-destructive focus-visible:ring-destructive"
+                  'pr-10',
+                  loginErrors.password && 'border-destructive focus-visible:ring-destructive',
                 )}
               />
               <button
                 type="button"
-                className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground transition-colors"
+                className="text-muted-foreground hover:text-foreground absolute top-0 right-0 h-full px-3"
                 onClick={togglePasswordVisibility}
                 tabIndex={-1}
               >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
             {loginErrors.password && (
-              <p className="text-sm text-destructive">{loginErrors.password}</p>
+              <p className="text-destructive text-sm">{loginErrors.password}</p>
             )}
           </div>
 
-          <Button
-            type="submit"
-            disabled={isLoginLoading}
-            className="w-full"
-            size="lg"
-          >
+          <Button type="submit" disabled={isLoginLoading} className="w-full" size="lg">
             {isLoginLoading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -114,12 +114,13 @@ export const LoginForm = () => {
         </form>
       </CardContent>
 
-      <CardFooter className="px-0 justify-center">
-        <p className="text-sm text-muted-foreground">
+      {/* Footer */}
+      <CardFooter className="justify-center px-0">
+        <p className="text-muted-foreground text-sm">
           Don&apos;t have an account?{' '}
           <Link
             to="/signup"
-            className="font-medium text-primary hover:underline underline-offset-4"
+            className="text-primary font-medium underline-offset-4 hover:underline"
           >
             Sign up
           </Link>

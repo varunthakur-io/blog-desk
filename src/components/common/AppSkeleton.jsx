@@ -1,19 +1,20 @@
 import { Skeleton } from '@/components/ui/skeleton';
 
+// AppSkeleton: placeholder layout for loading states
 const AppSkeleton = () => {
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="flex min-h-screen flex-col">
       {/* Navbar */}
-      <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/85 backdrop-blur-xl h-16 flex items-center shrink-0">
-        <div className="w-full px-4 sm:px-6 flex items-center justify-between gap-4">
+      <header className="border-border/50 bg-background/85 sticky top-0 z-50 flex h-16 w-full shrink-0 items-center border-b backdrop-blur-xl">
+        <div className="px-page-px flex w-full items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <Skeleton className="h-9 w-9 rounded-full hidden md:block" />
+            <Skeleton className="hidden h-9 w-9 rounded-full md:block" />
             <div className="flex items-center gap-2.5">
               <Skeleton className="h-8 w-8 rounded-lg" />
-              <Skeleton className="h-5 w-24 hidden sm:block" />
+              <Skeleton className="hidden h-5 w-24 sm:block" />
             </div>
           </div>
-          <div className="hidden md:flex flex-1 max-w-sm mx-4">
+          <div className="mx-4 hidden max-w-sm flex-1 md:flex">
             <Skeleton className="h-9 w-full rounded-full" />
           </div>
           <div className="flex items-center gap-2">
@@ -23,51 +24,82 @@ const AppSkeleton = () => {
         </div>
       </header>
 
-      {/* Main Content */}
-      <div className="flex-1 flex">
-        {/* Global SideNav Skeleton */}
-        <div className="hidden md:block w-64 border-r border-border/50 p-6 space-y-8">
-          <Skeleton className="h-11 w-full rounded-full" />
-          <div className="space-y-4">
-            <Skeleton className="h-3 w-20 rounded-full" />
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-10 w-full rounded-xl" />
-            ))}
-          </div>
-          <div className="space-y-4">
-            <Skeleton className="h-3 w-24 rounded-full" />
-            {[1, 2].map((i) => (
-              <Skeleton key={i} className="h-10 w-full rounded-xl" />
-            ))}
-          </div>
-        </div>
-
-        {/* Main Content Area Skeleton */}
-        <main className="flex-1 max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-10 py-8">
-          <div className="space-y-10">
+      {/* Sidebar & Content Body */}
+      <div className="flex flex-1">
+        {/* Sidebar (Left) */}
+        <aside className="border-border/50 sticky top-(--header-height,4rem) hidden h-[calc(100vh-var(--header-height,4rem))] w-64 shrink-0 border-r md:block">
+          <div className="space-y-8 p-6">
+            <Skeleton className="h-11 w-full rounded-full" />
             <div className="space-y-4">
-              <Skeleton className="h-12 w-1/3 rounded-xl" />
-              <Skeleton className="h-6 w-1/2 rounded-md" />
-            </div>
-
-            <div className="space-y-12">
+              <Skeleton className="h-3 w-20 rounded-full" />
               {[1, 2, 3].map((i) => (
-                <div key={i} className="flex gap-8 items-start py-10 border-b border-border/40">
-                  <div className="flex-1 space-y-4">
-                    <div className="flex items-center gap-3">
-                      <Skeleton className="h-6 w-6 rounded-full" />
-                      <Skeleton className="h-3 w-32 rounded-full" />
-                    </div>
-                    <Skeleton className="h-8 w-3/4 rounded-lg" />
-                    <Skeleton className="h-4 w-full rounded-md" />
-                    <Skeleton className="h-4 w-2/3 rounded-md" />
-                  </div>
-                  <Skeleton className="w-32 md:w-44 lg:w-52 aspect-video rounded-xl hidden sm:block" />
-                </div>
+                <Skeleton key={i} className="h-10 w-full rounded-xl" />
+              ))}
+            </div>
+            <div className="space-y-4">
+              <Skeleton className="h-3 w-24 rounded-full" />
+              {[1, 2].map((i) => (
+                <Skeleton key={i} className="h-10 w-full rounded-xl" />
               ))}
             </div>
           </div>
-        </main>
+        </aside>
+
+        {/* Page Content Grid */}
+        <div className="page-container section-grid mx-auto w-full flex-1 py-5">
+          {/* Main Content Area */}
+          <main className="main-content">
+            <div className="space-y-10">
+              <div className="space-y-4">
+                <Skeleton className="h-12 w-1/3 rounded-xl" />
+                <Skeleton className="h-6 w-1/2 rounded-md" />
+              </div>
+
+              <div className="space-y-12">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="border-border/40 flex items-start gap-8 border-b py-10">
+                    <div className="flex-1 space-y-4">
+                      <div className="flex items-center gap-3">
+                        <Skeleton className="h-6 w-6 rounded-full" />
+                        <Skeleton className="h-3 w-32 rounded-full" />
+                      </div>
+                      <Skeleton className="h-8 w-3/4 rounded-lg" />
+                      <Skeleton className="h-4 w-full rounded-md" />
+                      <Skeleton className="h-4 w-2/3 rounded-md" />
+                    </div>
+                    <Skeleton className="hidden aspect-video w-32 rounded-xl sm:block md:w-44 lg:w-52" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </main>
+
+          {/* Right Sidebar (Aside) */}
+          <aside className="right-sidebar">
+            <div className="sticky top-[calc(var(--header-height,4rem)+2.5rem)] space-y-10">
+              <div className="space-y-6">
+                <Skeleton className="h-4 w-24 rounded-full" />
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="flex items-center gap-4">
+                    <Skeleton className="h-10 w-10 rounded-full" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-3 w-full rounded-full" />
+                      <Skeleton className="h-2 w-2/3 rounded-full" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="border-border/40 space-y-6 border-t pt-10">
+                <Skeleton className="h-4 w-32 rounded-full" />
+                <div className="grid grid-cols-2 gap-2">
+                  {[1, 2, 3, 4].map((i) => (
+                    <Skeleton key={i} className="h-8 rounded-lg" />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
       </div>
     </div>
   );

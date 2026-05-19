@@ -13,18 +13,18 @@ export const EmptyState = ({
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center py-16 text-center rounded-xl border border-dashed border-border bg-muted/5',
+        'border-border bg-muted/5 flex flex-col items-center justify-center rounded-xl border border-dashed py-16 text-center',
         animate && 'animate-in fade-in zoom-in-95 duration-500',
         className,
       )}
     >
       {Icon && (
-        <div className={cn('bg-muted p-4 rounded-full mb-3', iconClassName)}>
-          <Icon className="w-6 h-6 text-muted-foreground/50" />
+        <div className={cn('bg-muted mb-3 rounded-full p-4', iconClassName)}>
+          <Icon className="text-muted-foreground/50 h-6 w-6" />
         </div>
       )}
-      <h3 className="text-sm font-semibold mb-1">{title}</h3>
-      <p className="text-xs text-muted-foreground max-w-xs leading-relaxed mb-4">{description}</p>
+      <h3 className="mb-1 text-sm font-semibold">{title}</h3>
+      <p className="text-muted-foreground mb-4 max-w-xs text-xs leading-relaxed">{description}</p>
       {action && <div>{action}</div>}
     </div>
   );

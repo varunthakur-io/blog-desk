@@ -1,12 +1,11 @@
+// EditPost: editor shell for updating existing content
 import { ArrowLeft } from 'lucide-react';
 
-// UI Components
 import { FormSkeleton, PostForm } from '@/features/posts';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
-// Hooks
 import { useEditPost } from '@/features/posts';
 
 export default function EditPost() {
@@ -19,8 +18,8 @@ export default function EditPost() {
 
   if (postFetchError) {
     return (
-      <div className="flex justify-center items-center min-h-[60vh] p-4">
-        <Card className="w-full max-w-lg border-destructive/50">
+      <div className="flex min-h-[60vh] items-center justify-center p-4">
+        <Card className="border-destructive/50 w-full max-w-lg">
           <CardContent className="pt-6">
             <Alert variant="destructive" className="border-none">
               <AlertDescription className="text-center font-medium">
@@ -29,7 +28,7 @@ export default function EditPost() {
             </Alert>
             <Button
               variant="outline"
-              className="w-full mt-4"
+              className="mt-4 w-full"
               onClick={() => navigate('/dashboard')}
             >
               <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
@@ -41,14 +40,12 @@ export default function EditPost() {
   }
 
   return (
-    <div>
-      <PostForm
-        mode="edit"
-        initialData={formData}
-        onSubmit={handleUpdate}
-        isSubmitting={isPostUpdating}
-        onBackClick={() => navigate('/dashboard')}
-      />
-    </div>
+    <PostForm
+      mode="edit"
+      initialData={formData}
+      onSubmit={handleUpdate}
+      isSubmitting={isPostUpdating}
+      onBackClick={() => navigate('/dashboard')}
+    />
   );
 }

@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   items: [], // array of bookmarked post objects
-  ids: [],   // array of bookmarked post IDs for quick lookup
+  ids: [], // array of bookmarked post IDs for quick lookup
   status: 'idle', // idle | loading | success | error
   error: null,
 };
@@ -13,7 +13,7 @@ const bookmarksSlice = createSlice({
   reducers: {
     setBookmarks(state, action) {
       state.items = action.payload || [];
-      state.ids = state.items.map(post => post.$id);
+      state.ids = state.items.map((post) => post.$id);
       state.status = 'success';
     },
     addBookmark(state, action) {
@@ -25,8 +25,8 @@ const bookmarksSlice = createSlice({
     },
     removeBookmark(state, action) {
       const postId = action.payload;
-      state.items = state.items.filter(post => post.$id !== postId);
-      state.ids = state.ids.filter(id => id !== postId);
+      state.items = state.items.filter((post) => post.$id !== postId);
+      state.ids = state.ids.filter((id) => id !== postId);
     },
     setBookmarksStatus(state, action) {
       state.status = action.payload;
@@ -37,7 +37,7 @@ const bookmarksSlice = createSlice({
     },
     resetBookmarks(state) {
       return initialState;
-    }
+    },
   },
 });
 
@@ -47,7 +47,7 @@ export const {
   removeBookmark,
   setBookmarksStatus,
   setBookmarksError,
-  resetBookmarks
+  resetBookmarks,
 } = bookmarksSlice.actions;
 
 export default bookmarksSlice.reducer;

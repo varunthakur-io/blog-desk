@@ -7,16 +7,13 @@ import {
   DashboardFilters,
   DashboardTable,
   DashboardPagination,
+  useDashboard,
 } from '@/features/posts';
 import { ConfirmationDialog, EmptyState } from '@/components/common';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 
-import { useDashboard } from '@/features/posts';
-
-/**
- * Dashboard page for users to manage their stories.
- */
+// Dashboard: central hub for authoring and post management
 export default function Dashboard() {
   const navigate = useNavigate();
   const {
@@ -46,7 +43,7 @@ export default function Dashboard() {
 
   return (
     <article className="animate-in fade-in duration-500">
-      {/* Dashboard Top Header & Filtering */}
+      {/* Header */}
       <header className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
         <DashboardHeader onNewPost={handleNewPost} />
         <DashboardFilters
@@ -68,12 +65,15 @@ export default function Dashboard() {
 
       {/* Dynamic Error Messaging */}
       {postsError && (
-        <Alert variant="destructive" className="rounded-xl border-destructive/20 bg-destructive/5 shadow-sm">
+        <Alert
+          variant="destructive"
+          className="border-destructive/20 bg-destructive/5 rounded-xl shadow-sm"
+        >
           <AlertDescription className="font-medium">{postsError}</AlertDescription>
         </Alert>
       )}
 
-      {/* Main Content Area */}
+      {/* Content */}
       <section className="min-h-[50vh]">
         {postsLoading && posts.length === 0 ? (
           <DashboardSkeleton />
@@ -90,7 +90,7 @@ export default function Dashboard() {
               !searchQuery && (
                 <Button
                   onClick={handleNewPost}
-                  className="mt-2 gap-2 rounded-full px-6 font-bold text-xs shadow-md transition-all active:scale-95 hover:shadow-xl"
+                  className="mt-2 gap-2 rounded-full px-6 text-xs font-bold shadow-md hover:shadow-xl active:scale-95"
                   aria-label="Create your first post"
                 >
                   <Plus className="size-4" /> Create First Post
@@ -101,7 +101,7 @@ export default function Dashboard() {
         ) : (
           <div
             className={cn(
-              'flex flex-col gap-6 transition-all duration-300',
+              'flex flex-col gap-6',
               postsLoading && 'pointer-events-none opacity-50 grayscale-[20%]',
             )}
           >
@@ -118,7 +118,7 @@ export default function Dashboard() {
         )}
       </section>
 
-      {/* Contextual Confirmation for Dangerous Actions */}
+      {/* Confirmation Dialog */}
       <ConfirmationDialog
         open={isDeleteDialogOpen}
         onOpenChange={(open) => !isDeleting && setIsDeleteDialogOpen(open)}
@@ -127,7 +127,7 @@ export default function Dashboard() {
         description={
           <span className="text-muted-foreground">
             This will permanently delete{' '}
-            <strong className="font-bold text-foreground underline decoration-primary/20">
+            <strong className="decoration-primary/20 font-bold underline">
               &ldquo;{postToDelete?.title}&rdquo;
             </strong>{' '}
             and all its comments and likes. This action is irreversible.

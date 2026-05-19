@@ -119,7 +119,7 @@ export default async ({ req, res, log, error }) => {
     ]);
     for (const relationship of following) {
       try {
-        // Ideally we should decrement followersCount of the target user here, 
+        // Ideally we should decrement followersCount of the target user here,
         // but for safety in deletion we focus on the relationship cleanup.
         await databases.deleteDocument(databaseId, followsCollectionId, relationship.$id);
       } catch (err) {

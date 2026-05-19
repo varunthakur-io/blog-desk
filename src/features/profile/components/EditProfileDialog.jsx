@@ -156,7 +156,7 @@ const EditProfileDialog = ({ profile, profileId, isOwner }) => {
     <Dialog open={isDialogOpen} onOpenChange={handleCloseDialog}>
       <DialogTrigger asChild>
         <Button variant="outline" onClick={handleOpenDialog}>
-          <Edit className="w-4 h-4 mr-2" />
+          <Edit className="mr-2 h-4 w-4" />
           Edit Profile
         </Button>
       </DialogTrigger>
@@ -177,17 +177,17 @@ const EditProfileDialog = ({ profile, profileId, isOwner }) => {
 
           <div className="flex justify-center">
             <div
-              className="relative group cursor-pointer"
+              className="group relative cursor-pointer"
               onClick={() => fileInputRef.current?.click()}
             >
-              <Avatar className="w-24 h-24 border-2 border-border">
+              <Avatar className="border-border h-24 w-24 border-2">
                 <AvatarImage src={avatarPreview} />
                 <AvatarFallback>
-                  <User className="w-8 h-8" />
+                  <User className="h-8 w-8" />
                 </AvatarFallback>
               </Avatar>
-              <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <Edit className="w-6 h-6 text-white" />
+              <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                <Edit className="h-6 w-6 text-white" />
               </div>
               <input
                 ref={fileInputRef}
@@ -221,9 +221,9 @@ const EditProfileDialog = ({ profile, profileId, isOwner }) => {
           <DialogFooter>
             <Button type="submit" disabled={submitStatus !== 'idle'}>
               {submitStatus !== 'idle' ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
-                <Save className="w-4 h-4 mr-2" />
+                <Save className="mr-2 h-4 w-4" />
               )}
               {submitStatus === 'uploading' ? 'Uploading Avatar...' : 'Save Changes'}
             </Button>

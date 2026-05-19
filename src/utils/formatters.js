@@ -72,7 +72,7 @@ export const generateExcerpt = (content, title = '', maxLength = 160) => {
 
   // 1. Sanitize and strip all HTML tags using DOMPurify
   const cleanHtml = DOMPurify.sanitize(content, { ALLOWED_TAGS: [] });
-  
+
   // 2. Remove title repetition if it exists at the start
   let plainText = cleanHtml.replace(/\s+/g, ' ').trim();
   if (title && plainText.toLowerCase().startsWith(title.toLowerCase())) {

@@ -82,7 +82,7 @@ export const useLogin = () => {
     if (loginStatus === 'loading' || isAuthLoading) return;
 
     setLoginStatus('loading');
-    
+
     try {
       const { user, profile } = await authService.loginUser(credentials);
 
@@ -124,7 +124,6 @@ export const useLogin = () => {
     togglePasswordVisibility,
 
     // derived UI state
-    isSubmitDisabled:
-      loginStatus === 'loading' || !credentials.email || !credentials.password,
+    isSubmitDisabled: loginStatus === 'loading' || !credentials.email || !credentials.password,
   };
 };

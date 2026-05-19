@@ -19,7 +19,9 @@ export const useCategories = () => {
       }
     };
     fetchCats();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return { categories, isLoading };

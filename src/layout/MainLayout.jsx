@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Navbar, SideNav, VerificationBanner } from '@/components/common';
@@ -6,59 +6,74 @@ import { useBookmarksInit } from '@/features/bookmarks';
 import { selectAuthUser } from '@/features/auth';
 import { cn } from '@/lib/utils';
 
-/**
- * MainLayout manages the overall application structure, including
- * the global Navbar, SideNav, and main content area.
- */
+// MainLayout: core application frame with responsive navigation
 const MainLayout = () => {
   useBookmarksInit();
   const user = useSelector(selectAuthUser);
   const location = useLocation();
+  const headerRef = useRef(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const isEditorPage = location.pathname.includes('/create') || location.pathname.includes('/edit');
-  const toggleSidebar = () => setIsSidebarOpen(prev => !prev);
+  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
+
+  // Synchronize header height for sticky elements
+  useEffect(() => {
+    if (!headerRef.current) return;
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        document.documentElement.style.setProperty(
+          '--header-height',
+          `${entry.target.offsetHeight}px`,
+        );
+      }
+    });
+
+    observer.observe(headerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <div className={cn(
-      "relative flex min-h-screen flex-col bg-background",
-      isEditorPage && "h-screen overflow-hidden"
-    )}>
-      {/* Global Navigation Header */}
-      <Navbar onToggleSidebar={toggleSidebar} />
-      
-      {/* Contextual Notifications */}
-      <VerificationBanner user={user} />
+    <div
+      className={cn(
+        'relative flex min-h-screen flex-col',
+        isEditorPage && 'h-screen overflow-hidden',
+      )}
+    >
+      {/* Sticky Header Orchestrator */}
+      <div ref={headerRef} className="sticky top-0 z-50 w-full flex-col">
+        <Navbar onToggleSidebar={toggleSidebar} />
+        <VerificationBanner user={user} />
+      </div>
 
       <div className="flex flex-1 items-start">
-        {/* Navigation Sidebar: Managed via layout wrapper to decouple component logic from positioning */}
-        <aside 
+        {/* Sidebar (Left) */}
+        <aside
           className={cn(
-            "sticky top-16 hidden h-[calc(100vh-4rem)] shrink-0 border-r border-border/50 bg-background transition-all duration-500 md:block z-40",
-            isSidebarOpen ? "w-64" : "w-0 border-none overflow-hidden"
+            'border-border/50 sticky z-40 hidden shrink-0 border-r transition-[width] duration-500 md:block',
+            'top-(--header-height,4rem) h-[calc(100vh-var(--header-height,4rem))]',
+            isSidebarOpen ? 'w-64' : 'w-0 overflow-hidden border-none',
           )}
         >
-          <div className="h-full overflow-y-auto no-scrollbar">
-            <SideNav isOpen={isSidebarOpen} />
-          </div>
+          <SideNav isOpen={isSidebarOpen} />
         </aside>
 
-        {/* Primary Content Container */}
-        <div className="relative flex min-w-0 flex-1 flex-col bg-background">
-          {/* Aesthetic Background Grid */}
+        {/* Content */}
+        <div className="relative flex min-w-0 flex-1 flex-col">
           {!isEditorPage && (
-            <div 
-              className="pointer-events-none fixed inset-0 -z-10 bg-dot-grid opacity-[0.018] dark:opacity-[0.03]" 
-              aria-hidden="true" 
+            <div
+              className="bg-dot-grid pointer-events-none fixed inset-0 -z-10"
+              aria-hidden="true"
             />
           )}
-          
-          <main 
+
+          <main
             className={cn(
-              "mx-auto w-full transition-all duration-300",
-              isEditorPage 
-                ? "flex h-[calc(100vh-4rem)] max-w-none flex-col overflow-hidden p-0" 
-                : "page-container"
+              'mx-auto w-full',
+              isEditorPage
+                ? 'flex h-[calc(100vh-var(--header-height,4rem))] max-w-none flex-col overflow-hidden p-0'
+                : 'page-container min-h-[calc(100vh-var(--header-height,4rem))] py-5',
             )}
           >
             <Outlet />

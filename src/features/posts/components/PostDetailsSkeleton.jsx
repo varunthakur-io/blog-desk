@@ -9,7 +9,7 @@ export const PostDetailsSkeleton = () => {
           <div className="space-y-8">
             <div className="flex items-center gap-3">
               <Skeleton className="h-6 w-24 rounded-full" />
-              <div className="h-4 w-px bg-border/60" aria-hidden="true" />
+              <div className="bg-border/60 h-4 w-px" aria-hidden="true" />
               <Skeleton className="h-3 w-24 rounded-md" />
             </div>
 
@@ -18,7 +18,7 @@ export const PostDetailsSkeleton = () => {
               <Skeleton className="h-12 w-3/5 rounded-xl md:w-1/2 lg:w-1/3" />
             </div>
 
-            <div className="flex items-center justify-between border-y border-border/40 py-6">
+            <div className="border-border/40 flex items-center justify-between border-y py-6">
               <div className="flex items-center gap-4">
                 <Skeleton className="size-12 rounded-full" />
                 <div className="flex flex-col gap-2">
@@ -41,14 +41,14 @@ export const PostDetailsSkeleton = () => {
         {/* Content Skeleton */}
         <div className="mx-auto max-w-[800px] space-y-12 pb-20">
           <Skeleton className="aspect-video w-full rounded-3xl" />
-          
+
           <div className="space-y-4">
             <Skeleton className="h-4 w-full rounded-md" />
             <Skeleton className="h-4 w-full rounded-md" />
             <Skeleton className="h-4 w-5/6 rounded-md" />
             <Skeleton className="h-4 w-full rounded-md" />
           </div>
-          
+
           <div className="space-y-4">
             <Skeleton className="h-4 w-full rounded-md" />
             <Skeleton className="h-4 w-4/5 rounded-md" />
