@@ -2,12 +2,23 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import TiptapLink from '@tiptap/extension-link';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 import { Loader2 } from 'lucide-react';
 
 const lowlight = createLowlight(common);
+
+const tiptapExtensions = [
+  StarterKit.configure({
+    codeBlock: false,
+    link: {
+      openOnClick: false,
+    },
+  }),
+  CodeBlockLowlight.configure({
+    lowlight,
+  }),
+];
 
 // UI Helpers
 import { PostEditorToolbar, PostPreviewDialog, PostSettingsSidebar } from './editor';
@@ -32,17 +43,7 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
 
   // Tiptap editor configuration
   const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        codeBlock: false,
-      }),
-      CodeBlockLowlight.configure({
-        lowlight,
-      }),
-      TiptapLink.configure({
-        openOnClick: false,
-      }),
-    ],
+    extensions: tiptapExtensions,
     content: formData.content,
     onUpdate: ({ editor }) => {
       setFormData((prev) => ({ ...prev, content: editor.getHTML() }));
