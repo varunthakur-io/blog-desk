@@ -69,10 +69,10 @@ const Navbar = ({ onToggleSidebar }) => {
           </Button>
 
           <Link to="/" className="group flex shrink-0 items-center gap-2">
-            <div className="bg-foreground text-background flex size-7 items-center justify-center rounded text-[15px] font-black group-hover:opacity-90">
+            <div className="bg-foreground text-background flex size-7 items-center justify-center rounded text-sm font-black group-hover:opacity-90">
               B
             </div>
-            <span className="hidden font-sans text-[17px] font-bold tracking-tight sm:inline-block">
+            <span className="hidden font-sans text-base font-bold tracking-tight sm:inline-block">
               blogdesk
             </span>
           </Link>
@@ -161,14 +161,12 @@ const Navbar = ({ onToggleSidebar }) => {
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
-                size="sm"
                 asChild
-                className="hidden rounded-md text-sm font-medium sm:flex"
+                className="hidden h-9 rounded-md px-4 text-sm font-medium sm:flex"
               >
                 <Link to="/login">Sign In</Link>
               </Button>
               <Button
-                size="sm"
                 asChild
                 className="h-9 rounded-md px-4 text-sm font-medium shadow-sm"
               >

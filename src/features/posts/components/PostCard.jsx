@@ -24,16 +24,16 @@ const PostCardMeta = memo(({ authorProfile, authorName, createdAt }) => (
         {authorProfile?.avatarUrl && (
           <AvatarImage src={authorProfile.avatarUrl} className="object-cover" />
         )}
-        <AvatarFallback className="bg-muted text-muted-foreground/60 text-[8px] font-bold uppercase">
+        <AvatarFallback className="bg-muted text-muted-foreground/60 text-xs font-bold uppercase">
           {authorName.charAt(0)}
         </AvatarFallback>
       </Avatar>
-      <span className="hover:text-primary truncate text-[12px] font-bold tracking-tight">
+      <span className="hover:text-primary truncate text-xs font-bold tracking-tight">
         {authorName}
       </span>
     </Link>
-    <span className="text-muted-foreground/40 text-[10px]">•</span>
-    <time className="text-muted-foreground/60 text-[12px] font-medium" dateTime={createdAt}>
+    <span className="text-muted-foreground/40 text-xs">•</span>
+    <time className="text-muted-foreground/60 text-xs font-medium" dateTime={createdAt}>
       {formatDate(createdAt, { month: 'short', day: 'numeric' })}
     </time>
   </div>
@@ -48,7 +48,7 @@ const PostCardContent = memo(({ postId, title, excerpt }) => (
         {title}
       </h2>
     </Link>
-    <p className="text-muted-foreground/80 line-clamp-2 text-[14px] leading-relaxed font-medium tracking-tight">
+    <p className="text-muted-foreground/80 line-clamp-2 text-sm leading-relaxed font-medium tracking-tight">
       {excerpt}
     </p>
   </div>
@@ -75,12 +75,12 @@ const PostCardActions = memo(
         {category && (
           <button
             onClick={onCategoryClick}
-            className="bg-muted/60 border-border/40 text-muted-foreground hover:bg-primary/5 hover:text-primary hover:border-primary/20 rounded-md border px-2 py-0.5 text-[10px] font-bold tracking-tight uppercase"
+            className="bg-muted/60 border-border/40 text-muted-foreground hover:bg-primary/5 hover:text-primary hover:border-primary/20 rounded-md border px-2 py-0.5 text-xs font-bold tracking-tight uppercase"
           >
             {category}
           </button>
         )}
-        <span className="text-muted-foreground/40 text-[11px] font-bold tabular-nums">
+        <span className="text-muted-foreground/40 text-xs font-bold tabular-nums">
           {readTime} min read
         </span>
       </div>
@@ -96,12 +96,12 @@ const PostCardActions = memo(
         >
           <Heart
             className={cn(
-              'size-3.5 transition-transform group-active/like:scale-125',
+              'size-4 transition-transform group-active/like:scale-125',
               isLiked && 'fill-current',
             )}
           />
           {likesCount > 0 && (
-            <span className="text-[11px] font-bold tabular-nums">{likesCount}</span>
+            <span className="text-xs font-bold tabular-nums">{likesCount}</span>
           )}
         </button>
 
@@ -112,7 +112,7 @@ const PostCardActions = memo(
           className="text-muted-foreground/40 hover:bg-muted/50 hover:text-foreground flex h-8 w-8 items-center justify-center rounded-md"
           aria-label="Share"
         >
-          <Share2 className="size-3.5" />
+          <Share2 className="size-4" />
         </button>
 
         <BookmarkButton

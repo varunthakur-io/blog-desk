@@ -56,10 +56,10 @@ const PostSettingsSidebar = ({
       {/* Header Metadata */}
       <div className="space-y-5">
         <div className="flex items-center justify-between">
-          <h3 className="text-foreground text-[13px] font-bold tracking-tight">Post Details</h3>
+          <h3 className="text-foreground text-sm font-bold tracking-tight">Post Details</h3>
           <div className="bg-muted border-border/40 flex items-center gap-1.5 rounded-md border px-2 py-0.5">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-            <span className="text-muted-foreground text-[10px] font-bold tracking-tight">
+            <span className="text-muted-foreground text-xs font-bold tracking-tight">
               Saved
             </span>
           </div>
@@ -67,9 +67,9 @@ const PostSettingsSidebar = ({
 
         <div className="space-y-5">
           <div className="space-y-2.5">
-            <Label className="text-foreground text-[13px] font-bold">Category</Label>
+            <Label className="text-foreground text-sm font-bold">Category</Label>
             <Select value={formData.category || '__none__'} onValueChange={handleCategoryChange}>
-              <SelectTrigger className="border-border/60 focus:ring-primary/20 h-9 rounded-md bg-transparent text-[13px] font-medium focus:ring-1">
+              <SelectTrigger className="border-border/60 focus:ring-primary/20 h-9 rounded-md bg-transparent text-sm font-medium focus:ring-1">
                 <SelectValue placeholder="Add category" />
               </SelectTrigger>
               <SelectContent className="border-border/60 rounded-md shadow-xl">
@@ -86,9 +86,9 @@ const PostSettingsSidebar = ({
           </div>
 
           <div className="space-y-2.5">
-            <Label className="text-foreground text-[13px] font-bold">Visibility</Label>
+            <Label className="text-foreground text-sm font-bold">Visibility</Label>
             <Select value={formData.status} onValueChange={handleStatusChange}>
-              <SelectTrigger className="border-border/60 focus:ring-primary/20 h-9 rounded-md bg-transparent text-[13px] font-medium focus:ring-1">
+              <SelectTrigger className="border-border/60 focus:ring-primary/20 h-9 rounded-md bg-transparent text-sm font-medium focus:ring-1">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="border-border/60 rounded-md shadow-xl">
@@ -106,7 +106,7 @@ const PostSettingsSidebar = ({
 
       {/* Media Selection */}
       <div className="space-y-4">
-        <h3 className="text-foreground text-[13px] font-bold tracking-tight">Header Media</h3>
+        <h3 className="text-foreground text-sm font-bold tracking-tight">Header Media</h3>
         <FeaturedImageUpload
           imagePreview={formData.coverImageUrl}
           onUpload={onImageUpload}

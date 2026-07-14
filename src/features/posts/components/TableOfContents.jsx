@@ -34,7 +34,7 @@ const TableOfContents = ({ headings, comments, profiles, authUserId, currentUser
       {/* ── On this page ───────────────────────────── */}
       {headings.length > 0 && (
         <div>
-          <p className="text-muted-foreground mb-3 text-[10px] font-semibold tracking-wider uppercase">
+          <p className="text-muted-foreground mb-3 text-xs font-semibold tracking-wider uppercase">
             On this page
           </p>
           <div className="flex flex-col gap-0.5">
@@ -62,7 +62,7 @@ const TableOfContents = ({ headings, comments, profiles, authUserId, currentUser
       {/* ── Recent comments ────────────────────────── */}
       {comments.length > 0 && (
         <div>
-          <p className="text-muted-foreground mb-3 text-[10px] font-semibold tracking-wider uppercase">
+          <p className="text-muted-foreground mb-3 text-xs font-semibold tracking-wider uppercase">
             Discussion · {comments.length}
           </p>
           <div className="flex flex-col gap-2">
@@ -73,15 +73,15 @@ const TableOfContents = ({ headings, comments, profiles, authUserId, currentUser
 
               return (
                 <div key={comment.$id} className="bg-muted/40 rounded-lg px-3 py-2.5">
-                  <p className="text-foreground mb-1 text-[11px] font-semibold">{name}</p>
-                  <p className="text-muted-foreground line-clamp-2 text-[11px] leading-relaxed">
+                  <p className="text-foreground mb-1 text-xs font-semibold">{name}</p>
+                  <p className="text-muted-foreground line-clamp-2 text-xs leading-relaxed">
                     {comment.content}
                   </p>
                 </div>
               );
             })}
             {comments.length > 3 && (
-              <p className="text-muted-foreground text-center text-[11px]">
+              <p className="text-muted-foreground text-center text-xs">
                 +{comments.length - 3} more comments
               </p>
             )}

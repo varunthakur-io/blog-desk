@@ -25,7 +25,7 @@ const BookmarkButton = ({ isBookmarked, onClick, isLoading, className }) => {
         className,
       )}
     >
-      <Bookmark className={cn('h-[1.1rem] w-[1.1rem]', isBookmarked && 'fill-current')} />
+      <Bookmark className={cn('size-4.5', isBookmarked && 'fill-current')} />
     </Button>
   );
 };

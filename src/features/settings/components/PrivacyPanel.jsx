@@ -15,7 +15,7 @@ const PrivacyPanel = ({
   return (
     <div className="space-y-10">
       <div className="border-border/50 border-b pb-4">
-        <h2 className="text-xl font-bold tracking-tight">Privacy & Security</h2>
+        <h2 className="text-foreground text-lg font-bold tracking-tight">Privacy & Security</h2>
         <p className="text-muted-foreground mt-1 text-sm">
           Manage your active sessions and account permanent actions.
         </p>
@@ -24,7 +24,7 @@ const PrivacyPanel = ({
       {/* Sessions section */}
       <section className="space-y-6">
         <div className="space-y-1">
-          <h3 className="text-[15px] font-bold">Active Sessions</h3>
+          <h3 className="text-sm font-bold">Active Sessions</h3>
           <p className="text-muted-foreground text-xs leading-relaxed font-medium">
             You're currently signed in on this device. You can log out of all other sessions across
             different browsers and devices to stay secure.
@@ -36,7 +36,7 @@ const PrivacyPanel = ({
           size="sm"
           disabled={isUpdatingSession}
           onClick={() => setIsSessionsDialogOpen(true)}
-          className="border-border/60 hover:bg-muted/50 h-10 rounded-full px-6 text-xs font-bold active:scale-95"
+          className="border-border/60 hover:bg-muted/50 h-9 rounded-full px-6 text-xs font-bold active:scale-95"
         >
           {isUpdatingSession ? (
             <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
@@ -52,7 +52,7 @@ const PrivacyPanel = ({
       {/* Danger zone section */}
       <section className="border-destructive/20 bg-destructive/[0.02] space-y-6 rounded-2xl border p-6">
         <div className="space-y-1">
-          <h3 className="text-destructive flex items-center gap-2 text-[15px] font-bold">
+          <h3 className="text-destructive flex items-center gap-2 text-sm font-bold">
             <ShieldAlert className="h-4 w-4" />
             Danger Zone
           </h3>
@@ -70,7 +70,7 @@ const PrivacyPanel = ({
           size="sm"
           disabled={isUpdatingSession}
           onClick={() => setIsDeleteDialogOpen(true)}
-          className="shadow-destructive/10 hover:shadow-destructive/20 h-10 rounded-full px-8 text-xs font-bold shadow-sm hover:shadow-xl active:scale-95"
+          className="shadow-destructive/10 hover:shadow-destructive/20 h-9 rounded-full px-8 text-xs font-bold shadow-sm hover:shadow-xl active:scale-95"
         >
           {isUpdatingSession ? (
             <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />

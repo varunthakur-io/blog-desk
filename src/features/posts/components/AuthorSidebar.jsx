@@ -83,7 +83,7 @@ const AuthorSidebar = ({
                 asChild
                 variant="outline"
                 size="sm"
-                className="h-8 w-full gap-1.5 rounded-md px-2 text-[11px] font-bold"
+                className="h-8 w-full gap-1.5 rounded-md px-2 text-xs font-bold"
               >
                 <Link to={`/profile/${authorUsername}`}>
                   <User className="h-3.5 w-3.5" /> View
@@ -92,7 +92,7 @@ const AuthorSidebar = ({
             )}
             <FollowButton
               userId={authorProfile?.$id}
-              className="h-8 w-full rounded-md px-2 text-[11px] font-bold"
+              className="h-8 w-full rounded-md px-2 text-xs font-bold"
             />
           </div>
         </div>

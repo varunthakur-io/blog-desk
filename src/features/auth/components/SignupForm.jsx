@@ -51,8 +51,8 @@ export const SignupForm = () => {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           {/* Name */}
-          <div>
-            <Label htmlFor="name" className="mb-2 block">
+          <div className="grid gap-1.5">
+            <Label htmlFor="name">
               Name
             </Label>
             <Input
@@ -72,8 +72,8 @@ export const SignupForm = () => {
           </div>
 
           {/* Username */}
-          <div>
-            <Label htmlFor="username" className="mb-2 block">
+          <div className="grid gap-1.5">
+            <Label htmlFor="username">
               Username
             </Label>
             <Input
@@ -96,8 +96,8 @@ export const SignupForm = () => {
           </div>
 
           {/* Email */}
-          <div>
-            <Label htmlFor="email" className="mb-2 block">
+          <div className="grid gap-1.5">
+            <Label htmlFor="email">
               Email
             </Label>
             <Input
@@ -118,8 +118,8 @@ export const SignupForm = () => {
           </div>
 
           {/* Password */}
-          <div>
-            <Label htmlFor="password" className="mb-2 block">
+          <div className="grid gap-1.5">
+            <Label htmlFor="password">
               Password
             </Label>
             <Input

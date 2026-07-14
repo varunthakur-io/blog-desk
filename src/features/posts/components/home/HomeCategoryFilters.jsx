@@ -5,7 +5,7 @@ const HomeCategoryFilters = ({ categories = [], activeCategory, onCategoryChange
     <button
       onClick={() => activeCategory && onCategoryChange(null)}
       className={cn(
-        'border-border/20 h-8 shrink-0 rounded-md border px-4 text-[11px] font-bold',
+        'border-border/20 h-8 shrink-0 rounded-md border px-4 text-xs font-bold',
         !activeCategory
           ? 'bg-foreground text-background border-none shadow-sm'
           : 'bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground',
@@ -20,7 +20,7 @@ const HomeCategoryFilters = ({ categories = [], activeCategory, onCategoryChange
           key={cat}
           onClick={() => onCategoryChange(cat)}
           className={cn(
-            'border-border/20 h-8 shrink-0 rounded-md border px-4 text-[11px] font-bold',
+            'border-border/20 h-8 shrink-0 rounded-md border px-4 text-xs font-bold',
             isActive
               ? 'bg-foreground text-background border-none shadow-sm'
               : 'bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground',

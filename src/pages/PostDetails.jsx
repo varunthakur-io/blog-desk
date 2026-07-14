@@ -115,7 +115,7 @@ const PostDetails = () => {
       />
 
       {/* Main content */}
-      <div className="mx-auto w-full max-w-[800px]">
+      <div className="mx-auto w-full max-w-200">
         {/* Header */}
         <header className="space-y-10 pb-10">
           <div className="space-y-6">
@@ -123,17 +123,17 @@ const PostDetails = () => {
               {post.category && (
                 <button
                   onClick={handleCategoryClick}
-                  className="bg-muted/50 border-border/40 text-muted-foreground hover:bg-foreground hover:text-background rounded-md border px-2 py-0.5 text-[10px] font-bold tracking-tight uppercase"
+                  className="bg-muted/50 border-border/40 text-muted-foreground hover:bg-foreground hover:text-background rounded-md border px-2 py-0.5 text-xs font-bold tracking-tight uppercase"
                 >
                   {post.category}
                 </button>
               )}
               <div className="bg-border/40 h-3 w-px" aria-hidden="true" />
-              <time className="text-muted-foreground/40 text-[12px] font-bold tabular-nums">
+              <time className="text-muted-foreground/40 text-xs font-bold tabular-nums">
                 {formatDate(post.$createdAt, { month: 'long', day: 'numeric', year: 'numeric' })}
               </time>
               <div className="bg-border/40 h-3 w-px" aria-hidden="true" />
-              <span className="text-muted-foreground/40 text-[12px] font-bold tabular-nums">
+              <span className="text-muted-foreground/40 text-xs font-bold tabular-nums">
                 {estimatedReadTime} min read
               </span>
             </div>
@@ -158,7 +158,7 @@ const PostDetails = () => {
         <PostContent content={post.content} coverImageUrl={post.coverImageUrl} />
 
         {/* Footer */}
-        <footer id="comments" className="mt-20 flex flex-col gap-12">
+        <footer id="comments" className="mt-20 flex flex-col gap-12 pb-24">
           <div className="border-border/20 flex items-center justify-between border-t pt-10">
             <div className="flex items-center gap-6">
               <Button
@@ -166,10 +166,10 @@ const PostDetails = () => {
                 onClick={handleLike}
                 disabled={isLikedLoading || isLiking || !authUserId}
                 className={cn(
-                  'h-10 gap-2 rounded-md px-6 text-[13px] font-bold tracking-tight active:scale-95',
+                  'h-9 gap-2 rounded-md px-6 text-sm font-bold tracking-tight active:scale-95',
                   isLiked
-                    ? 'bg-foreground text-background border-none hover:opacity-90'
-                    : 'border-border/40 text-muted-foreground border hover:border-rose-500/20 hover:bg-rose-500/5 hover:text-rose-500',
+                    ? 'bg-rose-500 text-white border-none hover:bg-rose-600'
+                    : 'border-border text-muted-foreground border hover:border-rose-500/40 hover:bg-rose-500/5 hover:text-rose-500 dark:border-border/80 dark:text-muted-foreground dark:hover:text-rose-400',
                 )}
               >
                 {isLiking ? (

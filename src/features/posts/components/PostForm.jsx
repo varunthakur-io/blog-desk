@@ -51,7 +51,7 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
     editorProps: {
       attributes: {
         class:
-          'prose prose-neutral prose-lg dark:prose-invert max-w-none focus:outline-none min-h-[500px] font-serif ',
+          'prose prose-neutral prose-lg dark:prose-invert max-w-none focus:outline-none min-h-125 font-serif ',
       },
     },
   });
@@ -113,7 +113,7 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
         <div className="flex w-full">
           {/* Editor section */}
           <div className="border-border/20 flex flex-1 flex-col border-r py-8 lg:py-12">
-            <div className="mx-auto w-full max-w-[850px] px-4 sm:px-8">
+            <div className="mx-auto w-full max-w-212.5 px-4 sm:px-8">
               {/* Title input */}
               <textarea
                 ref={titleRef}
@@ -132,7 +132,7 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
           </div>
 
           {/* Settings Sidebar */}
-          <aside className="border-border/20 sticky top-0 hidden h-screen w-[350px] shrink-0 overflow-y-auto border-l lg:block">
+          <aside className="border-border/20 sticky top-0 hidden h-screen w-87.5 shrink-0 overflow-y-auto border-l lg:block">
             <div className="p-8">
               <PostSettingsSidebar
                 formData={formData}

@@ -36,7 +36,7 @@ const VerificationBanner = ({ user }) => {
           <div className="bg-primary/10 flex size-7 items-center justify-center rounded-full">
             <Mail className="text-primary h-3.5 w-3.5" />
           </div>
-          <p className="text-foreground/90 truncate text-[12px] font-semibold tracking-tight">
+          <p className="text-foreground/90 truncate text-xs font-semibold tracking-tight">
             Please verify your email (
             <span className="decoration-primary/30 font-bold underline">{user.email}</span>)
             <span className="text-muted-foreground ml-1.5 hidden font-medium opacity-60 lg:inline">
@@ -51,7 +51,7 @@ const VerificationBanner = ({ user }) => {
             disabled={isLoading || isSent}
             variant={isSent ? 'secondary' : 'outline'}
             className={cn(
-              'h-8 rounded-full px-4 text-[10px] font-bold tracking-tighter uppercase active:scale-95',
+              'h-8 rounded-full px-4 text-xs font-bold active:scale-95',
               !isSent && 'border-primary/20 hover:bg-primary/5 text-primary hover:text-primary',
             )}
           >

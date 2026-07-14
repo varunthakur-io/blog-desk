@@ -48,7 +48,7 @@ const ForgotPassword = () => {
             </div>
             <div className="flex flex-col">
               <span className="text-lg font-bold tracking-tight">BlogDesk</span>
-              <span className="text-muted-foreground -mt-0.5 text-[10px] font-medium">
+              <span className="text-muted-foreground -mt-0.5 text-xs font-medium">
                 Digital Magazine
               </span>
             </div>
@@ -69,8 +69,8 @@ const ForgotPassword = () => {
             {/* Form container */}
             <CardContent className="px-0">
               <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-                <div>
-                  <Label htmlFor="email" className="mb-2 block">
+                <div className="grid gap-1.5">
+                  <Label htmlFor="email">
                     Email
                   </Label>
                   <Input

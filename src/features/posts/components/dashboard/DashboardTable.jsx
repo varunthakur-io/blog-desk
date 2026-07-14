@@ -25,16 +25,16 @@ const DashboardTable = ({ posts, onEdit, onDelete }) => (
     <Table>
       <TableHeader>
         <TableRow className="border-border/40 border-b hover:bg-transparent">
-          <TableHead className="text-muted-foreground w-[420px] px-4 py-4 text-[13px] font-bold tracking-tight">
+          <TableHead className="text-muted-foreground w-105 px-4 py-4 text-xs font-bold tracking-tight">
             Title
           </TableHead>
-          <TableHead className="text-muted-foreground py-4 text-[13px] font-bold tracking-tight">
+          <TableHead className="text-muted-foreground py-4 text-xs font-bold tracking-tight">
             Status
           </TableHead>
-          <TableHead className="text-muted-foreground py-4 text-[13px] font-bold tracking-tight">
+          <TableHead className="text-muted-foreground py-4 text-xs font-bold tracking-tight">
             Created
           </TableHead>
-          <TableHead className="text-muted-foreground px-4 py-4 text-right text-[13px] font-bold tracking-tight">
+          <TableHead className="text-muted-foreground px-4 py-4 text-right text-xs font-bold tracking-tight">
             Actions
           </TableHead>
         </TableRow>
@@ -48,7 +48,7 @@ const DashboardTable = ({ posts, onEdit, onDelete }) => (
             <TableCell className="px-4 py-5 font-bold">
               <Link
                 to={`/posts/${post.$id}`}
-                className="hover:text-primary text-foreground line-clamp-1 text-[14px] leading-tight tracking-tight"
+                className="hover:text-primary text-foreground line-clamp-1 text-sm leading-tight tracking-tight"
               >
                 {post.title}
               </Link>
@@ -57,7 +57,7 @@ const DashboardTable = ({ posts, onEdit, onDelete }) => (
               <Badge
                 variant="secondary"
                 className={cn(
-                  'rounded-md border-none px-2.5 py-0.5 text-[11px] font-bold',
+                  'rounded-md border-none px-2.5 py-0.5 text-xs font-bold',
                   post.status === 'published'
                     ? 'bg-green-500/10 text-green-700 dark:text-green-400'
                     : 'bg-muted text-muted-foreground',
@@ -66,7 +66,7 @@ const DashboardTable = ({ posts, onEdit, onDelete }) => (
                 {post.status || 'Draft'}
               </Badge>
             </TableCell>
-            <TableCell className="text-muted-foreground/60 py-5 text-[13px] font-medium tabular-nums">
+            <TableCell className="text-muted-foreground/60 py-5 text-xs font-medium tabular-nums">
               {formatDate(post.$createdAt, { month: 'short', day: 'numeric', year: 'numeric' })}
             </TableCell>
             <TableCell className="px-4 py-5 text-right">
@@ -81,7 +81,7 @@ const DashboardTable = ({ posts, onEdit, onDelete }) => (
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
                   align="end"
-                  className="border-border/40 min-w-[140px] rounded-md p-1 text-sm shadow-lg"
+                  className="border-border/40 min-w-35 rounded-md p-1 text-sm shadow-lg"
                 >
                   <DropdownMenuItem
                     onClick={() => onEdit(post)}

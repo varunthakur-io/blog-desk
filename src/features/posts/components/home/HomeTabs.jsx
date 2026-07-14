@@ -11,7 +11,7 @@ const TabButton = ({ isActive, onClick, children }) => (
     )}
   >
     {children}
-    {isActive && <span className="bg-foreground absolute -bottom-px left-0 h-[2px] w-full" />}
+    {isActive && <span className="bg-foreground absolute -bottom-px left-0 h-0.5 w-full" />}
   </button>
 );
 
