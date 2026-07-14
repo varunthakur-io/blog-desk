@@ -44,19 +44,19 @@ const RecommendedSidebar = ({
               <div className="min-w-0 flex-1 space-y-2">
                 {/* Author Info */}
                 <Link
-                  to={`/profile/${post.author?.username || post.authorId}`}
+                  to={`/profile/${post.authorUsername}`}
                   className="flex items-center gap-2 transition-opacity hover:opacity-80"
                 >
                   <Avatar className="bg-muted size-4 border-none">
-                    {post.author?.avatarUrl && (
-                      <AvatarImage src={post.author.avatarUrl} className="object-cover" />
+                    {post.authorAvatarUrl && (
+                      <AvatarImage src={post.authorAvatarUrl} className="object-cover" />
                     )}
                     <AvatarFallback className="text-muted-foreground text-xs font-bold">
-                      {(post.author?.name || 'A').charAt(0)}
+                      {(post.authorName || 'A').charAt(0)}
                     </AvatarFallback>
                   </Avatar>
                   <span className="text-foreground/60 truncate text-xs font-bold">
-                    {post.author?.name || 'Anonymous'}
+                    {post.authorName || 'Anonymous'}
                   </span>
                 </Link>
 
@@ -144,9 +144,7 @@ const RecommendedSidebar = ({
                 </Link>
 
                 {/* Follow Button */}
-                <Button
-                  className="bg-foreground text-background hover:bg-foreground/90 h-7 rounded-md px-3 text-xs font-bold active:scale-95"
-                >
+                <Button className="bg-foreground text-background hover:bg-foreground/90 h-7 rounded-md px-3 text-xs font-bold active:scale-95">
                   Follow
                 </Button>
               </div>
