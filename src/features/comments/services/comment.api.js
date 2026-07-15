@@ -32,6 +32,15 @@ class CommentApi {
       commentId,
     );
   }
+
+  async getCommentsCount(postId) {
+    const res = await databases.listDocuments(appwrite.databaseId, appwrite.commentsCollectionId, [
+      Query.equal('postId', postId),
+      Query.limit(1),
+    ]);
+
+    return res.total;
+  }
 }
 
 export const commentApi = new CommentApi();

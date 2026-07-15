@@ -19,9 +19,9 @@ class CommentService {
       // denormalized counter falls temporarily out of sync.
       try {
         const post = await postService.getPostById(postId);
-        const currentCount = post?.commentsCount || 0;
+        const currentCount = await commentApi.getCommentsCount(postId);
         await postService.updatePost(postId, {
-          commentsCount: currentCount + 1,
+          commentsCount: currentCount,
         });
 
         // Trigger Notification to Post Author
@@ -74,10 +74,9 @@ class CommentService {
 
       // Decrement the post's comment count best-effort.
       try {
-        const post = await postService.getPostById(postId);
-        const currentCount = post?.commentsCount || 0;
+        const currentCount = await commentApi.getCommentsCount(postId);
         await postService.updatePost(postId, {
-          commentsCount: Math.max(0, currentCount - 1),
+          commentsCount: currentCount,
         });
 
         // Cleanup associated notifications
