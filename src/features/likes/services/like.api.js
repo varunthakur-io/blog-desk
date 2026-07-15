@@ -2,6 +2,15 @@ import { databases, appwriteConfig as appwrite } from '@/lib/appwrite';
 import { Query, ID } from 'appwrite';
 
 class LikeApi {
+  // Get the total likes count of a post
+  async getLikesCount(postId) {
+    const res = await databases.listDocuments(appwrite.databaseId, appwrite.likesCollectionId, [
+      Query.equal('postId', postId),
+      Query.limit(1),
+    ]);
+    return res.total;
+  }
+
   async getLike(postId, userId) {
     const likeList = await databases.listDocuments(
       appwrite.databaseId,
