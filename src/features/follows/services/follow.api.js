@@ -37,6 +37,21 @@ class FollowApi {
       Query.equal('followerId', userId),
     ]);
   }
+  async getFollowersCount(userId) {
+    const res = await databases.listDocuments(appwrite.databaseId, this.collectionId, [
+      Query.equal('followingId', userId),
+      Query.limit(1),
+    ]);
+    return res.total;
+  }
+
+  async getFollowingCount(userId) {
+    const res = await databases.listDocuments(appwrite.databaseId, this.collectionId, [
+      Query.equal('followerId', userId),
+      Query.limit(1),
+    ]);
+    return res.total;
+  }
 }
 
 export const followApi = new FollowApi();
