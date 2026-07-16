@@ -8,6 +8,10 @@ import { parseApiError } from '@/lib/error-handler';
 const likedCache = new Map();
 
 class LikeService {
+  clearCache() {
+    likedCache.clear();
+  }
+
   // updates the like count on the post
   async _updateLikesCount(postId) {
     try {
