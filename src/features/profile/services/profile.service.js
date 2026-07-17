@@ -93,11 +93,16 @@ class ProfileService {
     }
   }
 
-  async clearProfileById(userId) {
+  async getRecommendedProfiles(limit = 10) {
     try {
-      return await profileApi.clearProfile(userId);
-    } catch {
-      return false;
+      const query = [
+        Query.limit(limit),
+      ];
+      const res = await profileApi.searchProfiles(query);
+      return res.documents || [];
+    } catch (error) {
+      console.error('ProfileService :: getRecommendedProfiles() failed:', error);
+      return [];
     }
   }
 

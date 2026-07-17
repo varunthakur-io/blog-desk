@@ -22,7 +22,7 @@ import {
 import { selectAuthUserId } from '@/features/auth';
 import { POSTS_PER_PAGE } from '@/constants';
 import { getUniqueProfileIds, prefetchProfiles } from '@/features/profile/utils/prefetchProfiles';
-import { profileService } from '@/features/profile';
+import { useHomeSidebar } from './useHomeSidebar';
 
 const LIMIT = POSTS_PER_PAGE;
 
@@ -39,14 +39,9 @@ export const useHome = () => {
   const feedMode = useSelector(selectFeedMode);
   const authUserId = useSelector(selectAuthUserId);
 
+  // Local State
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
-
-  // Sidebar States
-  const [recommendedAuthors, setRecommendedAuthors] = useState([]);
-  const [isAuthorsLoading, setIsAuthorsLoading] = useState(false);
-  const [staffPicks, setStaffPicks] = useState([]);
-  const [isStaffPicksLoading, setIsStaffPicksLoading] = useState(false);
 
   const loadingRef = useRef(false);
 
@@ -65,50 +60,13 @@ export const useHome = () => {
     }
   }, [searchParams, feedMode, dispatch]);
 
-  // Sidebar: Fetch Recommended Authors
-  useEffect(() => {
-    const fetchAuthors = async () => {
-      setIsAuthorsLoading(true);
-      try {
-        const authors = await profileService.searchProfiles(' ');
-        setRecommendedAuthors(authors.filter((a) => a.$id !== authUserId));
-      } catch (err) {
-        console.error('useHome :: fetchAuthors failed', err);
-      } finally {
-        setIsAuthorsLoading(false);
-      }
-    };
-    fetchAuthors();
-  }, [authUserId]);
-
-  // Sidebar: Fetch Staff Picks
-  useEffect(() => {
-    const fetchStaffPicks = async () => {
-      setIsStaffPicksLoading(true);
-      try {
-        const res = await postService.getStaffPicks(3);
-        const posts = res.documents;
-        const authorIds = [...new Set(posts.map((p) => p.authorId))];
-        const profiles = await profileService.getProfilesByIds(authorIds);
-
-        const enrichedPosts = posts.map((post) => {
-          const authorProfile = profiles.find((p) => p.$id === post.authorId);
-          return {
-            ...post,
-            authorName: authorProfile?.name || post.authorName || 'Anonymous',
-            authorAvatarUrl: authorProfile?.avatarUrl || null,
-            authorUsername: authorProfile?.username || post.authorId,
-          };
-        });
-        setStaffPicks(enrichedPosts);
-      } catch (err) {
-        console.error('useHome :: fetchStaffPicks failed', err);
-      } finally {
-        setIsStaffPicksLoading(false);
-      }
-    };
-    fetchStaffPicks();
-  }, []);
+  // Sidebar recommendations (Authors & Staff Picks)
+  const {
+    recommendedAuthors,
+    isAuthorsLoading,
+    staffPicks,
+    isStaffPicksLoading,
+  } = useHomeSidebar(authUserId);
 
   // 1. Debounce logic for search input
   // eslint-disable-next-line react-hooks/exhaustive-deps
