@@ -49,6 +49,8 @@ export default async ({ req, res, log, error }) => {
     const profilesCollectionId = getRequiredEnv('APPWRITE_PROFILES_COLLECTION_ID');
     const followsCollectionId = getRequiredEnv('APPWRITE_FOLLOWS_COLLECTION_ID');
     const bucketId = getRequiredEnv('APPWRITE_BUCKET_ID');
+    const notificationsCollectionId = process.env.APPWRITE_NOTIFICATIONS_COLLECTION_ID || null;
+
 
     const userId = req.headers['x-appwrite-user-id'];
 
@@ -101,6 +103,17 @@ export default async ({ req, res, log, error }) => {
     ]);
 
     for (const comment of userComments) {
+      try {
+        if (comment.postId) {
+          const post = await databases.getDocument(databaseId, postsCollectionId, comment.postId);
+          const currentCommentsCount = post.commentsCount || 0;
+          await databases.updateDocument(databaseId, postsCollectionId, comment.postId, {
+            commentsCount: Math.max(0, currentCommentsCount - 1),
+          });
+        }
+      } catch (err) {
+        log(`Failed to decrement commentsCount for post ${comment.postId}: ${err.message}`);
+      }
       await databases.deleteDocument(databaseId, commentsCollectionId, comment.$id);
     }
 
@@ -109,6 +122,17 @@ export default async ({ req, res, log, error }) => {
     ]);
 
     for (const like of userLikes) {
+      try {
+        if (like.postId) {
+          const post = await databases.getDocument(databaseId, postsCollectionId, like.postId);
+          const currentLikesCount = post.likesCount || 0;
+          await databases.updateDocument(databaseId, postsCollectionId, like.postId, {
+            likesCount: Math.max(0, currentLikesCount - 1),
+          });
+        }
+      } catch (err) {
+        log(`Failed to decrement likesCount for post ${like.postId}: ${err.message}`);
+      }
       await databases.deleteDocument(databaseId, likesCollectionId, like.$id);
     }
 
@@ -119,11 +143,22 @@ export default async ({ req, res, log, error }) => {
     ]);
     for (const relationship of following) {
       try {
-        // Ideally we should decrement followersCount of the target user here,
-        // but for safety in deletion we focus on the relationship cleanup.
+        // Decrement followersCount of the target user
+        if (relationship.followingId) {
+          const profile = await databases.getDocument(databaseId, profilesCollectionId, relationship.followingId);
+          const currentFollowersCount = profile.followersCount || 0;
+          await databases.updateDocument(databaseId, profilesCollectionId, relationship.followingId, {
+            followersCount: Math.max(0, currentFollowersCount - 1),
+          });
+        }
+      } catch (err) {
+        log(`Failed to decrement followersCount for user ${relationship.followingId}: ${err.message}`);
+      }
+
+      try {
         await databases.deleteDocument(databaseId, followsCollectionId, relationship.$id);
       } catch (err) {
-        log(`Failed to delete following relationship ${relationship.$id}`);
+        log(`Failed to delete following relationship ${relationship.$id}: ${err.message}`);
       }
     }
 
@@ -133,13 +168,51 @@ export default async ({ req, res, log, error }) => {
     ]);
     for (const relationship of followers) {
       try {
+        // Decrement followingCount of the follower
+        if (relationship.followerId) {
+          const profile = await databases.getDocument(databaseId, profilesCollectionId, relationship.followerId);
+          const currentFollowingCount = profile.followingCount || 0;
+          await databases.updateDocument(databaseId, profilesCollectionId, relationship.followerId, {
+            followingCount: Math.max(0, currentFollowingCount - 1),
+          });
+        }
+      } catch (err) {
+        log(`Failed to decrement followingCount for user ${relationship.followerId}: ${err.message}`);
+      }
+
+      try {
         await databases.deleteDocument(databaseId, followsCollectionId, relationship.$id);
       } catch (err) {
-        log(`Failed to delete follower relationship ${relationship.$id}`);
+        log(`Failed to delete follower relationship ${relationship.$id}: ${err.message}`);
       }
     }
 
+    // 3.5 Clean up Notifications
+    if (notificationsCollectionId) {
+      log('Cleaning up user notifications...');
+      try {
+        const receivedNotifications = await listAllDocuments(databases, databaseId, notificationsCollectionId, [
+          Query.equal('recipientId', userId),
+        ]);
+        for (const notification of receivedNotifications) {
+          await databases.deleteDocument(databaseId, notificationsCollectionId, notification.$id);
+        }
+
+        const sentNotifications = await listAllDocuments(databases, databaseId, notificationsCollectionId, [
+          Query.equal('senderId', userId),
+        ]);
+        for (const notification of sentNotifications) {
+          await databases.deleteDocument(databaseId, notificationsCollectionId, notification.$id);
+        }
+      } catch (notifErr) {
+        log(`Failed to clean up notifications: ${notifErr.message}`);
+      }
+    } else {
+      log('Skipped notifications cleanup: APPWRITE_NOTIFICATIONS_COLLECTION_ID variable is missing.');
+    }
+
     // 4. Delete Profile and Avatar
+
     try {
       const profile = await databases.getDocument(databaseId, profilesCollectionId, userId);
       if (profile.avatarId) {
