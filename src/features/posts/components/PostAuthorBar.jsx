@@ -35,7 +35,7 @@ const PostAuthorBar = ({
           <div className="flex items-center gap-3">
             <Link
               to={`/profile/${authorUsername}`}
-              className="text-foreground hover:text-primary text-[15px] font-bold tracking-tight"
+              className="text-foreground hover:text-primary text-sm font-bold tracking-tight"
             >
               {authorName}
             </Link>
@@ -44,10 +44,10 @@ const PostAuthorBar = ({
               size="sm"
               variant="ghost"
               showIcon={false}
-              className="border-border/40 hover:bg-foreground hover:text-background h-6 rounded-md border px-3 text-[10px] font-bold tracking-tight uppercase"
+              className="border-border/40 hover:bg-foreground hover:text-background h-6 rounded-md border px-2.5 text-xs font-bold uppercase"
             />
           </div>
-          <span className="text-muted-foreground/50 text-[11px] font-medium tracking-tight">
+          <span className="text-muted-foreground/50 text-xs font-medium tracking-tight">
             Author · {authorProfile?.bio?.substring(0, 40) || 'Verified Writer'}
           </span>
         </div>

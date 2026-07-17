@@ -2,12 +2,23 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import TiptapLink from '@tiptap/extension-link';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 import { Loader2 } from 'lucide-react';
 
 const lowlight = createLowlight(common);
+
+const tiptapExtensions = [
+  StarterKit.configure({
+    codeBlock: false,
+    link: {
+      openOnClick: false,
+    },
+  }),
+  CodeBlockLowlight.configure({
+    lowlight,
+  }),
+];
 
 // UI Helpers
 import { PostEditorToolbar, PostPreviewDialog, PostSettingsSidebar } from './editor';
@@ -32,17 +43,7 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
 
   // Tiptap editor configuration
   const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        codeBlock: false,
-      }),
-      CodeBlockLowlight.configure({
-        lowlight,
-      }),
-      TiptapLink.configure({
-        openOnClick: false,
-      }),
-    ],
+    extensions: tiptapExtensions,
     content: formData.content,
     onUpdate: ({ editor }) => {
       setFormData((prev) => ({ ...prev, content: editor.getHTML() }));
@@ -50,7 +51,7 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
     editorProps: {
       attributes: {
         class:
-          'prose prose-neutral prose-lg dark:prose-invert max-w-none focus:outline-none min-h-[500px] font-serif ',
+          'prose prose-neutral prose-lg dark:prose-invert max-w-none focus:outline-none min-h-125 font-serif ',
       },
     },
   });
@@ -112,7 +113,7 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
         <div className="flex w-full">
           {/* Editor section */}
           <div className="border-border/20 flex flex-1 flex-col border-r py-8 lg:py-12">
-            <div className="mx-auto w-full max-w-[850px] px-4 sm:px-8">
+            <div className="mx-auto w-full max-w-212.5 px-4 sm:px-8">
               {/* Title input */}
               <textarea
                 ref={titleRef}
@@ -131,7 +132,7 @@ const PostForm = ({ initialData, onSubmit, isSubmitting, mode = 'create', onBack
           </div>
 
           {/* Settings Sidebar */}
-          <aside className="border-border/20 sticky top-0 hidden h-screen w-[350px] shrink-0 overflow-y-auto border-l lg:block">
+          <aside className="border-border/20 sticky top-0 hidden h-screen w-87.5 shrink-0 overflow-y-auto border-l lg:block">
             <div className="p-8">
               <PostSettingsSidebar
                 formData={formData}

@@ -1,5 +1,6 @@
 import { authApi } from './auth.api';
 import { profileService } from '@/features/profile';
+import { likeService } from '@/features/likes';
 import { config } from '@/lib/config';
 import { parseApiError } from '@/lib/error-handler';
 
@@ -78,8 +79,10 @@ class AuthService {
     try {
       await authApi.deleteSession('current');
       this.clearCachedUser();
+      likeService.clearCache();
     } catch (error) {
       this.clearCachedUser(); // Always clear local state
+      likeService.clearCache();
       throw new Error(parseApiError(error));
     }
   }
@@ -88,8 +91,10 @@ class AuthService {
     try {
       await authApi.deleteSessions();
       this.clearCachedUser();
+      likeService.clearCache();
     } catch (error) {
       this.clearCachedUser();
+      likeService.clearCache();
       throw new Error(parseApiError(error));
     }
   }

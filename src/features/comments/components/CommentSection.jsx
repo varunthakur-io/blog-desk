@@ -26,7 +26,7 @@ const CommentItem = ({ comment, isMe, onDeleteClick }) => {
             {avatarUrl && (
               <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" />
             )}
-            <AvatarFallback className="text-muted-foreground text-[10px] font-bold uppercase">
+            <AvatarFallback className="text-muted-foreground text-xs font-bold uppercase">
               {displayName.charAt(0)}
             </AvatarFallback>
           </Avatar>
@@ -38,12 +38,12 @@ const CommentItem = ({ comment, isMe, onDeleteClick }) => {
             <div className="flex min-w-0 items-center gap-2">
               <Link
                 to={`/profile/${profile?.username}`}
-                className="text-foreground hover:text-primary truncate text-[13px] font-bold tracking-tight"
+                className="text-foreground hover:text-primary truncate text-sm font-bold tracking-tight"
               >
                 {displayName}
               </Link>
-              <span className="text-muted-foreground/30 text-[10px]">•</span>
-              <time className="text-muted-foreground/50 text-[12px] font-medium tabular-nums">
+              <span className="text-muted-foreground/30 text-xs">•</span>
+              <time className="text-muted-foreground/50 text-xs font-medium tabular-nums">
                 {formatDate(comment.$createdAt)}
               </time>
 
@@ -52,7 +52,7 @@ const CommentItem = ({ comment, isMe, onDeleteClick }) => {
                   userId={comment.userId}
                   variant="ghost"
                   size="xs"
-                  className="text-primary hover:bg-primary/5 border-primary/20 ml-1 h-5 rounded-md border px-2 text-[10px] font-bold"
+                  className="text-primary hover:bg-primary/5 border-primary/20 ml-1 h-6 rounded-md border px-2 text-xs font-bold"
                 />
               )}
             </div>
@@ -63,7 +63,7 @@ const CommentItem = ({ comment, isMe, onDeleteClick }) => {
                 variant="ghost"
                 size="sm"
                 onClick={onDeleteClick}
-                className="text-muted-foreground/50 hover:text-destructive hover:bg-destructive/5 h-7 gap-1.5 rounded-md px-2 text-[10px] font-bold tracking-wider uppercase opacity-0 group-hover:opacity-100"
+                className="text-muted-foreground/50 hover:text-destructive hover:bg-destructive/5 h-8 gap-1.5 rounded-md px-2 text-xs font-bold tracking-wider uppercase opacity-0 group-hover:opacity-100"
               >
                 <Trash2 className="size-3" />
                 <span>Delete</span>
@@ -73,7 +73,7 @@ const CommentItem = ({ comment, isMe, onDeleteClick }) => {
 
           {/* Comment body */}
           <div className="mt-1.5 px-0.5">
-            <p className="text-foreground/90 text-[14px] leading-relaxed tracking-tight whitespace-pre-wrap">
+            <p className="text-foreground/90 text-sm leading-relaxed tracking-tight whitespace-pre-wrap">
               {comment.content}
             </p>
           </div>
@@ -98,7 +98,7 @@ const CommentForm = ({
   if (!authUserId) {
     return (
       <div className="border-border/40 bg-muted/5 mb-10 rounded-md border py-8 text-center">
-        <p className="text-muted-foreground mb-4 text-[13px] font-bold tracking-tight">
+        <p className="text-muted-foreground mb-4 text-sm font-bold tracking-tight">
           Sign in to join the conversation
         </p>
         <Button
@@ -121,7 +121,7 @@ const CommentForm = ({
           {currentUserProfile?.avatarUrl && (
             <AvatarImage src={currentUserProfile.avatarUrl} className="object-cover" />
           )}
-          <AvatarFallback className="bg-muted text-muted-foreground text-[10px] font-bold uppercase">
+          <AvatarFallback className="bg-muted text-muted-foreground text-xs font-bold uppercase">
             {currentUserName.charAt(0)}
           </AvatarFallback>
         </Avatar>
@@ -131,13 +131,13 @@ const CommentForm = ({
           onChange={(e) => setNewComment(e.target.value)}
           onKeyDown={onKeyDown}
           placeholder="Add a comment..."
-          className="placeholder:text-muted-foreground/30 mt-0.5 min-h-[40px] w-full resize-none border-0 bg-transparent p-0 text-[14px] leading-relaxed shadow-none focus:outline-none focus-visible:ring-0"
+          className="placeholder:text-muted-foreground/30 min-h-10 w-full resize-none border-0 bg-transparent py-1 text-sm leading-relaxed shadow-none focus:outline-none focus-visible:ring-0"
         />
       </div>
 
       {/* Form Utilities */}
       <div className="border-border/10 mt-3 flex items-center justify-between border-t pt-3">
-        <p className="text-muted-foreground/30 text-[10px] font-bold tracking-tight uppercase">
+        <p className="text-muted-foreground/30 text-xs font-bold tracking-tight uppercase">
           Ctrl + Enter to post
         </p>
         <Button
@@ -179,7 +179,7 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
     <div className="w-full">
       {/* Engagement Header */}
       <div className="mb-8 flex items-center gap-3">
-        <h3 className="text-foreground text-[17px] font-black tracking-tighter">Comments</h3>
+        <h3 className="text-foreground text-lg font-black tracking-tighter">Comments</h3>
         <span className="text-muted-foreground/40 text-xs font-bold tabular-nums">
           {comments.length}
         </span>
@@ -198,7 +198,7 @@ const CommentSection = ({ postId, authUserId, currentUserProfile, initialComment
       {/* Unified thread */}
       {comments.length === 0 ? (
         <div className="border-border/10 border-t py-12">
-          <p className="text-muted-foreground/40 text-center text-[13px] font-bold tracking-tight">
+          <p className="text-muted-foreground/40 text-center text-sm font-bold tracking-tight">
             Be the first to share your thoughts.
           </p>
         </div>

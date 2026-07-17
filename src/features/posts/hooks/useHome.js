@@ -92,17 +92,14 @@ export const useHome = () => {
         const profiles = await profileService.getProfilesByIds(authorIds);
 
         const enrichedPosts = posts.map((post) => {
-          const authorProfile = profiles.find((p) => p.userId === post.authorId);
+          const authorProfile = profiles.find((p) => p.$id === post.authorId);
           return {
             ...post,
-            author: {
-              ...authorProfile,
-              name: authorProfile?.name || post.authorName || 'Anonymous',
-              username: authorProfile?.username || post.authorId,
-            },
+            authorName: authorProfile?.name || post.authorName || 'Anonymous',
+            authorAvatarUrl: authorProfile?.avatarUrl || null,
+            authorUsername: authorProfile?.username || post.authorId,
           };
         });
-
         setStaffPicks(enrichedPosts);
       } catch (err) {
         console.error('useHome :: fetchStaffPicks failed', err);

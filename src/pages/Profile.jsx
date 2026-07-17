@@ -165,7 +165,7 @@ export default function Profile() {
                 <span className="text-foreground group-hover:text-primary text-sm font-black">
                   {profile?.followersCount || 0}
                 </span>
-                <span className="text-muted-foreground text-[10px] font-bold tracking-widest uppercase">
+                <span className="text-muted-foreground text-xs font-bold tracking-widest uppercase">
                   Followers
                 </span>
               </button>
@@ -177,18 +177,18 @@ export default function Profile() {
                 <span className="text-foreground group-hover:text-primary text-sm font-black">
                   {profile?.followingCount || 0}
                 </span>
-                <span className="text-muted-foreground text-[10px] font-bold tracking-widest uppercase">
+                <span className="text-muted-foreground text-xs font-bold tracking-widest uppercase">
                   Following
                 </span>
               </button>
             </div>
 
             {bio ? (
-              <p className="border-primary/10 border-l-2 py-1 pl-4 text-[14px] leading-relaxed italic">
+              <p className="border-primary/10 border-l-2 py-1 pl-4 text-sm leading-relaxed italic">
                 {bio}
               </p>
             ) : (
-              <p className="text-muted-foreground/50 text-[13px] italic">No bio provided yet.</p>
+              <p className="text-muted-foreground/50 text-sm italic">No bio provided yet.</p>
             )}
 
             <nav className="flex flex-col gap-3 pt-2">
@@ -196,7 +196,7 @@ export default function Profile() {
                 <>
                   <Button
                     variant="outline"
-                    className="border-border/60 hover:bg-muted/50 h-10 w-full rounded-full text-xs font-bold active:scale-95"
+                    className="border-border/60 hover:bg-muted/50 h-9 w-full rounded-full text-xs font-bold active:scale-95"
                     onClick={() => navigate('/settings')}
                   >
                     <Edit className="mr-2 size-3.5" />
@@ -216,8 +216,8 @@ export default function Profile() {
                   onClick={handleToggleFollow}
                   variant={isFollowing ? 'outline' : 'default'}
                   className={cn(
-                    'h-10 w-full rounded-full text-xs font-black shadow-sm active:scale-95',
-                    !isFollowing && 'border-none bg-[#1a8917] text-white hover:bg-[#156d12]',
+                    'h-9 w-full rounded-full text-xs font-black shadow-sm active:scale-95',
+                    !isFollowing && 'border-none bg-foreground text-background hover:bg-foreground/90',
                   )}
                   disabled={isFollowLoading || !authUserId}
                 >
@@ -236,19 +236,19 @@ export default function Profile() {
           {/* Insights */}
           <section className="border-border/40 space-y-6 border-t pt-8">
             <div className="space-y-4">
-              <h3 className="text-muted-foreground/50 flex items-center gap-2 text-[11px] font-black tracking-[0.2em] uppercase">
+              <h3 className="text-muted-foreground/50 flex items-center gap-2 text-xs font-black tracking-widest uppercase">
                 <Award className="size-3.5" />
                 Author Insights
               </h3>
               <dl className="space-y-3">
-                <div className="flex items-center justify-between text-[13px] font-bold">
+                <div className="flex items-center justify-between text-sm font-bold">
                   <dt className="text-muted-foreground">Total Appreciation</dt>
                   <dd className="flex items-center gap-1.5 text-rose-500">
                     <Heart className="size-3.5 fill-current" />
                     {totalLikes}
                   </dd>
                 </div>
-                <div className="flex items-center justify-between text-[13px] font-bold">
+                <div className="flex items-center justify-between text-sm font-bold">
                   <dt className="text-muted-foreground">Joined</dt>
                   <dd className="flex items-center gap-1.5">
                     <CalendarDays className="size-3.5 opacity-50" />
@@ -265,14 +265,14 @@ export default function Profile() {
 
             {categories.length > 0 && (
               <div className="border-border/20 space-y-4 border-t pt-4">
-                <h3 className="text-muted-foreground/50 text-[11px] font-black tracking-[0.2em] uppercase">
+                <h3 className="text-muted-foreground/50 text-xs font-black tracking-widest uppercase">
                   Top Categories
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {categories.map((cat) => (
                     <span
                       key={cat}
-                      className="border-border/40 bg-muted text-muted-foreground rounded-lg border px-2.5 py-1 text-[10px] font-black tracking-wider uppercase"
+                      className="border-border/40 bg-muted text-muted-foreground rounded-lg border px-2.5 py-1 text-xs font-black tracking-wider uppercase"
                     >
                       {cat}
                     </span>

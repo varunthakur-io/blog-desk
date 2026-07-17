@@ -11,13 +11,13 @@ const PostFloatingActions = ({
   onCommentsClick,
 }) => {
   return (
-    <nav className="border-border/40 bg-background/80 shadow-primary/10 group fixed bottom-8 left-1/2 z-40 flex -translate-x-1/2 items-center gap-6 rounded-lg border px-6 py-3 shadow-2xl backdrop-blur-xl lg:hidden">
+    <nav className="border-border bg-background/95 dark:border-border/80 shadow-primary/10 group fixed bottom-8 left-1/2 z-40 flex -translate-x-1/2 items-center gap-6 rounded-lg border px-6 py-3 shadow-2xl backdrop-blur-xl lg:hidden">
       <button
         onClick={handleLike}
         disabled={isLiking}
         className={cn(
           'flex items-center gap-2 active:scale-125',
-          isLiked ? 'text-rose-500' : 'text-muted-foreground hover:text-foreground',
+          isLiked ? 'text-rose-500 dark:text-rose-400' : 'text-muted-foreground hover:text-foreground',
         )}
         aria-label="Like"
       >

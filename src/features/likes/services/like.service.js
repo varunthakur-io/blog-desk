@@ -8,12 +8,15 @@ import { parseApiError } from '@/lib/error-handler';
 const likedCache = new Map();
 
 class LikeService {
-  async _updateLikesCount(postId, increment) {
+  clearCache() {
+    likedCache.clear();
+  }
+
+  // updates the like count on the post
+  async _updateLikesCount(postId) {
     try {
-      const postDocument = await postApi.getPostById(postId);
-      const current = postDocument.likesCount ?? 0;
-      const next = Math.max(0, current + increment);
-      await postApi.updatePost(postId, { likesCount: next });
+      const current = await likeApi.getLikesCount(postId);
+      await postApi.updatePost(postId, { likesCount: current });
     } catch (error) {
       throw new Error(parseApiError(error));
     }
@@ -44,7 +47,7 @@ class LikeService {
       if (existing) return;
 
       await likeApi.createLike(postId, userId);
-      await this._updateLikesCount(postId, 1);
+      await this._updateLikesCount(postId);
       likedCache.set(key, true);
 
       // Trigger Notification
@@ -68,7 +71,7 @@ class LikeService {
       const like = await likeApi.getLike(postId, userId);
       if (like) {
         await likeApi.deleteLike(like.$id);
-        await this._updateLikesCount(postId, -1);
+        await this._updateLikesCount(postId);
         likedCache.set(key, false);
 
         // Cleanup associated notifications

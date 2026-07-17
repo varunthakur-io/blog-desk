@@ -39,8 +39,8 @@ const AccountPanel = ({
     <div className="space-y-8">
       {/* Panel Header */}
       <div className="pb-2">
-        <h2 className="text-foreground text-[17px] font-bold tracking-tight">Account settings</h2>
-        <p className="text-muted-foreground mt-1 text-[13px] font-medium">
+        <h2 className="text-foreground text-lg font-bold tracking-tight">Account settings</h2>
+        <p className="text-muted-foreground mt-1 text-sm font-medium">
           Manage your email and security preferences.
         </p>
       </div>
@@ -48,8 +48,8 @@ const AccountPanel = ({
       {/* Email credentials section */}
       <section className="space-y-6">
         <div className="space-y-1">
-          <h3 className="text-foreground text-[14px] font-bold">Email Address</h3>
-          <p className="text-muted-foreground text-[12px] font-medium">
+          <h3 className="text-foreground text-sm font-bold">Email Address</h3>
+          <p className="text-muted-foreground text-xs font-medium">
             Your current email is{' '}
             <span className="text-foreground font-bold">{authUser?.email}</span>
           </p>
@@ -67,7 +67,7 @@ const AccountPanel = ({
           <div className="grid gap-6">
             {/* New Email input */}
             <div className="space-y-3">
-              <Label htmlFor="new-email" className="text-foreground text-[13px] font-bold">
+              <Label htmlFor="new-email" className="text-foreground text-sm font-bold">
                 New email
               </Label>
               <Input
@@ -78,12 +78,12 @@ const AccountPanel = ({
                 onChange={(e) => setEmailForm((p) => ({ ...p, email: e.target.value }))}
                 placeholder="you@example.com"
                 className={cn(
-                  'border-border/60 bg-muted/20 focus:bg-background h-10 rounded-md text-[14px] font-medium tracking-tight',
+                  'border-border/60 bg-muted/20 focus:bg-background h-9 rounded-md text-sm font-medium tracking-tight',
                   emailError && 'border-destructive/50 ring-destructive/10',
                 )}
               />
               {emailError && (
-                <p className="text-destructive animate-in fade-in px-1 text-[11px] font-bold duration-300">
+                <p className="text-destructive animate-in fade-in px-1 text-xs font-bold duration-300">
                   {emailError}
                 </p>
               )}
@@ -93,7 +93,7 @@ const AccountPanel = ({
             <div className="space-y-3">
               <Label
                 htmlFor="email-current-password"
-                className="text-foreground text-[13px] font-bold"
+                className="text-foreground text-sm font-bold"
               >
                 Current password
               </Label>
@@ -105,7 +105,7 @@ const AccountPanel = ({
                   value={emailForm.password}
                   onChange={(e) => setEmailForm((p) => ({ ...p, password: e.target.value }))}
                   placeholder="Confirm password"
-                  className="border-border/60 bg-muted/20 focus:bg-background h-10 rounded-md pr-10 text-[14px] font-medium"
+                  className="border-border/60 bg-muted/20 focus:bg-background h-9 rounded-md pr-10 text-sm font-medium"
                 />
                 <EyeToggle show={showEmailPw} onToggle={() => setShowEmailPw((v) => !v)} />
               </div>
@@ -130,8 +130,8 @@ const AccountPanel = ({
       {/* Password security section */}
       <section className="space-y-6">
         <div className="space-y-1">
-          <h3 className="text-foreground text-[14px] font-bold">Change Password</h3>
-          <p className="text-muted-foreground text-[12px] font-medium">
+          <h3 className="text-foreground text-sm font-bold">Change Password</h3>
+          <p className="text-muted-foreground text-xs font-medium">
             Keep your account secure with a strong password.
           </p>
         </div>
@@ -150,7 +150,7 @@ const AccountPanel = ({
             <div className="space-y-3">
               <Label
                 htmlFor="current-password-field"
-                className="text-foreground text-[13px] font-bold"
+                className="text-foreground text-sm font-bold"
               >
                 Current password
               </Label>
@@ -165,14 +165,14 @@ const AccountPanel = ({
                   }
                   placeholder="Old password"
                   className={cn(
-                    'border-border/60 bg-muted/20 focus:bg-background h-10 rounded-md pr-10 text-[14px] font-medium',
+                    'border-border/60 bg-muted/20 focus:bg-background h-9 rounded-md pr-10 text-sm font-medium',
                     passwordError && 'border-destructive/50',
                   )}
                 />
                 <EyeToggle show={showCurrentPw} onToggle={() => setShowCurrentPw((v) => !v)} />
               </div>
               {passwordError && (
-                <p className="text-destructive animate-in fade-in px-1 text-[11px] font-bold duration-300">
+                <p className="text-destructive animate-in fade-in px-1 text-xs font-bold duration-300">
                   {passwordError}
                 </p>
               )}
@@ -182,7 +182,7 @@ const AccountPanel = ({
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               {/* New Password entry */}
               <div className="space-y-3">
-                <Label htmlFor="new-password" className="text-foreground text-[13px] font-bold">
+                <Label htmlFor="new-password" className="text-foreground text-sm font-bold">
                   New password
                 </Label>
                 <div className="relative">
@@ -195,7 +195,7 @@ const AccountPanel = ({
                       setPasswordForm((p) => ({ ...p, newPassword: e.target.value }))
                     }
                     placeholder="Min. 8 characters"
-                    className="border-border/60 bg-muted/20 focus:bg-background h-10 rounded-md pr-10 text-[14px] font-medium"
+                    className="border-border/60 bg-muted/20 focus:bg-background h-9 rounded-md pr-10 text-sm font-medium"
                   />
                   <EyeToggle show={showNewPw} onToggle={() => setShowNewPw((v) => !v)} />
                 </div>
@@ -203,7 +203,7 @@ const AccountPanel = ({
 
               {/* Confirmation entry */}
               <div className="space-y-3">
-                <Label htmlFor="confirm-password" className="text-foreground text-[13px] font-bold">
+                <Label htmlFor="confirm-password" className="text-foreground text-sm font-bold">
                   Confirm password
                 </Label>
                 <div className="relative">
@@ -216,7 +216,7 @@ const AccountPanel = ({
                       setPasswordForm((p) => ({ ...p, confirmPassword: e.target.value }))
                     }
                     placeholder="Repeat password"
-                    className="border-border/60 bg-muted/20 focus:bg-background h-10 rounded-md pr-10 text-[14px] font-medium"
+                    className="border-border/60 bg-muted/20 focus:bg-background h-9 rounded-md pr-10 text-sm font-medium"
                   />
                   <EyeToggle show={showConfirmPw} onToggle={() => setShowConfirmPw((v) => !v)} />
                 </div>

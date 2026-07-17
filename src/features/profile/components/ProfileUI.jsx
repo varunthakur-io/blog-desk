@@ -49,7 +49,7 @@ export const ProfileInfo = ({
           </div>
 
           {bio ? (
-            <p className="text-foreground/80 max-w-2xl text-[15px] leading-relaxed whitespace-pre-wrap">
+            <p className="text-foreground/80 max-w-2xl text-sm leading-relaxed whitespace-pre-wrap">
               {bio}
             </p>
           ) : (
@@ -61,7 +61,7 @@ export const ProfileInfo = ({
         <div className="flex flex-wrap items-center justify-center gap-8 pt-2 md:justify-start">
           <div className="text-center md:text-left">
             <span className="text-foreground block text-xl font-black">{postsCount}</span>
-            <span className="text-muted-foreground text-[10px] font-bold tracking-widest uppercase">
+            <span className="text-muted-foreground text-xs font-bold tracking-widest uppercase">
               Posts
             </span>
           </div>
@@ -73,7 +73,7 @@ export const ProfileInfo = ({
             <span className="text-foreground group-hover:text-primary block text-xl font-black">
               {followersCount}
             </span>
-            <span className="text-muted-foreground group-hover:text-primary/70 text-[10px] font-bold tracking-widest uppercase">
+            <span className="text-muted-foreground group-hover:text-primary/70 text-xs font-bold tracking-widest uppercase">
               Followers
             </span>
           </button>
@@ -85,7 +85,7 @@ export const ProfileInfo = ({
             <span className="text-foreground group-hover:text-primary block text-xl font-black">
               {followingCount}
             </span>
-            <span className="text-muted-foreground group-hover:text-primary/70 text-[10px] font-bold tracking-widest uppercase">
+            <span className="text-muted-foreground group-hover:text-primary/70 text-xs font-bold tracking-widest uppercase">
               Following
             </span>
           </button>

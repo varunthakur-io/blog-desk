@@ -11,13 +11,13 @@ const FeaturedImageUpload = ({ imagePreview, onUpload, onRemove }) => {
             alt="Featured image"
             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
-          <div className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 backdrop-blur-[2px] group-hover:opacity-100">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 backdrop-blur-xs group-hover:opacity-100">
             <Button
               type="button"
               variant="destructive"
               size="sm"
               onClick={onRemove}
-              className="h-8 gap-2 rounded-md px-4 text-[11px] font-bold shadow-xl active:scale-95"
+              className="h-8 gap-2 rounded-md px-4 text-xs font-bold shadow-xl active:scale-95"
             >
               <X className="h-3 w-3" /> Remove Header
             </Button>
@@ -29,8 +29,8 @@ const FeaturedImageUpload = ({ imagePreview, onUpload, onRemove }) => {
             <Upload className="h-5 w-5" />
           </div>
           <div className="space-y-1 text-center">
-            <p className="text-foreground text-[13px] font-bold">Header Image</p>
-            <p className="text-muted-foreground text-[11px] font-medium">
+            <p className="text-foreground text-sm font-bold">Header Image</p>
+            <p className="text-muted-foreground text-xs font-medium">
               Click to upload · 16:9 recommended
             </p>
           </div>

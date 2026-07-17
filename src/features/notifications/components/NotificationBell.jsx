@@ -79,7 +79,7 @@ const NotificationItem = ({ notification, onClose }) => {
       <div className="relative shrink-0">
         <Avatar className="border-border h-9 w-9 border">
           <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" />
-          <AvatarFallback className="bg-muted text-[10px]">
+          <AvatarFallback className="bg-muted text-xs">
             {displayName.charAt(0).toUpperCase()}
           </AvatarFallback>
         </Avatar>
@@ -93,7 +93,7 @@ const NotificationItem = ({ notification, onClose }) => {
           <span className="text-foreground font-semibold">{displayName}</span>{' '}
           <span className="text-muted-foreground">{getMessage()}</span>
         </p>
-        <p className="text-muted-foreground mt-1 text-[10px]">
+        <p className="text-muted-foreground mt-1 text-xs">
           {formatDate(notification.$createdAt, { hour: 'numeric', minute: 'numeric' })}
         </p>
       </div>
@@ -130,9 +130,9 @@ const NotificationBell = () => {
           size="icon"
           className="hover:bg-muted relative h-9 w-9 rounded-full active:scale-90"
         >
-          <Bell className="text-muted-foreground h-[1.1rem] w-[1.1rem]" />
+          <Bell className="text-muted-foreground size-4.5" />
           {unreadCount > 0 && (
-            <span className="bg-primary text-primary-foreground border-background animate-in zoom-in absolute -top-0.5 -right-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full border-2 px-1 text-[10px] font-bold duration-300">
+            <span className="bg-primary text-primary-foreground border-background animate-in zoom-in absolute -top-0.5 -right-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full border-2 px-1 text-xs font-bold duration-300">
               {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           )}
@@ -150,7 +150,7 @@ const NotificationBell = () => {
               variant="ghost"
               size="sm"
               onClick={handleMarkAllRead}
-              className="text-primary hover:text-primary hover:bg-primary/10 h-7 gap-1.5 rounded-full px-2 text-[11px] font-bold"
+              className="text-primary hover:text-primary hover:bg-primary/10 h-7 gap-1.5 rounded-full px-2 text-xs font-bold"
             >
               <CheckCheck className="h-3 w-3" />
               Mark all read
@@ -160,7 +160,7 @@ const NotificationBell = () => {
 
         <DropdownMenuSeparator className="m-0" />
 
-        <div className="scrollbar-thin max-h-[400px] overflow-x-hidden overflow-y-auto">
+        <div className="scrollbar-thin max-h-100 overflow-x-hidden overflow-y-auto">
           {notifications.length > 0 ? (
             <div className="flex flex-col">
               {notifications.map((n) => (

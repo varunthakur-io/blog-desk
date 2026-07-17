@@ -35,6 +35,7 @@ const authSlice = createSlice({
       state.error = null;
       state.initialized = true;
     },
+    
   },
 });
 

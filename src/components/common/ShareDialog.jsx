@@ -76,13 +76,13 @@ const ShareDialog = ({ open, onOpenChange, url, title }) => {
                 id="link"
                 defaultValue={fullUrl}
                 readOnly
-                className="text-muted-foreground bg-muted/30 border-border focus-visible:ring-primary/20 h-10 flex-1 rounded-lg text-xs"
+                className="text-muted-foreground bg-muted/30 border-border focus-visible:ring-primary/20 h-9 flex-1 rounded-md text-xs"
               />
               <Button
                 type="button"
                 size="icon"
                 onClick={handleCopy}
-                className="h-10 w-10 shrink-0 rounded-lg shadow-sm active:scale-95"
+                className="h-9 w-9 shrink-0 rounded-md shadow-sm active:scale-95"
               >
                 {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
               </Button>
@@ -100,7 +100,7 @@ const ShareDialog = ({ open, onOpenChange, url, title }) => {
                 className={`border-border bg-muted/10 group flex flex-col items-center gap-2 rounded-xl border p-3 duration-200 ${social.color}`}
               >
                 <social.icon className="h-5 w-5 transition-transform group-hover:scale-110" />
-                <span className="text-[10px] font-bold tracking-wider uppercase opacity-70 group-hover:opacity-100">
+                <span className="text-xs font-bold tracking-wider uppercase opacity-70 group-hover:opacity-100">
                   {social.name}
                 </span>
               </a>

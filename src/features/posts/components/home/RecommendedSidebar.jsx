@@ -16,7 +16,7 @@ const RecommendedSidebar = ({
     <section className="space-y-6">
       {/* Header */}
       <div className="border-border/10 flex items-center justify-between border-b pb-2">
-        <h3 className="text-foreground/50 text-[10px] font-black tracking-[0.2em] uppercase">
+        <h3 className="text-foreground/50 text-xs font-black tracking-widest uppercase">
           Staff Picks
         </h3>
         <TrendingUp className="text-foreground/20 size-3" />
@@ -44,25 +44,25 @@ const RecommendedSidebar = ({
               <div className="min-w-0 flex-1 space-y-2">
                 {/* Author Info */}
                 <Link
-                  to={`/profile/${post.author?.username || post.authorId}`}
+                  to={`/profile/${post.authorUsername}`}
                   className="flex items-center gap-2 transition-opacity hover:opacity-80"
                 >
                   <Avatar className="bg-muted size-4 border-none">
-                    {post.author?.avatarUrl && (
-                      <AvatarImage src={post.author.avatarUrl} className="object-cover" />
+                    {post.authorAvatarUrl && (
+                      <AvatarImage src={post.authorAvatarUrl} className="object-cover" />
                     )}
-                    <AvatarFallback className="text-muted-foreground text-[7px] font-bold">
-                      {(post.author?.name || 'A').charAt(0)}
+                    <AvatarFallback className="text-muted-foreground text-xs font-bold">
+                      {(post.authorName || 'A').charAt(0)}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="text-foreground/60 truncate text-[10px] font-bold">
-                    {post.author?.name || 'Anonymous'}
+                  <span className="text-foreground/60 truncate text-xs font-bold">
+                    {post.authorName || 'Anonymous'}
                   </span>
                 </Link>
 
                 {/* Post Title */}
                 <Link to={`/posts/${post.$id}`} className="block">
-                  <h4 className="text-foreground group-hover:text-primary line-clamp-2 text-[13px] leading-snug font-bold tracking-tight">
+                  <h4 className="text-foreground group-hover:text-primary line-clamp-2 text-sm leading-snug font-bold tracking-tight">
                     {post.title}
                   </h4>
                 </Link>
@@ -84,7 +84,7 @@ const RecommendedSidebar = ({
             </article>
           ))
         ) : (
-          <p className="text-muted-foreground/30 py-4 text-[11px] font-medium italic">
+          <p className="text-muted-foreground/30 py-4 text-xs font-medium italic">
             No recommendations available.
           </p>
         )}
@@ -96,7 +96,7 @@ const RecommendedSidebar = ({
       <section className="space-y-6">
         {/* Header */}
         <div className="border-border/10 flex items-center justify-between border-b pb-2">
-          <h3 className="text-foreground/50 text-[10px] font-black tracking-[0.2em] uppercase">
+          <h3 className="text-foreground/50 text-xs font-black tracking-widest uppercase">
             Who to follow
           </h3>
           <Users className="text-foreground/20 size-3" />
@@ -129,32 +129,28 @@ const RecommendedSidebar = ({
                     {author.avatarUrl && (
                       <AvatarImage src={author.avatarUrl} className="object-cover" />
                     )}
-                    <AvatarFallback className="bg-muted text-muted-foreground text-[11px] font-bold">
+                    <AvatarFallback className="bg-muted text-muted-foreground text-xs font-bold">
                       {author.name?.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0">
-                    <p className="text-foreground hover:text-primary truncate text-[13px] font-bold tracking-tight">
+                    <p className="text-foreground hover:text-primary truncate text-sm font-bold tracking-tight">
                       {author.name}
                     </p>
-                    <p className="text-muted-foreground/40 truncate text-[11px] font-medium tracking-tight">
+                    <p className="text-muted-foreground/40 truncate text-xs font-medium tracking-tight">
                       {author.bio?.substring(0, 30) || 'Verified Writer'}...
                     </p>
                   </div>
                 </Link>
 
-                {/* Follow Implementation */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="bg-foreground text-background h-7 rounded-md border-none px-3 text-[10px] font-black tracking-tighter uppercase hover:opacity-90 active:scale-95"
-                >
+                {/* Follow Button */}
+                <Button className="bg-foreground text-background hover:bg-foreground/90 h-7 rounded-md px-3 text-xs font-bold active:scale-95">
                   Follow
                 </Button>
               </div>
             ))
           ) : (
-            <p className="text-muted-foreground/30 text-[11px] font-medium italic">
+            <p className="text-muted-foreground/30 text-xs font-medium italic">
               No suggestions found.
             </p>
           )}

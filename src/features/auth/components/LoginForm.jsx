@@ -37,8 +37,8 @@ export const LoginForm = () => {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           {/* Email */}
-          <div>
-            <Label htmlFor="email" className="mb-2 block">
+          <div className="grid gap-1.5">
+            <Label htmlFor="email">
               Email
             </Label>
             <Input
@@ -59,8 +59,8 @@ export const LoginForm = () => {
           </div>
 
           {/* Password */}
-          <div>
-            <div className="mb-2 flex items-baseline justify-between">
+          <div className="grid gap-1.5">
+            <div className="flex items-baseline justify-between">
               <Label htmlFor="password">Password</Label>
               <Link
                 to="/forgot-password"

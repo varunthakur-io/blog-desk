@@ -14,6 +14,24 @@ class FollowService {
     }
   }
 
+  async _updateFollowingCount(userId) {
+    try {
+      const total = await followApi.getFollowingCount(userId);
+      await profileService.updateProfile(userId, { followingCount: total });
+    } catch (error) {
+      console.warn(`FollowService :: Failed to update following count for ${userId}`, error);
+    }
+  }
+
+  async _updateFollowersCount(userId) {
+    try {
+      const total = await followApi.getFollowersCount(userId);
+      await profileService.updateProfile(userId, { followersCount: total });
+    } catch (error) {
+      console.warn(`FollowService :: Failed to update followers count for ${userId}`, error);
+    }
+  }
+
   async followUser(followerId, followingId) {
     try {
       if (followerId === followingId) throw new Error('You cannot follow yourself');
@@ -24,17 +42,9 @@ class FollowService {
 
       const follow = await followApi.followUser(followerId, followingId);
 
-      // Increment followerCount and followingCount (denormalized)
-      const followerProfile = await profileService.getProfile(followerId);
-      const followingProfile = await profileService.getProfile(followingId);
-
-      await profileService.updateProfile(followerId, {
-        followingCount: (followerProfile.followingCount || 0) + 1,
-      });
-
-      await profileService.updateProfile(followingId, {
-        followersCount: (followingProfile.followersCount || 0) + 1,
-      });
+      // Recount counts for both parties
+      await this._updateFollowingCount(followerId);
+      await this._updateFollowersCount(followingId);
 
       // Trigger Notification
       await notificationService.notify({
@@ -56,17 +66,9 @@ class FollowService {
 
       await followApi.unfollowUser(follow.$id);
 
-      // Decrement followerCount and followingCount
-      const followerProfile = await profileService.getProfile(followerId);
-      const followingProfile = await profileService.getProfile(followingId);
-
-      await profileService.updateProfile(followerId, {
-        followingCount: Math.max(0, (followerProfile.followingCount || 0) - 1),
-      });
-
-      await profileService.updateProfile(followingId, {
-        followersCount: Math.max(0, (followingProfile.followersCount || 0) - 1),
-      });
+      // Recount counts for both parties
+      await this._updateFollowingCount(followerId);
+      await this._updateFollowersCount(followingId);
 
       // Cleanup associated follow notification
       await notificationService.deleteFollowNotification(followerId, followingId);

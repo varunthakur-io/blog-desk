@@ -135,8 +135,8 @@ export default function Settings() {
                     )}
                   />
                   <div className="flex flex-col items-start gap-1 leading-none">
-                    <span className="text-[13px] font-bold tracking-tight">{label}</span>
-                    <span className="hidden text-[10px] font-medium opacity-50 lg:block">
+                    <span className="text-sm font-bold tracking-tight">{label}</span>
+                    <span className="hidden text-xs font-medium opacity-50 lg:block">
                       {description}
                     </span>
                   </div>

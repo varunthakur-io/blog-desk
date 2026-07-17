@@ -7,7 +7,7 @@ const NotificationsPanel = ({ prefs, isPrefsLoading, handlePrefChange }) => {
     <div className="space-y-8">
       {/* Panel Header */}
       <div className="border-border/50 border-b pb-4">
-        <h2 className="text-xl font-bold tracking-tight">Notifications</h2>
+        <h2 className="text-foreground text-lg font-bold tracking-tight">Notifications</h2>
         <p className="text-muted-foreground mt-1 text-sm">
           Choose what you want to be notified about.
         </p>
@@ -25,7 +25,7 @@ const NotificationsPanel = ({ prefs, isPrefsLoading, handlePrefChange }) => {
             {/* Marketing preferences */}
             <div className="hover:bg-muted/5 flex items-center justify-between p-5">
               <div className="space-y-0.5">
-                <h3 className="text-[14px] font-bold">Marketing Emails</h3>
+                <h3 className="text-foreground text-sm font-bold">Marketing Emails</h3>
                 <p className="text-muted-foreground text-xs font-medium">
                   News about features, tips, and product updates.
                 </p>
@@ -40,7 +40,7 @@ const NotificationsPanel = ({ prefs, isPrefsLoading, handlePrefChange }) => {
             {/* Security preferences */}
             <div className="hover:bg-muted/5 flex items-center justify-between p-5">
               <div className="space-y-0.5">
-                <h3 className="text-[14px] font-bold">Security Alerts</h3>
+                <h3 className="text-foreground text-sm font-bold">Security Alerts</h3>
                 <p className="text-muted-foreground text-xs font-medium">
                   Important alerts about your account security and sign-ins.
                 </p>

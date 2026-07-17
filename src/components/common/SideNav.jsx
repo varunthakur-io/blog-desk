@@ -36,7 +36,7 @@ const SideNav = ({ isOpen }) => {
         key={item.label}
         to={item.path}
         className={cn(
-          'group flex items-center gap-3 rounded-md px-3 py-2 text-[13px] font-bold tracking-tight',
+          'group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-semibold tracking-tight',
           isItemActive
             ? 'bg-muted text-foreground'
             : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
@@ -69,7 +69,7 @@ const SideNav = ({ isOpen }) => {
 
         {/* Discovery */}
         <div className="space-y-1.5 px-3">
-          <p className="text-muted-foreground/50 mb-4 px-2 text-[11px] font-black tracking-[0.2em] uppercase">
+          <p className="text-muted-foreground/50 mb-4 px-2 text-xs font-bold tracking-widest uppercase">
             Discovery
           </p>
           {navItems.filter((item) => item.label !== 'Following' || isAuthenticated).map(renderLink)}
@@ -78,7 +78,7 @@ const SideNav = ({ isOpen }) => {
         {/* Library - ONLY AUTHENTICATED */}
         {isAuthenticated && (
           <div className="space-y-1.5 px-3">
-            <p className="text-muted-foreground/50 mt-2 mb-4 px-2 text-[11px] font-black tracking-[0.2em] uppercase">
+            <p className="text-muted-foreground/50 mt-2 mb-4 px-2 text-xs font-bold tracking-widest uppercase">
               Library
             </p>
             {libraryItems.map(renderLink)}
@@ -87,7 +87,7 @@ const SideNav = ({ isOpen }) => {
               to="/settings"
               className={({ isActive }) =>
                 cn(
-                  'group flex items-center gap-3 rounded-md px-3 py-2 text-[13px] font-bold tracking-tight',
+                  'group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-semibold tracking-tight',
                   isActive
                     ? 'bg-muted text-foreground'
                     : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
@@ -105,11 +105,11 @@ const SideNav = ({ isOpen }) => {
       <div className="border-border/20 mt-auto border-t px-6 pt-6 pb-6">
         <Link
           to="/about"
-          className="text-muted-foreground/60 hover:text-foreground text-[12px] font-bold"
+          className="text-muted-foreground/60 hover:text-foreground text-xs font-semibold"
         >
           About
         </Link>
-        <p className="text-muted-foreground/30 mt-1 text-[11px] font-medium">
+        <p className="text-muted-foreground/30 mt-1 text-xs font-medium">
           © {new Date().getFullYear()} blogdesk
         </p>
       </div>

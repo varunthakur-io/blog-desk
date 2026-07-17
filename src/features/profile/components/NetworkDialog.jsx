@@ -29,7 +29,7 @@ const UserItem = ({ user, onClick }) => (
 const NetworkDialog = ({ isOpen, onOpenChange, title, users = [], isLoading }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="border-border bg-card overflow-hidden rounded-2xl p-0 shadow-xl sm:max-w-[400px]">
+      <DialogContent className="border-border bg-card overflow-hidden rounded-2xl p-0 shadow-xl sm:max-w-100">
         <DialogHeader className="p-6 pb-2">
           <DialogTitle className="flex items-center gap-2.5 text-xl font-extrabold">
             <div className="bg-primary/10 text-primary flex h-8 w-8 items-center justify-center rounded-lg">
@@ -67,7 +67,7 @@ const NetworkDialog = ({ isOpen, onOpenChange, title, users = [], isLoading }) =
         </div>
 
         <div className="bg-muted/30 border-border/50 border-t p-4 text-center">
-          <p className="text-muted-foreground/50 text-[10px] font-bold tracking-widest uppercase">
+          <p className="text-muted-foreground/50 text-xs font-bold tracking-widest uppercase">
             Blog Desk Network
           </p>
         </div>
