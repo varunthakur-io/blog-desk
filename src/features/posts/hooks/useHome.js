@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 import { postService } from '@/features/posts';
 import { debounce } from '@/lib/utils';
+import { useInfiniteScroll } from '@/hooks';
 import {
   selectAllPosts,
   selectIsPostsLoading,
@@ -126,21 +127,11 @@ export const useHome = () => {
   }, [activeCategory, debouncedSearchTerm, feedMode, loadPage]);
 
   // 3. Infinite scroll
-  useEffect(() => {
-    const handleScroll = () => {
-      if (loadingRef.current || !hasMore) return;
-
-      const { innerHeight } = window;
-      const { scrollTop, offsetHeight } = document.documentElement;
-
-      if (innerHeight + scrollTop >= offsetHeight - 200) {
-        loadPage(page + 1, activeCategory, debouncedSearchTerm, feedMode);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [hasMore, page, loadPage, debouncedSearchTerm, activeCategory, feedMode]);
+  useInfiniteScroll({
+    hasMore,
+    isLoading: isPostsLoading,
+    onLoadMore: () => loadPage(page + 1, activeCategory, debouncedSearchTerm, feedMode),
+  });
 
   const handleCategoryChange = useCallback(
     (category) => {
