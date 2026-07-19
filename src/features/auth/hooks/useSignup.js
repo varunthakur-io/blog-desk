@@ -1,8 +1,8 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { debounce } from '@/lib/utils';
+import { useDebounce } from '@/hooks';
 import { authService } from '@/features/auth';
 import { profileService } from '@/features/profile';
 import { setAuthStatus, setAuthUser, setAuthError } from '@/features/auth';
@@ -52,7 +52,9 @@ export const useSignup = () => {
   const [signupErrors, setSignupErrors] = useState({});
   const [usernameCheckStatus, setUsernameCheckStatus] = useState('idle'); // 'idle' | 'checking' | 'available' | 'taken'
 
-  const checkUsernameAvailability = async (username) => {
+  const debouncedUsername = useDebounce(formData.username, 500);
+
+  const checkUsernameAvailability = useCallback(async (username) => {
     if (!username || username.length < 3) return;
     try {
       const isAvailable = await profileService.isUsernameAvailable(username);
@@ -68,14 +70,16 @@ export const useSignup = () => {
       console.error('Username check failed:', error);
       setUsernameCheckStatus('idle');
     }
-  };
+  }, []);
 
-  // Prevent spamming the API while typing
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debouncedCheck = useCallback(
-    debounce((username) => checkUsernameAvailability(username), 500),
-    [],
-  );
+  // Sync debounced search with validation
+  useEffect(() => {
+    if (debouncedUsername.length >= 3) {
+      checkUsernameAvailability(debouncedUsername);
+    } else {
+      setUsernameCheckStatus('idle');
+    }
+  }, [debouncedUsername, checkUsernameAvailability]);
 
   const handleChange = useCallback(
     (e) => {
@@ -93,13 +97,12 @@ export const useSignup = () => {
       if (name === 'username') {
         if (value.length >= 3) {
           setUsernameCheckStatus('checking');
-          debouncedCheck(value);
         } else {
           setUsernameCheckStatus('idle');
         }
       }
     },
-    [signupErrors, debouncedCheck],
+    [signupErrors],
   );
 
   const handleSubmit = async (e) => {

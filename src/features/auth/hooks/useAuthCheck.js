@@ -25,6 +25,15 @@ export const useAuthCheck = () => {
     };
   }, []);
 
+  const authStatusRef = useRef(authStatus);
+  const hasProfileRef = useRef(hasProfile);
+
+  // Sync refs with the latest state values to avoid stale closures in mount check
+  useEffect(() => {
+    authStatusRef.current = authStatus;
+    hasProfileRef.current = hasProfile;
+  }, [authStatus, hasProfile]);
+
   useEffect(() => {
     const checkUser = async () => {
       try {
@@ -52,14 +61,13 @@ export const useAuthCheck = () => {
       }
     };
 
-    if (authStatus === 'authenticated' && hasProfile) {
+    if (authStatusRef.current === 'authenticated' && hasProfileRef.current) {
       setIsAuthChecked(true);
       return;
     }
 
     checkUser();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch]); // Stabilized dependency array
+  }, [dispatch]);
 
   return isAuthChecked;
 };
