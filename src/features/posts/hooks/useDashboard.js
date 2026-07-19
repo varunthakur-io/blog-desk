@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
-import { debounce } from '@/lib/utils';
+import { useDebounce } from '@/hooks';
 import { postService } from '@/features/posts';
 import { selectAuthUserId } from '@/features/auth';
 import {
@@ -27,32 +27,20 @@ export const useDashboard = () => {
 
   const [filters, setFilters] = useState({
     page: 1,
-    searchQuery: '',
-    debouncedQuery: '',
     statusFilter: 'all',
     sortBy: 'newest',
   });
+  const [searchQuery, setSearchQuery] = useState('');
+  const debouncedQuery = useDebounce(searchQuery, 500);
+
   const [totalPages, setTotalPages] = useState(1);
   const [totalPosts, setTotalPosts] = useState(0);
   const LIMIT = DASHBOARD_POSTS_PER_PAGE;
 
-  // Search logic
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const handleSearchDebounce = useCallback(
-    debounce((query) => {
-      setFilters((prev) => ({ ...prev, debouncedQuery: query, page: 1 }));
-    }, 500),
-    [],
-  );
-
-  const handleSearchChange = useCallback(
-    (e) => {
-      const nextSearchQuery = e.target.value;
-      setFilters((prev) => ({ ...prev, searchQuery: nextSearchQuery }));
-      handleSearchDebounce(e.target.value);
-    },
-    [handleSearchDebounce],
-  );
+  const handleSearchChange = useCallback((e) => {
+    setSearchQuery(e.target.value);
+    setFilters((prev) => ({ ...prev, page: 1 }));
+  }, []);
 
   const fetchUserPosts = useCallback(async () => {
     if (!authUserId) return;
@@ -63,7 +51,7 @@ export const useDashboard = () => {
         authUserId,
         filters.page,
         LIMIT,
-        filters.debouncedQuery,
+        debouncedQuery,
         filters.statusFilter,
         filters.sortBy,
       );
@@ -79,7 +67,7 @@ export const useDashboard = () => {
     } catch (error) {
       dispatch(setPostsError(error?.message || 'Failed to fetch posts'));
     }
-  }, [dispatch, authUserId, filters, LIMIT]);
+  }, [dispatch, authUserId, filters.page, filters.statusFilter, filters.sortBy, debouncedQuery, LIMIT]);
 
   useEffect(() => {
     fetchUserPosts();
@@ -119,7 +107,7 @@ export const useDashboard = () => {
         ...prev,
         page: typeof valueOrUpdater === 'function' ? valueOrUpdater(prev.page) : valueOrUpdater,
       })),
-    searchQuery: filters.searchQuery,
+    searchQuery,
     handleSearchChange,
     statusFilter: filters.statusFilter,
     setStatusFilter: (statusFilter) => setFilters((prev) => ({ ...prev, statusFilter, page: 1 })),
@@ -135,3 +123,4 @@ export const useDashboard = () => {
     confirmDelete,
   };
 };
+export default useDashboard;
