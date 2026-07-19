@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { profileService } from '@/features/profile';
-import { debounce } from '@/lib/utils';
+import { useDebounce } from '@/hooks';
 
 /**
  * Hook to manage global user search with debouncing.
@@ -12,8 +12,10 @@ export const useUserSearch = (debounceMs = 500) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const debouncedSearchTerm = useDebounce(searchTerm, debounceMs);
+
   // 1. Define the actual search logic
-  const performSearch = async (term) => {
+  const performSearch = useCallback(async (term) => {
     const cleanTerm = term?.trim();
 
     // Don't search for empty or very short strings to save API calls
@@ -36,16 +38,9 @@ export const useUserSearch = (debounceMs = 500) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  // 2. Memoize the debounced version so it doesn't get recreated on every render
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debouncedSearch = useCallback(
-    debounce((term) => performSearch(term), debounceMs),
-    [debounceMs],
-  );
-
-  // 3. Trigger search whenever searchTerm changes
+  // 2. Trigger search whenever searchTerm or debouncedSearchTerm changes
   useEffect(() => {
     // Immediate visual feedback: if input is cleared, clear results instantly
     if (!searchTerm.trim()) {
@@ -55,13 +50,8 @@ export const useUserSearch = (debounceMs = 500) => {
     }
 
     setIsLoading(true); // Show loading immediately for better UX
-    debouncedSearch(searchTerm);
-
-    // Cleanup if component unmounts
-    return () => {
-      if (debouncedSearch.cancel) debouncedSearch.cancel();
-    };
-  }, [searchTerm, debouncedSearch]);
+    performSearch(debouncedSearchTerm);
+  }, [debouncedSearchTerm, searchTerm, performSearch]);
 
   const clearSearch = useCallback(() => {
     setSearchTerm('');

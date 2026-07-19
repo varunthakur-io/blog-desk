@@ -2,8 +2,7 @@ import { useEffect, useCallback, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 import { postService } from '@/features/posts';
-import { debounce } from '@/lib/utils';
-import { useInfiniteScroll } from '@/hooks';
+import { useInfiniteScroll, useDebounce } from '@/hooks';
 import {
   selectAllPosts,
   selectIsPostsLoading,
@@ -42,7 +41,7 @@ export const useHome = () => {
 
   // Local State
   const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   const loadingRef = useRef(false);
 
@@ -69,19 +68,8 @@ export const useHome = () => {
     isStaffPicksLoading,
   } = useHomeSidebar(authUserId);
 
-  // 1. Debounce logic for search input
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const updateDebouncedSearch = useCallback(
-    debounce((value) => {
-      setDebouncedSearchTerm(value);
-    }, 500),
-    [],
-  );
-
   const handleSearchChange = (e) => {
-    const value = e.target.value;
-    setSearchTerm(value);
-    updateDebouncedSearch(value);
+    setSearchTerm(e.target.value);
   };
 
   const loadPage = useCallback(
@@ -137,7 +125,6 @@ export const useHome = () => {
     (category) => {
       const next = category === activeCategory ? null : category;
       setSearchTerm('');
-      setDebouncedSearchTerm('');
       dispatch(setActiveCategory(next));
     },
     [dispatch, activeCategory],
@@ -146,7 +133,6 @@ export const useHome = () => {
   const handleFeedModeChange = useCallback(
     (mode) => {
       setSearchTerm('');
-      setDebouncedSearchTerm('');
       setSearchParams({ feed: mode });
       dispatch(setFeedMode(mode));
     },
