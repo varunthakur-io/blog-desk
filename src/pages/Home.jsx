@@ -2,6 +2,7 @@ import { useSelector } from 'react-redux';
 import { Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { selectAuthUser } from '@/features/auth';
+import { VirtualFeed } from '@/components/common';
 import {
   PostCard,
   PostCardSkeleton,
@@ -77,9 +78,13 @@ const Home = () => {
 
     return (
       <div className="page-section animate-in fade-in duration-700">
-        {posts.map((post) => (
-          <PostCard key={post.$id} post={post} />
-        ))}
+        <VirtualFeed
+          items={posts}
+          estimateHeight={360}
+          keyExtractor={(post) => post.$id}
+          renderItem={(post) => <PostCard post={post} />}
+          className="space-y-page-gap"
+        />
 
         {postsLoading && hasMore && (
           <div className="flex justify-center pt-10">

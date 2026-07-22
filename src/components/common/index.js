@@ -7,3 +7,4 @@ export { default as EmptyState } from './EmptyState';
 export { default as ShareDialog } from './ShareDialog';
 export { default as SEO } from './SEO';
 export { default as VerificationBanner } from './VerificationBanner';
+export { default as VirtualFeed } from './VirtualFeed';

@@ -4,7 +4,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Edit, Heart, Bookmark } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { PostCard, PostCardSkeleton } from '@/features/posts';
-import { EmptyState } from '@/components/common';
+import { EmptyState, VirtualFeed } from '@/components/common';
 
 // ProfileTabs: collection management for posts, likes, and bookmarks
 const PostListSkeleton = ({ count = 3 }) => (
@@ -17,11 +17,13 @@ const PostListSkeleton = ({ count = 3 }) => (
 
 // PostList: mapped rendering of article cards
 const PostList = ({ posts }) => (
-  <section className="-mx-4 flex flex-col gap-0 px-4">
-    {posts.map((post) => (
-      <PostCard key={post.$id} post={post} />
-    ))}
-  </section>
+  <VirtualFeed
+    items={posts}
+    estimateHeight={180}
+    keyExtractor={(post) => post.$id}
+    renderItem={(post) => <PostCard post={post} />}
+    className="-mx-4 flex flex-col gap-0 px-4"
+  />
 );
 
 const ErrorMessage = ({ message }) => (
